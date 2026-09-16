@@ -80,17 +80,18 @@ Payload:
   }
 }
 
-Yanıt 200: { "received": true, "status_applied": true, "payout_recorded": true, "payout_duplicate": false, "payout_paid": true }
+Yanıt 200: { "received": true, "status_applied": true, "payout_recorded": true, "payout_duplicate": false }
 Yanıt 401: imza/zaman damgası geçersiz (±300 sn tolerans) · 404: production_request_id bilinmiyor
 ```
 
 Sistem A bu webhook'u aldığında: (1) üretim talebinin durumunu günceller — durumlar
 yalnızca ileri gider, geç gelen eski bir durum kaydı geri almaz, (2) olayı `event_id`
 ile kendi gelen-kutusu defterine yazar (uzlaştırma için, bkz. aşağı), (3) `payout_instruction`
-doluysa defterine `received` olarak yazar (aynı `instruction_id` ikinci kez gelirse
-atlar) ve `manufacturer_account`'a Stripe Connect transferini KENDİSİ tetikler (bkz.
-[[05-PRD-ODEME-VE-KOMISYON]]) — sonucuna göre `paid` ya da `failed` olur, (4)
-müşteriye/satıcıya durumu yansıtır.
+doluysa defterine `received` + bir bekleme penceresiyle (`release_at`, varsayılan 48 saat)
+yazar (aynı `instruction_id` ikinci kez gelirse atlar) — transfer HEMEN tetiklenmez:
+pencere dolup bu arada bir anlaşmazlık açılmazsa otomatik serbest bırakılır, `manufacturer_account`'a
+Stripe Connect transferini KENDİSİ tetikler ve sonucuna göre `paid` ya da `failed` olur (bkz.
+[[05-PRD-ODEME-VE-KOMISYON]] "Anlaşmazlık çözüm süreci"), (4) müşteriye/satıcıya durumu yansıtır.
 
 ### Ödeme Senkronizasyonu Güvenliği (çift kayıt / double-entry mantığı)
 

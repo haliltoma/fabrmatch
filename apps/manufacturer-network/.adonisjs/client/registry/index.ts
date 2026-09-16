@@ -72,6 +72,30 @@ const routes = {
     tokens: [{"old":"/panel/offers/:id/decline","type":0,"val":"panel","end":""},{"old":"/panel/offers/:id/decline","type":0,"val":"offers","end":""},{"old":"/panel/offers/:id/decline","type":1,"val":"id","end":""},{"old":"/panel/offers/:id/decline","type":0,"val":"decline","end":""}],
     types: placeholder as Registry['panel.offers.decline']['types'],
   },
+  'panel.orders.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/panel/orders',
+    tokens: [{"old":"/panel/orders","type":0,"val":"panel","end":""},{"old":"/panel/orders","type":0,"val":"orders","end":""}],
+    types: placeholder as Registry['panel.orders.index']['types'],
+  },
+  'panel.earnings.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/panel/earnings',
+    tokens: [{"old":"/panel/earnings","type":0,"val":"panel","end":""},{"old":"/panel/earnings","type":0,"val":"earnings","end":""}],
+    types: placeholder as Registry['panel.earnings.index']['types'],
+  },
+  'panel.profile.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/panel/profile',
+    tokens: [{"old":"/panel/profile","type":0,"val":"panel","end":""},{"old":"/panel/profile","type":0,"val":"profile","end":""}],
+    types: placeholder as Registry['panel.profile.show']['types'],
+  },
+  'panel.profile.update': {
+    methods: ["POST"],
+    pattern: '/panel/profile',
+    tokens: [{"old":"/panel/profile","type":0,"val":"panel","end":""},{"old":"/panel/profile","type":0,"val":"profile","end":""}],
+    types: placeholder as Registry['panel.profile.update']['types'],
+  },
   'new_account.create': {
     methods: ["GET","HEAD"],
     pattern: '/signup',

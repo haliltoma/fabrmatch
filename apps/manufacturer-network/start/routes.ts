@@ -31,6 +31,9 @@ const PanelController = () => import('#controllers/panel_controller')
 const ManufacturerOnboardingController = () => import('#controllers/manufacturer_onboarding_controller')
 const OfferActionsController = () => import('#controllers/offer_actions_controller')
 const ProductionStepsController = () => import('#controllers/production_steps_controller')
+const ProfileController = () => import('#controllers/profile_controller')
+const OrdersController = () => import('#controllers/orders_controller')
+const EarningsController = () => import('#controllers/earnings_controller')
 
 router
   .get('/', ({ auth, response }) => {
@@ -50,6 +53,10 @@ router
     router.post('panel/requests/:id/steps', [ProductionStepsController, 'store']).as('panel.requests.steps.store')
     router.post('panel/offers/:id/accept', [OfferActionsController, 'accept']).as('panel.offers.accept')
     router.post('panel/offers/:id/decline', [OfferActionsController, 'decline']).as('panel.offers.decline')
+    router.get('panel/orders', [OrdersController, 'index']).as('panel.orders.index')
+    router.get('panel/earnings', [EarningsController, 'index']).as('panel.earnings.index')
+    router.get('panel/profile', [ProfileController, 'show']).as('panel.profile.show')
+    router.post('panel/profile', [ProfileController, 'update']).as('panel.profile.update')
   })
   .use(middleware.auth())
 

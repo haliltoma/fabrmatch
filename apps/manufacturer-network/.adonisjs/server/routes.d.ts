@@ -15,6 +15,10 @@ export type ScannedRoutes = {
     'panel.requests.steps.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'panel.offers.accept': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'panel.offers.decline': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'panel.orders.index': { paramsTuple?: []; params?: {} }
+    'panel.earnings.index': { paramsTuple?: []; params?: {} }
+    'panel.profile.show': { paramsTuple?: []; params?: {} }
+    'panel.profile.update': { paramsTuple?: []; params?: {} }
     'new_account.create': { paramsTuple?: []; params?: {} }
     'new_account.store': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
@@ -27,6 +31,7 @@ export type ScannedRoutes = {
     'panel.requests.steps.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'panel.offers.accept': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'panel.offers.decline': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'panel.profile.update': { paramsTuple?: []; params?: {} }
     'new_account.store': { paramsTuple?: []; params?: {} }
     'session.store': { paramsTuple?: []; params?: {} }
     'session.destroy': { paramsTuple?: []; params?: {} }
@@ -38,6 +43,9 @@ export type ScannedRoutes = {
     'panel.index': { paramsTuple?: []; params?: {} }
     'panel.onboarding.create': { paramsTuple?: []; params?: {} }
     'panel.requests.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'panel.orders.index': { paramsTuple?: []; params?: {} }
+    'panel.earnings.index': { paramsTuple?: []; params?: {} }
+    'panel.profile.show': { paramsTuple?: []; params?: {} }
     'new_account.create': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
   }
@@ -48,6 +56,9 @@ export type ScannedRoutes = {
     'panel.index': { paramsTuple?: []; params?: {} }
     'panel.onboarding.create': { paramsTuple?: []; params?: {} }
     'panel.requests.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'panel.orders.index': { paramsTuple?: []; params?: {} }
+    'panel.earnings.index': { paramsTuple?: []; params?: {} }
+    'panel.profile.show': { paramsTuple?: []; params?: {} }
     'new_account.create': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
   }

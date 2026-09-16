@@ -24,3 +24,16 @@ export const productionStepValidator = vine.create({
 export const photoUrlsValidator = vine.create({
   photos: vine.array(vine.string().url({ require_protocol: true, protocols: ['https'] })).minLength(1).maxLength(10),
 })
+
+export const profileUpdateValidator = vine.create({
+  displayName: vine.string().trim().minLength(2).maxLength(80),
+  city: vine.string().trim().minLength(2).maxLength(80),
+  countryCode: vine.string().trim().fixedLength(2).toUpperCase(),
+  materials: vine.array(vine.enum(SUPPORTED_MATERIALS)).minLength(1).distinct(),
+  maxBuildXMm: vine.number().withoutDecimals().min(50).max(2000),
+  maxBuildYMm: vine.number().withoutDecimals().min(50).max(2000),
+  maxBuildZMm: vine.number().withoutDecimals().min(50).max(2000),
+  dailyCapacityGrams: vine.number().withoutDecimals().min(50).max(100_000),
+  pricePerGram: vine.number().min(0.01).max(100),
+  hourlyRate: vine.number().min(0).max(10_000),
+})

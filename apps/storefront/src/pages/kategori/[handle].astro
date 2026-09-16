@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import ProductCard from '../../components/ProductCard.astro';
+import ProductsWithFilter from '../../components/ProductsWithFilter';
 import { listAllProducts, listLeafCategories } from '../../lib/store-data';
 
 export async function getStaticPaths() {
@@ -24,12 +24,11 @@ const { category, products } = Astro.props;
     </p>
     <h1>{category.name}</h1>
 
-    {products.length === 0 ? (
-      <p class="fm-empty">Bu kategoride henüz ürün yok.</p>
-    ) : (
-      <div class="fm-product-grid">
-        {products.map((product) => <ProductCard product={product} />)}
-      </div>
-    )}
+    <ProductsWithFilter
+      products={products}
+      categories={[]}
+      hideCategoryFilter={true}
+      client:load
+    />
   </div>
 </BaseLayout>

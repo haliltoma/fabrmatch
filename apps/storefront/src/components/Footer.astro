@@ -6,11 +6,32 @@ const sellerSignupUrl = new URL('/seller/register', PUBLIC_MEDUSA_BACKEND_URL).t
 ---
 
 <footer class="fm-footer">
-  <div class="fm-footer__inner">
-    <span>&copy; {year} Fabrmatch</span>
-    <a href="/ozel-tasarim">özel tasarımınızı yükleyin</a>
-    <a href={sellerSignupUrl} class="fm-footer__b2b">
-      <i class="ti ti-briefcase" aria-hidden="true"></i> satıcı mısınız? mağaza açın
-    </a>
+  <div class="fm-footer__body">
+    <div class="fm-footer__brand-col">
+      <a href="/" class="fm-brand">
+        <i class="ti ti-leaf" aria-hidden="true"></i>
+        fabrmatch
+      </a>
+      <p class="fm-footer__tagline">Siparişe göre üretilen 3D baskı — en yakın üreticiden, güvenceli ödemeyle.</p>
+    </div>
+
+    <nav class="fm-footer__nav-col" aria-label="Site bağlantıları">
+      <a href="/urunler">ürünler</a>
+      <a href="/ozel-tasarim">özel tasarım yükle</a>
+      <a href="/giris">hesabım</a>
+    </nav>
+
+    <div class="fm-footer__b2b-col">
+      <a href={sellerSignupUrl} class="fm-footer__b2b">
+        <i class="ti ti-briefcase" aria-hidden="true"></i>
+        satıcı mısınız? mağaza açın
+      </a>
+    </div>
+  </div>
+
+  <div class="fm-footer__bottom">
+    <div class="fm-footer__bottom-inner">
+      &copy; {year} Fabrmatch
+    </div>
   </div>
 </footer>
