@@ -16,6 +16,10 @@ export default class Manufacturer extends ManufacturerSchema {
   declare status: ManufacturerStatus
   declare stripeAccountId: string | null
 
+  /** P0-1: delivered + quality_check olaylarında hesaplanıp güncellenir. null → soğuk başlangıç. */
+  @column()
+  declare reputationScore: number | null
+
   @belongsTo(() => User)
   declare user: BelongsTo<typeof User>
 

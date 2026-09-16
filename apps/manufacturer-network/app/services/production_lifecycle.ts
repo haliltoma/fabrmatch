@@ -7,6 +7,7 @@ import PayoutInstruction from '#models/payout_instruction'
 import ProductionRequest, { type ProductionStatus } from '#models/production_request'
 import type { WebhookStatus } from '#services/contract/types'
 import { publicId } from '#services/public_id'
+import { updateReputationScore, updateResponseTime } from '#services/reputation_service'
 import { Exception } from '@adonisjs/core/exceptions'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import db from '@adonisjs/lucid/services/db'
@@ -107,6 +108,10 @@ export async function acceptOffer(manufacturerId: number, offerId: number) {
     await offer.save()
     request.merge({ status: 'accepted', acceptedAt: now, manufacturerPayout: offer.quotedPayout })
     await request.save()
+
+    const manufacturer = await Manufacturer.query({ client: trx }).where('id', manufacturerId).forUpdate().firstOrFail()
+    await updateResponseTime(manufacturer, offer.createdAt, now)
+
     return recordEvent(trx, request, 'accepted', now, null)
   })
   return afterCommit(event)
@@ -124,11 +129,16 @@ export async function declineOffer(manufacturerId: number, offerId: number) {
     }
     const request = await lockOwnedRequest(trx, manufacturerId, offer.productionRequestId)
 
-    offer.merge({ status: 'declined', respondedAt: DateTime.now() })
+    const now = DateTime.now()
+    offer.merge({ status: 'declined', respondedAt: now })
     await offer.save()
     // Reddeden üretici bir sonraki eşleştirmede hariç tutulur (match_offers.status = declined)
     request.merge({ status: 'matching_in_progress', manufacturerId: null, manufacturerPayout: null })
     await request.save()
+
+    const manufacturer = await Manufacturer.query({ client: trx }).where('id', manufacturerId).forUpdate().firstOrFail()
+    await updateResponseTime(manufacturer, offer.createdAt, now)
+
     return request.id
   })
   await MatchProductionRequest.dispatch({ productionRequestId: requestId })
@@ -154,6 +164,8 @@ export async function advanceProduction(manufacturerId: number, requestId: numbe
 
     if (input.status === 'quality_check') {
       request.productionPhotos = input.photos
+      const manufacturer = await Manufacturer.query({ client: trx }).where('id', manufacturerId).forUpdate().firstOrFail()
+      await updateReputationScore(manufacturer)
     } else if (input.status === 'shipped') {
       request.merge({ trackingNumber: input.trackingNumber, shippedAt: now })
     } else if (input.status === 'delivered') {
@@ -166,6 +178,7 @@ export async function advanceProduction(manufacturerId: number, requestId: numbe
         onTimeRate: ((manufacturer.onTimeRate ?? onTime) * previous + onTime) / (previous + 1),
       })
       await manufacturer.save()
+      await updateReputationScore(manufacturer)
       manufacturerStripeAccountId = manufacturer.stripeAccountId
 
       // Tutar bilgisi — ödeme Sistem A'da yapılır (05); tahmin yoksa tutar hesaplanamaz
