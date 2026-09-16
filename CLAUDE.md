@@ -3,6 +3,10 @@
 Printify modelinde 3D baskı platformu + kendi B2C vitrini. Dokümanlar `docs/` altında
 ve bu klasör aynı zamanda Obsidian vault'udur.
 
+## Paylaşımlı görev listesi — ZORUNLU
+Yeni bir göreve başlamadan önce `../GOREVLER.md` dosyasını oku (tüm workspace'lerde
+ortak açık iş kalemleri burada). Workspace'e özgü detaylar `docs/11-YAPILACAKLAR.md`'de.
+
 ## Proje hafızası — ZORUNLU
 - Her göreve başlamadan önce `docs/00-MASTER-PRD.md`'yi oku (şu an ne doğru).
 - Önemli bir mimari/ürün kararı alındığında `docs/07-KARAR-GECMISI-VE-DEGISIM-GUNLUGU.md`
