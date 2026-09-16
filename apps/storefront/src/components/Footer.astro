@@ -6,11 +6,56 @@ const sellerSignupUrl = new URL('/seller/register', PUBLIC_MEDUSA_BACKEND_URL).t
 ---
 
 <footer class="fm-footer">
-  <div class="fm-footer__inner">
+  <div class="fm-footer__grid fm-container">
+
+    <div class="fm-footer__brand">
+      <a href="/" class="fm-brand fm-footer__brand-link" aria-label="Fabrmatch anasayfa">
+        <span class="fm-brand__icon" aria-hidden="true">
+          <i class="ti ti-leaf"></i>
+        </span>
+        <span class="fm-brand__name">fabrmatch</span>
+      </a>
+      <p class="fm-footer__tagline">
+        Siparişe göre 3D baskı — yerel üreticilerden, hızlı teslimat.
+      </p>
+    </div>
+
+    <nav class="fm-footer__col" aria-label="Keşfet">
+      <span class="fm-footer__col-heading">keşfet</span>
+      <a href="/urunler">
+        <i class="ti ti-shopping-bag" aria-hidden="true"></i> ürünler
+      </a>
+      <a href="/ozel-tasarim">
+        <i class="ti ti-upload" aria-hidden="true"></i> özel tasarım
+      </a>
+    </nav>
+
+    <nav class="fm-footer__col" aria-label="Hesap">
+      <span class="fm-footer__col-heading">hesap</span>
+      <a href="/giris">
+        <i class="ti ti-user" aria-hidden="true"></i> giriş yap
+      </a>
+      <a href="/hesap">
+        <i class="ti ti-package" aria-hidden="true"></i> siparişlerim
+      </a>
+    </nav>
+
+    <div class="fm-footer__col fm-footer__b2b-col">
+      <span class="fm-footer__col-heading">üretici misiniz?</span>
+      <p class="fm-footer__b2b-desc">
+        Kendi üretim kapasitenizdeki siparişleri alın, ödemenizi güvenle tahsil edin.
+      </p>
+      <a href={sellerSignupUrl} class="fm-footer__b2b-cta">
+        <i class="ti ti-briefcase" aria-hidden="true"></i> mağaza açın
+      </a>
+    </div>
+
+  </div>
+
+  <div class="fm-footer__bottom fm-container">
     <span>&copy; {year} Fabrmatch</span>
-    <a href="/ozel-tasarim">özel tasarımınızı yükleyin</a>
-    <a href={sellerSignupUrl} class="fm-footer__b2b">
-      <i class="ti ti-briefcase" aria-hidden="true"></i> satıcı mısınız? mağaza açın
-    </a>
+    <span class="fm-footer__origin">
+      <i class="ti ti-map-pin" aria-hidden="true"></i> Türkiye'de üretildi
+    </span>
   </div>
 </footer>

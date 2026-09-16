@@ -1,22 +1,55 @@
 ---
 import CartCount from './CartCount';
 import AccountLink from './AccountLink';
+
+const path = Astro.url.pathname;
+
+function isActive(href: string): boolean {
+  if (href === '/') return path === '/';
+  return path.startsWith(href);
+}
 ---
 
-<header class="fm-header">
+<header class="fm-header" id="site-header">
   <div class="fm-header__inner">
-    <a href="/" class="fm-brand">
-      <i class="ti ti-leaf" aria-hidden="true"></i>
-      fabrmatch
+    <a href="/" class="fm-brand" aria-label="Fabrmatch anasayfa">
+      <span class="fm-brand__icon" aria-hidden="true">
+        <i class="ti ti-leaf"></i>
+      </span>
+      <span class="fm-brand__name">fabrmatch</span>
     </a>
-    <nav class="fm-nav">
-      <a href="/ozel-tasarim">özel tasarım</a>
+
+    <nav class="fm-nav" aria-label="Ana menü">
+      <a
+        href="/urunler"
+        class="fm-nav__link"
+        aria-current={isActive('/urunler') ? 'page' : undefined}
+      >ürünler</a>
+      <a
+        href="/ozel-tasarim"
+        class="fm-nav__link"
+        aria-current={isActive('/ozel-tasarim') ? 'page' : undefined}
+      >özel tasarım</a>
+      <span class="fm-nav__divider" aria-hidden="true"></span>
       <AccountLink client:load />
-      <a href="/sepet" class="fm-cart-link" aria-label="Sepet">
+      <a
+        href="/sepet"
+        class="fm-cart-link fm-nav__link"
+        aria-label="Sepet"
+        aria-current={isActive('/sepet') ? 'page' : undefined}
+      >
         <i class="ti ti-shopping-bag" aria-hidden="true"></i>
-        sepet
         <CartCount client:load />
       </a>
     </nav>
   </div>
 </header>
+
+<script>
+  const header = document.getElementById('site-header');
+  if (header) {
+    const update = () => header.toggleAttribute('data-scrolled', window.scrollY > 12);
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+  }
+</script>

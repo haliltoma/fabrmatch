@@ -61,8 +61,8 @@ export default function AuthPage() {
   }
 
   return (
-    <div style={{ maxWidth: 420, margin: '0 auto' }}>
-      <h1>{mode === 'login' ? 'Giriş yap' : 'Hesap oluştur'}</h1>
+    <div className="fm-page" style={{ maxWidth: 420, margin: '0 auto' }}>
+      <h1>{mode === 'login' ? 'giriş yap' : 'hesap oluştur'}</h1>
       <form className="fm-form" style={{ marginTop: 16 }} onSubmit={submit}>
         {mode === 'register' && (
           <div className="fm-form__grid">

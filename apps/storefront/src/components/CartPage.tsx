@@ -234,7 +234,7 @@ export default function CartPage() {
             Bu sipariş numarasını not edin — hesap girişi olmadan sipariş takibi şu an için bu sayfayla sınırlıdır.
           </p>
         )}
-        <a href="/urunler" className="fm-button fm-button--primary">
+        <a href="/urunler" className="fm-button">
           alışverişe devam et
         </a>
       </div>
@@ -380,6 +380,12 @@ export default function CartPage() {
               </button>
             </form>
           </section>
+        )}
+
+        {hasAddress && !hasShipping && !shippingOptions && busy === null && (
+          <p className="fm-spinner-row" style={{ marginTop: 24 }}>
+            <i className="ti ti-loader" aria-hidden="true" /> kargo seçenekleri yükleniyor…
+          </p>
         )}
 
         {hasAddress && !hasShipping && shippingOptions && (

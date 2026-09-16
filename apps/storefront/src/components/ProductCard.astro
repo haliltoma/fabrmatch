@@ -7,14 +7,20 @@ const { product } = Astro.props;
 
 const prices = product.variants.map((v) => v.calculated_price).filter((p) => p !== null);
 const cheapest = prices.length ? prices.reduce((min, p) => (p!.calculated_amount < min!.calculated_amount ? p : min)) : null;
+const has3D = Boolean(product.metadata?.print_profile);
 ---
 
 <a href={`/urun/${product.handle}`} class="fm-product-card">
   <div class="fm-product-card__media">
-    {product.thumbnail && <img src={product.thumbnail} alt={product.title} loading="lazy" />}
-    <span class="fm-3d-badge">
-      <i class="ti ti-rotate-3d" aria-hidden="true"></i>3D
-    </span>
+    {product.thumbnail
+      ? <img src={product.thumbnail} alt={product.title} loading="lazy" />
+      : <span class="fm-product-card__img-placeholder" aria-hidden="true"><i class="ti ti-cube"></i></span>
+    }
+    {has3D && (
+      <span class="fm-3d-badge">
+        <i class="ti ti-rotate-3d" aria-hidden="true"></i>3D
+      </span>
+    )}
   </div>
   <div class="fm-product-card__body">
     <h3>{product.title}</h3>

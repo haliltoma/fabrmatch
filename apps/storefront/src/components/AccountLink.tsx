@@ -23,9 +23,9 @@ export default function AccountLink() {
   }
 
   return (
-    <a href={customer ? '/hesap' : '/giris'} className="fm-cart-link" aria-label="Hesabım">
+    <a href={customer ? '/hesap' : '/giris'} className="fm-nav__link" aria-label="Hesabım">
       <i className="ti ti-user" aria-hidden="true"></i>
-      {customer ? 'hesabım' : 'giriş'}
+      <span>{customer ? 'hesabım' : 'giriş'}</span>
     </a>
   );
 }

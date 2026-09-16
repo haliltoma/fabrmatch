@@ -59,6 +59,7 @@ yeşil varyantı icat edilmez.
 - **Sadece iki font ağırlığı**: 400 (normal) ve 500 (vurgulu). 600/700 asla kullanılmaz.
 - **Her zaman sentence case** (İlk Harfi Büyük Yazım asla) — butonlarda, başlıklarda, etiketlerde.
 - Başlık boyutları: h1=22px, h2=18px, h3=16px, gövde metni=16px (satır aralığı 1.7).
+- **İstisna — hero başlığı:** Anasayfa `fm-hero h1` için 28px kullanılır. Bu tek istisnadır, başka hiçbir h1 28px alamaz.
 - Küçük etiket/yardımcı metin: 11-13px arası, asla 11px'in altına inilmez.
 - Emoji kullanılmaz — ikon her zaman Tabler outline set (`ti ti-*` class'ları).
 

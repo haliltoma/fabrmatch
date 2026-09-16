@@ -43,7 +43,7 @@ body {
   min-height: 100%;
 }
 body {
-  font-family: system-ui, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   background: var(--surface-0);
   color: var(--text-primary);
@@ -99,13 +99,18 @@ p {
   padding: 0 20px;
 }
 
-/* Header */
+/* ── Header ─────────────────────────────────────────────────── */
 .fm-header {
   border-bottom: 1px solid var(--border);
   background: var(--surface-1);
   position: sticky;
   top: 0;
   z-index: 10;
+  transition: border-color 0.2s ease;
+}
+/* Scroll'dan sonra border hafifçe koyulaşır — depth hissi verir, shadow/blur kullanılmaz */
+.fm-header[data-scrolled] {
+  border-bottom-color: oklch(84% 0 0);
 }
 .fm-header__inner {
   max-width: var(--content-width);
@@ -117,27 +122,97 @@ p {
   justify-content: space-between;
   gap: 16px;
 }
+
+/* Marka */
 .fm-brand {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   font-weight: 500;
   color: var(--fm-sage-text);
+  text-decoration: none;
+  transition: opacity 0.15s ease;
 }
+.fm-brand:hover {
+  opacity: 0.8;
+}
+.fm-brand__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--fm-sage-bg);
+  border-radius: 7px;
+  transition: background 0.15s ease;
+}
+.fm-brand:hover .fm-brand__icon {
+  background: var(--fm-sage-solid);
+  color: var(--fm-sage-on-solid);
+}
+.fm-brand__icon .ti {
+  font-size: 16px;
+}
+.fm-brand__name {
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+
+/* Nav */
 .fm-nav {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 4px;
   font-size: 14px;
 }
-.fm-nav a:hover {
-  color: var(--fm-sage-text);
+.fm-nav__link {
+  position: relative;
+  padding: 5px 9px;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.15s ease, background 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
+.fm-nav__link:hover {
+  color: var(--fm-sage-text);
+  background: var(--fm-sage-bg);
+}
+.fm-nav__link[aria-current='page'] {
+  color: var(--fm-sage-text);
+  font-weight: 500;
+}
+/* Active indicator — ince underline, transform ile animasyonlu */
+.fm-nav__link::after {
+  content: '';
+  position: absolute;
+  bottom: 1px;
+  left: 9px;
+  right: 9px;
+  height: 1.5px;
+  background: var(--fm-sage-solid);
+  border-radius: 2px;
+  transform: scaleX(0);
+  transition: transform 0.18s ease;
+  transform-origin: left;
+}
+.fm-nav__link[aria-current='page']::after {
+  transform: scaleX(1);
+}
+.fm-nav__divider {
+  width: 1px;
+  height: 18px;
+  background: var(--border);
+  margin: 0 4px;
+}
+
+/* Sepet linki */
 .fm-cart-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 14px;
+  gap: 5px;
 }
 .fm-cart-badge {
   background: var(--fm-sage-solid);
@@ -150,30 +225,151 @@ p {
   align-items: center;
   justify-content: center;
   padding: 0 5px;
+  /* Count değişince küçük ölçek animasyonu — CartCount bileşeni eklediğinde */
+  transition: transform 0.15s ease;
 }
 
-/* Footer */
+/* Focus visible — klavye erişilebilirliği */
+.fm-nav__link:focus-visible,
+.fm-brand:focus-visible {
+  outline: 2px solid var(--fm-sage-solid);
+  outline-offset: 2px;
+}
+
+/* ── Footer ─────────────────────────────────────────────────── */
 .fm-footer {
   border-top: 1px solid var(--border);
   margin-top: 64px;
-  padding: 32px 0 40px;
-}
-.fm-footer__inner {
-  max-width: var(--content-width);
-  margin: 0 auto;
-  padding: 0 20px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 16px;
+  padding: 48px 0 0;
   font-size: 13px;
   color: var(--text-secondary);
 }
-.fm-footer__b2b {
+
+/* 4 sütun grid — marka | keşfet | hesap | B2B */
+.fm-footer__grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1.4fr;
+  gap: 32px 24px;
+  padding-bottom: 40px;
+}
+
+/* Marka sütunu */
+.fm-footer__brand {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.fm-footer__brand-link {
+  text-decoration: none;
+}
+.fm-footer__tagline {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 220px;
+}
+
+/* Link sütunları */
+.fm-footer__col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.fm-footer__col-heading {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+.fm-footer__col a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+.fm-footer__col a .ti {
+  font-size: 14px;
+  opacity: 0.7;
+}
+.fm-footer__col a:hover {
+  color: var(--fm-sage-text);
+  transform: translateX(2px);
+}
+.fm-footer__col a:focus-visible {
+  outline: 2px solid var(--fm-sage-solid);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* B2B sütunu */
+.fm-footer__b2b-col {
+  gap: 10px;
+}
+.fm-footer__b2b-desc {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+.fm-footer__b2b-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: var(--fm-honey-bg);
   color: var(--fm-honey-text);
-  padding: 3px 10px;
-  border-radius: 20px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+  width: fit-content;
+}
+.fm-footer__b2b-cta:hover {
+  background: var(--fm-honey-solid);
+  color: var(--surface-1);
+}
+.fm-footer__b2b-cta:focus-visible {
+  outline: 2px solid var(--fm-honey-solid);
+  outline-offset: 2px;
+}
+
+/* Alt çizgi */
+.fm-footer__bottom {
+  border-top: 1px solid var(--border);
+  padding: 16px 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.fm-footer__origin {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.fm-footer__origin .ti {
+  font-size: 13px;
+  color: var(--fm-sage-muted);
+}
+
+@media (max-width: 860px) {
+  .fm-footer__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .fm-footer__brand {
+    grid-column: 1 / -1;
+  }
+  .fm-footer__bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
 }
 
 /* Hero + entry cards */
@@ -355,6 +551,17 @@ p {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+.fm-product-card__img-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--border);
+}
+.fm-product-card__img-placeholder .ti {
+  font-size: 40px;
 }
 .fm-3d-badge {
   position: absolute;
@@ -694,5 +901,22 @@ p {
   }
   .fm-summary-card {
     position: static;
+  }
+}
+
+@media (max-width: 600px) {
+  /* Header nav: label'ları gizle, ikon+badge kalır */
+  .fm-nav__link {
+    padding: 5px 7px;
+    gap: 3px;
+  }
+  .fm-nav__link span:not(.fm-cart-badge) {
+    display: none;
+  }
+  .fm-nav {
+    gap: 2px;
+  }
+  .fm-brand__name {
+    font-size: 14px;
   }
 }
