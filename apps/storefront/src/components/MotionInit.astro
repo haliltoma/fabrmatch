@@ -1,0 +1,102 @@
+---
+/**
+ * MotionInit — Lenis smooth scroll + GSAP ScrollTrigger section entrances
+ * Astro component, BaseLayout içinde <body> sonuna yerleşir
+ * Bağımlılıklar: lenis, gsap (npm'de yüklü)
+ */
+---
+
+<script>
+  import Lenis from 'lenis'
+  import { gsap } from 'gsap'
+  import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+  gsap.registerPlugin(ScrollTrigger)
+
+  // ─── prefers-reduced-motion kontrolü ───────────────────────────────────────
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  // ─── Lenis smooth scroll ───────────────────────────────────────────────────
+  if (!prefersReduced) {
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      touchMultiplier: 1.5,
+    })
+
+    lenis.on('scroll', ScrollTrigger.update)
+
+    gsap.ticker.add((time: number) => {
+      lenis.raf(time * 1000)
+    })
+    gsap.ticker.lagSmoothing(0)
+  }
+
+  // ─── Scroll entrance animasyonları ────────────────────────────────────────
+  function setupEntrances() {
+    if (prefersReduced) return
+
+    // Entry kartlar (anasayfa)
+    gsap.from('.fm-entry-card', {
+      scrollTrigger: {
+        trigger: '.fm-entry-grid',
+        start: 'top 85%',
+        once: true,
+      },
+      opacity: 0,
+      y: 28,
+      duration: 0.6,
+      ease: 'power3.out',
+      stagger: 0.1,
+    })
+
+    // Güven şeridi
+    gsap.from('.fm-trust__item', {
+      scrollTrigger: {
+        trigger: '.fm-trust',
+        start: 'top 88%',
+        once: true,
+      },
+      opacity: 0,
+      y: 20,
+      duration: 0.5,
+      ease: 'power2.out',
+      stagger: 0.08,
+    })
+
+    // Ürün kartları
+    gsap.from('.fm-product-card', {
+      scrollTrigger: {
+        trigger: '.fm-product-grid',
+        start: 'top 85%',
+        once: true,
+      },
+      opacity: 0,
+      y: 36,
+      duration: 0.55,
+      ease: 'power3.out',
+      stagger: 0.06,
+    })
+
+    // Kategori kartları (urunler sayfası)
+    gsap.from('.fm-category-card', {
+      scrollTrigger: {
+        trigger: '.fm-category-grid',
+        start: 'top 88%',
+        once: true,
+      },
+      opacity: 0,
+      y: 16,
+      duration: 0.45,
+      ease: 'power2.out',
+      stagger: 0.04,
+    })
+  }
+
+  // Sayfa tamamen yüklendikten sonra başlat
+  if (document.readyState === 'complete') {
+    setupEntrances()
+  } else {
+    window.addEventListener('load', setupEntrances)
+  }
+</script>
