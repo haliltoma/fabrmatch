@@ -4,12 +4,15 @@
  */
 
 export const controllers = {
+  Earnings: () => import('#controllers/earnings_controller'),
   ManufacturerOnboarding: () => import('#controllers/manufacturer_onboarding_controller'),
   NewAccount: () => import('#controllers/new_account_controller'),
   OfferActions: () => import('#controllers/offer_actions_controller'),
+  Orders: () => import('#controllers/orders_controller'),
   Panel: () => import('#controllers/panel_controller'),
   ProductionRequestsApi: () => import('#controllers/production_requests_api_controller'),
   ProductionSteps: () => import('#controllers/production_steps_controller'),
+  Profile: () => import('#controllers/profile_controller'),
   RegionCapability: () => import('#controllers/region_capability_controller'),
   Session: () => import('#controllers/session_controller'),
   WebhookEventsApi: () => import('#controllers/webhook_events_api_controller'),

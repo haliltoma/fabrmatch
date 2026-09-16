@@ -77,12 +77,16 @@ bu da ödemeyi `on_hold`a alıyor — kanıt zaten var olan üretim kaydı/webho
 okunuyor, ayrıca saklanmıyor. Detay: [[05-PRD-ODEME-VE-KOMISYON]] ve
 [[07-KARAR-GECMISI-VE-DEGISIM-GUNLUGU]].
 
+Özel tasarımdan sepete ekleme VE hesap girişiyle sipariş takibi de 2026-09-16'da
+tamamlandı (bkz. [[07-KARAR-GECMISI-VE-DEGISIM-GUNLUGU]] ilgili girdiler,
+[[01-PRD-STOREFRONT-ASTRO]]) — artık gerçek bir alıcı hesabı var, bu yüzden
+anlaşmazlık açmanın admin yerine doğrudan alıcıya taşınması (`POST /store/disputes`)
+şimdi teknik olarak mümkün, henüz yapılmadı.
+
 Bilinçli ertelenen (ayrı iş kalemleri, PRD kapsamı dışında değil ama bu turda
-yapılmadı): üretici Stripe Connect onboarding UI'ı, çoklu bölge/dil algılama, hesap
-girişiyle kalıcı sipariş takibi (bu sonuncusu eklenince anlaşmazlık açma da admin
-yerine doğrudan alıcıya taşınabilir). Özel tasarımdan sepete ekleme 2026-09-16'da
-tamamlandı (bkz. [[07-KARAR-GECMISI-VE-DEGISIM-GUNLUGU]]); özel tasarım STL dosya
-saklaması hâlâ ertelendi — bkz. Bölüm 7 ve ilgili modül PRD'leri.
+yapılmadı): üretici Stripe Connect onboarding UI'ı, çoklu bölge/dil algılama,
+alıcı tarafından doğrudan anlaşmazlık açma (şimdilik admin, destek talebiyle),
+özel tasarım STL dosya saklaması — bkz. Bölüm 7 ve ilgili modül PRD'leri.
 
 ## 5) Başarı Metrikleri (henüz taslak — ilk veri geldikçe netleşecek)
 

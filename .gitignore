@@ -12,9 +12,15 @@ __pycache__/
 .venv/
 .pytest_cache/
 *.log
+.logs/
 tmp/
 uploads/
+calistir.sh.bak
 
 # Obsidian — workspace durumu kişiseldir, ayarlar paylaşılır
 docs/.obsidian/workspace*.json
 docs/.obsidian/cache
+
+# Graphify cache (büyük, yeniden üretilebilir)
+graphify-out/cache/
+apps/*/graphify-out/

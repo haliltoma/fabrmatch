@@ -28,6 +28,16 @@ export interface ApiDefinition {
       accept: typeof routes['panel.offers.accept']
       decline: typeof routes['panel.offers.decline']
     }
+    orders: {
+      index: typeof routes['panel.orders.index']
+    }
+    earnings: {
+      index: typeof routes['panel.earnings.index']
+    }
+    profile: {
+      show: typeof routes['panel.profile.show']
+      update: typeof routes['panel.profile.update']
+    }
   }
   newAccount: {
     create: typeof routes['new_account.create']

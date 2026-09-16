@@ -1,25 +1,30 @@
-# Graph Report - fabrmatch  (2026-09-16)
+# Graph Report - fabrmatch  (2026-09-17)
 
 ## Corpus Check
-- 299 files · ~68,156 words
+- 304 files · ~71,279 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 17 file(s) not represented in the graph (top: (none) 10, .example 3, .css 1)
 
 ## Summary
-- 1858 nodes · 2780 edges · 160 communities (106 shown, 54 thin omitted)
+- 1912 nodes · 2852 edges · 165 communities (111 shown, 54 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 37 edges (avg confidence: 0.9)
 - Token cost: 0 input · 0 output
 
+## Graph Freshness
+- Built from commit: `9f06b5a2`
+- Run `git rev-parse HEAD` and compare to check if the graph is stale.
+- Run `graphify update .` after code changes (no API cost).
+
 ## Community Hubs (Navigation)
 - main.py
-- routes.ts
+- Hero3D.tsx
 - request.tsx
 - storefront/package.json
 - manufacturer-network/package.json
 - store/package.json
 - api/package.json
 - production_lifecycle.spec.ts
-- match_offer.ts
+- routes.ts
 - adonisrc.ts
 - dependencies
 - devDependencies
@@ -33,28 +38,28 @@
 - vendor/package.json
 - models/production_request.ts
 - API Workspace Guide
-- kernel.ts
+- schema.ts
 - compilerOptions
 - compilerOptions
 - compilerOptions
 - store-data.ts
 - match_engine.ts
 - imports
-- steps/create-production-requests.ts
-- lib/auth.ts
-- CartPage.tsx
-- AccountPage.tsx
-- registry/index.ts
 - fabrmatch-contract.ts
-- CustomDesignForm.tsx
+- AccountPage.tsx
+- CartPage.tsx
+- OrderGroupDetail.tsx
+- registry/index.ts
+- Sistem uçtan uca denetimi
+- getOrCreateCartId
 - manufacturer.ts
 - dependencies
 - devDependencies
 - Mercur Basic Template
 - daily-reconciliation.ts
-- disputes/route.ts
+- service.ts
 - 07 — Karar Geçmişi ve Değişim Günlüğü
-- data.d.ts
+- kernel.ts
 - overrides
 - tasks
 - validators/user.ts
@@ -63,23 +68,23 @@
 - Custom Pages
 - resolutions
 - dependencies
-- contract/types.ts
+- dependencies
 - test.ts
 - .mercur/routes.d.ts
-- production-sync/index.ts
+- send-production-request.ts
 - payout-provider.ts
 - steps/create-custom-design-listing.ts
 - Footer.astro
 - console.ts
 - execute-payout.ts
 - devDependencies
-- service.ts
+- matching_service.ts
 - 00 — Fabrmatch Master PRD (Product Requirements Document)
 - 2026-09-16
-- matching_service.ts
+- matching_sweep.spec.ts
 - scripts
 - 05 — PRD: Ödeme, Komisyon ve Escrow
-- VariantOfferPicker.tsx
+- CustomDesignForm.tsx
 - inertia/tsconfig.json
 - 06 — PRD: Tasarım Sistemi ve Tema (ZORUNLU REFERANS)
 - 09 — API Sözleşmesi: Store ↔ Üretici Ağı
@@ -97,10 +102,10 @@
 - api_provider.ts
 - Mercur Marketplace Project
 - aliases
-- middleware
+- mercur-types.ts
 - storefront-cache-revalidate.ts
 - 02 — PRD: Marketplace Çekirdeği (Medusa.js v2 + Mercur 2.0)
-- mercur-types.ts
+- calistir.sh
 - store-contract-smoke.mjs
 - admin/eslint.config.js
 - scripts
@@ -116,7 +121,7 @@
 - Astro Starter Kit: Minimal
 - Fabrmatch geometri servisi
 - ManufacturerActivate
-- encryption.ts
+- redis.ts
 - hash.ts
 - React + TypeScript + Vite
 - Migration20260915201010
@@ -152,6 +157,11 @@
 - @medusajs/test-utils
 - engines
 - links/README.md
+- Nasıl çalıştırılır — Fabrmatch yerel geliştirme
+- analyze.ts
+- scripts
+- devDependencies
+- allowScripts
 
 ## God Nodes (most connected - your core abstractions)
 1. `ProductionRequest` - 28 edges
@@ -170,33 +180,33 @@
   apps/storefront/src/components/AuthPage.tsx → apps/manufacturer-network/app/validators/user.ts
 - `submit()` --indirect_call--> `email()`  [INFERRED]
   apps/storefront/src/components/AuthPage.tsx → apps/manufacturer-network/app/validators/user.ts
+- `updateQuantity()` --calls--> `notifyCartUpdated()`  [EXTRACTED]
+  apps/storefront/src/components/CartPage.tsx → apps/storefront/src/lib/cart-events.ts
 - `Manufacturer` --references--> `MatchOffer`  [EXTRACTED]
   apps/manufacturer-network/app/models/manufacturer.ts → apps/manufacturer-network/app/models/match_offer.ts
 - `Manufacturer` --references--> `ProductionRequest`  [EXTRACTED]
   apps/manufacturer-network/app/models/manufacturer.ts → apps/manufacturer-network/app/models/production_request.ts
-- `PayoutInstruction` --references--> `Manufacturer`  [EXTRACTED]
-  apps/manufacturer-network/app/models/payout_instruction.ts → apps/manufacturer-network/app/models/manufacturer.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (160 total, 54 thin omitted)
+## Communities (165 total, 54 thin omitted)
 
 ### Community 0 - "main.py"
 Cohesion: 0.06
 Nodes (77): BaseModel, BaseSettings, Depends, File, fixture, Form, get, Header (+69 more)
 
-### Community 1 - "routes.ts"
-Cohesion: 0.20
-Nodes (5): ParamValue, controllers, PanelController(), RegionCapabilityController(), WebhookEventsApiController()
+### Community 1 - "Hero3D.tsx"
+Cohesion: 0.15
+Nodes (5): C, ShapeProps, @react-three/drei, @react-three/fiber, three
 
 ### Community 2 - "request.tsx"
 Cohesion: 0.08
 Nodes (25): @adonisjs/inertia/types, ExtractProps, InertiaPages, date(), duration(), money(), STATUS_LABELS, statusLabel() (+17 more)
 
 ### Community 3 - "storefront/package.json"
-Cohesion: 0.05
-Nodes (39): allowScripts, esbuild, dependencies, astro, @astrojs/node, @astrojs/react, @medusajs/js-sdk, @medusajs/types (+31 more)
+Cohesion: 0.12
+Nodes (16): engines, node, react, react-dom, @tabler/icons-webfont, @types/react, @types/react-dom, typescript (+8 more)
 
 ### Community 4 - "manufacturer-network/package.json"
 Cohesion: 0.05
@@ -211,12 +221,12 @@ Cohesion: 0.08
 Nodes (24): author, description, @types/node, keywords, license, name, version, @acme/admin (+16 more)
 
 ### Community 7 - "production_lifecycle.spec.ts"
-Cohesion: 0.27
-Nodes (12): findByLineItem(), IntakePayload, intakeProductionRequest(), offeredJob(), matchedRequest(), Received, acceptedRequestEvent(), createManufacturer() (+4 more)
+Cohesion: 0.21
+Nodes (15): MatchOffer, MatchOfferStatus, SelectionReason, belongsTo, column, ScoreBreakdown, intakeProductionRequest(), offeredJob() (+7 more)
 
-### Community 8 - "match_offer.ts"
-Cohesion: 0.14
-Nodes (18): ManufacturerOnboardingController, uniquePublicCode(), ACTIVE_STATUSES, PanelController, MatchOffer, MatchOfferStatus, SelectionReason, belongsTo (+10 more)
+### Community 8 - "routes.ts"
+Cohesion: 0.06
+Nodes (28): ParamValue, controllers, ManufacturerOnboardingController, uniquePublicCode(), ACTIVE_STATUSES, PanelController, ProductionRequestsApiController, ProductionStepsController (+20 more)
 
 ### Community 10 - "dependencies"
 Cohesion: 0.08
@@ -235,20 +245,20 @@ Cohesion: 0.08
 Nodes (24): compilerOptions, allowImportingTsExtensions, baseUrl, experimentalDecorators, jsx, lib, module, moduleDetection (+16 more)
 
 ### Community 14 - "settle-dispute-payout.ts"
-Cohesion: 0.19
+Cohesion: 0.18
 Nodes (13): POST(), ResolveDisputeSchema, ResolveDisputeInput, resolveDisputeWorkflow, attemptPayout(), DisputeResolution, SettleDisputePayoutInput, SettleDisputePayoutOutput (+5 more)
 
 ### Community 15 - "webhook_delivery.ts"
-Cohesion: 0.18
-Nodes (11): DeliverWebhookEvent, DeliverWebhookEventPayload, SweepDueWebhooks, SweepDueWebhooksPayload, deliverWebhookEvent(), DeliveryOptions, dueWebhookEventIds(), Outcome (+3 more)
+Cohesion: 0.19
+Nodes (11): DeliverWebhookEvent, DeliverWebhookEventPayload, signedWebhookHeaders(), signPayload(), SIGNATURE_HEADER, TIMESTAMP_HEADER, deliverWebhookEvent(), DeliveryOptions (+3 more)
 
 ### Community 16 - "compilerOptions"
 Cohesion: 0.08
 Nodes (23): compilerOptions, checkJs, declaration, emitDecoratorMetadata, esModuleInterop, experimentalDecorators, forceConsistentCasingInFileNames, inlineSourceMap (+15 more)
 
 ### Community 17 - "env.ts"
-Cohesion: 0.09
-Nodes (14): ServiceAuthMiddleware, appUrl, http, dbConfig, @adonisjs/core/types, loggerConfig, LoggersList, @adonisjs/redis/types (+6 more)
+Cohesion: 0.11
+Nodes (12): appUrl, http, dbConfig, @adonisjs/core/types, encryptionConfig, EncryptorsList, @adonisjs/core/types, loggerConfig (+4 more)
 
 ### Community 18 - "admin/package.json"
 Cohesion: 0.09
@@ -259,12 +269,16 @@ Cohesion: 0.09
 Nodes (21): dependencies, @mercurjs/vendor, react, react-dom, react-router-dom, devDependencies, @types/node, react (+13 more)
 
 ### Community 20 - "models/production_request.ts"
-Cohesion: 0.10
-Nodes (21): WebhookEventsApiController, DeliveryState, OutboundWebhookEvent, beforeCreate, belongsTo, column, PayoutInstruction, PayoutInstructionStatus (+13 more)
+Cohesion: 0.08
+Nodes (27): WebhookEventsApiController, DeliveryState, OutboundWebhookEvent, beforeCreate, belongsTo, column, PayoutInstruction, PayoutInstructionStatus (+19 more)
 
 ### Community 21 - "API Workspace Guide"
 Cohesion: 0.22
 Nodes (8): API Workspace Guide, `blocks.json` relationship, Choosing the right backend surface, Codegen, Commands that already exist, `medusa-config.ts`, Scope, Verification
+
+### Community 22 - "schema.ts"
+Cohesion: 0.42
+Nodes (9): ManufacturerSchema, MatchOfferSchema, OutboundWebhookEventSchema, PayoutInstructionSchema, ProductionRequestSchema, column, UserSchema, date (+1 more)
 
 ### Community 23 - "compilerOptions"
 Cohesion: 0.10
@@ -279,7 +293,7 @@ Cohesion: 0.10
 Nodes (20): compilerOptions, allowJs, checkJs, disableSourceOfProjectReferenceRedirect, esModuleInterop, incremental, isolatedModules, lib (+12 more)
 
 ### Community 26 - "store-data.ts"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (12): prices, Category, getDefaultRegion(), getProductByHandle(), listAllProducts(), listLeafCategories(), Product, ProductOption (+4 more)
 
 ### Community 27 - "match_engine.ts"
@@ -290,37 +304,37 @@ Nodes (15): clamp(), estimatePayout(), hasReputationData(), isEligible(), jobGra
 Cohesion: 0.10
 Nodes (20): imports, #abilities/*, #config/*, #controllers/*, #database/*, #events/*, #exceptions/*, #generated/* (+12 more)
 
-### Community 29 - "steps/create-production-requests.ts"
-Cohesion: 0.27
-Nodes (8): errorMessage(), config, orderPlacedProductionHandler(), createProductionRequestsWorkflow, CreateProductionRequestsInput, createProductionRequestsStep, OrderRow, VariantRow
+### Community 29 - "fabrmatch-contract.ts"
+Cohesion: 0.13
+Nodes (21): ProductionStatusWebhookSchema, verifyFabrmatchSignature(), POST(), DispatchResult, ManufacturerAccount, PrintEstimate, PRODUCTION_STATUS_RANK, ProductionRequestPayload (+13 more)
 
-### Community 30 - "lib/auth.ts"
-Cohesion: 0.34
-Nodes (10): AccountLink(), AuthPage(), submit(), AUTH_CHANGED_EVENT, getSessionCustomer(), loginCustomer(), notifyAuthChanged(), registerCustomer() (+2 more)
+### Community 30 - "AccountPage.tsx"
+Cohesion: 0.27
+Nodes (15): AccountLink(), AccountPage(), onLogout(), AuthPage(), submit(), AUTH_CHANGED_EVENT, getSessionCustomer(), loginCustomer() (+7 more)
 
 ### Community 31 - "CartPage.tsx"
-Cohesion: 0.14
-Nodes (19): AddressFormState, Cart, CartPage(), placeOrder(), submitAddress(), Confirmation, emptyAddress, clearStoredCartId() (+11 more)
+Cohesion: 0.13
+Nodes (20): AddressFormState, Cart, CartPage(), placeOrder(), submitAddress(), updateQuantity(), Confirmation, emptyAddress (+12 more)
 
-### Community 32 - "AccountPage.tsx"
-Cohesion: 0.22
-Nodes (14): AccountPage(), onLogout(), OrderGroupDetail(), StatusBadge(), logoutCustomer(), date(), money(), getOrderGroup() (+6 more)
+### Community 32 - "OrderGroupDetail.tsx"
+Cohesion: 0.27
+Nodes (8): OrderGroupDetail(), StatusBadge(), getOrderGroup(), POSITIVE_STATUSES, STATUS_TR, statusBadgeTone(), statusLabel(), prerender
 
 ### Community 33 - "registry/index.ts"
 Cohesion: 0.18
 Nodes (11): placeholder, registry, routes, @tuyau/core/types, UserRegistry, ApiDefinition, client, urlFor (+3 more)
 
-### Community 34 - "fabrmatch-contract.ts"
-Cohesion: 0.11
-Nodes (24): ProductionStatusWebhookSchema, verifyFabrmatchSignature(), POST(), ManufacturerAccount, PrintEstimate, PRODUCTION_STATUS_RANK, ProductionRequestPayload, ProductionStatus (+16 more)
+### Community 34 - "Sistem uçtan uca denetimi"
+Cohesion: 0.20
+Nodes (10): 2026-09-17 — Sistem denetimi & skill kurulumu, API sözleşmesi, Bağlantılar, Bileşen semantiği, Küçük eksik, Servis sağlığı, Sistem uçtan uca denetimi, Skill kurulumu (19 yeni skill) (+2 more)
 
-### Community 35 - "CustomDesignForm.tsx"
-Cohesion: 0.21
-Nodes (11): CartCount(), MATERIALS, AnalysisResult, ManufacturabilityIssue, PrintParams, CART_UPDATED_EVENT, getOrCreateCartId(), getStoredCartId() (+3 more)
+### Community 35 - "getOrCreateCartId"
+Cohesion: 0.25
+Nodes (6): CartCount(), CART_UPDATED_EVENT, getOrCreateCartId(), getStoredCartId(), setStoredCartId(), sdk
 
 ### Community 36 - "manufacturer.ts"
-Cohesion: 0.14
-Nodes (17): RegionCapabilityController, Manufacturer, MANUFACTURER_STATUSES, ManufacturerStatus, belongsTo, column, hasMany, User (+9 more)
+Cohesion: 0.18
+Nodes (8): RegionCapabilityController, Manufacturer, MANUFACTURER_STATUSES, ManufacturerStatus, belongsTo, column, hasMany, User
 
 ### Community 37 - "dependencies"
 Cohesion: 0.11
@@ -338,17 +352,17 @@ Nodes (17): Adding Blocks, AI agents, API Routes, Apps and Packages, Build, Clon
 Cohesion: 0.20
 Nodes (7): HttpExceptionHandler, config, dailyReconciliationJob(), fetchSistemBWebhookEvents(), buildReconciliationReport(), ReconciliationResult, SistemBWebhookEvent
 
-### Community 41 - "disputes/route.ts"
-Cohesion: 0.15
-Nodes (13): CreateDisputeSchema, disputeMiddlewares, POST(), OpenDisputeInput, openDisputeWorkflow, CreateDisputeInput, createDisputeStep, HoldPayoutForDisputeInput (+5 more)
+### Community 41 - "service.ts"
+Cohesion: 0.11
+Nodes (20): CreateDisputeSchema, POST(), PRODUCTION_SYNC_MODULE, Dispute, InboundWebhookEvent, PayoutInstruction, ProductionRequest, ReconciliationReport (+12 more)
 
 ### Community 42 - "07 — Karar Geçmişi ve Değişim Günlüğü"
 Cohesion: 0.09
 Nodes (22): 07 — Karar Geçmişi ve Değişim Günlüğü, [2026-09-15] Akış 1'e opsiyonel `print_estimate` eklendi, [2026-09-15] API sözleşmesi v1 netleştirildi (09), [2026-09-15] Depo düzeni ve hafıza altyapısı kuruldu, [2026-09-15] Geometri servisi: mesh tabanlı tahminci + Embree, [2026-09-15] İki Sistem Mimarisine Geçiş, [2026-09-15] Marka Adı: Printloop → Fabrmatch, [2026-09-15] Mercur Geri Alındı (2.0 sürümüyle) (+14 more)
 
-### Community 43 - "data.d.ts"
-Cohesion: 0.15
-Nodes (10): Data, FlashMessages, SharedProps, User, Variants, @adonisjs/inertia/types, InertiaMiddleware, MiddlewareSharedProps (+2 more)
+### Community 43 - "kernel.ts"
+Cohesion: 0.05
+Nodes (16): Data, FlashMessages, SharedProps, User, Variants, AuthMiddleware, ContainerBindingsMiddleware, GuestMiddleware (+8 more)
 
 ### Community 44 - "overrides"
 Cohesion: 0.23
@@ -359,12 +373,12 @@ Cohesion: 0.12
 Nodes (15): dependsOn, env, inputs, outputs, dependsOn, cache, persistent, dependsOn (+7 more)
 
 ### Community 46 - "validators/user.ts"
-Cohesion: 0.09
-Nodes (12): NewAccountController, ProductionRequestsApiController, SessionController, createProductionRequestValidator, email(), loginValidator, password(), signupValidator (+4 more)
+Cohesion: 0.16
+Nodes (6): NewAccountController, SessionController, email(), loginValidator, password(), signupValidator
 
 ### Community 47 - "production_lifecycle.ts"
-Cohesion: 0.19
-Nodes (15): OfferActionsController, ProductionStepsController, acceptOffer(), AdvanceInput, advanceProduction(), afterCommit(), ALLOWED_FROM, declineOffer() (+7 more)
+Cohesion: 0.32
+Nodes (10): OfferActionsController, acceptOffer(), advanceProduction(), afterCommit(), ALLOWED_FROM, declineOffer(), InvalidTransitionException, lockOwnedRequest() (+2 more)
 
 ### Community 48 - "Custom Pages"
 Cohesion: 0.14
@@ -382,9 +396,9 @@ Nodes (14): resolutions, @medusajs/admin-sdk, @medusajs/admin-shared, @medusajs/
 Cohesion: 0.14
 Nodes (14): dependencies, http-proxy-middleware, @medusajs/admin-sdk, @medusajs/admin-shared, @medusajs/cli, @medusajs/core-flows, @medusajs/dashboard, @medusajs/draft-order (+6 more)
 
-### Community 52 - "contract/types.ts"
-Cohesion: 0.27
-Nodes (8): signedWebhookHeaders(), signPayload(), ManufacturerAccount, PayoutInstructionPayload, PrintEstimate, SIGNATURE_HEADER, TIMESTAMP_HEADER, WEBHOOK_STATUSES
+### Community 52 - "dependencies"
+Cohesion: 0.13
+Nodes (15): dependencies, astro, @astrojs/node, @astrojs/react, @medusajs/js-sdk, @medusajs/types, react, react-dom (+7 more)
 
 ### Community 53 - "test.ts"
 Cohesion: 0.15
@@ -394,17 +408,17 @@ Nodes (9): APP_ROOT, plugins, runnerHooks, @adonisjs/core, @japa/api-client, @ja
 Cohesion: 0.21
 Nodes (4): client, client, Routes, @mercurjs/client
 
-### Community 55 - "production-sync/index.ts"
-Cohesion: 0.20
-Nodes (12): config, retryProductionDispatchJob(), DispatchResult, parsePrintEstimate(), sendProductionRequest(), PRODUCTION_SYNC_MODULE, ProductionSyncModuleService, dispatchProductionRequestWorkflow (+4 more)
+### Community 55 - "send-production-request.ts"
+Cohesion: 0.16
+Nodes (17): config, retryProductionDispatchJob(), errorMessage(), parsePrintEstimate(), sendProductionRequest(), config, orderPlacedProductionHandler(), createProductionRequestsWorkflow (+9 more)
 
 ### Community 56 - "payout-provider.ts"
-Cohesion: 0.22
-Nodes (12): computeReleaseAt(), createStripeConnectPayoutProvider(), getPayoutProvider(), manualPayoutProvider, PAYOUT_RELEASE_WINDOW_HOURS, PayoutProvider, PayoutRequest, PayoutResult (+4 more)
+Cohesion: 0.17
+Nodes (15): computeReleaseAt(), createStripeConnectPayoutProvider(), getPayoutProvider(), manualPayoutProvider, PAYOUT_RELEASE_WINDOW_HOURS, PayoutProvider, PayoutRequest, PayoutResult (+7 more)
 
 ### Community 57 - "steps/create-custom-design-listing.ts"
-Cohesion: 0.08
-Nodes (37): customDesignsMiddlewares, MATERIALS, StorePostCustomDesigns, StorePostCustomDesignsSchema, POST(), productionStatusWebhookMiddlewares, buildCustomDesignMetadata(), buildCustomHandle() (+29 more)
+Cohesion: 0.07
+Nodes (38): disputeMiddlewares, customDesignsMiddlewares, MATERIALS, StorePostCustomDesigns, StorePostCustomDesignsSchema, POST(), productionStatusWebhookMiddlewares, buildCustomDesignMetadata() (+30 more)
 
 ### Community 59 - "console.ts"
 Cohesion: 0.22
@@ -418,9 +432,9 @@ Nodes (8): config, releaseDuePayoutsJob(), ReleasePayoutInput, releasePayoutWork
 Cohesion: 0.18
 Nodes (11): devDependencies, @acme/admin, @acme/vendor, jest, @medusajs/test-utils, prop-types, @swc/core, @swc/jest (+3 more)
 
-### Community 62 - "service.ts"
-Cohesion: 0.27
-Nodes (5): Dispute, InboundWebhookEvent, PayoutInstruction, ProductionRequest, ReconciliationReport
+### Community 62 - "matching_service.ts"
+Cohesion: 0.33
+Nodes (6): MatchProductionRequest, MatchProductionRequestPayload, ACTIVE_WORK_STATUSES, buildCandidates(), buildJob(), matchProductionRequest()
 
 ### Community 64 - "00 — Fabrmatch Master PRD (Product Requirements Document)"
 Cohesion: 0.17
@@ -430,9 +444,9 @@ Nodes (12): 00 — Fabrmatch Master PRD (Product Requirements Document), 1) Ür�
 Cohesion: 0.05
 Nodes (37): 2026-09-16, Altyapı, Anlaşmazlık modeli ve API, Anlaşmazlık çözüm süreci (Faz 5 sonrası ek iş, tamamlandı), Bilinçli ertelenen, Bilinçli ertelenen, Bilinçli kapsam dışı, Bilinçli kapsam dışı / ertelenen (+29 more)
 
-### Community 66 - "matching_service.ts"
+### Community 66 - "matching_sweep.spec.ts"
 Cohesion: 0.20
-Nodes (10): MatchProductionRequest, MatchProductionRequestPayload, SweepMatching, SweepMatchingPayload, ACTIVE_WORK_STATUSES, buildCandidates(), buildJob(), matchProductionRequest() (+2 more)
+Nodes (9): SweepDueWebhooks, SweepDueWebhooksPayload, SweepMatching, SweepMatchingPayload, expireStaleOffers(), retryUnmatchedRequests(), dueWebhookEventIds(), @adonisjs/queue (+1 more)
 
 ### Community 67 - "scripts"
 Cohesion: 0.20
@@ -442,16 +456,16 @@ Nodes (10): scripts, build, cloud:prebuild, codegen, dev, seed, start, test:inte
 Cohesion: 0.29
 Nodes (7): 05 — PRD: Ödeme, Komisyon ve Escrow, Başarı Kriterleri, Hedefler, Kapsam DAHİLİNDE, Kapsam DIŞINDA, Problem, Uygulama Durumu (2026-09-16)
 
-### Community 69 - "VariantOfferPicker.tsx"
-Cohesion: 0.20
-Nodes (16): updateQuantity(), CustomDesignForm(), addToCart(), invalidateResult(), onFileChange(), onInfillChange(), onMaterialChange(), onQuantityChange() (+8 more)
+### Community 69 - "CustomDesignForm.tsx"
+Cohesion: 0.15
+Nodes (21): CustomDesignForm(), addToCart(), invalidateResult(), onFileChange(), onInfillChange(), onMaterialChange(), onQuantityChange(), MATERIALS (+13 more)
 
 ### Community 70 - "inertia/tsconfig.json"
 Cohesion: 0.22
 Nodes (8): compilerOptions, jsx, module, paths, extends, include, @generated/*, @adonisjs/tsconfig/tsconfig.client.json
 
 ### Community 71 - "06 — PRD: Tasarım Sistemi ve Tema (ZORUNLU REFERANS)"
-Cohesion: 0.12
+Cohesion: 0.13
 Nodes (15): 06 — PRD: Tasarım Sistemi ve Tema (ZORUNLU REFERANS), 1) Renk Paleti (KESİN DEĞERLER — başka yeşil tonu icat edilmez), 2) Tipografi Kuralları, 3) Bileşen Kalıpları (bunlar dışında yeni bir kalıp icat edilmeden önce buraya eklenir), 3D önizleme rozeti (ürün kartlarında), 4) İkon Kütüphanesi Kuralı, 5) Kesinlikle YAPILMAYACAKLAR, 6) Yeni Bir Şey Eklerken Kontrol Listesi (her PR/değişiklik öncesi) (+7 more)
 
 ### Community 72 - "09 — API Sözleşmesi: Store ↔ Üretici Ağı"
@@ -514,9 +528,9 @@ Nodes (6): Configuration Files, Documentation, Getting Started, Mercur Marketpla
 Cohesion: 0.29
 Nodes (6): aliases, admin, api, vendor, registries, $schema
 
-### Community 87 - "middleware"
-Cohesion: 0.29
-Nodes (3): AuthMiddleware, GuestMiddleware, middleware
+### Community 87 - "mercur-types.ts"
+Cohesion: 0.33
+Nodes (5): Money, Offer, OrderGroup, PrintProfile, ProductMetadata
 
 ### Community 88 - "storefront-cache-revalidate.ts"
 Cohesion: 0.38
@@ -526,9 +540,9 @@ Nodes (6): buildTags(), config, EventPayload, resolveProductHandle(), storefront
 Cohesion: 0.29
 Nodes (7): 02 — PRD: Marketplace Çekirdeği (Medusa.js v2 + Mercur 2.0), Başarı Kriterleri, Hedefler, Kapsam DAHİLİNDE, Kapsam DIŞINDA, Problem, Teknik Yaklaşım
 
-### Community 90 - "mercur-types.ts"
-Cohesion: 0.33
-Nodes (5): Money, Offer, OrderGroup, PrintProfile, ProductMetadata
+### Community 90 - "calistir.sh"
+Cohesion: 0.36
+Nodes (11): do_logs(), do_start(), do_status(), do_stop(), health_code(), is_running(), port_of(), calistir.sh script (+3 more)
 
 ### Community 91 - "store-contract-smoke.mjs"
 Cohesion: 0.50
@@ -582,9 +596,9 @@ Nodes (4): Astro Starter Kit: Minimal, 🧞 Commands, 🚀 Project Structure, �
 Cohesion: 0.40
 Nodes (4): Fabrmatch geometri servisi, Tahmin modeli, Uçlar, Çalıştırma
 
-### Community 106 - "encryption.ts"
-Cohesion: 0.50
-Nodes (3): @adonisjs/core/types, encryptionConfig, EncryptorsList
+### Community 106 - "redis.ts"
+Cohesion: 0.40
+Nodes (4): @adonisjs/redis/types, redisConfig, RedisConnections, @adonisjs/redis
 
 ### Community 107 - "hash.ts"
 Cohesion: 0.50
@@ -606,25 +620,41 @@ Nodes (3): eslint-plugin-react>eslint, pnpm, overrides
 Cohesion: 0.67
 Nodes (3): exports, ./_generated, types
 
+### Community 161 - "Nasıl çalıştırılır — Fabrmatch yerel geliştirme"
+Cohesion: 0.20
+Nodes (9): 1. Ön koşullar (ilk kurulumdan sonra bir kez), 2. Tek komutla çalıştırma (önerilen), 2b. Manuel başlatma (alternatif), 3. Adresler ve giriş bilgileri (dev), 4. Sıfırdan veri kurulumu (temiz DB sonrası), 5. Testler, 6. Uçtan uca elle deneme (happy path), 7. Bilinen tuzaklar (+1 more)
+
+### Community 162 - "analyze.ts"
+Cohesion: 0.29
+Nodes (3): prerender, prerender, astro
+
+### Community 163 - "scripts"
+Cohesion: 0.40
+Nodes (5): scripts, astro, build, dev, preview
+
+### Community 166 - "devDependencies"
+Cohesion: 0.67
+Nodes (3): devDependencies, @astrojs/check, typescript
+
 ## Knowledge Gaps
-- **876 isolated node(s):** `Data`, `User`, `Variants`, `SharedProps`, `FlashMessages` (+871 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1070 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **898 isolated node(s):** `Data`, `User`, `Variants`, `SharedProps`, `FlashMessages` (+893 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1101 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **54 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `submit()` connect `lib/auth.ts` to `validators/user.ts`?**
-  _High betweenness centrality (0.104) - this node is a cross-community bridge._
-- **Why does `luxon` connect `production_lifecycle.spec.ts` to `matching_service.ts`, `manufacturer.ts`, `manufacturer-network/package.json`, `match_offer.ts`, `validators/user.ts`, `webhook_delivery.ts`, `production_lifecycle.ts`, `models/production_request.ts`?**
-  _High betweenness centrality (0.070) - this node is a cross-community bridge._
+- **Why does `luxon` connect `matching_sweep.spec.ts` to `manufacturer-network/package.json`, `production_lifecycle.spec.ts`, `routes.ts`, `webhook_delivery.ts`, `production_lifecycle.ts`, `models/production_request.ts`, `schema.ts`, `matching_service.ts`?**
+  _High betweenness centrality (0.064) - this node is a cross-community bridge._
 - **What connects `Data`, `User`, `Variants` to the rest of the system?**
-  _876 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _898 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `main.py` be split into smaller, more focused modules?**
   _Cohesion score 0.05568039950062422 - nodes in this community are weakly interconnected._
 - **Should `request.tsx` be split into smaller, more focused modules?**
   _Cohesion score 0.0753045404208195 - nodes in this community are weakly interconnected._
 - **Should `storefront/package.json` be split into smaller, more focused modules?**
-  _Cohesion score 0.045454545454545456 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.11764705882352941 - nodes in this community are weakly interconnected._
 - **Should `manufacturer-network/package.json` be split into smaller, more focused modules?**
   _Cohesion score 0.05263157894736842 - nodes in this community are weakly interconnected._
+- **Should `store/package.json` be split into smaller, more focused modules?**
+  _Cohesion score 0.058823529411764705 - nodes in this community are weakly interconnected._

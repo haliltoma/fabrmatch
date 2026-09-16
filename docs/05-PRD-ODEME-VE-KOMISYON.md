@@ -46,19 +46,23 @@ dedi anda hemen öde" davranışı, gerçek bir escrow'a dönüştürüldü — 
 artık `received` olarak `release_at` (varsayılan 48 saat, `PAYOUT_RELEASE_WINDOW_HOURS`)
 ile kaydedilir; `release-due-payouts` job'ı (15 dk) pencere dolunca ve anlaşmazlık
 yoksa otomatik serbest bırakır. Admin, alıcı adına `POST /admin/disputes` ile
-anlaşmazlık açar (alıcı hesabı henüz yok — bkz. aşağıdaki ertelenen madde); bu,
-bekleyen talimatı `on_hold`a alır. Kanıt AYRICA saklanmaz — `GET
-/admin/disputes/:id`, zaten var olan `production_request.tracking_number` /
+anlaşmazlık açar; bu, bekleyen talimatı `on_hold`a alır. Kanıt AYRICA saklanmaz —
+`GET /admin/disputes/:id`, zaten var olan `production_request.tracking_number` /
 `production_photos` ve `inbound_webhook_event` olay geçmişini canlı okur.
 `POST /admin/disputes/:id/resolve` (`manufacturer` | `buyer` | `dismiss`) `on_hold`
 talimatı sırasıyla serbest bırakır veya `cancelled` yapar; çözülmüş bir anlaşmazlık
 tekrar çözülemez. Detay: [[07-KARAR-GECMISI-VE-DEGISIM-GUNLUGU]].
 
+**Not (2026-09-16, bu iş bittikten sonra eklendi):** Storefront'a gerçek bir alıcı
+hesabı/girişi eklendi (bkz. [[01-PRD-STOREFRONT-ASTRO]]) — yazıldığı sırada bu PRD
+"alıcı hesabı henüz yok" varsayımıyla yazılmıştı, artık geçerli değil. Anlaşmazlık
+açma hâlâ yalnızca admin üzerinden (`POST /admin/disputes`); artık gerçek bir alıcı
+kimliği olduğu için bunu doğrudan alıcıya taşıyan bir `POST /store/disputes` ucu
+teknik olarak mümkün ama henüz yazılmadı — kapsam dışı, ayrı bir iş kalemi.
+
 **Bilinçli olarak ertelenen:** üretici için gerçek Stripe Connect onboarding akışı
-(şu an `stripe_account_id` sadece bir veritabanı sütunu); alıcı hesabı/girişi
-olmadığı için anlaşmazlıklar şimdilik yalnızca admin tarafından (destek talebiyle)
-açılabiliyor — hesap sistemi eklenince `POST /admin/disputes` deseni bir
-`POST /store/disputes` ucuna taşınabilir.
+(şu an `stripe_account_id` sadece bir veritabanı sütunu); alıcı tarafından doğrudan
+anlaşmazlık açma (`POST /store/disputes`, yukarıya bakın).
 
 ## Başarı Kriterleri
 
