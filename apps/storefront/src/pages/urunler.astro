@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import ProductCard from '../components/ProductCard.astro';
+import ProductsWithFilter from '../components/ProductsWithFilter';
 import { listAllProducts, listLeafCategories } from '../lib/store-data';
 
 const [products, categories] = await Promise.all([listAllProducts(), listLeafCategories()]);
@@ -11,16 +11,10 @@ const [products, categories] = await Promise.all([listAllProducts(), listLeafCat
     <p class="fm-breadcrumbs"><a href="/">anasayfa</a> / tüm ürünler</p>
     <h1>Tüm ürünler</h1>
 
-    <div class="fm-category-grid">
-      {categories.map((category) => (
-        <a href={`/kategori/${category.handle}`} class="fm-category-card">
-          {category.name}
-        </a>
-      ))}
-    </div>
-
-    <div class="fm-product-grid">
-      {products.map((product) => <ProductCard product={product} />)}
-    </div>
+    <ProductsWithFilter
+      products={products}
+      categories={categories}
+      client:load
+    />
   </div>
 </BaseLayout>

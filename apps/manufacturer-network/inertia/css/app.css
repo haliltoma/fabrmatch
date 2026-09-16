@@ -1,47 +1,57 @@
 /*
  * Fabrmatch üretici paneli — docs/06-PRD-TASARIM-SISTEMI.md ZORUNLU referans.
- * Buradaki renkler/boyutlar 06 dışına çıkamaz. Yeni kalıp gerekiyorsa önce 06'ya eklenir.
+ * Fibonacci aralık skalası: 5·8·13·21·34·55·89·144 px
  * Yasak: gradient, gölge, blur, 600/700 ağırlık, Title Case, emoji, ekranda >1 solid sage buton.
+ * B2B tarafı olduğu için honey renk ailesi baskın; sage sadece aksiyon butonunda.
  */
 
 :root {
   /* 06 §1 — marka renkleri */
-  --fm-sage-bg: #eef2e4;
-  --fm-sage-text: #33472b;
-  --fm-sage-muted: #4e5f45;
-  --fm-sage-solid: #5b7a4f;
+  --fm-sage-bg:       #eef2e4;
+  --fm-sage-text:     #33472b;
+  --fm-sage-muted:    #4e5f45;
+  --fm-sage-solid:    #5b7a4f;
   --fm-sage-on-solid: #eaf3de;
 
-  --fm-honey-bg: #f7efdf;
-  --fm-honey-text: #6b4e1f;
-  --fm-honey-muted: #7a6640;
-  --fm-honey-solid: #c99a45;
+  --fm-honey-bg:      #f7efdf;
+  --fm-honey-text:    #6b4e1f;
+  --fm-honey-muted:   #7a6640;
+  --fm-honey-solid:   #c99a45;
 
-  --fm-material-used: #5b7a4f;
+  --fm-material-used:  #5b7a4f;
   --fm-material-waste: #c99a45;
 
-  --fm-danger-bg: #fcebeb;
+  --fm-danger-bg:   #fcebeb;
   --fm-danger-text: #a32d2d;
 
-  /* Nötr uygulama tokenları (06: nötr metin/zemin için bunlar kullanılır) */
-  --text-primary: oklch(14.5% 0 0);
+  /* Nötr tokenlar */
+  --text-primary:   oklch(14.5% 0 0);
   --text-secondary: oklch(43.9% 0 0);
-  --surface-0: oklch(97% 0 0);
-  --surface-1: #ffffff;
-  --border: oklch(92.2% 0 0);
-  --radius: 8px;
+  --surface-0:      oklch(97% 0 0);
+  --surface-1:      #ffffff;
+  --border:         oklch(92.2% 0 0);
+  --radius:         8px;
+
+  /* Fibonacci aralık skalası (φ≈1.618) */
+  --sp-1:  5px;
+  --sp-2:  8px;
+  --sp-3:  13px;
+  --sp-4:  21px;
+  --sp-5:  34px;
+  --sp-6:  55px;
+  --sp-7:  89px;
+
+  --transition: 0.12s ease;
 }
 
-* {
-  box-sizing: border-box;
+/* ─── Reset & base ─── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
   margin: 0;
   padding: 0;
-}
-
-html,
-body {
   min-height: 100%;
-  font-family: system-ui, sans-serif;
+  font-family: system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   background: var(--surface-0);
   color: var(--text-primary);
@@ -55,276 +65,414 @@ a {
   text-decoration: none;
 }
 
-/* 06 §2 — tipografi: sadece 400/500, h1 22 / h2 18 / h3 16 */
-h1,
-h2,
-h3 {
+/* 06 §2 — sadece 400/500, letter-spacing eksi */
+h1, h2, h3 {
   font-weight: 500;
-  color: var(--text-primary);
-  line-height: 1.4;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+  margin: 0;
 }
-h1 {
-  font-size: 22px;
-}
-h2 {
-  font-size: 18px;
-}
-h3 {
-  font-size: 16px;
-}
-.fm-small {
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-.fm-muted {
-  color: var(--text-secondary);
-}
+h1 { font-size: 22px; }
+h2 { font-size: 18px; }
+h3 { font-size: 16px; }
+p  { margin: 0; }
+
+.fm-small { font-size: 13px; }
+.fm-muted { color: var(--text-secondary); }
 
 .ti {
   font-size: 18px;
   line-height: 1;
 }
 
-/* Kabuk: B2B tarafı → honey şerit */
+/* ─── Header — honey şerit (B2B kimliği) ─── */
 .fm-header {
   background: var(--fm-honey-bg);
-  color: var(--fm-honey-text);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(201, 154, 69, 0.2);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
+
 .fm-header__inner {
   max-width: 1080px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 var(--sp-4);
   height: 56px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--sp-3);
 }
+
 .fm-brand {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-2);
   font-weight: 500;
+  font-size: 15px;
+  color: var(--fm-honey-text);
 }
+
+.fm-brand .ti {
+  font-size: 20px;
+  color: var(--fm-honey-solid);
+}
+
 .fm-nav {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: var(--sp-4);
   font-size: 13px;
 }
+
 .fm-nav a {
   color: var(--fm-honey-muted);
+  transition: color var(--transition);
 }
+
 .fm-nav a:hover,
 .fm-nav a[aria-current='page'] {
   color: var(--fm-honey-text);
 }
 
+/* ─── Sayfa düzeni ─── */
 .fm-page {
   max-width: 1080px;
   margin: 0 auto;
-  padding: 32px 24px 64px;
+  padding: var(--sp-5) var(--sp-4) var(--sp-8);
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--sp-4);
 }
+
 .fm-page__head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--sp-3);
 }
 
-/* Kart */
+/* ─── Kart ─── */
 .fm-card {
   background: var(--surface-1);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 20px;
+  padding: var(--sp-4);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--sp-3);
 }
+
 .fm-card--honey {
   background: var(--fm-honey-bg);
+  border-color: rgba(201, 154, 69, 0.3);
   color: var(--fm-honey-text);
 }
 
-/* Dengeli istatistik şeridi (06 §3 güven şeridi mantığı: sütunlar eşit) */
+.fm-card--honey h3 {
+  color: var(--fm-honey-text);
+}
+
+/* ─── İstatistik şeridi — ikonlu, dengeli (φ: sütunlar 1:1:1) ─── */
 .fm-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: var(--sp-3);
 }
+
 .fm-stat {
   background: var(--surface-1);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 16px;
-}
-.fm-stat__value {
-  font-size: 22px;
-  font-weight: 500;
+  padding: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
 }
 
-/* 06 §3 — butonlar. Varsayılan outline; solid sage ekranda en fazla bir tane */
+.fm-stat__icon {
+  font-size: 22px;
+  color: var(--fm-honey-solid);
+}
+
+.fm-stat__label {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.fm-stat__value {
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  font-feature-settings: "tnum";
+  color: var(--text-primary);
+}
+
+/* ─── Butonlar (06 §3) ─── */
 .fm-button {
   height: 38px;
-  padding: 0 14px;
+  padding: 0 var(--sp-3);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: var(--sp-1);
   border-radius: var(--radius);
   border: 1px solid var(--border);
-  background: transparent;
+  background: var(--surface-1);
   color: var(--text-primary);
   font: inherit;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
+  transition: background var(--transition), border-color var(--transition), opacity var(--transition);
 }
-.fm-button:hover {
-  background: var(--surface-0);
-}
+
+.fm-button:hover { background: var(--surface-0); }
+
 .fm-button--primary {
   background: var(--fm-sage-solid);
   color: var(--fm-sage-on-solid);
   border-color: var(--fm-sage-solid);
 }
-.fm-button--primary:hover {
-  background: var(--fm-sage-solid);
-  opacity: 0.92;
-}
+
+.fm-button--primary:hover { opacity: 0.9; }
+
 .fm-button--quiet {
   border-color: transparent;
+  background: transparent;
 }
+
+.fm-button--quiet:hover { background: var(--surface-0); border-color: var(--border); }
+
 .fm-button:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
 }
+
 .fm-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--sp-2);
 }
 
-/* Rozet */
+/* ─── Rozet ─── */
 .fm-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--sp-1);
   font-size: 12px;
-  padding: 2px 8px;
+  font-weight: 500;
+  padding: 2px var(--sp-2);
   border-radius: 20px;
   background: var(--surface-0);
   color: var(--text-secondary);
+  border: 1px solid var(--border);
 }
+
 .fm-badge--honey {
   background: var(--fm-honey-bg);
   color: var(--fm-honey-text);
+  border-color: transparent;
 }
+
 .fm-badge--sage {
   background: var(--fm-sage-bg);
   color: var(--fm-sage-text);
+  border-color: transparent;
 }
 
-/* Liste satırları */
+/* ─── Liste satırları ─── */
 .fm-list {
   list-style: none;
   display: flex;
   flex-direction: column;
 }
+
 .fm-list__row {
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
-  gap: 16px;
-  padding: 14px 0;
+  gap: var(--sp-3);
+  padding: var(--sp-3) 0;
   border-top: 1px solid var(--border);
 }
-.fm-list__row:first-child {
-  border-top: none;
+
+.fm-list__row:first-child { border-top: none; }
+
+.fm-list__row h3 {
+  font-size: 15px;
+  color: var(--fm-honey-text);
+  transition: color var(--transition);
 }
+
+.fm-list__row h3:hover { color: var(--fm-honey-solid); }
+
 .fm-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 16px;
+  gap: 4px var(--sp-3);
   font-size: 13px;
   color: var(--text-secondary);
+  margin-top: var(--sp-1);
 }
 
-/* Formlar */
+/* ─── Üretim adımları — görsel ilerleme göstergesi ─── */
+.fm-steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.fm-step {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  font-size: 14px;
+  color: var(--text-secondary);
+  position: relative;
+  padding-bottom: var(--sp-3);
+}
+
+/* Dikey bağlantı çizgisi */
+.fm-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 24px;
+  width: 1px;
+  height: calc(100% - 8px);
+  background: var(--border);
+}
+
+.fm-step__dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--surface-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  position: relative;
+  z-index: 1;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.fm-step__content {
+  padding-top: 2px;
+}
+
+.fm-step--done .fm-step__dot {
+  background: var(--fm-sage-bg);
+  border-color: var(--fm-sage-solid);
+  color: var(--fm-sage-solid);
+}
+
+.fm-step--done { color: var(--fm-sage-muted); }
+
+.fm-step--current .fm-step__dot {
+  background: var(--fm-honey-bg);
+  border-color: var(--fm-honey-solid);
+  color: var(--fm-honey-solid);
+}
+
+.fm-step--current {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* ─── Formlar ─── */
 .fm-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--sp-3);
 }
+
 .fm-form__grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: var(--sp-3);
 }
+
 .fm-field label {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: var(--sp-1);
   font-size: 13px;
   font-weight: 500;
 }
+
 .fm-field input,
 .fm-field select,
 .fm-field textarea {
   width: 100%;
-  height: 38px;
-  padding: 0 12px;
+  height: 40px;
+  padding: 0 var(--sp-3);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface-1);
   font: inherit;
   font-size: 14px;
+  color: var(--text-primary);
+  transition: border-color var(--transition);
 }
+
+.fm-field input:focus,
+.fm-field select:focus,
+.fm-field textarea:focus {
+  outline: none;
+  border-color: var(--fm-honey-solid);
+}
+
 .fm-field textarea {
   height: auto;
   min-height: 88px;
-  padding: 8px 12px;
+  padding: var(--sp-2) var(--sp-3);
   resize: vertical;
 }
+
 .fm-field__hint {
-  margin-top: 4px;
+  margin-top: var(--sp-1);
   font-size: 12px;
   color: var(--text-secondary);
 }
-.fm-field [data-invalid='true'] {
-  border-color: var(--fm-danger-text);
-}
+
+.fm-field [data-invalid='true'] { border-color: var(--fm-danger-text); }
+
 .fm-field__error {
-  margin-top: 4px;
+  margin-top: var(--sp-1);
   font-size: 12px;
   color: var(--fm-danger-text);
 }
+
 .fm-checkboxes {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 16px;
+  gap: var(--sp-2) var(--sp-4);
   font-size: 14px;
 }
+
 .fm-checkboxes label {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--sp-1);
   font-weight: 400;
 }
+
 .fm-notice {
   background: var(--fm-danger-bg);
   color: var(--fm-danger-text);
   border-radius: var(--radius);
-  padding: 10px 14px;
+  padding: var(--sp-2) var(--sp-3);
   font-size: 13px;
 }
 
-/* 06 §3 — malzeme verimliliği çubuğu (her zaman görünür, aç/kapa yok) */
+/* ─── Malzeme verimliliği çubuğu (06 §3) ─── */
 .fm-material-bar {
   height: 8px;
   border-radius: 20px;
@@ -332,70 +480,61 @@ h3 {
   overflow: hidden;
   display: flex;
 }
-.fm-material-bar__used {
-  background: var(--fm-material-used);
-}
-.fm-material-bar__waste {
-  background: var(--fm-material-waste);
-}
+
+.fm-material-bar__used  { background: var(--fm-material-used); }
+.fm-material-bar__waste { background: var(--fm-material-waste); }
+
 .fm-material-legend {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: var(--sp-2);
   font-size: 13px;
   color: var(--text-secondary);
 }
+
 .fm-material-legend strong {
   display: block;
   font-weight: 500;
   color: var(--text-primary);
+  font-feature-settings: "tnum";
 }
 
-/* Üretim adımları (checklist) */
-.fm-steps {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.fm-step {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-.fm-step--done {
-  color: var(--fm-sage-text);
-}
-.fm-step--current {
-  color: var(--text-primary);
-  font-weight: 500;
-}
-
+/* ─── Boş durum ─── */
 .fm-empty {
-  padding: 32px;
+  padding: var(--sp-6);
   text-align: center;
   color: var(--text-secondary);
   font-size: 14px;
 }
 
-/* Giriş/kayıt formları */
+/* ─── Giriş/kayıt ─── */
 .fm-auth {
   max-width: 400px;
-  margin: 48px auto;
+  margin: var(--sp-7) auto var(--sp-8);
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--sp-4);
 }
 
+.fm-auth__header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.fm-auth__header .ti {
+  font-size: 32px;
+  color: var(--fm-honey-solid);
+}
+
+/* ─── Responsive ─── */
 @media (max-width: 720px) {
   .fm-stats,
   .fm-form__grid,
   .fm-material-legend {
     grid-template-columns: 1fr;
   }
-  .fm-page__head {
-    flex-direction: column;
-  }
+  .fm-page__head { flex-direction: column; }
+  .fm-material-legend { grid-template-columns: repeat(2, 1fr); }
 }

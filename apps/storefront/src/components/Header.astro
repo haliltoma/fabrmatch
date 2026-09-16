@@ -1,22 +1,50 @@
 ---
 import CartCount from './CartCount';
 import AccountLink from './AccountLink';
+import MobileMenu from './MobileMenu';
 ---
+
+<script>
+  // Scroll-aware header: 20px geçilince data-scrolled="true"
+  const header = document.querySelector('.fm-header')
+  if (header) {
+    const update = () => header.setAttribute('data-scrolled', window.scrollY > 20 ? 'true' : 'false')
+    window.addEventListener('scroll', update, { passive: true })
+    update()
+  }
+</script>
 
 <header class="fm-header">
   <div class="fm-header__inner">
+    <!-- Marka logosu -->
     <a href="/" class="fm-brand">
       <i class="ti ti-leaf" aria-hidden="true"></i>
       fabrmatch
     </a>
-    <nav class="fm-nav">
-      <a href="/ozel-tasarim">özel tasarım</a>
+
+    <!-- Masaüstü orta navigasyon -->
+    <nav class="fm-nav" aria-label="Ana navigasyon">
+      <a href="/urunler" class="fm-nav__link">ürünler</a>
+      <a href="/ozel-tasarim" class="fm-nav__link">özel tasarım</a>
+      <a href="/nasil-calisir" class="fm-nav__link">nasıl çalışır</a>
+    </nav>
+
+    <!-- Masaüstü sağ kontroller -->
+    <div class="fm-header__right">
       <AccountLink client:load />
       <a href="/sepet" class="fm-cart-link" aria-label="Sepet">
         <i class="ti ti-shopping-bag" aria-hidden="true"></i>
-        sepet
         <CartCount client:load />
       </a>
-    </nav>
+    </div>
+
+    <!-- Mobil: sepet + hamburger -->
+    <div class="fm-header__mobile">
+      <a href="/sepet" class="fm-cart-link" aria-label="Sepet">
+        <i class="ti ti-shopping-bag" aria-hidden="true"></i>
+        <CartCount client:load />
+      </a>
+      <MobileMenu client:load />
+    </div>
   </div>
 </header>

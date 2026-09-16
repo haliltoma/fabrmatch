@@ -175,17 +175,30 @@ export default function RequestDetail({ job, openOfferId }: Props) {
       <section className="fm-card">
         <h2>Üretim adımları</h2>
         <ol className="fm-steps">
-          {STEPS.map((step, index) => (
-            <li
-              key={step.status}
-              className={`fm-step ${index < reached ? 'fm-step--done' : ''} ${index === reached ? 'fm-step--current' : ''}`}
-            >
-              <i className={`ti ${index <= reached ? 'ti-circle-check' : step.icon}`} aria-hidden="true" />
-              {step.label}
-            </li>
-          ))}
+          {STEPS.map((step, index) => {
+            const done = index < reached
+            const current = index === reached
+            return (
+              <li
+                key={step.status}
+                className={`fm-step ${done ? 'fm-step--done' : ''} ${current ? 'fm-step--current' : ''}`}
+              >
+                <span className="fm-step__dot" aria-hidden="true">
+                  {done
+                    ? <i className="ti ti-check" />
+                    : <i className={`ti ${step.icon}`} />
+                  }
+                </span>
+                <span className="fm-step__content">{step.label}</span>
+              </li>
+            )
+          })}
         </ol>
-        {job.trackingNumber && <p className="fm-small">Takip numarası: {job.trackingNumber}</p>}
+        {job.trackingNumber && (
+          <p className="fm-small fm-muted">
+            <i className="ti ti-barcode" aria-hidden="true" /> Takip numarası: <strong style={{ fontWeight: 500 }}>{job.trackingNumber}</strong>
+          </p>
+        )}
         <NextStep job={job} openOfferId={openOfferId} />
       </section>
     </div>

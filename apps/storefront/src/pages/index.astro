@@ -1,19 +1,35 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProductCard from '../components/ProductCard.astro';
+import Hero3D from '../components/Hero3D';
+import HeroText from '../components/HeroText';
+import MotionInit from '../components/MotionInit.astro';
 import { listAllProducts } from '../lib/store-data';
 
 const products = (await listAllProducts()).slice(0, 8);
 ---
 
 <BaseLayout title="Siparişe göre 3D baskı">
-  <section class="fm-hero">
-    <span class="fm-hero__region"><i class="ti ti-map-pin" aria-hidden="true"></i> Türkiye · TRY</span>
-    <h1>Siparişe göre üretilen 3D baskı ürünler</h1>
-    <p>Hazır katalogdan seçin ya da kendi tasarımınızı yükleyin — ikisi de aynı sepette birleşir.</p>
-  </section>
+  <!-- Full-bleed hero: animated metin sol, 3D canvas sağ -->
+  <div class="fm-hero-wrapper">
+    <section class="fm-hero">
+      <HeroText
+        client:load
+        region="Türkiye · TRY"
+        title="Siparişe göre<br />üretilen 3D baskı"
+        description="Hazır katalogdan seçin ya da kendi tasarımınızı yükleyin — bölgenizdeki üretici basar, kapınıza gelir."
+        primaryHref="/urunler"
+        primaryLabel="kataloğa bak"
+        secondaryHref="/ozel-tasarim"
+        secondaryLabel="tasarım yükle"
+      />
+      <div class="fm-hero__canvas" aria-hidden="true">
+        <Hero3D client:only="react" />
+      </div>
+    </section>
+  </div>
 
-  <section class="fm-entry-grid">
+  <section class="fm-entry-grid" aria-label="Ne yapmak istiyorsunuz?">
     <a href="/urunler" class="fm-entry-card">
       <i class="ti ti-shopping-bag" aria-hidden="true"></i>
       <h2>Katalogdan seç</h2>
@@ -26,31 +42,33 @@ const products = (await listAllProducts()).slice(0, 8);
     </a>
   </section>
 
-  <section class="fm-trust">
+  <section class="fm-trust" aria-label="Neden Fabrmatch?">
     <div class="fm-trust__item">
       <i class="ti ti-shield-check" aria-hidden="true"></i>
-      <span class="fm-trust__value">Güvenli ödeme</span>
+      <span class="fm-trust__value">Güvenceli ödeme</span>
       <span class="fm-small fm-muted">Teslimat onaylanana kadar ödemeniz güvencededir</span>
     </div>
     <div class="fm-trust__item">
       <i class="ti ti-truck" aria-hidden="true"></i>
-      <span class="fm-trust__value">Bölgenizden üretim</span>
+      <span class="fm-trust__value">Bölgesel üretim</span>
       <span class="fm-small fm-muted">Siparişiniz size en yakın üreticiye yönlendirilir</span>
     </div>
     <div class="fm-trust__item">
       <i class="ti ti-star" aria-hidden="true"></i>
-      <span class="fm-trust__value">Kalite kontrollü</span>
-      <span class="fm-small fm-muted">Her üretim fotoğraflarla belgelenir</span>
+      <span class="fm-trust__value">Kalite belgelenir</span>
+      <span class="fm-small fm-muted">Her üretim fotoğraflarla kayıt altına alınır</span>
     </div>
   </section>
 
   <section class="fm-page" style="padding-top:0">
-    <div class="fm-page__head" style="display:flex; justify-content:space-between; align-items:baseline;">
+    <div class="fm-page__head">
       <h2>Öne çıkanlar</h2>
-      <a href="/urunler" class="fm-small">tüm ürünler →</a>
+      <a href="/urunler" class="fm-small fm-muted">tüm ürünler →</a>
     </div>
     <div class="fm-product-grid">
       {products.map((product) => <ProductCard product={product} />)}
     </div>
   </section>
+
+  <MotionInit />
 </BaseLayout>

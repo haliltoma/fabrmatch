@@ -32,30 +32,42 @@ export default function Dashboard({ manufacturer, offers, jobs }: Props) {
       <div className="fm-page__head">
         <div>
           <h1>Üretim paneli</h1>
-          <p className="fm-small">
-            {manufacturer.displayName} · <span className="fm-badge fm-badge--honey">{manufacturer.publicCode}</span>
+          <p className="fm-small fm-muted" style={{ marginTop: 4 }}>
+            {manufacturer.displayName}
+            {' · '}
+            <span className="fm-badge fm-badge--honey">{manufacturer.publicCode}</span>
           </p>
         </div>
       </div>
 
       {manufacturer.status !== 'active' && (
         <div className="fm-card fm-card--honey">
-          <h3>Başvurunuz inceleniyor</h3>
-          <p className="fm-small">Profiliniz onaylandığında size uygun işler burada teklif olarak görünecek.</p>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+            <i className="ti ti-clock-hour-4" aria-hidden="true" style={{ fontSize: 20, marginTop: 2, flexShrink: 0 }} />
+            <div>
+              <h3>Başvurunuz inceleniyor</h3>
+              <p className="fm-small" style={{ marginTop: 4 }}>
+                Profiliniz onaylandığında size uygun işler burada teklif olarak görünecek.
+              </p>
+            </div>
+          </div>
         </div>
       )}
 
       <div className="fm-stats">
         <div className="fm-stat">
-          <div className="fm-small">Açık teklifler</div>
+          <i className="ti ti-inbox fm-stat__icon" aria-hidden="true" />
+          <div className="fm-stat__label">Açık teklifler</div>
           <div className="fm-stat__value">{offers.length}</div>
         </div>
         <div className="fm-stat">
-          <div className="fm-small">Devam eden işler</div>
+          <i className="ti ti-loader fm-stat__icon" aria-hidden="true" />
+          <div className="fm-stat__label">Devam eden işler</div>
           <div className="fm-stat__value">{jobs.length}</div>
         </div>
         <div className="fm-stat">
-          <div className="fm-small">Tamamlanan siparişler</div>
+          <i className="ti ti-circle-check fm-stat__icon" aria-hidden="true" />
+          <div className="fm-stat__label">Tamamlanan siparişler</div>
           <div className="fm-stat__value">{manufacturer.completedOrders}</div>
         </div>
       </div>
@@ -73,9 +85,12 @@ export default function Dashboard({ manufacturer, offers, jobs }: Props) {
                     <h3>{offer.job.designReference}</h3>
                   </Link>
                   <JobMeta job={offer.job} />
-                  <p className="fm-small">
-                    Kazancınız {money(offer.quotedPayout, offer.job.currencyCode)} · teklif{' '}
-                    {date(offer.expiresAt)} tarihinde kapanır
+                  <p className="fm-small fm-muted" style={{ marginTop: 4 }}>
+                    Kazancınız{' '}
+                    <strong style={{ color: 'var(--fm-honey-text)', fontWeight: 500 }}>
+                      {money(offer.quotedPayout, offer.job.currencyCode)}
+                    </strong>
+                    {' · '}teklif {date(offer.expiresAt)} tarihinde kapanır
                   </p>
                 </div>
                 <div className="fm-actions">
