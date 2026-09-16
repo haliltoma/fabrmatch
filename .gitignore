@@ -1,0 +1,20 @@
+node_modules/
+.DS_Store
+.env
+.env.*
+!.env.example
+dist/
+build/
+.turbo/
+.astro/
+.medusa/
+__pycache__/
+.venv/
+.pytest_cache/
+*.log
+tmp/
+uploads/
+
+# Obsidian — workspace durumu kişiseldir, ayarlar paylaşılır
+docs/.obsidian/workspace*.json
+docs/.obsidian/cache

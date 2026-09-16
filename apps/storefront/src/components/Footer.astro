@@ -1,0 +1,16 @@
+---
+import { PUBLIC_MEDUSA_BACKEND_URL } from 'astro:env/client';
+
+const year = new Date().getFullYear();
+const sellerSignupUrl = new URL('/seller/register', PUBLIC_MEDUSA_BACKEND_URL).toString();
+---
+
+<footer class="fm-footer">
+  <div class="fm-footer__inner">
+    <span>&copy; {year} Fabrmatch</span>
+    <a href="/ozel-tasarim">özel tasarımınızı yükleyin</a>
+    <a href={sellerSignupUrl} class="fm-footer__b2b">
+      <i class="ti ti-briefcase" aria-hidden="true"></i> satıcı mısınız? mağaza açın
+    </a>
+  </div>
+</footer>

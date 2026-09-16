@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CartPage from '../components/CartPage';
+---
+
+<BaseLayout title="Sepetim">
+  <div class="fm-page">
+    <CartPage client:only="react" />
+  </div>
+</BaseLayout>

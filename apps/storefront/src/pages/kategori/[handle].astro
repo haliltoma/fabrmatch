@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { listAllProducts, listLeafCategories } from '../../lib/store-data';
+
+export async function getStaticPaths() {
+  const [categories, products] = await Promise.all([listLeafCategories(), listAllProducts()]);
+  return categories.map((category) => ({
+    params: { handle: category.handle },
+    props: {
+      category,
+      products: products.filter((product) => product.categories.some((c) => c.id === category.id)),
+    },
+  }));
+}
+
+const { category, products } = Astro.props;
+---
+
+<BaseLayout title={category.name}>
+  <div class="fm-page">
+    <p class="fm-breadcrumbs">
+      <a href="/">anasayfa</a> / <a href="/urunler">tüm ürünler</a> / {category.name}
+    </p>
+    <h1>{category.name}</h1>
+
+    {products.length === 0 ? (
+      <p class="fm-empty">Bu kategoride henüz ürün yok.</p>
+    ) : (
+      <div class="fm-product-grid">
+        {products.map((product) => <ProductCard product={product} />)}
+      </div>
+    )}
+  </div>
+</BaseLayout>

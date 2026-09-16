@@ -1,0 +1,60 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import VariantOfferPicker from '../../components/VariantOfferPicker';
+import { listAllProducts, getDefaultRegion } from '../../lib/store-data';
+
+export async function getStaticPaths() {
+  const products = await listAllProducts();
+  return products.map((product) => ({ params: { handle: product.handle }, props: { product } }));
+}
+
+const { product } = Astro.props;
+const region = await getDefaultRegion();
+const profile = product.metadata?.print_profile;
+const totalWeight = profile ? profile.part_weight_g + profile.support_weight_g : 0;
+const usedPercent = profile && totalWeight > 0 ? (profile.part_weight_g / totalWeight) * 100 : 100;
+---
+
+<BaseLayout title={product.title} description={product.description ?? undefined}>
+  <div class="fm-page">
+    <p class="fm-breadcrumbs">
+      <a href="/">anasayfa</a> / <a href={`/kategori/${product.categories[0]?.handle}`}>{product.categories[0]?.name}</a> / {product.title}
+    </p>
+
+    <div class="fm-pdp">
+      <div class="fm-pdp__gallery">
+        {product.thumbnail && <img src={product.thumbnail} alt={product.title} />}
+        <span class="fm-3d-badge">
+          <i class="ti ti-rotate-3d" aria-hidden="true"></i>3D
+        </span>
+      </div>
+
+      <div class="fm-pdp__info">
+        <h1>{product.title}</h1>
+        {product.description && <p class="fm-muted">{product.description}</p>}
+
+        <VariantOfferPicker client:load product={product} regionId={region.id} />
+
+        {profile && (
+          <div class="fm-form">
+            <label class="fm-small" style="font-weight:500">Malzeme verimliliği</label>
+            <div
+              class="fm-material-bar"
+              role="img"
+              aria-label={`Malzemenin yüzde ${Math.round(usedPercent)} kadarı ürüne gidiyor`}
+            >
+              <div class="fm-material-bar__used" style={`width:${usedPercent}%`}></div>
+              <div class="fm-material-bar__waste" style={`width:${100 - usedPercent}%`}></div>
+            </div>
+            <div class="fm-material-legend">
+              <div><strong>{profile.slicer}</strong>slicer</div>
+              <div><strong>{profile.part_weight_g} g</strong>ürün ağırlığı</div>
+              <div><strong>{profile.support_weight_g} g</strong>destek ve atık</div>
+              <div><strong>{profile.print_time_minutes} dk</strong>tahmini baskı süresi</div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+</BaseLayout>

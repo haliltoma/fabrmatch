@@ -1,0 +1,15 @@
+# Yerel geliştirme altyapısı.
+# Postgres Homebrew servisi olarak yerelde çalışıyor (5432) — burada sadece Redis var.
+# Veritabanları: fabrmatch_store (Sistem A), fabrmatch_network (Sistem B)
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: fabrmatch-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+volumes:
+  redis-data:

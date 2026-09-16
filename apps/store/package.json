@@ -1,0 +1,104 @@
+{
+  "name": "store",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "check-types": "turbo run check-types"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "5.4.0",
+    "@medusajs/icons": "2.20.1",
+    "@medusajs/ui": "4.2.3",
+    "@mercurjs/client": "2.3.4",
+    "@mercurjs/dashboard-sdk": "2.3.4",
+    "@mercurjs/dashboard-shared": "2.3.4",
+    "@mercurjs/docs": "2.3.4",
+    "@tanstack/react-query": "5.64.2",
+    "@tanstack/react-table": "8.21.3",
+    "jsonwebtoken": "9.0.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-hook-form": "7.49.1",
+    "react-i18next": "17.0.8",
+    "react-jwt": "2.1.1",
+    "react-router-dom": "7.18.1",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/react": "^18.3.2",
+    "@types/react-dom": "^18.2.25",
+    "@vitejs/plugin-react": "^5.2.0",
+    "ajv": "^8.20.0",
+    "esbuild": "^0.25.0",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "prettier": "^3.7.4",
+    "ts-node": "^10.9.2",
+    "turbo": "^2.7.4",
+    "typescript": "5.9.3",
+    "typescript-eslint": "^8.46.4",
+    "vite": "^6.4.3"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "npm@11.9.0",
+  "resolutions": {
+    "@medusajs/admin-sdk": "2.20.1",
+    "@medusajs/admin-shared": "2.20.1",
+    "@medusajs/cli": "2.20.1",
+    "@medusajs/core-flows": "2.20.1",
+    "@medusajs/dashboard": "2.20.1",
+    "@medusajs/draft-order": "2.20.1",
+    "@medusajs/framework": "2.20.1",
+    "@medusajs/icons": "2.20.1",
+    "@medusajs/medusa": "2.20.1",
+    "@medusajs/test-utils": "2.20.1",
+    "@medusajs/types": "2.20.1",
+    "@medusajs/ui": "4.2.3",
+    "zod": "3.25.76"
+  },
+  "overrides": {
+    "@medusajs/admin-sdk": "2.20.1",
+    "@medusajs/admin-shared": "2.20.1",
+    "@medusajs/cli": "2.20.1",
+    "@medusajs/core-flows": "2.20.1",
+    "@medusajs/dashboard": "2.20.1",
+    "@medusajs/draft-order": "2.20.1",
+    "@medusajs/framework": "2.20.1",
+    "@medusajs/icons": "2.20.1",
+    "@medusajs/medusa": "2.20.1",
+    "@medusajs/test-utils": "2.20.1",
+    "@medusajs/types": "2.20.1",
+    "@medusajs/ui": "4.2.3",
+    "zod": "3.25.76"
+  },
+  "pnpm": {
+    "overrides": {
+      "@medusajs/admin-sdk": "2.20.1",
+      "@medusajs/admin-shared": "2.20.1",
+      "@medusajs/cli": "2.20.1",
+      "@medusajs/core-flows": "2.20.1",
+      "@medusajs/dashboard": "2.20.1",
+      "@medusajs/draft-order": "2.20.1",
+      "@medusajs/framework": "2.20.1",
+      "@medusajs/icons": "2.20.1",
+      "@medusajs/medusa": "2.20.1",
+      "@medusajs/test-utils": "2.20.1",
+      "@medusajs/types": "2.20.1",
+      "@medusajs/ui": "4.2.3",
+      "zod": "3.25.76"
+    }
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ]
+}

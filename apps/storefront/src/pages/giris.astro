@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AuthPage from '../components/AuthPage';
+---
+
+<BaseLayout title="Giriş">
+  <div class="fm-page">
+    <AuthPage client:only="react" />
+  </div>
+</BaseLayout>

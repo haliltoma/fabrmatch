@@ -1,0 +1,22 @@
+---
+import CartCount from './CartCount';
+import AccountLink from './AccountLink';
+---
+
+<header class="fm-header">
+  <div class="fm-header__inner">
+    <a href="/" class="fm-brand">
+      <i class="ti ti-leaf" aria-hidden="true"></i>
+      fabrmatch
+    </a>
+    <nav class="fm-nav">
+      <a href="/ozel-tasarim">özel tasarım</a>
+      <AccountLink client:load />
+      <a href="/sepet" class="fm-cart-link" aria-label="Sepet">
+        <i class="ti ti-shopping-bag" aria-hidden="true"></i>
+        sepet
+        <CartCount client:load />
+      </a>
+    </nav>
+  </div>
+</header>

@@ -1,0 +1,401 @@
+/*
+ * Fabrmatch üretici paneli — docs/06-PRD-TASARIM-SISTEMI.md ZORUNLU referans.
+ * Buradaki renkler/boyutlar 06 dışına çıkamaz. Yeni kalıp gerekiyorsa önce 06'ya eklenir.
+ * Yasak: gradient, gölge, blur, 600/700 ağırlık, Title Case, emoji, ekranda >1 solid sage buton.
+ */
+
+:root {
+  /* 06 §1 — marka renkleri */
+  --fm-sage-bg: #eef2e4;
+  --fm-sage-text: #33472b;
+  --fm-sage-muted: #4e5f45;
+  --fm-sage-solid: #5b7a4f;
+  --fm-sage-on-solid: #eaf3de;
+
+  --fm-honey-bg: #f7efdf;
+  --fm-honey-text: #6b4e1f;
+  --fm-honey-muted: #7a6640;
+  --fm-honey-solid: #c99a45;
+
+  --fm-material-used: #5b7a4f;
+  --fm-material-waste: #c99a45;
+
+  --fm-danger-bg: #fcebeb;
+  --fm-danger-text: #a32d2d;
+
+  /* Nötr uygulama tokenları (06: nötr metin/zemin için bunlar kullanılır) */
+  --text-primary: oklch(14.5% 0 0);
+  --text-secondary: oklch(43.9% 0 0);
+  --surface-0: oklch(97% 0 0);
+  --surface-1: #ffffff;
+  --border: oklch(92.2% 0 0);
+  --radius: 8px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  min-height: 100%;
+  font-family: system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: var(--surface-0);
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.7;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 06 §2 — tipografi: sadece 400/500, h1 22 / h2 18 / h3 16 */
+h1,
+h2,
+h3 {
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+h1 {
+  font-size: 22px;
+}
+h2 {
+  font-size: 18px;
+}
+h3 {
+  font-size: 16px;
+}
+.fm-small {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.fm-muted {
+  color: var(--text-secondary);
+}
+
+.ti {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Kabuk: B2B tarafı → honey şerit */
+.fm-header {
+  background: var(--fm-honey-bg);
+  color: var(--fm-honey-text);
+  border-bottom: 1px solid var(--border);
+}
+.fm-header__inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.fm-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+.fm-nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 13px;
+}
+.fm-nav a {
+  color: var(--fm-honey-muted);
+}
+.fm-nav a:hover,
+.fm-nav a[aria-current='page'] {
+  color: var(--fm-honey-text);
+}
+
+.fm-page {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.fm-page__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* Kart */
+.fm-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.fm-card--honey {
+  background: var(--fm-honey-bg);
+  color: var(--fm-honey-text);
+}
+
+/* Dengeli istatistik şeridi (06 §3 güven şeridi mantığı: sütunlar eşit) */
+.fm-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.fm-stat {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.fm-stat__value {
+  font-size: 22px;
+  font-weight: 500;
+}
+
+/* 06 §3 — butonlar. Varsayılan outline; solid sage ekranda en fazla bir tane */
+.fm-button {
+  height: 38px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.fm-button:hover {
+  background: var(--surface-0);
+}
+.fm-button--primary {
+  background: var(--fm-sage-solid);
+  color: var(--fm-sage-on-solid);
+  border-color: var(--fm-sage-solid);
+}
+.fm-button--primary:hover {
+  background: var(--fm-sage-solid);
+  opacity: 0.92;
+}
+.fm-button--quiet {
+  border-color: transparent;
+}
+.fm-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.fm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Rozet */
+.fm-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--surface-0);
+  color: var(--text-secondary);
+}
+.fm-badge--honey {
+  background: var(--fm-honey-bg);
+  color: var(--fm-honey-text);
+}
+.fm-badge--sage {
+  background: var(--fm-sage-bg);
+  color: var(--fm-sage-text);
+}
+
+/* Liste satırları */
+.fm-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+.fm-list__row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+  border-top: 1px solid var(--border);
+}
+.fm-list__row:first-child {
+  border-top: none;
+}
+.fm-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* Formlar */
+.fm-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.fm-form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+.fm-field label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.fm-field input,
+.fm-field select,
+.fm-field textarea {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-1);
+  font: inherit;
+  font-size: 14px;
+}
+.fm-field textarea {
+  height: auto;
+  min-height: 88px;
+  padding: 8px 12px;
+  resize: vertical;
+}
+.fm-field__hint {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.fm-field [data-invalid='true'] {
+  border-color: var(--fm-danger-text);
+}
+.fm-field__error {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--fm-danger-text);
+}
+.fm-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: 14px;
+}
+.fm-checkboxes label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 400;
+}
+.fm-notice {
+  background: var(--fm-danger-bg);
+  color: var(--fm-danger-text);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-size: 13px;
+}
+
+/* 06 §3 — malzeme verimliliği çubuğu (her zaman görünür, aç/kapa yok) */
+.fm-material-bar {
+  height: 8px;
+  border-radius: 20px;
+  background: #dde6ce;
+  overflow: hidden;
+  display: flex;
+}
+.fm-material-bar__used {
+  background: var(--fm-material-used);
+}
+.fm-material-bar__waste {
+  background: var(--fm-material-waste);
+}
+.fm-material-legend {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.fm-material-legend strong {
+  display: block;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* Üretim adımları (checklist) */
+.fm-steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.fm-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.fm-step--done {
+  color: var(--fm-sage-text);
+}
+.fm-step--current {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.fm-empty {
+  padding: 32px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* Giriş/kayıt formları */
+.fm-auth {
+  max-width: 400px;
+  margin: 48px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (max-width: 720px) {
+  .fm-stats,
+  .fm-form__grid,
+  .fm-material-legend {
+    grid-template-columns: 1fr;
+  }
+  .fm-page__head {
+    flex-direction: column;
+  }
+}

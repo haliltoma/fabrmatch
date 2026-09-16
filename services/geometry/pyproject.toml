@@ -1,0 +1,39 @@
+[project]
+name = "fabrmatch-geometry"
+version = "0.1.0"
+description = "Fabrmatch geometry service: mesh analysis, material/time estimate, manufacturability"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "embreex>=4.4.0",
+    "fastapi[standard]>=0.141.1",
+    "numpy>=2.5.3",
+    "pydantic-settings>=2.15.0",
+    "rtree>=1.4.1",
+    "trimesh>=5.1.0",
+]
+
+[tool.fastapi]
+entrypoint = "fabrmatch_geometry.main:app"
+
+[tool.ruff]
+line-length = 110
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "FAST"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Editable kurulumun ürettiği .pth bazen uv run altında güvenilir işlemiyor
+# (bkz. docs/07 kararı) — src'yi doğrudan pytest'e tanıtarak bağımsız hale getirilir.
+pythonpath = ["src"]
+
+[build-system]
+requires = ["uv_build>=0.12.15,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.16.7",
+]

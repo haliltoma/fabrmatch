@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import OrderGroupDetail from '../../../components/OrderGroupDetail';
+
+export const prerender = false;
+---
+
+<BaseLayout title="Sipariş detayı">
+  <div class="fm-page">
+    <OrderGroupDetail client:only="react" />
+  </div>
+</BaseLayout>

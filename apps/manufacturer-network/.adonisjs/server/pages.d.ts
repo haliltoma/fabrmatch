@@ -1,0 +1,23 @@
+import '@adonisjs/inertia/types'
+
+import type React from 'react'
+import type { Prettify } from '@adonisjs/core/types/common'
+
+type ExtractProps<T> =
+  T extends React.FC<infer Props>
+    ? Prettify<Omit<Props, 'children'>>
+    : T extends React.Component<infer Props>
+      ? Prettify<Omit<Props, 'children'>>
+      : never
+
+declare module '@adonisjs/inertia/types' {
+  export interface InertiaPages {
+    'auth/login': ExtractProps<(typeof import('../../inertia/pages/auth/login.tsx'))['default']>
+    'auth/signup': ExtractProps<(typeof import('../../inertia/pages/auth/signup.tsx'))['default']>
+    'errors/not_found': ExtractProps<(typeof import('../../inertia/pages/errors/not_found.tsx'))['default']>
+    'errors/server_error': ExtractProps<(typeof import('../../inertia/pages/errors/server_error.tsx'))['default']>
+    'panel/dashboard': ExtractProps<(typeof import('../../inertia/pages/panel/dashboard.tsx'))['default']>
+    'panel/onboarding': ExtractProps<(typeof import('../../inertia/pages/panel/onboarding.tsx'))['default']>
+    'panel/request': ExtractProps<(typeof import('../../inertia/pages/panel/request.tsx'))['default']>
+  }
+}

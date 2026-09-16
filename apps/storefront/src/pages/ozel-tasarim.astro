@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CustomDesignForm from '../components/CustomDesignForm';
+---
+
+<BaseLayout title="Özel tasarım yükle" description="STL veya OBJ dosyanızı yükleyin, anında malzeme ve fiyat tahmini alın.">
+  <div class="fm-page">
+    <p class="fm-breadcrumbs"><a href="/">anasayfa</a> / özel tasarım</p>
+    <h1>Kendi tasarımınızı yükleyin</h1>
+    <p class="fm-muted">STL veya OBJ dosyanızı yükleyin; malzeme, ağırlık ve fiyat tahminini anında görün.</p>
+    <CustomDesignForm client:load />
+  </div>
+</BaseLayout>
