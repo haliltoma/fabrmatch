@@ -7,10 +7,6 @@ function StatusBadge({ value }: { value: string }) {
   return <span className={`fm-badge fm-badge--${statusBadgeTone(value)}`}>{statusLabel(value)}</span>;
 }
 
-/**
- * Sipariş detayı — client:only island prop almadığından id'yi pathname'den okur
- * (/hesap/siparis/[id], prerender=false).
- */
 export default function OrderGroupDetail() {
   const [group, setGroup] = useState<OrderGroup | null | undefined>(undefined);
 
@@ -24,7 +20,11 @@ export default function OrderGroupDetail() {
   }, []);
 
   if (group === undefined) {
-    return <p className="fm-spinner-row">Sipariş yükleniyor…</p>;
+    return (
+      <p className="fm-spinner-row">
+        <i className="ti ti-loader-2 fm-spin" aria-hidden="true" /> Sipariş yükleniyor…
+      </p>
+    );
   }
 
   if (!group) {
@@ -32,7 +32,7 @@ export default function OrderGroupDetail() {
       <div className="fm-empty">
         <p>Sipariş bulunamadı.</p>
         <a href="/hesap" className="fm-button fm-button--primary" style={{ marginTop: 12 }}>
-          siparişlerime dön
+          <i className="ti ti-arrow-left" aria-hidden="true" /> siparişlerime dön
         </a>
       </div>
     );
@@ -43,22 +43,24 @@ export default function OrderGroupDetail() {
   return (
     <div className="fm-page" style={{ padding: 0, gap: 24 }}>
       <div>
-        <a href="/hesap" className="fm-small fm-muted">
-          ← siparişlerim
+        <a href="/hesap" className="fm-back-link">
+          <i className="ti ti-arrow-left" aria-hidden="true" /> siparişlerim
         </a>
         <h1 style={{ marginTop: 8 }}>Sipariş #{group.display_id}</h1>
         <p className="fm-small fm-muted">
-          {date(group.created_at)} · {group.seller_count} satıcı · toplam {money(group.total, currency)}
+          <i className="ti ti-calendar" aria-hidden="true" /> {date(group.created_at)} ·{' '}
+          <i className="ti ti-building-store" aria-hidden="true" /> {group.seller_count} satıcı · toplam{' '}
+          <strong>{money(group.total, currency)}</strong>
         </p>
       </div>
 
       {group.orders.map((order) => (
         <section className="fm-seller-group" key={order.id}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
-            <h3 style={{ marginRight: 'auto' }}>{order.seller.name}</h3>
+          <div className="fm-seller-group__head">
+            <h3>{order.seller.name}</h3>
             <StatusBadge value={order.status} />
           </div>
-          <div style={{ marginTop: 8 }}>
+          <div className="fm-seller-group__items">
             {order.items.map((item) => (
               <div className="fm-cart-item" key={item.id}>
                 {item.thumbnail ? (
@@ -71,14 +73,14 @@ export default function OrderGroupDetail() {
                   <div className="fm-small fm-muted">{item.variant_title}</div>
                   <div className="fm-small">{money(item.unit_price, currency)}</div>
                 </div>
-                <div className="fm-small fm-muted" style={{ textAlign: 'right' }}>
-                  {item.quantity} adet
-                  <div>{money(item.total, currency)}</div>
+                <div className="fm-cart-item__qty">
+                  <span className="fm-small fm-muted">{item.quantity} adet</span>
+                  <span className="fm-small">{money(item.total, currency)}</span>
                 </div>
               </div>
             ))}
           </div>
-          <div className="fm-summary-row fm-small" style={{ marginTop: 8 }}>
+          <div className="fm-summary-row fm-small fm-seller-group__total">
             <span className="fm-muted">Satıcı toplamı</span>
             <span>{money(order.total, currency)}</span>
           </div>

@@ -105,13 +105,23 @@ export default function CustomDesignForm() {
       <form className="fm-form" onSubmit={analyze}>
         <div className="fm-field">
           <label htmlFor="file">STL veya OBJ dosyası</label>
-          <input
-            id="file"
-            type="file"
-            accept=".stl,.obj"
-            required
-            onChange={onFileChange}
-          />
+          <div className="fm-upload-area__wrapper">
+            <div className="fm-upload-area">
+              <i className="ti ti-file-3d" aria-hidden="true" />
+              <span className="fm-upload-area__label">
+                {file ? file.name : 'Dosya seçin veya buraya sürükleyin'}
+              </span>
+              <span className="fm-upload-area__hint">.stl veya .obj — maks. 50 MB</span>
+              <input
+                id="file"
+                type="file"
+                accept=".stl,.obj"
+                required
+                onChange={onFileChange}
+                aria-label="STL veya OBJ dosyası seç"
+              />
+            </div>
+          </div>
         </div>
 
         <div className="fm-form__grid">
@@ -152,8 +162,15 @@ export default function CustomDesignForm() {
         </div>
 
         <button type="submit" className="fm-button fm-button--primary" disabled={!file || status === 'loading'}>
-          <i className="ti ti-calculator" aria-hidden="true" />
-          {status === 'loading' ? 'analiz ediliyor…' : 'fiyat tahmini al'}
+          {status === 'loading' ? (
+            <>
+              <i className="ti ti-loader-2 fm-spin" aria-hidden="true" /> analiz ediliyor…
+            </>
+          ) : (
+            <>
+              <i className="ti ti-calculator" aria-hidden="true" /> fiyat tahmini al
+            </>
+          )}
         </button>
 
         {errorMessage && <p className="fm-notice">{errorMessage}</p>}
@@ -242,8 +259,15 @@ export default function CustomDesignForm() {
                     className="fm-button fm-button--primary"
                     disabled={addStatus === 'adding' || !designName.trim()}
                   >
-                    <i className="ti ti-shopping-bag" aria-hidden="true" />
-                    {addStatus === 'adding' ? 'ekleniyor…' : 'sepete ekle'}
+                    {addStatus === 'adding' ? (
+                      <>
+                        <i className="ti ti-loader-2 fm-spin" aria-hidden="true" /> ekleniyor…
+                      </>
+                    ) : (
+                      <>
+                        <i className="ti ti-shopping-bag" aria-hidden="true" /> sepete ekle
+                      </>
+                    )}
                   </button>
                   <div role="status" aria-live="polite">
                     {addStatus === 'added' && (

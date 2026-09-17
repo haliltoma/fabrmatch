@@ -105,8 +105,15 @@ export default function VariantOfferPicker({ product, regionId }: Props) {
             disabled={!variant.offer_id || status === 'adding'}
             onClick={() => variant.offer_id && addOffer(variant.offer_id)}
           >
-            <i className="ti ti-shopping-bag" aria-hidden="true" />
-            {status === 'adding' ? 'ekleniyor…' : 'sepete ekle'}
+            {status === 'adding' ? (
+              <>
+                <i className="ti ti-loader-2 fm-spin" aria-hidden="true" /> ekleniyor…
+              </>
+            ) : (
+              <>
+                <i className="ti ti-shopping-bag" aria-hidden="true" /> sepete ekle
+              </>
+            )}
           </button>
 
           <div role="status" aria-live="polite">

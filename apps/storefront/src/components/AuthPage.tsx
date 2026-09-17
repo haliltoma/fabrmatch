@@ -1,9 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { getSessionCustomer, loginCustomer, registerCustomer, notifyAuthChanged } from '../lib/auth';
 
-/**
- * Giriş / kayıt — CartPage'in busy/error desenini kullanır, fm-form/fm-field kalıbı.
- */
 export default function AuthPage() {
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
@@ -35,8 +32,8 @@ export default function AuthPage() {
     } catch {
       setError(
         mode === 'login'
-          ? 'E-posta veya şifre hatalı.'
-          : 'Kayıt oluşturulamadı, bu e-posta zaten kayıtlı olabilir.'
+          ? 'e-posta veya şifre hatalı.'
+          : 'kayıt oluşturulamadı, bu e-posta zaten kayıtlı olabilir.'
       );
     } finally {
       setBusy(false);
@@ -44,105 +41,158 @@ export default function AuthPage() {
   }
 
   if (existing === undefined) {
-    return <p className="fm-spinner-row">Yükleniyor…</p>;
+    return (
+      <div className="fm-auth-page">
+        <p className="fm-spinner-row">Yükleniyor…</p>
+      </div>
+    );
   }
 
   if (existing) {
     return (
-      <div className="fm-empty">
-        <p>
-          Zaten giriş yaptınız (<strong>{existing.email}</strong>).
-        </p>
-        <a href="/hesap" className="fm-button fm-button--primary" style={{ marginTop: 12 }}>
-          hesabıma git
-        </a>
+      <div className="fm-auth-page">
+        <div className="fm-auth-card">
+          <div className="fm-auth-card__brand">
+            <span className="fm-auth-card__brand-icon" aria-hidden="true">
+              <i className="ti ti-leaf" />
+            </span>
+            fabrmatch
+          </div>
+          <div className="fm-empty" style={{ padding: '16px 0' }}>
+            <p>
+              Zaten giriş yaptınız (<strong>{existing.email}</strong>).
+            </p>
+            <a href="/hesap" className="fm-button fm-button--primary" style={{ marginTop: 12 }}>
+              <i className="ti ti-user" aria-hidden="true" /> hesabıma git
+            </a>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="fm-page" style={{ maxWidth: 420, margin: '0 auto' }}>
-      <h1>{mode === 'login' ? 'giriş yap' : 'hesap oluştur'}</h1>
-      <form className="fm-form" style={{ marginTop: 16 }} onSubmit={submit}>
-        {mode === 'register' && (
-          <div className="fm-form__grid">
-            <div className="fm-field">
-              <label htmlFor="first_name">Ad</label>
-              <input
-                id="first_name"
-                required
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-              />
+    <div className="fm-auth-page">
+      <div className="fm-auth-card">
+        {/* Marka */}
+        <div className="fm-auth-card__brand">
+          <span className="fm-auth-card__brand-icon" aria-hidden="true">
+            <i className="ti ti-leaf" />
+          </span>
+          fabrmatch
+        </div>
+
+        {/* Başlık */}
+        <div className="fm-auth-card__head">
+          <h1>{mode === 'login' ? 'giriş yap' : 'hesap oluştur'}</h1>
+          <p className="fm-auth-card__sub">
+            {mode === 'login'
+              ? 'Siparişlerinizi takip etmek için giriş yapın.'
+              : 'Hesabınızı oluşturun, siparişlerinizi takip edin.'}
+          </p>
+        </div>
+
+        {/* Form */}
+        <form className="fm-form" onSubmit={submit}>
+          {mode === 'register' && (
+            <div className="fm-form__grid">
+              <div className="fm-field">
+                <label htmlFor="first_name">Ad</label>
+                <input
+                  id="first_name"
+                  required
+                  autoComplete="given-name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                />
+              </div>
+              <div className="fm-field">
+                <label htmlFor="last_name">Soyad</label>
+                <input
+                  id="last_name"
+                  required
+                  autoComplete="family-name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                />
+              </div>
             </div>
-            <div className="fm-field">
-              <label htmlFor="last_name">Soyad</label>
-              <input
-                id="last_name"
-                required
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-              />
-            </div>
+          )}
+          <div className="fm-field">
+            <label htmlFor="email">E-posta</label>
+            <input
+              id="email"
+              type="email"
+              required
+              autoComplete="email"
+              placeholder="ornek@eposta.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
-        )}
-        <div className="fm-field">
-          <label htmlFor="email">E-posta</label>
-          <input
-            id="email"
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+          <div className="fm-field">
+            <label htmlFor="password">Şifre</label>
+            <input
+              id="password"
+              type="password"
+              required
+              minLength={6}
+              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          {error && <p className="fm-notice">{error}</p>}
+          <button type="submit" className="fm-button fm-button--primary fm-button--full" disabled={busy}>
+            {busy ? (
+              <>
+                <i className="ti ti-loader-2 fm-spin" aria-hidden="true" /> gönderiliyor…
+              </>
+            ) : mode === 'login' ? (
+              <>
+                <i className="ti ti-login" aria-hidden="true" /> giriş yap
+              </>
+            ) : (
+              <>
+                <i className="ti ti-user-plus" aria-hidden="true" /> hesap oluştur
+              </>
+            )}
+          </button>
+        </form>
+
+        {/* Geçiş linki */}
+        <div className="fm-auth-card__footer">
+          {mode === 'login' ? (
+            <>
+              <span>Hesabınız yok mu?</span>
+              <a
+                href="#kayit"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setError(null);
+                  setMode('register');
+                }}
+              >
+                hesap oluşturun
+              </a>
+            </>
+          ) : (
+            <>
+              <span>Zaten hesabınız var mı?</span>
+              <a
+                href="#giris"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setError(null);
+                  setMode('login');
+                }}
+              >
+                giriş yapın
+              </a>
+            </>
+          )}
         </div>
-        <div className="fm-field">
-          <label htmlFor="password">Şifre</label>
-          <input
-            id="password"
-            type="password"
-            required
-            minLength={6}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        {error && <p className="fm-notice">{error}</p>}
-        <button type="submit" className="fm-button fm-button--primary" disabled={busy}>
-          {busy ? 'gönderiliyor…' : mode === 'login' ? 'giriş yap' : 'hesap oluştur'}
-        </button>
-      </form>
-      <p className="fm-small fm-muted" style={{ marginTop: 16 }}>
-        {mode === 'login' ? (
-          <>
-            Hesabınız yok mu?{' '}
-            <a
-              href="#kayit"
-              onClick={(e) => {
-                e.preventDefault();
-                setError(null);
-                setMode('register');
-              }}
-            >
-              hesap oluşturun
-            </a>
-          </>
-        ) : (
-          <>
-            Zaten hesabınız var mı?{' '}
-            <a
-              href="#giris"
-              onClick={(e) => {
-                e.preventDefault();
-                setError(null);
-                setMode('login');
-              }}
-            >
-              giriş yapın
-            </a>
-          </>
-        )}
-      </p>
+      </div>
     </div>
   );
 }

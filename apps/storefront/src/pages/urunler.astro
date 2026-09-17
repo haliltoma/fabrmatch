@@ -9,18 +9,36 @@ const [products, categories] = await Promise.all([listAllProducts(), listLeafCat
 <BaseLayout title="Tüm ürünler">
   <div class="fm-page">
     <p class="fm-breadcrumbs"><a href="/">anasayfa</a> / tüm ürünler</p>
-    <h1>Tüm ürünler</h1>
 
-    <div class="fm-category-grid">
-      {categories.map((category) => (
-        <a href={`/kategori/${category.handle}`} class="fm-category-card">
-          {category.name}
-        </a>
-      ))}
+    <div class="fm-products-head">
+      <h1>Tüm ürünler</h1>
+      <span class="fm-products-count">{products.length} ürün</span>
     </div>
 
-    <div class="fm-product-grid">
-      {products.map((product) => <ProductCard product={product} />)}
+    {categories.length > 0 && (
+      <div>
+        <div class="fm-section-head">
+          <h2>Kategoriler</h2>
+        </div>
+        <div class="fm-category-grid" style="margin-top:12px">
+          {categories.map((category) => (
+            <a href={`/kategori/${category.handle}`} class="fm-category-card">
+              <i class="ti ti-folder" aria-hidden="true"></i>
+              {category.name}
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <div>
+      <div class="fm-section-head">
+        <h2>Tüm ürünler</h2>
+        <span class="fm-small fm-muted">{products.length} ürün</span>
+      </div>
+      <div class="fm-product-grid" style="margin-top:16px">
+        {products.map((product) => <ProductCard product={product} />)}
+      </div>
     </div>
   </div>
 </BaseLayout>

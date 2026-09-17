@@ -528,6 +528,47 @@ p {
   color: var(--fm-sage-text);
 }
 
+/* Kategori kart ikon desteği */
+.fm-category-card {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.fm-category-card .ti {
+  font-size: 15px;
+  opacity: 0.6;
+}
+
+/* Sipariş kart alt satırı */
+.fm-order-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.fm-order-card__foot .ti { font-size: 13px; }
+
+/* Seller group alt elemanları */
+.fm-seller-group__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.fm-seller-group__head h3 { margin-right: auto; }
+.fm-seller-group__items { display: flex; flex-direction: column; }
+.fm-seller-group__total { margin-top: 10px; }
+
+/* Sepet kalemi miktar + tutar (sağ kolon) */
+.fm-cart-item__qty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  text-align: right;
+}
+
 /* Ürün kartı */
 .fm-product-grid {
   display: grid;
@@ -902,6 +943,161 @@ p {
   .fm-summary-card {
     position: static;
   }
+}
+
+/* ── Auth card (B2C — centered, sage theme) ─────────────── */
+.fm-auth-page {
+  min-height: calc(100vh - 60px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  background: var(--fm-sage-bg);
+}
+.fm-auth-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 2px);
+  padding: 32px;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.fm-auth-card__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--fm-sage-text);
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.fm-auth-card__brand-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--fm-sage-solid);
+  color: var(--fm-sage-on-solid);
+  border-radius: 7px;
+}
+.fm-auth-card__brand-icon .ti { font-size: 15px; }
+.fm-auth-card__head { display: flex; flex-direction: column; gap: 4px; }
+.fm-auth-card__head h1 { font-size: 18px; }
+.fm-auth-card__sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.fm-auth-card__footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+.fm-auth-card__footer a {
+  color: var(--fm-sage-text);
+  font-weight: 500;
+  transition: opacity 0.15s ease;
+}
+.fm-auth-card__footer a:hover { opacity: 0.75; }
+
+/* ── Account page ────────────────────────────────────────── */
+.fm-account-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.fm-account-head__info { display: flex; flex-direction: column; gap: 2px; }
+
+/* ── Geri linki ──────────────────────────────────────────── */
+.fm-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.fm-back-link:hover { color: var(--fm-sage-text); }
+
+/* ── Ürünler sayfa başlığı ───────────────────────────────── */
+.fm-products-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.fm-products-count {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* ── Kategori başlığı ────────────────────────────────────── */
+.fm-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── Dosya yükleme alanı ─────────────────────────────────── */
+.fm-upload-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px 16px;
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-0);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.fm-upload-area:hover,
+.fm-upload-area:focus-within {
+  border-color: var(--fm-sage-solid);
+  background: var(--fm-sage-bg);
+}
+.fm-upload-area .ti { font-size: 28px; color: var(--fm-sage-muted); }
+.fm-upload-area__label { font-size: 13px; font-weight: 500; color: var(--fm-sage-text); }
+.fm-upload-area__hint { font-size: 12px; color: var(--text-secondary); }
+.fm-upload-area input[type='file'] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.fm-upload-area__wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* ── Spinner ─────────────────────────────────────────────── */
+@keyframes fm-spin {
+  to { transform: rotate(360deg); }
+}
+.fm-spin {
+  display: inline-block;
+  animation: fm-spin 0.7s linear infinite;
 }
 
 @media (max-width: 600px) {
