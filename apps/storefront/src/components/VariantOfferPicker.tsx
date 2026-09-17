@@ -119,11 +119,18 @@ export default function VariantOfferPicker({ product, regionId }: Props) {
           <div role="status" aria-live="polite">
             {status === 'added' && (
               <p className="fm-notice fm-notice--info">
-                Sepete eklendi. <a href="/sepet">sepete git →</a>
+                <i className="ti ti-circle-check" aria-hidden="true" /> Sepete eklendi.{' '}
+                <a href="/sepet">sepete git →</a>
               </p>
             )}
             {status === 'error' && <p className="fm-notice">Sepete eklenemedi, tekrar deneyin.</p>}
           </div>
+
+          {otherOffers === null && (
+            <p className="fm-small fm-muted">
+              <i className="ti ti-loader-2 fm-spin" aria-hidden="true" /> Diğer satıcılar yükleniyor…
+            </p>
+          )}
 
           {otherOffers && otherOffers.length > 0 && (
             <div className="fm-option-group">

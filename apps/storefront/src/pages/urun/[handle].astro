@@ -17,27 +17,57 @@ const usedPercent = profile && totalWeight > 0 ? (profile.part_weight_g / totalW
 
 <BaseLayout title={product.title} description={product.description ?? undefined}>
   <div class="fm-page">
+
+    <!-- Breadcrumb -->
     <p class="fm-breadcrumbs">
-      <a href="/">anasayfa</a> / <a href={`/kategori/${product.categories[0]?.handle}`}>{product.categories[0]?.name}</a> / {product.title}
+      <a href="/"><i class="ti ti-home" aria-hidden="true"></i></a>
+      /
+      {product.categories[0] ? (
+        <a href={`/kategori/${product.categories[0].handle}`}>{product.categories[0].name}</a>
+      ) : (
+        <a href="/urunler">ürünler</a>
+      )}
+      / <span>{product.title}</span>
     </p>
 
     <div class="fm-pdp">
+
+      <!-- Galeri -->
       <div class="fm-pdp__gallery">
-        {product.thumbnail && <img src={product.thumbnail} alt={product.title} />}
-        <span class="fm-3d-badge">
-          <i class="ti ti-rotate-3d" aria-hidden="true"></i>3D
-        </span>
+        {product.thumbnail
+          ? <img src={product.thumbnail} alt={product.title} />
+          : (
+            <span class="fm-pdp__gallery-placeholder" aria-hidden="true">
+              <i class="ti ti-cube"></i>
+            </span>
+          )
+        }
+        {profile && (
+          <span class="fm-3d-badge">
+            <i class="ti ti-rotate-3d" aria-hidden="true"></i>3D
+          </span>
+        )}
       </div>
 
+      <!-- Bilgi paneli -->
       <div class="fm-pdp__info">
+        {product.categories[0] && (
+          <span class="fm-pdp__category">{product.categories[0].name}</span>
+        )}
         <h1>{product.title}</h1>
-        {product.description && <p class="fm-muted">{product.description}</p>}
+        {product.description && (
+          <p class="fm-pdp__description">{product.description}</p>
+        )}
 
         <VariantOfferPicker client:load product={product} regionId={region.id} />
 
+        <!-- Malzeme verimliliği — 06 §3: her zaman görünür -->
         {profile && (
-          <div class="fm-form">
-            <label class="fm-small" style="font-weight:500">Malzeme verimliliği</label>
+          <div class="fm-pdp__material">
+            <div class="fm-pdp__material-head">
+              <i class="ti ti-leaf" aria-hidden="true"></i>
+              <span>Malzeme verimliliği</span>
+            </div>
             <div
               class="fm-material-bar"
               role="img"
@@ -55,6 +85,7 @@ const usedPercent = profile && totalWeight > 0 ? (profile.part_weight_g / totalW
           </div>
         )}
       </div>
+
     </div>
   </div>
 </BaseLayout>

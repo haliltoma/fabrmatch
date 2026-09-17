@@ -729,6 +729,48 @@ p {
   font-size: 22px;
   font-weight: 500;
 }
+.fm-pdp__gallery-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--fm-sage-muted);
+  font-size: 48px;
+}
+.fm-pdp__category {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fm-sage-solid);
+}
+.fm-pdp__description {
+  font-size: 15px;
+  color: var(--text-2);
+  line-height: 1.6;
+}
+.fm-pdp__material {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-1);
+}
+.fm-pdp__material-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-1);
+}
+.fm-pdp__material-head .ti {
+  font-size: 16px;
+  color: var(--fm-sage-solid);
+}
 
 .fm-option-group {
   display: flex;
