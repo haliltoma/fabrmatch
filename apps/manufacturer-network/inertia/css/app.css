@@ -41,7 +41,7 @@
 html,
 body {
   min-height: 100%;
-  font-family: system-ui, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   background: var(--surface-0);
   color: var(--text-primary);
@@ -85,40 +85,116 @@ h3 {
   line-height: 1;
 }
 
-/* Kabuk: B2B tarafı → honey şerit */
+/* ── Header — B2B honey teması ────────────────────────────── */
 .fm-header {
   background: var(--fm-honey-bg);
   color: var(--fm-honey-text);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid oklch(88% 0.03 80);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 .fm-header__inner {
   max-width: 1080px;
   margin: 0 auto;
   padding: 0 24px;
-  height: 56px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
 }
+
+/* Marka */
 .fm-brand {
   display: flex;
   align-items: center;
   gap: 8px;
   font-weight: 500;
+  color: var(--fm-honey-text);
+  text-decoration: none;
+  transition: opacity 0.15s ease;
 }
+.fm-brand:hover { opacity: 0.8; }
+.fm-brand__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: var(--fm-honey-solid);
+  color: #fff;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+.fm-brand__icon .ti { font-size: 14px; }
+.fm-brand:hover .fm-brand__icon { background: var(--fm-honey-text); }
+.fm-brand__name {
+  font-size: 14px;
+  letter-spacing: -0.01em;
+}
+.fm-brand__scope {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--fm-honey-muted);
+  background: rgba(201,154,69,0.15);
+  padding: 1px 6px;
+  border-radius: 20px;
+}
+
+/* Nav */
 .fm-nav {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 4px;
   font-size: 13px;
 }
-.fm-nav a {
+.fm-nav__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border-radius: 5px;
   color: var(--fm-honey-muted);
+  text-decoration: none;
+  transition: color 0.15s ease, background 0.15s ease;
 }
-.fm-nav a:hover,
-.fm-nav a[aria-current='page'] {
+.fm-nav__link:hover {
   color: var(--fm-honey-text);
+  background: rgba(201,154,69,0.12);
+}
+.fm-nav__link[aria-current='page'] {
+  color: var(--fm-honey-text);
+  font-weight: 500;
+  background: rgba(201,154,69,0.1);
+}
+.fm-nav__divider {
+  width: 1px;
+  height: 16px;
+  background: oklch(88% 0.03 80);
+  margin: 0 4px;
+}
+.fm-nav__user {
+  font-size: 12px;
+  gap: 4px;
+}
+.fm-nav__link:focus-visible,
+.fm-brand:focus-visible {
+  outline: 2px solid var(--fm-honey-solid);
+  outline-offset: 2px;
+}
+/* honey outline butonu — header'daki "üretici ol" CTA */
+.fm-button--honey {
+  background: var(--fm-honey-solid);
+  color: #fff;
+  border-color: var(--fm-honey-solid);
+}
+.fm-button--honey:hover { opacity: 0.9; }
+/* küçük buton varyantı */
+.fm-button--sm {
+  height: 30px;
+  padding: 0 10px;
+  font-size: 12px;
 }
 
 .fm-page {
@@ -205,6 +281,7 @@ h3 {
   opacity: 0.5;
   cursor: not-allowed;
 }
+.fm-button--full { width: 100%; }
 .fm-actions {
   display: flex;
   flex-wrap: wrap;
@@ -380,13 +457,183 @@ h3 {
   font-size: 14px;
 }
 
-/* Giriş/kayıt formları */
-.fm-auth {
-  max-width: 400px;
-  margin: 48px auto;
+/* ── Auth split-screen ─────────────────────────────────────── */
+.fm-auth-main {
+  display: contents; /* auth sayfası kendi tam ekran grid'ini yönetir */
+}
+.fm-auth-split {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  min-height: 100vh;
+}
+
+/* Sol panel — honey B2B brand */
+.fm-auth-brand {
+  background: var(--fm-honey-bg);
+  border-right: 1px solid oklch(88% 0.03 80);
+  display: flex;
+  align-items: center;
+  padding: 48px 40px;
+}
+.fm-auth-brand__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-width: 320px;
+}
+.fm-auth-brand__logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.fm-auth-brand__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--fm-honey-solid);
+  color: #fff;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+.fm-auth-brand__icon .ti { font-size: 20px; }
+.fm-auth-brand__name {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--fm-honey-text);
+  letter-spacing: -0.01em;
+}
+.fm-auth-brand__sub {
+  font-size: 11px;
+  color: var(--fm-honey-muted);
+  margin-top: 1px;
+}
+.fm-auth-brand__divider {
+  height: 1px;
+  background: oklch(88% 0.03 80);
+}
+.fm-auth-brand__headline {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--fm-honey-text);
+  line-height: 1.5;
+}
+.fm-auth-brand__features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.fm-auth-brand__features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--fm-honey-muted);
+  line-height: 1.5;
+}
+.fm-auth-brand__features li .ti {
+  font-size: 16px;
+  color: var(--fm-honey-solid);
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+/* Sağ panel — form */
+.fm-auth-form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 32px;
+  background: var(--surface-1);
+}
+.fm-auth-form__inner {
+  width: 100%;
+  max-width: 360px;
   display: flex;
   flex-direction: column;
   gap: 24px;
+}
+.fm-auth-form__head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.fm-auth-form__head h1 {
+  font-size: 20px;
+  font-weight: 500;
+}
+.fm-auth-form__sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.fm-auth-form__footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+.fm-auth-form__join-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--fm-honey-text);
+  font-weight: 500;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+.fm-auth-form__join-link:hover { opacity: 0.75; }
+.fm-auth-form__join-link .ti { font-size: 14px; }
+
+/* Compact form variant */
+.fm-form--compact .fm-field input,
+.fm-form--compact .fm-field select {
+  height: 36px;
+  font-size: 13px;
+}
+.fm-form--compact {
+  gap: 12px;
+}
+
+/* Spinner animasyonu */
+@keyframes fm-spin {
+  to { transform: rotate(360deg); }
+}
+.fm-spin {
+  display: inline-block;
+  animation: fm-spin 0.8s linear infinite;
+}
+
+@media (max-width: 720px) {
+  .fm-auth-split {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+  .fm-auth-brand {
+    padding: 24px 20px;
+    border-right: none;
+    border-bottom: 1px solid oklch(88% 0.03 80);
+  }
+  .fm-auth-brand__inner {
+    gap: 16px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-width: 100%;
+  }
+  .fm-auth-brand__features,
+  .fm-auth-brand__divider,
+  .fm-auth-brand__headline {
+    display: none;
+  }
+  .fm-auth-form {
+    padding: 32px 20px;
+    align-items: flex-start;
+  }
 }
 
 @media (max-width: 720px) {
