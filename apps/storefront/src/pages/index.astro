@@ -7,50 +7,86 @@ const products = (await listAllProducts()).slice(0, 8);
 ---
 
 <BaseLayout title="Siparişe göre 3D baskı">
+
+  <!-- Hero -->
   <section class="fm-hero">
-    <span class="fm-hero__region"><i class="ti ti-map-pin" aria-hidden="true"></i> Türkiye · TRY</span>
-    <h1>Siparişe göre üretilen 3D baskı ürünler</h1>
-    <p>Hazır katalogdan seçin ya da kendi tasarımınızı yükleyin — ikisi de aynı sepette birleşir.</p>
+    <span class="fm-hero__region">
+      <i class="ti ti-map-pin" aria-hidden="true"></i> Türkiye · TRY
+    </span>
+    <h1>Siparişe göre üretilen<br />3D baskı ürünler</h1>
+    <p>Hazır katalogdan seçin ya da kendi tasarımınızı yükleyin —<br />ikisi de aynı sepette birleşir.</p>
+    <div class="fm-hero__actions">
+      <a href="/urunler" class="fm-button fm-button--primary">
+        <i class="ti ti-shopping-bag" aria-hidden="true"></i> ürünleri keşfet
+      </a>
+      <a href="/ozel-tasarim" class="fm-button">
+        <i class="ti ti-upload" aria-hidden="true"></i> tasarımını yükle
+      </a>
+    </div>
   </section>
 
+  <!-- Giriş kartları -->
   <section class="fm-entry-grid">
     <a href="/urunler" class="fm-entry-card">
       <i class="ti ti-shopping-bag" aria-hidden="true"></i>
-      <h2>Katalogdan seç</h2>
-      <p>Ev dekorasyonu, masa üstü düzen, oyun aksesuarları ve daha fazlası.</p>
+      <div class="fm-entry-card__body">
+        <h2>Katalogdan seç</h2>
+        <p>Ev dekorasyonu, masa üstü düzen, oyun aksesuarları ve daha fazlası.</p>
+      </div>
+      <span class="fm-entry-card__link">
+        ürünlere bak <i class="ti ti-arrow-right" aria-hidden="true"></i>
+      </span>
     </a>
     <a href="/ozel-tasarim" class="fm-entry-card fm-entry-card--secondary">
-      <i class="ti ti-upload" aria-hidden="true"></i>
-      <h2>Kendi tasarımını yükle</h2>
-      <p>STL/OBJ dosyanızı yükleyin, anında malzeme ve fiyat tahmini alın.</p>
+      <i class="ti ti-file-3d" aria-hidden="true"></i>
+      <div class="fm-entry-card__body">
+        <h2>Kendi tasarımını yükle</h2>
+        <p>STL/OBJ dosyanızı yükleyin, anında malzeme ve fiyat tahmini alın.</p>
+      </div>
+      <span class="fm-entry-card__link">
+        fiyat tahmini al <i class="ti ti-arrow-right" aria-hidden="true"></i>
+      </span>
     </a>
   </section>
 
+  <!-- Güven şeridi -->
   <section class="fm-trust">
     <div class="fm-trust__item">
-      <i class="ti ti-shield-check" aria-hidden="true"></i>
-      <span class="fm-trust__value">Güvenli ödeme</span>
+      <span class="fm-trust__icon-wrap">
+        <i class="ti ti-shield-check" aria-hidden="true"></i>
+      </span>
+      <span class="fm-trust__label">Güvenli ödeme</span>
       <span class="fm-small fm-muted">Teslimat onaylanana kadar ödemeniz güvencededir</span>
     </div>
     <div class="fm-trust__item">
-      <i class="ti ti-truck" aria-hidden="true"></i>
-      <span class="fm-trust__value">Bölgenizden üretim</span>
+      <span class="fm-trust__icon-wrap">
+        <i class="ti ti-map-pin" aria-hidden="true"></i>
+      </span>
+      <span class="fm-trust__label">Bölgenizden üretim</span>
       <span class="fm-small fm-muted">Siparişiniz size en yakın üreticiye yönlendirilir</span>
     </div>
     <div class="fm-trust__item">
-      <i class="ti ti-star" aria-hidden="true"></i>
-      <span class="fm-trust__value">Kalite kontrollü</span>
+      <span class="fm-trust__icon-wrap">
+        <i class="ti ti-camera" aria-hidden="true"></i>
+      </span>
+      <span class="fm-trust__label">Kalite kontrollü</span>
       <span class="fm-small fm-muted">Her üretim fotoğraflarla belgelenir</span>
     </div>
   </section>
 
-  <section class="fm-page" style="padding-top:0">
-    <div class="fm-page__head" style="display:flex; justify-content:space-between; align-items:baseline;">
-      <h2>Öne çıkanlar</h2>
-      <a href="/urunler" class="fm-small">tüm ürünler →</a>
-    </div>
-    <div class="fm-product-grid">
-      {products.map((product) => <ProductCard product={product} />)}
-    </div>
-  </section>
+  <!-- Öne çıkanlar -->
+  {products.length > 0 && (
+    <section class="fm-featured">
+      <div class="fm-section-head">
+        <h2>Öne çıkanlar</h2>
+        <a href="/urunler" class="fm-small fm-featured__all">
+          tüm ürünler <i class="ti ti-arrow-right" aria-hidden="true"></i>
+        </a>
+      </div>
+      <div class="fm-product-grid">
+        {products.map((product) => <ProductCard product={product} />)}
+      </div>
+    </section>
+  )}
+
 </BaseLayout>
