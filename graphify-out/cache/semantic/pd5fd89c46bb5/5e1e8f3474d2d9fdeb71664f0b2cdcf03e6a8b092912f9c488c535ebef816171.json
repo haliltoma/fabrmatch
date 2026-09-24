@@ -1,0 +1,157 @@
+{
+  "nodes": [
+    {
+      "id": "docs_adr_002_money_model_adr_002_money_model",
+      "label": "ADR-002: Money Model (Integer Minor Unit + Double-Entry)",
+      "file_type": "document",
+      "source_file": "docs/adr/002-money-model.md",
+      "source_location": "line 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_adr_002_money_model_integer_minor_unit",
+      "label": "Integer Minor Unit Principle",
+      "file_type": "rationale",
+      "source_file": "docs/adr/002-money-model.md",
+      "source_location": "line 13",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_adr_002_money_model_double_entry_ledger",
+      "label": "Double-Entry Ledger (ADR-002)",
+      "file_type": "rationale",
+      "source_file": "docs/adr/002-money-model.md",
+      "source_location": "line 27",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_adr_002_money_model_no_float_js",
+      "label": "No Float/Decimal JS Arithmetic (Rationale)",
+      "file_type": "rationale",
+      "source_file": "docs/adr/002-money-model.md",
+      "source_location": "line 9",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_adr_002_money_model_buyer_escrow_account",
+      "label": "buyer_escrow Account",
+      "file_type": "concept",
+      "source_file": "docs/adr/002-money-model.md",
+      "source_location": "line 43",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_adr_002_money_model_format_money_helper",
+      "label": "formatMoney() Helper Function",
+      "file_type": "concept",
+      "source_file": "docs/adr/002-money-model.md",
+      "source_location": "line 58",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "docs_adr_002_money_model_adr_002_money_model",
+      "target": "docs_adr_002_money_model_integer_minor_unit",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adr/002-money-model.md",
+      "source_location": "line 13",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_adr_002_money_model_adr_002_money_model",
+      "target": "docs_adr_002_money_model_double_entry_ledger",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adr/002-money-model.md",
+      "source_location": "line 27",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_adr_002_money_model_no_float_js",
+      "target": "docs_adr_002_money_model_integer_minor_unit",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adr/002-money-model.md",
+      "source_location": "line 9",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_adr_002_money_model_double_entry_ledger",
+      "target": "docs_adr_002_money_model_buyer_escrow_account",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adr/002-money-model.md",
+      "source_location": "line 43",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_adr_002_money_model_double_entry_ledger",
+      "target": "docs_adr_002_money_model_format_money_helper",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adr/002-money-model.md",
+      "source_location": "line 58",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_adr_002_money_model_integer_minor_unit",
+      "target": "claude_md_integer_minor_unit_money",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "docs/adr/002-money-model.md",
+      "source_location": "line 13",
+      "weight": 0.95
+    },
+    {
+      "source": "docs_adr_002_money_model_double_entry_ledger",
+      "target": "claude_md_ledger_entries_double_entry",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "docs/adr/002-money-model.md",
+      "source_location": "line 27",
+      "weight": 0.95
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "money_model_core_triple",
+      "label": "Money Model: Integer Units + Double-Entry Ledger + No-Float Rule",
+      "nodes": [
+        "docs_adr_002_money_model_integer_minor_unit",
+        "docs_adr_002_money_model_double_entry_ledger",
+        "docs_adr_002_money_model_no_float_js"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adr/002-money-model.md"
+    }
+  ]
+}

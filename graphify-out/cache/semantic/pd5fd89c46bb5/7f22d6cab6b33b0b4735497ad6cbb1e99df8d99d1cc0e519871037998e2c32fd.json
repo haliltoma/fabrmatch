@@ -1,0 +1,38 @@
+{
+  "nodes": [
+    {
+      "id": "claude_md_agent_rules",
+      "label": "Fabrmatch Agent Rules (CLAUDE.md)",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "claude_md_agent_rules",
+      "target": "docs_fabrmatch_fullstack_prd_fabrmatch_marketplace",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "Line 3",
+      "weight": 1.0
+    },
+    {
+      "source": "claude_md_agent_rules",
+      "target": "docs_project_memory_roadmap",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "Line 3",
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}

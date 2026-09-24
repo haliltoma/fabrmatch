@@ -1,0 +1,122 @@
+{
+  "nodes": [
+    {
+      "id": "docs_project_memory_roadmap",
+      "label": "12-Phase Roadmap",
+      "file_type": "document",
+      "source_file": "docs/PROJECT_MEMORY.md",
+      "source_location": "Roadmap section",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_project_memory_phase0",
+      "label": "Phase 0 - Infrastructure & Skeleton (done)",
+      "file_type": "document",
+      "source_file": "docs/PROJECT_MEMORY.md",
+      "source_location": "Faz 0 section",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_project_memory_phase1",
+      "label": "Phase 1 - Identity, Roles, Onboarding (todo)",
+      "file_type": "document",
+      "source_file": "docs/PROJECT_MEMORY.md",
+      "source_location": "Faz 1 section",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_project_memory_decisions",
+      "label": "Finalized Decisions K1-K7",
+      "file_type": "document",
+      "source_file": "docs/PROJECT_MEMORY.md",
+      "source_location": "Kararlar section",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_project_memory_open_decisions",
+      "label": "Open Decisions D1-D5",
+      "file_type": "document",
+      "source_file": "docs/PROJECT_MEMORY.md",
+      "source_location": "Acik Kararlar section",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "docs_project_memory_phase0",
+      "target": "_github_workflows_ci_ci_pipeline",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/PROJECT_MEMORY.md",
+      "source_location": "F0-T5",
+      "weight": 0.8
+    },
+    {
+      "source": "docs_project_memory_phase0",
+      "target": "docker_compose_local_services",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/PROJECT_MEMORY.md",
+      "source_location": "F0-T2",
+      "weight": 0.8
+    },
+    {
+      "source": "docs_project_memory_phase1",
+      "target": "docs_fabrmatch_fullstack_prd_roles",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/PROJECT_MEMORY.md",
+      "source_location": "Faz 1 section",
+      "weight": 0.9
+    },
+    {
+      "source": "docs_project_memory_open_decisions",
+      "target": "docs_fabrmatch_fullstack_prd_stripe_connect",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/PROJECT_MEMORY.md",
+      "source_location": "D1",
+      "weight": 0.9
+    },
+    {
+      "source": "docs_project_memory_decisions",
+      "target": "docs_fabrmatch_fullstack_prd_adonisjs_v7",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/PROJECT_MEMORY.md",
+      "source_location": "K1",
+      "weight": 0.9
+    },
+    {
+      "source": "docs_project_memory_decisions",
+      "target": "docs_fabrmatch_fullstack_prd_integer_money",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/PROJECT_MEMORY.md",
+      "source_location": "K7",
+      "weight": 0.9
+    }
+  ],
+  "hyperedges": []
+}

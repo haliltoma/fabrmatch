@@ -1,0 +1,244 @@
+{
+  "nodes": [
+    {
+      "id": "claude_md_fabrmatch_project",
+      "label": "Fabrmatch Project",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_md_adonisjs_v7",
+      "label": "AdonisJS v7",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 10",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_md_react_inertia_ssr",
+      "label": "React + Inertia SSR",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 10",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_md_lucid_v22_postgresql",
+      "label": "Lucid v22 + PostgreSQL",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 11",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_md_vinejs_v4",
+      "label": "VineJS v4",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 11",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_md_redis",
+      "label": "Redis",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 11",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_md_adonisjs_queue",
+      "label": "@adonisjs/queue",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 11",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_md_drive_s3_r2",
+      "label": "Drive (S3/R2) \u2014 Cloudflare R2",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 11",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_md_bouncer",
+      "label": "Bouncer (Authorization)",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 12",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_md_transformer_pattern",
+      "label": "Transformer Pattern (Response Serialization)",
+      "file_type": "rationale",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 19",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_md_order_state_machine",
+      "label": "OrderStateMachine",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 30",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_md_integer_minor_unit_money",
+      "label": "Integer Minor Unit Money Model",
+      "file_type": "rationale",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 29",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_md_ledger_entries_double_entry",
+      "label": "ledger_entries (Double-Entry Ledger)",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 29",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_md_file_access_grants",
+      "label": "file_access_grants (IP Protection)",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 39",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_md_encryption_service",
+      "label": "Encryption Service (AES-256-GCM)",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 32",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_md_manufacturer_anonymity_rule",
+      "label": "Manufacturer Anonymity Business Rule",
+      "file_type": "rationale",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 36",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_md_domain_services",
+      "label": "Domain Services Architecture (app/services/<domain>/)",
+      "file_type": "rationale",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 27",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "claude_md_fabrmatch_project",
+      "target": "docs_fabrmatch_fullstack_prd_fabrmatch_marketplace",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 6",
+      "weight": 1.0
+    },
+    {
+      "source": "claude_md_fabrmatch_project",
+      "target": "docs_project_memory_project_memory",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 6",
+      "weight": 1.0
+    },
+    {
+      "source": "claude_md_transformer_pattern",
+      "target": "claude_md_manufacturer_anonymity_rule",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 19",
+      "weight": 1.0
+    },
+    {
+      "source": "claude_md_integer_minor_unit_money",
+      "target": "claude_md_ledger_entries_double_entry",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 29",
+      "weight": 1.0
+    },
+    {
+      "source": "claude_md_encryption_service",
+      "target": "claude_md_file_access_grants",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 32",
+      "weight": 0.75
+    }
+  ],
+  "hyperedges": []
+}

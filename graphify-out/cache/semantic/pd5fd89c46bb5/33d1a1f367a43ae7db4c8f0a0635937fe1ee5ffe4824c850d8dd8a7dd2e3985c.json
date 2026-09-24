@@ -1,0 +1,445 @@
+{
+  "nodes": [
+    {
+      "id": "docs_fabrmatch_fullstack_prd_fabrmatch_marketplace",
+      "label": "Fabrmatch 3D Print-on-Demand Marketplace",
+      "file_type": "document",
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_fabrmatch_fullstack_prd_adonisjs_v7",
+      "label": "AdonisJS v7 Framework",
+      "file_type": "concept",
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 2",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_fabrmatch_fullstack_prd_react_inertia_ssr",
+      "label": "React + Inertia SSR Frontend",
+      "file_type": "concept",
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 2",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_fabrmatch_fullstack_prd_order_state_machine",
+      "label": "Order State Machine",
+      "file_type": "rationale",
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 6",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "All order state transitions must go through OrderStateMachine with DB transaction + audit_log to ensure consistency, traceability, and prevent invalid state transitions."
+    },
+    {
+      "id": "docs_fabrmatch_fullstack_prd_matching_algorithm",
+      "label": "Fair Matching Algorithm",
+      "file_type": "rationale",
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 8",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "4-step algorithm: eligibility filter (hard constraints), scoring (quality 35%, on-time 25%, distance 20%, load-balance 20%), new manufacturer exploration quota (20% of rounds go to new makers to ensure >80% get first job in 30 days), single offer with 30min timeout up to 5 rounds. Pure function with injected RNG for deterministic testing."
+    },
+    {
+      "id": "docs_fabrmatch_fullstack_prd_pricing_engine",
+      "label": "Pricing Engine",
+      "file_type": "rationale",
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 7",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Integer minor units to avoid floating-point rounding errors. Formula: material cost + machine cost -> manufacturer share -> platform commission -> base cost + seller margin = retail price. Reference price table provides consistent buyer-facing pricing while RFQ handles competitive bidding."
+    },
+    {
+      "id": "docs_fabrmatch_fullstack_prd_ip_protection",
+      "label": "IP Protection & Trust Tiers",
+      "file_type": "rationale",
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 10",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "4-tier trust system (0-3) controls file access duration and download limits. Tier 0 (new): 24h/2 downloads. Tier 3 (partner): cache allowed. Access only via file_access_grants with signed URLs. Prevents IP theft while allowing production workflow."
+    },
+    {
+      "id": "docs_fabrmatch_fullstack_prd_anonymity",
+      "label": "Anonymity & Platform Bypass Prevention",
+      "file_type": "rationale",
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 9",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Manufacturer identity hidden from seller/buyer via public_alias. Transformer layer enforces field-level access: seller variant has no manufacturer field, manufacturer variant has only shipping fields of buyer. Shipping label shows 'Fabrmatch Fulfillment'. Prevents direct deals that bypass platform."
+    },
+    {
+      "id": "docs_fabrmatch_fullstack_prd_payment_provider",
+      "label": "Payment Provider Interface",
+      "file_type": "concept",
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 11",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_fabrmatch_fullstack_prd_iyzico",
+      "label": "iyzico Marketplace Payment (TR)",
+      "file_type": "concept",
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 11",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_fabrmatch_fullstack_prd_stripe_connect",
+      "label": "Stripe Connect (Global, Open Decision D1)",
+      "file_type": "concept",
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 11, 13",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_fabrmatch_fullstack_prd_double_entry_ledger",
+      "label": "Double-Entry Ledger",
+      "file_type": "rationale",
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 11",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "All money movements recorded as double-entry ledger_entries (sum = 0). Daily reconciliation job compares with provider reports. Accounts: buyer_escrow, platform_fee, manufacturer_payable, seller_payable, refund. Prevents accounting errors and enables audit trail."
+    },
+    {
+      "id": "docs_fabrmatch_fullstack_prd_domain_services",
+      "label": "Domain Service Architecture (12 domains)",
+      "file_type": "rationale",
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 3",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Business logic in app/services/<domain>/ with thin controllers (validate -> service -> transform). 12 domains: identity, manufacturing, catalog, files, pricing, orders, matching, payments, disputes, integrations, rfq, admin. Follows AdonisJS convention of file-type folders while grouping logic by business domain."
+    },
+    {
+      "id": "docs_fabrmatch_fullstack_prd_roles",
+      "label": "User Roles (seller, manufacturer, admin)",
+      "file_type": "concept",
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 4",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_fabrmatch_fullstack_prd_data_model",
+      "label": "Core Data Model (22+ tables)",
+      "file_type": "document",
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 5",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_fabrmatch_fullstack_prd_shopify_integration",
+      "label": "Shopify Integration",
+      "file_type": "concept",
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 12",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_fabrmatch_fullstack_prd_etsy_integration",
+      "label": "Etsy Integration",
+      "file_type": "concept",
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 12",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_fabrmatch_fullstack_prd_rfq",
+      "label": "RFQ (Request for Quotation) System",
+      "file_type": "concept",
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 3, 12",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_fabrmatch_fullstack_prd_queue_jobs",
+      "label": "Queue Jobs (idempotent background workers)",
+      "file_type": "concept",
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 3",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_fabrmatch_fullstack_prd_encryption",
+      "label": "Sensitive Field Encryption (AES-256-GCM)",
+      "file_type": "rationale",
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 5",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Sensitive fields (address, IBAN, TCKN, tokens) encrypted at rest with aes256gcm. Deterministic aessiv variant available for searchable encrypted fields like email. Protects PII in case of database breach."
+    },
+    {
+      "id": "docs_fabrmatch_fullstack_prd_transformer_pattern",
+      "label": "Transformer Pattern (role-based serialization)",
+      "file_type": "rationale",
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 2, 9",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "v7 Transformers (BaseTransformer) enforce field-level access rules in one typed location. Critical for manufacturer anonymity: OrderTransformer seller variant excludes all manufacturer fields, manufacturer variant includes only shipping address fields of buyer."
+    },
+    {
+      "id": "docs_fabrmatch_fullstack_prd_integer_money",
+      "label": "Integer Minor Unit Money Pattern",
+      "file_type": "rationale",
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 5",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "All monetary values stored as integers in smallest currency unit (kurus/cent) plus ISO 4217 currency code. No JS float/decimal arithmetic. Prevents rounding errors in financial calculations."
+    },
+    {
+      "id": "docs_fabrmatch_fullstack_prd_exploration_quota",
+      "label": "New Manufacturer Exploration Quota",
+      "file_type": "rationale",
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 8 Step 3",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "20% of matching rounds probabilistically offer to new manufacturers (joined <30 days, <3 completed jobs) to ensure >80% of new makers receive at least 1 order in first 30 days. Exploration limited to low-complexity jobs. Tracked via match_offers.is_exploration flag."
+    }
+  ],
+  "edges": [
+    {
+      "source": "docs_fabrmatch_fullstack_prd_order_state_machine",
+      "target": "docs_fabrmatch_fullstack_prd_matching_algorithm",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 6: paid -> matching",
+      "weight": 0.9
+    },
+    {
+      "source": "docs_fabrmatch_fullstack_prd_matching_algorithm",
+      "target": "docs_fabrmatch_fullstack_prd_exploration_quota",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 8 Step 3",
+      "weight": 0.9
+    },
+    {
+      "source": "docs_fabrmatch_fullstack_prd_payment_provider",
+      "target": "docs_fabrmatch_fullstack_prd_iyzico",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 11",
+      "weight": 0.9
+    },
+    {
+      "source": "docs_fabrmatch_fullstack_prd_payment_provider",
+      "target": "docs_fabrmatch_fullstack_prd_stripe_connect",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 11",
+      "weight": 0.9
+    },
+    {
+      "source": "docs_fabrmatch_fullstack_prd_payment_provider",
+      "target": "docs_fabrmatch_fullstack_prd_double_entry_ledger",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 11",
+      "weight": 0.9
+    },
+    {
+      "source": "docs_fabrmatch_fullstack_prd_double_entry_ledger",
+      "target": "docs_fabrmatch_fullstack_prd_integer_money",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 5, 11",
+      "weight": 0.8
+    },
+    {
+      "source": "docs_fabrmatch_fullstack_prd_pricing_engine",
+      "target": "docs_fabrmatch_fullstack_prd_integer_money",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 7",
+      "weight": 0.8
+    },
+    {
+      "source": "docs_fabrmatch_fullstack_prd_anonymity",
+      "target": "docs_fabrmatch_fullstack_prd_transformer_pattern",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 9",
+      "weight": 0.9
+    },
+    {
+      "source": "docs_fabrmatch_fullstack_prd_ip_protection",
+      "target": "docs_fabrmatch_fullstack_prd_encryption",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 10, 5",
+      "weight": 0.6
+    },
+    {
+      "source": "docs_fabrmatch_fullstack_prd_shopify_integration",
+      "target": "docs_fabrmatch_fullstack_prd_etsy_integration",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 12",
+      "weight": 0.8
+    },
+    {
+      "source": "docs_fabrmatch_fullstack_prd_iyzico",
+      "target": "docs_fabrmatch_fullstack_prd_stripe_connect",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 11",
+      "weight": 0.8
+    },
+    {
+      "source": "docs_fabrmatch_fullstack_prd_order_state_machine",
+      "target": "docs_fabrmatch_fullstack_prd_queue_jobs",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 3, 6: RunMatchingRound, ExpireOffer, AutoConfirmDelivery, ReleasePayout",
+      "weight": 0.9
+    },
+    {
+      "source": "docs_fabrmatch_fullstack_prd_rfq",
+      "target": "docs_fabrmatch_fullstack_prd_matching_algorithm",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md",
+      "source_location": "Section 7: RFQ handles competitive bidding",
+      "weight": 0.7
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "payment_escrow_flow",
+      "label": "Payment-Escrow-Payout Flow",
+      "nodes": [
+        "docs_fabrmatch_fullstack_prd_payment_provider",
+        "docs_fabrmatch_fullstack_prd_iyzico",
+        "docs_fabrmatch_fullstack_prd_double_entry_ledger",
+        "docs_fabrmatch_fullstack_prd_order_state_machine",
+        "docs_fabrmatch_fullstack_prd_integer_money"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md"
+    },
+    {
+      "id": "order_matching_production_flow",
+      "label": "Order-Matching-Production Pipeline",
+      "nodes": [
+        "docs_fabrmatch_fullstack_prd_order_state_machine",
+        "docs_fabrmatch_fullstack_prd_matching_algorithm",
+        "docs_fabrmatch_fullstack_prd_exploration_quota",
+        "docs_fabrmatch_fullstack_prd_queue_jobs",
+        "docs_fabrmatch_fullstack_prd_ip_protection"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md"
+    },
+    {
+      "id": "privacy_anonymity_system",
+      "label": "Privacy and Anonymity Enforcement System",
+      "nodes": [
+        "docs_fabrmatch_fullstack_prd_anonymity",
+        "docs_fabrmatch_fullstack_prd_transformer_pattern",
+        "docs_fabrmatch_fullstack_prd_encryption"
+      ],
+      "relation": "implement",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/FABRMATCH_FULLSTACK_PRD.md"
+    }
+  ]
+}

@@ -1,0 +1,209 @@
+{
+  "nodes": [
+    {
+      "id": "docs_adr_003_payment_adapter_adr_003_payment_adapter",
+      "label": "ADR-003: Payment Adapter Pattern",
+      "file_type": "document",
+      "source_file": "docs/adr/003-payment-adapter.md",
+      "source_location": "line 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_adr_003_payment_adapter_payment_port_interface",
+      "label": "PaymentPort Interface",
+      "file_type": "concept",
+      "source_file": "docs/adr/003-payment-adapter.md",
+      "source_location": "line 22",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_adr_003_payment_adapter_iyzico_adapter",
+      "label": "IyzicoAdapter (TR)",
+      "file_type": "concept",
+      "source_file": "docs/adr/003-payment-adapter.md",
+      "source_location": "line 14",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_adr_003_payment_adapter_stripe_adapter",
+      "label": "StripeAdapter (global)",
+      "file_type": "concept",
+      "source_file": "docs/adr/003-payment-adapter.md",
+      "source_location": "line 15",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_adr_003_payment_adapter_fake_payment_adapter",
+      "label": "FakePaymentAdapter (Test Double)",
+      "file_type": "concept",
+      "source_file": "docs/adr/003-payment-adapter.md",
+      "source_location": "line 75",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_adr_003_payment_adapter_webhook_idempotency",
+      "label": "Webhook Idempotency (provider_event_id)",
+      "file_type": "rationale",
+      "source_file": "docs/adr/003-payment-adapter.md",
+      "source_location": "line 45",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_adr_003_payment_adapter_escrow_flow",
+      "label": "Escrow Flow (ADR-003)",
+      "file_type": "rationale",
+      "source_file": "docs/adr/003-payment-adapter.md",
+      "source_location": "line 52",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_adr_003_payment_adapter_open_decision_d1",
+      "label": "Open Decision D1 (Stripe Connect legal entity \u2014 ADR-003)",
+      "file_type": "rationale",
+      "source_file": "docs/adr/003-payment-adapter.md",
+      "source_location": "line 68",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "docs_adr_003_payment_adapter_adr_003_payment_adapter",
+      "target": "docs_adr_003_payment_adapter_payment_port_interface",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adr/003-payment-adapter.md",
+      "source_location": "line 22",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_adr_003_payment_adapter_payment_port_interface",
+      "target": "docs_adr_003_payment_adapter_iyzico_adapter",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adr/003-payment-adapter.md",
+      "source_location": "line 14",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_adr_003_payment_adapter_payment_port_interface",
+      "target": "docs_adr_003_payment_adapter_stripe_adapter",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adr/003-payment-adapter.md",
+      "source_location": "line 15",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_adr_003_payment_adapter_payment_port_interface",
+      "target": "docs_adr_003_payment_adapter_fake_payment_adapter",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adr/003-payment-adapter.md",
+      "source_location": "line 75",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_adr_003_payment_adapter_webhook_idempotency",
+      "target": "docs_adr_003_payment_adapter_payment_port_interface",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adr/003-payment-adapter.md",
+      "source_location": "line 45",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_adr_003_payment_adapter_escrow_flow",
+      "target": "docs_adr_002_money_model_buyer_escrow_account",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adr/003-payment-adapter.md",
+      "source_location": "line 52",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_adr_003_payment_adapter_open_decision_d1",
+      "target": "docs_fabrmatch_fullstack_prd_open_decision_d1",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "docs/adr/003-payment-adapter.md",
+      "source_location": "line 5",
+      "weight": 0.95
+    },
+    {
+      "source": "docs_adr_003_payment_adapter_iyzico_adapter",
+      "target": "docs_fabrmatch_fullstack_prd_iyzico_pazaryeri",
+      "relation": "implements",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "docs/adr/003-payment-adapter.md",
+      "source_location": "line 14",
+      "weight": 0.95
+    },
+    {
+      "source": "docs_adr_003_payment_adapter_stripe_adapter",
+      "target": "docs_fabrmatch_fullstack_prd_stripe_connect",
+      "relation": "implements",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "docs/adr/003-payment-adapter.md",
+      "source_location": "line 15",
+      "weight": 0.95
+    },
+    {
+      "source": "docs_adr_003_payment_adapter_payment_port_interface",
+      "target": "docs_fabrmatch_fullstack_prd_payment_provider_interface",
+      "relation": "implements",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "docs/adr/003-payment-adapter.md",
+      "source_location": "line 22",
+      "weight": 0.95
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "payment_adapter_pattern_triple",
+      "label": "Payment Adapter Pattern: Port + iyzico + Stripe",
+      "nodes": [
+        "docs_adr_003_payment_adapter_payment_port_interface",
+        "docs_adr_003_payment_adapter_iyzico_adapter",
+        "docs_adr_003_payment_adapter_stripe_adapter"
+      ],
+      "relation": "implement",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adr/003-payment-adapter.md"
+    }
+  ]
+}

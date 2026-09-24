@@ -1,0 +1,164 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/bricolage-grotesque';
+@import '@fontsource-variable/instrument-sans';
+@import '@fontsource-variable/jetbrains-mono';
+
+/*
+ * Fabrmatch "Filament" tokens — see docs/DESIGN.md (single source of truth).
+ * ink = ink-black text/dark surfaces · paper = warm ground · heat = extruder orange (one accent)
+ * fil = filament green (verified / success). No default Tailwind indigo anywhere.
+ */
+
+@theme {
+  --color-ink-50: #f4f5f6;
+  --color-ink-100: #e6e8ea;
+  --color-ink-200: #cdd1d5;
+  --color-ink-300: #a6adb4;
+  --color-ink-400: #808991;
+  --color-ink-500: #6b737c;
+  --color-ink-600: #4a525b;
+  --color-ink-700: #363d45;
+  --color-ink-800: #23282e;
+  --color-ink-900: #15181c;
+  --color-ink-950: #0c0e10;
+
+  --color-heat-50: #fff1ea;
+  --color-heat-100: #ffe0d2;
+  --color-heat-200: #ffc1a5;
+  --color-heat-300: #ff9868;
+  --color-heat-400: #fa7440;
+  --color-heat-500: #f0501e;
+  --color-heat-600: #d8410f;
+  --color-heat-700: #b83a10;
+  --color-heat-800: #8f2e10;
+  --color-heat-900: #5c1e0c;
+
+  --color-fil-100: #dcefe5;
+  --color-fil-500: #3e9a72;
+  --color-fil-600: #2f7d5b;
+  --color-fil-700: #23624a;
+
+  --color-tide-100: #dceaf0;
+
+  /* filament spool colours: illustration fills only, never a status colour */
+  --color-spool-orange: #f0501e;
+  --color-spool-teal: #2f7d8b;
+  --color-spool-mustard: #d9a420;
+  --color-spool-sage: #9db8a0;
+  --color-spool-rose: #e7a79a;
+  --color-spool-ink: #23282e;
+
+  --color-amber-soft: #fbefd5;
+  --color-amber-ink: #8a5a12;
+
+  --color-paper: #f5f2ec;
+  --color-paper-raised: #ffffff;
+  --color-paper-sunken: #ece7de;
+  --color-line: rgb(21 24 28 / 0.12);
+
+  --color-danger: #c62828;
+  --color-danger-soft: #fbe3e3;
+  --color-warning: #b7791f;
+  --color-success: #2f7d5b;
+  --color-info: #23282e;
+
+  --color-sidebar-bg: #15181c;
+  --color-sidebar-fg: #f5f2ec;
+  --color-sidebar-muted: #a6adb4;
+  --color-sidebar-active: #fa7440;
+  --color-sidebar-border: #23282e;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.875rem;
+
+  --font-display:
+    'Bricolage Grotesque Variable', 'Instrument Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Instrument Sans Variable', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+
+  --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-slide-up: slide-up 0.3s ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-paper text-ink-900 antialiased;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+  input[type='radio'],
+  input[type='checkbox'],
+  input[type='range'] {
+    accent-color: var(--color-heat-600);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-heat-500);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Signature: printed layer lines. Use on hero / empty-state grounds, never on text-heavy areas. */
+.layer-lines {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgb(21 24 28 / 0.07) 0,
+    rgb(21 24 28 / 0.07) 1px,
+    transparent 1px,
+    transparent 6px
+  );
+}
+.layer-lines-light {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgb(245 242 236 / 0.09) 0,
+    rgb(245 242 236 / 0.09) 1px,
+    transparent 1px,
+    transparent 6px
+  );
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}

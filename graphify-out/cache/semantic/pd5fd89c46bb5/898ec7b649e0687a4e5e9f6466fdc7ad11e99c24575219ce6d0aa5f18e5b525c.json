@@ -1,0 +1,162 @@
+{
+  "nodes": [
+    {
+      "id": "docs_adr_001_stack_adr_001_stack",
+      "label": "ADR-001: Stack Selection",
+      "file_type": "document",
+      "source_file": "docs/adr/001-stack.md",
+      "source_location": "line 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_adr_001_stack_adonisjs_v7",
+      "label": "AdonisJS v7 (ADR-001)",
+      "file_type": "rationale",
+      "source_file": "docs/adr/001-stack.md",
+      "source_location": "line 15",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_adr_001_stack_nestjs_alternative",
+      "label": "NestJS (Rejected Alternative)",
+      "file_type": "rationale",
+      "source_file": "docs/adr/001-stack.md",
+      "source_location": "line 30",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_adr_001_stack_nextjs_trpc_alternative",
+      "label": "Next.js + tRPC (Rejected Alternative)",
+      "file_type": "rationale",
+      "source_file": "docs/adr/001-stack.md",
+      "source_location": "line 31",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_adr_001_stack_queue_pinned_version",
+      "label": "Queue Pinned at 0.6.2 (Experimental Risk)",
+      "file_type": "rationale",
+      "source_file": "docs/adr/001-stack.md",
+      "source_location": "line 39",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "docs_adr_001_stack_adr_001_stack",
+      "target": "claude_md_adonisjs_v7",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adr/001-stack.md",
+      "source_location": "line 15",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_adr_001_stack_adr_001_stack",
+      "target": "claude_md_lucid_v22_postgresql",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adr/001-stack.md",
+      "source_location": "line 18",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_adr_001_stack_adr_001_stack",
+      "target": "claude_md_redis",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adr/001-stack.md",
+      "source_location": "line 20",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_adr_001_stack_adr_001_stack",
+      "target": "claude_md_drive_s3_r2",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adr/001-stack.md",
+      "source_location": "line 21",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_adr_001_stack_adr_001_stack",
+      "target": "claude_md_vinejs_v4",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adr/001-stack.md",
+      "source_location": "line 22",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_adr_001_stack_adr_001_stack",
+      "target": "claude_md_bouncer",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adr/001-stack.md",
+      "source_location": "line 23",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_adr_001_stack_adonisjs_v7",
+      "target": "docs_adr_001_stack_nestjs_alternative",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adr/001-stack.md",
+      "source_location": "line 30",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_adr_001_stack_adonisjs_v7",
+      "target": "docs_adr_001_stack_nextjs_trpc_alternative",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adr/001-stack.md",
+      "source_location": "line 31",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_adr_001_stack_queue_pinned_version",
+      "target": "claude_md_adonisjs_queue",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adr/001-stack.md",
+      "source_location": "line 39",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_adr_001_stack_adonisjs_v7",
+      "target": "claude_md_adonisjs_v7",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "docs/adr/001-stack.md",
+      "source_location": "line 15",
+      "weight": 0.95
+    }
+  ],
+  "hyperedges": []
+}

@@ -1,0 +1,99 @@
+import app from '@adonisjs/core/services/app'
+import db from '@adonisjs/lucid/services/db'
+import logger from '@adonisjs/core/services/logger'
+import ManufacturerProfile from '#models/manufacturer_profile'
+import ProductionJob from '#models/production_job'
+import FulfillmentService from '#services/orders/fulfillment_service'
+import OrderService from '#services/orders/order_service'
+import type { CarrierProvider, Label } from '#services/shipping/carrier_provider'
+import FakeCarrier from '#services/shipping/fake_carrier'
+
+export type CarrierOutcome = 'delivered' | 'in_transit' | 'ignored' | 'duplicate' | 'unknown_parcel'
+
+/** The fake carrier signs with a public constant, so it must never face the internet in production. */
+function defaultCarrier(): CarrierProvider {
+  if (app.inProduction) {
+    throw new Error('No carrier integration is configured for production (decision D3)')
+  }
+  return new FakeCarrier()
+}
+
+export default class CarrierService {
+  private provider: CarrierProvider
+
+  constructor(provider: CarrierProvider | null = null) {
+    this.provider = provider ?? defaultCarrier()
+  }
+
+  /** Buys a label for a produced job. The sender line carries the maker's alias only. */
+  async createLabel(jobId: number, weightGrams: number): Promise<Label> {
+    const job = await ProductionJob.query().where('id', jobId).preload('order').firstOrFail()
+    const profile = await ManufacturerProfile.findOrFail(job.manufacturerProfileId)
+    const address = new OrderService().decryptShippingAddress(job.order)
+    if (!address) throw new Error('This order has no delivery address')
+    return this.provider.createLabel({
+      orderCode: job.order.code,
+      senderLabel: `Fabrmatch Fulfillment / ${profile.publicAlias}`,
+      toName: address.fullName,
+      toLine1: address.line1,
+      toCity: address.city,
+      toPostalCode: address.postalCode,
+      toCountry: address.country,
+      weightGrams,
+    })
+  }
+
+  /**
+   * Tracking webhook: "delivered" moves a shipped order to delivered (and starts the dispute
+   * window) without waiting for the buyer or the 14-day fallback. Safe to redeliver.
+   */
+  async handleWebhook(
+    rawBody: string,
+    headers: Record<string, string | undefined>
+  ): Promise<CarrierOutcome> {
+    const event = await this.provider.handleWebhook(rawBody, headers)
+
+    const inserted = await db
+      .table('carrier_events')
+      .insert({
+        provider: this.provider.name,
+        event_id: event.eventId,
+        tracking_number: event.trackingNumber,
+        status: event.status,
+        received_at: new Date(),
+      })
+      .onConflict(['provider', 'event_id'])
+      .ignore()
+      .returning('id')
+    if (inserted.length === 0) return 'duplicate'
+
+    const job = await ProductionJob.query()
+      .where('trackingNumber', event.trackingNumber)
+      .whereNot('status', 'cancelled')
+      .first()
+    if (!job) return 'unknown_parcel'
+    await db
+      .from('carrier_events')
+      .where('provider', this.provider.name)
+      .where('event_id', event.eventId)
+      .update({ processed_at: new Date() })
+
+    if (event.status !== 'delivered')
+      return event.status === 'in_transit' ? 'in_transit' : 'ignored'
+    try {
+      await new FulfillmentService().markDelivered(job.orderId, null, {
+        by: 'carrier',
+        trackingNumber: event.trackingNumber,
+      })
+      return 'delivered'
+    } catch (error) {
+      // already delivered / disputed / cancelled: nothing to do, the state machine said no
+      logger.info({
+        msg: 'carrier delivery ignored',
+        orderId: job.orderId,
+        error: (error as Error).message,
+      })
+      return 'ignored'
+    }
+  }
+}

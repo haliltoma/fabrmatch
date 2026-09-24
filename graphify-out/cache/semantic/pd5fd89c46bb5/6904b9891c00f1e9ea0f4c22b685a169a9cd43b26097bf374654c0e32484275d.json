@@ -1,0 +1,70 @@
+{
+  "nodes": [
+    {
+      "id": "docs_prompts_coding_agent_prompts",
+      "label": "Coding Agent Prompts (PROMPTS.md)",
+      "file_type": "document",
+      "source_file": "docs/PROMPTS.md",
+      "source_location": "line 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_prompts_session_open_prompt",
+      "label": "Session Open Prompt (\u00a71)",
+      "file_type": "document",
+      "source_file": "docs/PROMPTS.md",
+      "source_location": "line 65",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_prompts_session_close_prompt",
+      "label": "Session Close Prompt (\u00a72)",
+      "file_type": "document",
+      "source_file": "docs/PROMPTS.md",
+      "source_location": "line 72",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "docs_prompts_coding_agent_prompts",
+      "target": "claude_md_fabrmatch_project",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/PROMPTS.md",
+      "source_location": "line 5",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_prompts_coding_agent_prompts",
+      "target": "docs_project_memory_project_memory",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/PROMPTS.md",
+      "source_location": "line 68",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_prompts_session_open_prompt",
+      "target": "docs_project_memory_project_memory",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/PROMPTS.md",
+      "source_location": "line 68",
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}
