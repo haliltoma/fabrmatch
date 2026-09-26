@@ -432,7 +432,53 @@ function DisputeBox({ dispute }: { dispute: NonNullable<JobData['dispute']> }) {
   )
 }
 
-function JobCard({ job }: { job: JobData }) {
+type ShopPhoto = { id: number; url: string; status: string | null }
+
+/** A shop product was printed: the maker may offer a QC photo; an admin checks it first. */
+function ShopPhotos({ photos }: { photos: ShopPhoto[] }) {
+  const { t } = useT()
+  const label: Record<string, string> = {
+    pending: t('Waiting for review'),
+    approved: t('In the shop'),
+    rejected: t('Not used'),
+  }
+  return (
+    <div className="space-y-2 rounded-md border border-line p-3">
+      <p className="text-sm font-medium text-ink-900">{t('Show your print in the shop')}</p>
+      <p className="text-xs text-ink-600">
+        {t(
+          'Offer a clear photo of just the part. We check every photo and never show anything that identifies you.'
+        )}
+      </p>
+      <ul className="flex flex-wrap gap-3">
+        {photos.map((p) => (
+          <li key={p.id} className="w-24 space-y-1">
+            <img
+              src={p.url}
+              alt={t('Photo of the finished part')}
+              loading="lazy"
+              className="h-24 w-24 rounded-md border border-line object-cover"
+            />
+            {p.status ? (
+              <p className="text-xs text-ink-600">{label[p.status] ?? p.status}</p>
+            ) : (
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full"
+                onClick={() => router.post(`/maker/qc-photos/${p.id}/offer`)}
+              >
+                {t('Offer')}
+              </Button>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+function JobCard({ job, shopPhotos }: { job: JobData; shopPhotos?: ShopPhoto[] }) {
   const { t } = useT()
 
   const [checkedAt] = useState(() => Date.now())
@@ -467,6 +513,7 @@ function JobCard({ job }: { job: JobData }) {
         {job.dispute && <DisputeBox dispute={job.dispute} />}
         <FileDownloads files={job.files} />
         <ShipToCard shipTo={job.order.shipTo} />
+        {shopPhotos && shopPhotos.length > 0 && <ShopPhotos photos={shopPhotos} />}
         <div className="flex flex-wrap gap-x-4 gap-y-1">
           <a
             href={`/maker/jobs/${job.id}/packing-slip`}
@@ -519,9 +566,10 @@ export type WorkPageProps = {
   offers: OfferData[]
   jobs: JobData[]
   offersChannel: string
+  shopPhotos: Record<number, ShopPhoto[]>
 }
 
-export default function WorkIndex({ offers, jobs }: WorkPageProps) {
+export default function WorkIndex({ offers, jobs, shopPhotos }: WorkPageProps) {
   const { t } = useT()
 
   const activeJobs = jobs.filter((j) => j.status !== 'delivered' && j.status !== 'cancelled')
@@ -562,7 +610,7 @@ export default function WorkIndex({ offers, jobs }: WorkPageProps) {
         ) : (
           <div className="grid gap-4 lg:grid-cols-2">
             {activeJobs.map((job) => (
-              <JobCard key={job.id} job={job} />
+              <JobCard key={job.id} job={job} shopPhotos={shopPhotos[job.id]} />
             ))}
           </div>
         )}
@@ -575,7 +623,7 @@ export default function WorkIndex({ offers, jobs }: WorkPageProps) {
           </h2>
           <div className="grid gap-4 lg:grid-cols-2">
             {doneJobs.map((job) => (
-              <JobCard key={job.id} job={job} />
+              <JobCard key={job.id} job={job} shopPhotos={shopPhotos[job.id]} />
             ))}
           </div>
         </section>

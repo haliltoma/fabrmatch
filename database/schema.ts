@@ -1047,6 +1047,43 @@ export class PrinterSchema extends BaseModel {
   declare updatedAt: DateTime
 }
 
+export class ProductImageSchema extends BaseModel {
+  static $columns = ['angle', 'contentType', 'createdAt', 'height', 'id', 'kind', 'modelFileId', 'qcPhotoId', 'renderVersion', 'reviewedAt', 'reviewedBy', 'status', 'storageKey', 'submittedBy', 'updatedAt', 'width'] as const
+  $columns = ProductImageSchema.$columns
+  @column()
+  declare angle: number | null
+  @column()
+  declare contentType: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare height: number | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare kind: string
+  @column()
+  declare modelFileId: number
+  @column()
+  declare qcPhotoId: number | null
+  @column()
+  declare renderVersion: number | null
+  @column.dateTime()
+  declare reviewedAt: DateTime | null
+  @column()
+  declare reviewedBy: number | null
+  @column()
+  declare status: string
+  @column()
+  declare storageKey: string
+  @column()
+  declare submittedBy: number | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare width: number | null
+}
+
 export class ProductionJobSchema extends BaseModel {
   static $columns = ['acceptedAt', 'cancelReason', 'carrier', 'createdAt', 'dueAt', 'id', 'manufacturerProfileId', 'orderId', 'printerId', 'producedAt', 'rating', 'reviewComment', 'shippedAt', 'status', 'trackingNumber', 'updatedAt'] as const
   $columns = ProductionJobSchema.$columns

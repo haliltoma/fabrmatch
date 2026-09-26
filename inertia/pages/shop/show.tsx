@@ -10,6 +10,7 @@ import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
+import { ProductGallery, type ShopImage } from '~/components/product_image'
 
 type Product = {
   id: number
@@ -20,6 +21,7 @@ type Product = {
   fromPriceMinor: number
   currency: string
   bboxMm: number[] | null
+  images: ShopImage[]
   scales: number[]
   options: Array<{ material: string; scalePercent: number; unitPriceMinor: number }>
 }
@@ -86,7 +88,7 @@ export default function ShopShow({
   }
 }) {
   const { t } = useT()
-  const { props } = usePage<{ user?: { id: number } | null }>()
+  const { props } = usePage<{ user?: { id: number } | null; siteUrl?: string }>()
   const idem = useIdempotencyKey()
   const needsTerms = useLegalAcceptance()
   const [accepted, setAccepted] = useState(false)
@@ -106,6 +108,9 @@ export default function ShopShow({
   const unit = atScale.find((o) => o.material === material)?.unitPriceMinor ?? 0
   const description =
     product.description ?? t('{title} — 3D printed on demand.', { title: product.title })
+  // link previews want an absolute URL: a real photo first, else the hero render
+  const cover = product.images[0] ?? null
+  const ogImage = cover ? { ...cover, url: `${props.siteUrl ?? ''}${cover.url}` } : null
 
   function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -126,6 +131,11 @@ export default function ShopShow({
         <meta property="og:description" content={description.slice(0, 160)} />
         <meta property="og:type" content="product" />
         <meta property="og:url" content={canonicalUrl} />
+        {ogImage && <meta property="og:image" content={ogImage.url} />}
+        {ogImage?.width && <meta property="og:image:width" content={String(ogImage.width)} />}
+        {ogImage?.height && <meta property="og:image:height" content={String(ogImage.height)} />}
+        {ogImage && <meta property="og:image:alt" content={product.title} />}
+        <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
       </Head>
 
@@ -139,16 +149,7 @@ export default function ShopShow({
 
         <div className="grid gap-8 lg:grid-cols-2">
           <div className="space-y-4">
-            <div className="layer-lines flex h-72 items-end justify-between rounded-lg border border-line bg-paper-sunken p-6">
-              <span className="font-display text-9xl font-semibold leading-none text-ink-900">
-                {product.title.charAt(0)}
-              </span>
-              {product.bboxMm && (
-                <span className="font-mono text-sm text-ink-700">
-                  {t('{v2} mm', { v2: product.bboxMm.map((d) => Math.round(d)).join(' × ') })}
-                </span>
-              )}
-            </div>
+            <ProductGallery images={product.images} title={product.title} bboxMm={product.bboxMm} />
             <div>
               <h1 className="font-display text-3xl font-semibold text-ink-900">{product.title}</h1>
               {product.description && (

@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import ShopPhotoService from '#services/catalog/shop_photo_service'
 import app from '@adonisjs/core/services/app'
 import PackingSlipService, { PackingSlipError } from '#services/fulfillment/packing_slip_service'
 import MakerWorkService from '#services/manufacturing/maker_work_service'
@@ -28,7 +29,39 @@ export default class MakerWorkController {
       offers: await MatchOfferTransformer.transform(offers).resolve(resolver, 0),
       jobs: await ProductionJobTransformer.transform(jobs).resolve(resolver, 0),
       offersChannel: offersChannel(profile.id),
+      shopPhotos: await this.shopPhotos(jobs),
     })
+  }
+
+  /** QC photos a maker may offer for the shop: only jobs that printed a shop product. */
+  private async shopPhotos(jobs: Awaited<ReturnType<MakerWorkService['jobs']>>) {
+    const shopPhotos = new ShopPhotoService()
+    const eligible = []
+    for (const job of jobs) {
+      if (job.status === 'cancelled' || job.qcPhotos.length === 0) continue
+      const shopModels = await shopPhotos.shopModelFileIds(job.orderId)
+      if (shopModels.length === 0) continue
+      eligible.push(job)
+    }
+    const photos = eligible.flatMap((j) => j.qcPhotos)
+    const [urls, status] = await Promise.all([
+      new QcPhotoService().urls(photos),
+      shopPhotos.statusByQcPhoto(photos.map((p) => p.id)),
+    ])
+    return Object.fromEntries(
+      eligible.map((j) => [
+        j.id,
+        j.qcPhotos.map((p) => ({ id: p.id, url: urls[p.id], status: status[p.id] ?? null })),
+      ])
+    )
+  }
+
+  async offerPhoto({ auth, params, response, session }: HttpContext) {
+    const user = auth.getUserOrFail()
+    const profile = await new MakerWorkService().profileFor(user)
+    await new ShopPhotoService().offer(Number(params.id), profile.id, user.id)
+    session.flash('success', 'Thanks! The photo shows in the shop once we have checked it.')
+    return response.redirect().back()
   }
 
   async accept({ auth, params, response, session }: HttpContext) {

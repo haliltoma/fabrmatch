@@ -3,6 +3,7 @@ import { Head, router } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { Search } from 'lucide-react'
 import { useT } from '~/lib/i18n'
+import { ProductThumb, type ShopImage } from '~/components/product_image'
 import { formatMoney } from '~/lib/format'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
@@ -20,6 +21,7 @@ type ProductCard = {
   bboxMm: number[] | null
   category: { slug: string; name: string } | null
   tags: string[]
+  image: ShopImage | null
 }
 
 type Filters = {
@@ -187,16 +189,7 @@ export default function ShopIndex({
               <li key={p.id}>
                 <Link href={`/shop/${p.id}/${p.slug}`} className="block h-full">
                   <Card className="h-full overflow-hidden transition-colors hover:border-heat-500">
-                    <div className="layer-lines relative flex h-36 items-end justify-between bg-paper-sunken p-4">
-                      <span className="font-display text-6xl font-semibold leading-none text-ink-900">
-                        {p.title.charAt(0)}
-                      </span>
-                      {p.bboxMm && (
-                        <span className="font-mono text-xs text-ink-700">
-                          {t('{v2} mm', { v2: p.bboxMm.map((d) => Math.round(d)).join(' × ') })}
-                        </span>
-                      )}
-                    </div>
+                    <ProductThumb image={p.image} title={p.title} bboxMm={p.bboxMm} />
                     <CardContent className="space-y-2 p-4">
                       <h2 className="font-semibold text-ink-900">{p.title}</h2>
                       {p.description && (

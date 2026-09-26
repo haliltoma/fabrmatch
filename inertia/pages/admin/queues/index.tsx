@@ -127,6 +127,7 @@ export default function AdminQueues({
   reports,
   chargebacks,
   support,
+  shopPhotos,
 }: {
   unmatched: Unmatched[]
   overdue: Overdue[]
@@ -137,6 +138,7 @@ export default function AdminQueues({
   reports: Report[]
   chargebacks: Chargeback[]
   support: SupportItem[]
+  shopPhotos: { id: number; url: string; product: string; createdAt: string | null }[]
 }) {
   const { t } = useT()
 
@@ -149,7 +151,8 @@ export default function AdminQueues({
     fraud.length +
     reports.length +
     chargebacks.length +
-    support.length
+    support.length +
+    shopPhotos.length
 
   return (
     <div className="space-y-8">
@@ -293,6 +296,46 @@ export default function AdminQueues({
                 }
               >
                 {t('We lost')}
+              </Button>
+            </div>
+          </li>
+        ))}
+      </Section>
+
+      <Section title={t('Shop photos to review')} count={shopPhotos.length}>
+        {shopPhotos.map((p) => (
+          <li key={p.id} className="flex flex-wrap items-center justify-between gap-4 px-5 py-3">
+            <div className="flex items-center gap-4">
+              <a href={p.url} target="_blank" rel="noreferrer">
+                <img
+                  src={p.url}
+                  alt={t('Photo offered for {product}', { product: p.product })}
+                  className="h-24 w-24 rounded-md border border-line object-cover"
+                />
+              </a>
+              <div>
+                <p className="font-medium text-ink-900">{p.product}</p>
+                <p className="max-w-sm text-xs text-ink-600">
+                  {t(
+                    'Approve only if nothing identifies the maker: no name, logo, address, face or shipping label.'
+                  )}
+                </p>
+                <p className="text-xs text-ink-600">{formatDateTime(p.createdAt)}</p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={() => router.post(`/admin/queues/photos/${p.id}`, { decision: 'approve' })}
+              >
+                {t('Show in shop')}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => router.post(`/admin/queues/photos/${p.id}`, { decision: 'reject' })}
+              >
+                {t('Reject')}
               </Button>
             </div>
           </li>

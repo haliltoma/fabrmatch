@@ -3,6 +3,7 @@ import { ArrowRight } from 'lucide-react'
 import { Badge } from '~/components/ui/badge'
 import { PrintArt, type PrintKind } from '~/components/print_art'
 import { formatMoney } from '~/lib/format'
+import { ProductThumb, type ShopImage } from '~/components/product_image'
 import { useT } from '~/lib/i18n'
 
 export type HomeProduct = {
@@ -12,6 +13,7 @@ export type HomeProduct = {
   materials: string[]
   fromPriceMinor: number
   currency: string
+  image: ShopImage | null
 }
 export type HomeMaterial = { slug: string; code: string; name: string; technology: string }
 
@@ -58,13 +60,14 @@ export function Discover({
                     href={`/shop/${p.id}/${p.slug}`}
                     className="block h-full rounded-[10px] border-2 border-ink-900 bg-paper-raised transition-transform duration-150 hover:-translate-y-1 hover:rotate-[0.6deg] motion-reduce:hover:transform-none"
                   >
-                    <div
-                      className={`layer-lines flex h-32 items-end rounded-t-[10px] p-4 ${FACES[i % FACES.length].bg}`}
-                    >
-                      <span className="font-display text-5xl font-semibold leading-none text-ink-900">
-                        {p.title.charAt(0)}
-                      </span>
-                    </div>
+                    <ProductThumb
+                      image={p.image}
+                      title={p.title}
+                      bboxMm={null}
+                      className="h-32 rounded-t-[10px]"
+                      letterClass="text-5xl"
+                      plateClass={FACES[i % FACES.length].bg}
+                    />
                     <div className="space-y-2 p-4">
                       <h3 className="font-display text-lg font-semibold text-ink-900">{p.title}</h3>
                       <p className="text-sm text-ink-700">

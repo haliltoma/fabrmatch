@@ -86,6 +86,18 @@ export default class AnalyzeModelFile extends Job<AnalyzeModelFilePayload> {
       }
 
       await file.save()
+      if (file.analysisStatus === 'done' && file.format === 'STL' && !app.inTest) {
+        try {
+          const { default: RenderModelFile } = await import('#jobs/render_model_file')
+          await RenderModelFile.dispatch({ modelFileId })
+        } catch (error) {
+          logger.warn({
+            msg: 'could not queue rendering',
+            modelFileId,
+            error: (error as Error).message,
+          })
+        }
+      }
       if (file.analysisStatus === 'done' && file.isPrintable && !app.inTest) {
         try {
           const { default: SliceModelFile } = await import('#jobs/slice_model_file')

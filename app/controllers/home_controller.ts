@@ -54,6 +54,7 @@ export default class HomeController {
         materials: p.materials,
         fromPriceMinor: p.fromPriceMinor,
         currency: p.currency,
+        image: p.image,
       })),
       materials: materials.map((m) => ({
         slug: m.slug,

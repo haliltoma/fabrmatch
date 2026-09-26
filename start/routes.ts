@@ -157,6 +157,8 @@ router
     middleware.throttle({ name: 'order-create', requests: 10, duration: '10 minutes' }),
     middleware.idempotent(),
   ])
+// Shop pictures (renders, approved maker photos), streamed from private storage
+router.get('/images/:id', [controllers.ProductImage, 'show']).where('id', router.matchers.number())
 router.get('/sitemap.xml', [controllers.Storefront, 'sitemap'])
 router.get('/robots.txt', [controllers.Storefront, 'robots'])
 
@@ -393,6 +395,9 @@ router
     router.post('/jobs/:id/qc/upload-url', [controllers.MakerWork, 'qcUploadUrl'])
     router.post('/jobs/:id/qc', [controllers.MakerWork, 'qcRegister'])
     router.post('/jobs/:id/ship', [controllers.MakerWork, 'ship'])
+    router
+      .post('/qc-photos/:id/offer', [controllers.MakerWork, 'offerPhoto'])
+      .where('id', router.matchers.number())
     router.post('/grants/:grantId/download', [controllers.MakerWork, 'download'])
     router.post('/disputes/:id/respond', [controllers.Dispute, 'respond'])
 
@@ -466,6 +471,9 @@ router
     router.post('/queues/reports/:id', [controllers.AdminQueue, 'reportDecision'])
     router.post('/queues/chargebacks/:id', [controllers.AdminQueue, 'chargebackDecision'])
     router.post('/queues/support/:id', [controllers.AdminQueue, 'supportAnswered'])
+    router
+      .post('/queues/photos/:id', [controllers.AdminQueue, 'shopPhotoDecision'])
+      .where('id', router.matchers.number())
 
     router.get('/materials', [controllers.AdminReferenceCatalog, 'index'])
     router.post('/materials', [controllers.AdminReferenceCatalog, 'storeMaterial'])
@@ -491,6 +499,10 @@ router
     router.get('/orders', [controllers.AdminOrder, 'index'])
     router.get('/orders/:id', [controllers.AdminOrder, 'show'])
     router.get('/orders/:id/messages', [controllers.AdminMessage, 'show'])
+
+    router
+      .get('/images/:id', [controllers.ProductImage, 'adminShow'])
+      .where('id', router.matchers.number())
 
     router.get('/users', [controllers.AdminUser, 'index'])
     router.post('/users/:id/suspend', [controllers.AdminUser, 'suspend'])

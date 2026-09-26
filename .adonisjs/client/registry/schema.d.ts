@@ -691,6 +691,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/storefront_controller').default['order']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'product_image.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/images/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/product_image_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/product_image_controller').default['show']>>>
+    }
+  }
   'storefront.sitemap': {
     methods: ["GET","HEAD"]
     pattern: '/sitemap.xml'
@@ -1639,6 +1651,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/maker_work_controller').default['ship']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'maker_work.offer_photo': {
+    methods: ["POST"]
+    pattern: '/maker/qc-photos/:id/offer'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/maker_work_controller').default['offerPhoto']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/maker_work_controller').default['offerPhoto']>>>
+    }
+  }
   'maker_work.download': {
     methods: ["POST"]
     pattern: '/maker/grants/:grantId/download'
@@ -2083,6 +2107,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_queue_controller').default['supportAnswered']>>>
     }
   }
+  'admin_queue.shop_photo_decision': {
+    methods: ["POST"]
+    pattern: '/admin/queues/photos/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_queue_controller').default['shopPhotoDecision']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_queue_controller').default['shopPhotoDecision']>>>
+    }
+  }
   'admin_reference_catalog.index': {
     methods: ["GET","HEAD"]
     pattern: '/admin/materials'
@@ -2273,6 +2309,18 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_message_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_message_controller').default['show']>>>
+    }
+  }
+  'product_image.admin_show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/images/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/product_image_controller').default['adminShow']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/product_image_controller').default['adminShow']>>>
     }
   }
   'admin_user.index': {

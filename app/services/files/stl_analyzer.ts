@@ -17,7 +17,7 @@ export interface StlAnalysisResult {
   error: string | null
 }
 
-interface Triangle {
+export interface Triangle {
   v1: [number, number, number]
   v2: [number, number, number]
   v3: [number, number, number]
@@ -93,6 +93,12 @@ function parseAsciiStl(text: string): Triangle[] {
   }
 
   return triangles
+}
+
+/** Triangles of a binary or ASCII STL (the renderer reads them too). */
+export function parseStl(buffer: Buffer): Triangle[] {
+  if (buffer.length < 84) return []
+  return isBinaryStl(buffer) ? parseBinaryStl(buffer) : parseAsciiStl(buffer.toString('utf-8'))
 }
 
 /**

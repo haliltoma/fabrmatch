@@ -39,6 +39,10 @@ Sipariş sayfasında **Şimdi öde** → yerel test ödeme sayfası (`/dev/check
 Başka her kart numarası **reddedilir** (başarısız ödemeyi test etmek için); sipariş "ödeme bekleniyor"da kalır, tekrar ödenebilir.
 Sonuç gerçek webhook yolundan geçer: ödeme → eşleştirme, defter kayıtları, bildirimler canlıdaki gibi çalışır.
 
+## Ürün görselleri ve dosya deposu
+
+Yerel dosya deposu MinIO'dur (http://localhost:9001, `minioadmin`/`minioadmin`); `fabrmatch` bucket'ını `docker compose up -d` ile gelen `minio-init` kurar. Render'lar model analizinden sonra kuyrukta üretilir; eskiler için `node ace images:render`. Demo seeder her demo ürüne gerçek bir mesh koyup render alır.
+
 ## Eşleştirme (admin)
 
 Yerelde eşleştirme **manuel**: ödenen sipariş `/admin/matching`'de bekler; admin önerilerden üreticiyi seçip teklif gönderir, üretici `/maker/work`'te kabul eder. Otomatiğe geçmek için sayfadaki anahtar (ya da `.env` → `MATCHING_AUTO_OFFER=true`).

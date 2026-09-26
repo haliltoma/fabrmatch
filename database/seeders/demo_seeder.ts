@@ -19,6 +19,10 @@ import PaymentService from '#services/payments/payment_service'
 import PayoutService from '#services/payments/payout_service'
 import DisputeService from '#services/disputes/dispute_service'
 import { slugify } from '#services/storefront/storefront_service'
+import drive from '@adonisjs/drive/services/main'
+import ProductImageService from '#services/catalog/product_image_service'
+import { analyzeStl } from '#services/files/stl_analyzer'
+import { demoMeshFor } from './demo_meshes.js'
 
 const ADDRESS = {
   fullName: 'Deniz Yılmaz',
@@ -141,24 +145,31 @@ export default class DemoSeeder extends BaseSeeder {
     for (const p of PRODUCTS) {
       const existing = await SellerProduct.query().where('title', p.title).first()
       if (existing) {
+        // older demo data had no file behind the row: upload the mesh so it can be rendered
+        await existing.load('catalogProduct', (q) => q.preload('modelFile'))
+        const old = existing.catalogProduct?.modelFile
+        if (old) await this.storeMesh(p.title, old.storageKey, old.id)
         products.push(existing)
         continue
       }
+      const mesh = demoMeshFor(p.title)
+      const analysis = mesh ? analyzeStl(mesh) : null
       const file = await ModelFile.create({
         ownerId: admin.id,
         storageKey: `models/demo-${randomUUID()}.stl`,
         originalName: `${slugify(p.title)}.stl`,
         format: 'STL',
-        sizeBytes: 250_000,
+        sizeBytes: mesh?.length ?? 250_000,
         sha256: randomUUID().replaceAll('-', '').padEnd(64, '0'),
         analysisStatus: 'done',
-        volumeMm3: p.volume,
-        bboxXMm: 90,
-        bboxYMm: 70,
-        bboxZMm: 45,
-        triangleCount: 12_000,
+        volumeMm3: analysis?.volumeMm3 || p.volume,
+        bboxXMm: analysis?.bboxXMm ?? 90,
+        bboxYMm: analysis?.bboxYMm ?? 70,
+        bboxZMm: analysis?.bboxZMm ?? 45,
+        triangleCount: analysis?.triangleCount ?? 12_000,
         isPrintable: true,
       })
+      await this.storeMesh(p.title, file.storageKey, file.id)
       const catalog = await CatalogProduct.create({
         title: p.title,
         slug: `${slugify(p.title)}-${Date.now()}`,
@@ -243,5 +254,26 @@ export default class DemoSeeder extends BaseSeeder {
         'Two of the three clips arrived snapped in half.'
       )
     }
+  }
+
+  /** Puts the demo mesh behind a model file row and renders its shop images. */
+  private async storeMesh(title: string, storageKey: string, modelFileId: number) {
+    const mesh = demoMeshFor(title)
+    if (!mesh) return
+    const disk = drive.use('s3')
+    if (!(await disk.exists(storageKey))) {
+      await disk.put(storageKey, mesh)
+      // the row may predate the mesh: size, volume and triangles come from the real file now
+      const analysis = analyzeStl(mesh)
+      await ModelFile.query().where('id', modelFileId).update({
+        sizeBytes: mesh.length,
+        volumeMm3: analysis.volumeMm3,
+        bboxXMm: analysis.bboxXMm,
+        bboxYMm: analysis.bboxYMm,
+        bboxZMm: analysis.bboxZMm,
+        triangleCount: analysis.triangleCount,
+      })
+    }
+    await new ProductImageService().renderModel(modelFileId)
   }
 }

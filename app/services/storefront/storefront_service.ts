@@ -1,3 +1,4 @@
+import ProductImageService, { type ShopImage } from '#services/catalog/product_image_service'
 import db from '@adonisjs/lucid/services/db'
 import SellerProduct from '#models/seller_product'
 import type ModelFile from '#models/model_file'
@@ -29,9 +30,13 @@ export interface StorefrontCard {
   bboxMm: [number, number, number] | null
   category: { slug: string; name: string } | null
   tags: string[]
+  /** first approved picture (maker photo before render), null → the page shows a placeholder */
+  image: ShopImage | null
 }
 
 export interface StorefrontDetail extends StorefrontCard {
+  /** every approved picture: maker photos, then the turntable in angle order */
+  images: ShopImage[]
   scales: number[]
   options: Array<{ material: string; scalePercent: number; unitPriceMinor: number }>
   updatedAt: string
@@ -134,8 +139,11 @@ export default class StorefrontService {
 
     const rows = await query
     const shipping = await new ShippingService().table()
+    const images = await new ProductImageService().forModelFiles(
+      rows.flatMap((p) => (p.catalogProduct.modelFileId ? [p.catalogProduct.modelFileId] : []))
+    )
     let cards = rows.flatMap((p) => {
-      const card = this.toCard(p, shipping, filters.material)
+      const card = this.toCard(p, shipping, images, filters.material)
       return card ? [card] : []
     })
 
@@ -180,7 +188,10 @@ export default class StorefrontService {
       .first()
     if (!product) return null
     const shipping = await new ShippingService().table()
-    const card = this.toCard(product, shipping)
+    const images = await new ProductImageService().forModelFiles(
+      product.catalogProduct.modelFileId ? [product.catalogProduct.modelFileId] : []
+    )
+    const card = this.toCard(product, shipping, images)
     const file = product.catalogProduct.modelFile
     if (!card || !file) return null
 
@@ -193,6 +204,7 @@ export default class StorefrontService {
     )
     return {
       ...card,
+      images: images.get(file.id) ?? [],
       scales,
       options,
       updatedAt: product.updatedAt.toISO()!,
@@ -210,6 +222,7 @@ export default class StorefrontService {
   private toCard(
     product: SellerProduct,
     shipping: ShippingTable,
+    images: Map<number, ShopImage[]>,
     preferredMaterial?: string
   ): StorefrontCard | null {
     const catalog = product.catalogProduct
@@ -236,6 +249,7 @@ export default class StorefrontService {
       tags: catalog.tags ?? [],
       fromPriceMinor: shown,
       currency: product.currency,
+      image: images.get(file.id)?.[0] ?? null,
       bboxMm:
         file.bboxXMm !== null && file.bboxYMm !== null && file.bboxZMm !== null
           ? [file.bboxXMm, file.bboxYMm, file.bboxZMm]

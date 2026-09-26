@@ -1,3 +1,4 @@
+import ShopPhotoService from '#services/catalog/shop_photo_service'
 import DomainError from '#exceptions/domain_error'
 import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
@@ -139,7 +140,9 @@ export default class AdminQueueService {
         new ChargebackService().listOpen(),
         new SupportService().listOpen(),
       ])
+    const shopPhotos = await new ShopPhotoService().pending()
     return {
+      shopPhotos: shopPhotos.length,
       support: support.length,
       chargebacks: chargebacks.length,
       fraud: fraud.length,

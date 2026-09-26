@@ -348,6 +348,12 @@ const routes = {
     tokens: [{"old":"/shop/:id/order","type":0,"val":"shop","end":""},{"old":"/shop/:id/order","type":1,"val":"id","end":""},{"old":"/shop/:id/order","type":0,"val":"order","end":""}],
     types: placeholder as Registry['storefront.order']['types'],
   },
+  'product_image.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/images/:id',
+    tokens: [{"old":"/images/:id","type":0,"val":"images","end":""},{"old":"/images/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['product_image.show']['types'],
+  },
   'storefront.sitemap': {
     methods: ["GET","HEAD"],
     pattern: '/sitemap.xml',
@@ -822,6 +828,12 @@ const routes = {
     tokens: [{"old":"/maker/jobs/:id/ship","type":0,"val":"maker","end":""},{"old":"/maker/jobs/:id/ship","type":0,"val":"jobs","end":""},{"old":"/maker/jobs/:id/ship","type":1,"val":"id","end":""},{"old":"/maker/jobs/:id/ship","type":0,"val":"ship","end":""}],
     types: placeholder as Registry['maker_work.ship']['types'],
   },
+  'maker_work.offer_photo': {
+    methods: ["POST"],
+    pattern: '/maker/qc-photos/:id/offer',
+    tokens: [{"old":"/maker/qc-photos/:id/offer","type":0,"val":"maker","end":""},{"old":"/maker/qc-photos/:id/offer","type":0,"val":"qc-photos","end":""},{"old":"/maker/qc-photos/:id/offer","type":1,"val":"id","end":""},{"old":"/maker/qc-photos/:id/offer","type":0,"val":"offer","end":""}],
+    types: placeholder as Registry['maker_work.offer_photo']['types'],
+  },
   'maker_work.download': {
     methods: ["POST"],
     pattern: '/maker/grants/:grantId/download',
@@ -1044,6 +1056,12 @@ const routes = {
     tokens: [{"old":"/admin/queues/support/:id","type":0,"val":"admin","end":""},{"old":"/admin/queues/support/:id","type":0,"val":"queues","end":""},{"old":"/admin/queues/support/:id","type":0,"val":"support","end":""},{"old":"/admin/queues/support/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['admin_queue.support_answered']['types'],
   },
+  'admin_queue.shop_photo_decision': {
+    methods: ["POST"],
+    pattern: '/admin/queues/photos/:id',
+    tokens: [{"old":"/admin/queues/photos/:id","type":0,"val":"admin","end":""},{"old":"/admin/queues/photos/:id","type":0,"val":"queues","end":""},{"old":"/admin/queues/photos/:id","type":0,"val":"photos","end":""},{"old":"/admin/queues/photos/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['admin_queue.shop_photo_decision']['types'],
+  },
   'admin_reference_catalog.index': {
     methods: ["GET","HEAD"],
     pattern: '/admin/materials',
@@ -1139,6 +1157,12 @@ const routes = {
     pattern: '/admin/orders/:id/messages',
     tokens: [{"old":"/admin/orders/:id/messages","type":0,"val":"admin","end":""},{"old":"/admin/orders/:id/messages","type":0,"val":"orders","end":""},{"old":"/admin/orders/:id/messages","type":1,"val":"id","end":""},{"old":"/admin/orders/:id/messages","type":0,"val":"messages","end":""}],
     types: placeholder as Registry['admin_message.show']['types'],
+  },
+  'product_image.admin_show': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/images/:id',
+    tokens: [{"old":"/admin/images/:id","type":0,"val":"admin","end":""},{"old":"/admin/images/:id","type":0,"val":"images","end":""},{"old":"/admin/images/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['product_image.admin_show']['types'],
   },
   'admin_user.index': {
     methods: ["GET","HEAD"],

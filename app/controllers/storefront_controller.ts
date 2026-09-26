@@ -58,6 +58,9 @@ export default class StorefrontController {
       'name': product.title,
       'description': product.description ?? product.title,
       'url': canonicalUrl,
+      ...(product.images.length > 0
+        ? { image: product.images.slice(0, 4).map((i) => `${siteUrl()}${i.url}`) }
+        : {}),
       'offers': {
         '@type': 'AggregateOffer',
         'priceCurrency': product.currency,

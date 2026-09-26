@@ -2296,4 +2296,35 @@ export const tr: Record<string, string> = {
     'Kabul ederse, kayıtlı boş kapasite olmasa da üretim başlar.',
   'Send offer anyway': 'Yine de teklif gönder',
   'No printer at all': 'Hiç yazıcısı yok',
+  '{title}, turned to {deg}°': '{title}, {deg}° döndürülmüş',
+  'Photo of a printed {title}': 'Basılmış {title} fotoğrafı',
+  'Drag to turn': 'Çevirmek için sürükle',
+  'Turn the part': 'Parçayı çevir',
+  'Pictures': 'Görseller',
+  'Render': 'Render',
+  'Photo {n}': 'Fotoğraf {n}',
+  'Computer render of the model. The printed part shows fine layer lines, and its colour follows the material you pick.':
+    "Modelin bilgisayar render'ı. Basılan parçada ince katman çizgileri görünür, rengi seçtiğin malzemeye göre olur.",
+  'Photo of a real print from a maker on Fabrmatch.':
+    "Fabrmatch'teki bir üreticinin gerçek baskısının fotoğrafı.",
+  'Shop photos to review': 'İncelenecek vitrin fotoğrafları',
+  'Photo offered for {product}': '{product} için önerilen fotoğraf',
+  'Approve only if nothing identifies the maker: no name, logo, address, face or shipping label.':
+    'Yalnızca üreticiyi ele veren hiçbir şey yoksa onayla: isim, logo, adres, yüz ya da kargo etiketi olmamalı.',
+  'Show in shop': 'Vitrinde göster',
+  'In the shop': 'Vitrinde',
+  'Not used': 'Kullanılmadı',
+  'Show your print in the shop': 'Baskını vitrinde göster',
+  'Offer a clear photo of just the part. We check every photo and never show anything that identifies you.':
+    'Yalnızca parçanın net bir fotoğrafını öner. Her fotoğrafı kontrol ederiz, seni tanıtan hiçbir şeyi göstermeyiz.',
+  'Photo of the finished part': 'Bitmiş parçanın fotoğrafı',
+  'Offer': 'Öner',
+  'Thanks! The photo shows in the shop once we have checked it.':
+    'Teşekkürler! Fotoğraf kontrolümüzden sonra vitrinde görünür.',
+  'Photo is now in the shop.': 'Fotoğraf artık vitrinde.',
+  'Photo rejected.': 'Fotoğraf reddedildi.',
+  'This photo was already offered': 'Bu fotoğraf zaten önerildi',
+  'This part is not sold in the shop': 'Bu parça vitrinde satılmıyor',
+  'This photo was already reviewed': 'Bu fotoğraf zaten incelendi',
+  'Photo not found': 'Fotoğraf bulunamadı',
 }

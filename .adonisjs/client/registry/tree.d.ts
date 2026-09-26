@@ -99,6 +99,10 @@ export interface ApiDefinition {
     sitemap: typeof routes['storefront.sitemap']
     robots: typeof routes['storefront.robots']
   }
+  productImage: {
+    show: typeof routes['product_image.show']
+    adminShow: typeof routes['product_image.admin_show']
+  }
   notification: {
     index: typeof routes['notification.index']
     preferences: typeof routes['notification.preferences']
@@ -216,6 +220,7 @@ export interface ApiDefinition {
     qcUploadUrl: typeof routes['maker_work.qc_upload_url']
     qcRegister: typeof routes['maker_work.qc_register']
     ship: typeof routes['maker_work.ship']
+    offerPhoto: typeof routes['maker_work.offer_photo']
     download: typeof routes['maker_work.download']
   }
   makerOrderMessage: {
@@ -274,6 +279,7 @@ export interface ApiDefinition {
     reportDecision: typeof routes['admin_queue.report_decision']
     chargebackDecision: typeof routes['admin_queue.chargeback_decision']
     supportAnswered: typeof routes['admin_queue.support_answered']
+    shopPhotoDecision: typeof routes['admin_queue.shop_photo_decision']
   }
   adminReferenceCatalog: {
     index: typeof routes['admin_reference_catalog.index']

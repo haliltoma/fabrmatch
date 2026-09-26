@@ -38,6 +38,16 @@ services:
     volumes:
       - miniodata:/data
 
+  # creates the S3_BUCKET once MinIO is up (uploads fail silently without it)
+  minio-init:
+    image: quay.io/minio/mc
+    depends_on:
+      - minio
+    restart: 'no'
+    entrypoint: >
+      /bin/sh -c "until mc alias set local http://minio:9000 minioadmin minioadmin >/dev/null 2>&1;
+      do sleep 1; done; mc mb --ignore-existing local/fabrmatch"
+
   # local SMTP catcher: SMTP_HOST=localhost SMTP_PORT=1025, inbox at http://localhost:8025
   mailpit:
     image: axllent/mailpit

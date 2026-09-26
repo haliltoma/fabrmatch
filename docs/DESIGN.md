@@ -140,13 +140,13 @@ bir dönüşüm iskeleti olsun (hero → kanıt → kitle adımları → keşif 
 
 ### 13.1 Referanslardan renk/tasarım dersleri (ve bizim çevirimiz)
 
-| Referans deseni | Görülen | Biz |
-| --- | --- | --- |
-| Tam genişlik renk bantları | Printify limon/koyu yeşil/açık mavi, Printful koyu deniz mavisi/kırmızı, Gelato krem/mercan | `paper` (#F5F2EC) ↔ `ink-900` ↔ **tint bantları**: `fil-100`, `heat-100`, `amber-100` (pop revizyonunda `sky`/`sun`/`lime` bantları, bkz. §14) |
-| Pastel blok kolajı + gerçek fotoğraf | Gelato: turuncu/pembe/mavi/sarı bloklar içinde insan+ürün | Bloklar = **filament spool paleti** (aşağıda) içinde özgün SVG baskı parçaları; fotoğraf yok (§8: harici CDN yasak) |
-| Büyük sonuç rakamı | Printify limon yeşili $321.16, Printful kırmızı | Sonuç rakamı `font-display` 64px, `fil-600` (kazanç) — turuncu değil |
-| Cesur, kısa, büyük harfli/serif olmayan H1 | Printify tam büyük harf | Bricolage Grotesque 600–700, `tracking-tight`; büyük harf yok (okunurluk, TR karakter) |
-| Sıfır risk rozet satırı | "100% free · 2000+ products · global delivery" | 3 rozet, **yalnız doğru olanlar** (bkz. marketing §19.1-2), Lucide ikon + etiket |
+| Referans deseni                            | Görülen                                                                                     | Biz                                                                                                                                            |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tam genişlik renk bantları                 | Printify limon/koyu yeşil/açık mavi, Printful koyu deniz mavisi/kırmızı, Gelato krem/mercan | `paper` (#F5F2EC) ↔ `ink-900` ↔ **tint bantları**: `fil-100`, `heat-100`, `amber-100` (pop revizyonunda `sky`/`sun`/`lime` bantları, bkz. §14) |
+| Pastel blok kolajı + gerçek fotoğraf       | Gelato: turuncu/pembe/mavi/sarı bloklar içinde insan+ürün                                   | Bloklar = **filament spool paleti** (aşağıda) içinde özgün SVG baskı parçaları; fotoğraf yok (§8: harici CDN yasak)                            |
+| Büyük sonuç rakamı                         | Printify limon yeşili $321.16, Printful kırmızı                                             | Sonuç rakamı `font-display` 64px, `fil-600` (kazanç) — turuncu değil                                                                           |
+| Cesur, kısa, büyük harfli/serif olmayan H1 | Printify tam büyük harf                                                                     | Bricolage Grotesque 600–700, `tracking-tight`; büyük harf yok (okunurluk, TR karakter)                                                         |
+| Sıfır risk rozet satırı                    | "100% free · 2000+ products · global delivery"                                              | 3 rozet, **yalnız doğru olanlar** (bkz. marketing §19.1-2), Lucide ikon + etiket                                                               |
 
 **Filament spool paleti (yalnız illüstrasyon zemini; UI durum rengi DEĞİL):** `spool-orange #F0501E`, `spool-teal #2F7D8B`, `spool-mustard #D9A420`, `spool-sage #9DB8A0`, `spool-rose #E7A79A`, `spool-ink #23282E`.
 Tint zeminler: her birinin %15–25 karışımı (`bg-spool-*/15`). Uygulandı: `inertia/css/app.css` (`--color-spool-*`, `--color-lime/sun/sky/blush`), `components/print_art.tsx` (vase, planter, stand, clip; katman çizgisi maskesi). Yasak listesi geçerli (indigo/mor yok). Turuncu kuralı: **bir ekranda CTA + en çok bir illüstrasyon parçası**.
@@ -188,13 +188,13 @@ Kaynaklar: 21st.dev MCP araması ("Pop Button" [tom_ui, itme animasyonlu 3D dü�
 
 ### 14.1 Canlı palet (`inertia/css/app.css`, `--color-*`)
 
-| Token | Değer | Kullanım |
-| ----- | ----- | -------- |
-| `lime` | `#C8F53C` | Bant/kutucuk zemini, ikincil düğme yüzü, sonuç vurgusu. Metin üstünde yalnız `ink` |
-| `sun` | `#FFC629` | Bant/kutucuk zemini, uyarı DEĞİL (uyarı `amber` kalır) |
-| `sky` | `#8FD3F4` | Bant/kutucuk zemini (eski `tide-100` kaldırıldı, yerini aldı) |
-| `blush` | `#FF9FB8` | Kutucuk zemini, sıcak vurgu |
-| `heat`, `fil`, `ink`, `paper` | değişmedi | Birincil CTA = `heat-500` yüz + ink metin |
+| Token                         | Değer     | Kullanım                                                                           |
+| ----------------------------- | --------- | ---------------------------------------------------------------------------------- |
+| `lime`                        | `#C8F53C` | Bant/kutucuk zemini, ikincil düğme yüzü, sonuç vurgusu. Metin üstünde yalnız `ink` |
+| `sun`                         | `#FFC629` | Bant/kutucuk zemini, uyarı DEĞİL (uyarı `amber` kalır)                             |
+| `sky`                         | `#8FD3F4` | Bant/kutucuk zemini (eski `tide-100` kaldırıldı, yerini aldı)                      |
+| `blush`                       | `#FF9FB8` | Kutucuk zemini, sıcak vurgu                                                        |
+| `heat`, `fil`, `ink`, `paper` | değişmedi | Birincil CTA = `heat-500` yüz + ink metin                                          |
 
 Kurallar: (1) Pop renkleri **durum rengi değildir** (StatusBadge, hata, başarı eski token'larla). (2) Pop renk üstünde metin her zaman `ink-900` (kontrast ≥ 4.5:1 doğrulandı: ink/lime, ink/sun, ink/sky, ink/blush). (3) Bir bölüm bandı = **tek** pop renk; yan yana iki pop bant yok, aralarına `paper` gelir. (4) Renkli kutucuklar `2px ink` kenarlıklı (düğmelerle aynı dil).
 
@@ -257,8 +257,14 @@ Hero: `paper` zemin + katman çizgisi, sağda 4 pop kutucuk (sun/lime/sky/blush)
 
 ## 19. Dört yüzlü küp + güvenlik tarama paneli (2026-09-26)
 
-- **`HeroCube` v2 (4 yüz, sola döner):** ① *Alıcı tasarımını seçer* — mağaza ızgarası (gerçek katalog ürünleri, fiyat = gerçek maliyet + %30), imleç kartın üstüne gider, kart kalkar, tıklanır, limon çerçeve + tik. ② *Siparişi verir* — ürün detayı, imleç "Sipariş ver"e gider, basılır → "Sipariş verildi · FO-…" + kilit "Ödeme teslimata kadar bekletilir". ③ Baskı→kapı sahnesi (`PrintJourney time`). ④ *Teslim edildi. Kazanç senin.* — kilit açılır, fiyat çubuğu maliyet (mürekkep) / marj (limon) olarak ayrılır, ₺ jetonu düşer, "Hesabına geçen" sayacı. Sonra mağazaya dönülür (−360° = 0, kesintisiz).
+- **`HeroCube` v2 (4 yüz, sola döner):** ① _Alıcı tasarımını seçer_ — mağaza ızgarası (gerçek katalog ürünleri, fiyat = gerçek maliyet + %30), imleç kartın üstüne gider, kart kalkar, tıklanır, limon çerçeve + tik. ② _Siparişi verir_ — ürün detayı, imleç "Sipariş ver"e gider, basılır → "Sipariş verildi · FO-…" + kilit "Ödeme teslimata kadar bekletilir". ③ Baskı→kapı sahnesi (`PrintJourney time`). ④ _Teslim edildi. Kazanç senin._ — kilit açılır, fiyat çubuğu maliyet (mürekkep) / marj (limon) olarak ayrılır, ₺ jetonu düşer, "Hesabına geçen" sayacı. Sonra mağazaya dönülür (−360° = 0, kesintisiz).
 - Zaman çizelgesi saf fonksiyon: `inertia/lib/cube_story.ts` (`storyAt`, `cursorAt`; 35,6 sn; her yüz ≥5 sn önde, sayfa açılınca mağaza 2 sn sakin bekler, seçimden sonra ~2 sn daha), testi `tests/unit/cube_story.spec.ts`. Seçilen ürün kupa/vazo biçimli olan (baskı sahnesi vazo basar); silüet başlıktan (`kindFor`). SSR/reduced-motion karesi ve döngü başı: mağaza, henüz seçim yok.
 - Küp altında 4 adım çipi (Seç · Sipariş · Baskı · Paranı al), öndeki yüz limon. Mobilde numaralar gizli. Tüm metin `t()`; ekran okuyucuya tek cümlelik özet.
 - **`ScanPanel`** (`components/scan_panel.tsx`): yükleme altında "Virüs ve gizli kod taranıyor…" (süpürme çubuğu, reduced-motion'da sabit) → "Virüs taraması temiz" (yalnız sunucunun döndürdüğü geçen kontroller tik alır; ClamAV satırı yalnız motor gerçekten çalıştıysa) → "Güvenlik taraması engelledi" + neden. Hızlı fiyat sayfası ve hero'da; dosyalarım listesinde rozet (taranıyor / temiz / engellendi) + 3 sn yenileme. Ayrıntı `SECURITY.md`.
 
+## 20. Ürün görselleri: döner tabla render + gerçek fotoğraf (2026-09-26, R4-T6)
+
+- **Render:** sunucuda üretilir (`model_renderer.ts`), vitrine yalnız **resim** gider, mesh asla (kural 4 — "vitrinde model önizleme yok" kuralı interaktif 3D için geçerli; statik render serbest). Gri PLA tonu (alıcının seçmediği bir rengi ima etmesin), şeffaf arka plan → açık/koyu temada aynı dosya; yan yüzlerde ince **katman çizgisi** (imza öğesi).
+- **Kart (`ProductThumb`):** `.layer-lines` plaka üstünde render (`object-contain`) ya da fotoğraf (`object-cover`); ölçü çipi sağ altta. Görsel yoksa eski harf plakası.
+- **Ürün sayfası (`ProductGallery`):** tek akılda kalan öğe **döner tabla** — sürükleyerek (40 px = 1 kare) ya da altındaki kaydırıcıyla (8 açı işaretli, klavye oklarıyla) çevrilir; tüm kareler önceden yüklü. "Çevirmek için sürükle" ipucu ilk dönüşte kaybolur. Onaylı gerçek fotoğraflar küçük resim olarak; dürüst altyazı: "Modelin bilgisayar render'ı… rengi seçtiğin malzemeye göre olur".
+- **Üretici fotoğrafı:** yalnız admin onayından sonra, renderlardan önce gösterilir; admin kuyruğunda "üreticiyi ele veren hiçbir şey yoksa onayla" notu.

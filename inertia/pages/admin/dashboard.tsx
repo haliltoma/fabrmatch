@@ -42,6 +42,7 @@ function AdminDashboard({
     reports: number
     chargebacks: number
     support: number
+    shopPhotos: number
   }
   recentOrders: RecentOrder[]
   recentUsers: RecentUser[]

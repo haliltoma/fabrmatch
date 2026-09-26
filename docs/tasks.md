@@ -185,7 +185,7 @@ Paket çıkış ölçütü: gerçek ödeme sandbox'ta uçtan uca; vergi+fatura k
 - [ ] **R4-T3 SKU eşleme ekranı** · P1
 - [ ] **R4-T4 Fulfillment geri yazımı** (takip no + durum) · P1
 - [ ] **R4-T5 Etsy entegrasyonu** (OAuth2 PKCE + periyodik çekme) · P2
-- [ ] **R4-T6 Mockup/render üretimi** · P1 · `Ref: S2`
+- [x] **R4-T6 Mockup/render üretimi** · P1 · ✔ 2026-09-26 (sunucuda bağımlılıksız render: `model_renderer.ts` z-buffer, 8 açılı döner tabla, yan yüzlerde katman çizgisi, şeffaf PNG; analiz sonrası `RenderModelFile` işi + `node ace images:render` geri doldurma; `product_images` tablosu; `/images/:id` yalnız onaylıyı, önbellekli akıtır; vitrin kartı + ürün sayfasında sürükle/kaydırıcıyla döndürülen galeri; `og:image` + JSON-LD `image`. Üretici fotoğrafı: vitrin ürünü basılan işin QC fotoğrafı "Öner" → admin kuyruğunda "İncelenecek vitrin fotoğrafları" onayı (kimlik ele veren bir şey yoksa) → vitrinde renderlardan önce. Alıcının kendi modeli asla. KALAN: STL dışı biçimler [3MF/OBJ ayrıştırıcı yok], malzeme rengine göre render, WebP) · `Ref: S2`
   - Model turntable render (worker), `product_images`, OG görseli; üretici gerçek foto yükleyebilir; vitrinde harf plakası yerine görsel.
 - [x] **R4-T7 Satıcı marj aracı + analitik** · P1 · ✔ 2026-09-24 (ürün formunda canlı "bu marj = parça başı şu kadar" [fiyat motoruyla aynı], `/seller/analytics`: sipariş, kazanılan/bekleyen, en çok satanlar; görüntülenme/dönüşüm izlenmiyor) · `Ref: S3, S4`
 - [x] **R4-T8 Örnek sipariş** · P1 · ✔ 2026-09-24 (`channel: sample`: satıcı kendi tasarımını maliyetine sipariş eder, marj/satıcı payı yok, ürün kartında "Order a sample"; satış analitiğine sayılmaz) · `Ref: S7`

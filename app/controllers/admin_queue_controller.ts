@@ -7,6 +7,7 @@ import ContentReportService from '#services/admin/content_report_service'
 import FraudService from '#services/admin/fraud_service'
 import OrderService from '#services/orders/order_service'
 import MatchingService from '#services/matching/matching_service'
+import ShopPhotoService from '#services/catalog/shop_photo_service'
 
 const ackValidator = vine.create({
   queue: vine.enum(['payment_review', 'reconcile']),
@@ -30,18 +31,29 @@ const makerValidator = vine.create({ decision: vine.enum(['approve', 'reject']) 
 export default class AdminQueueController {
   async index({ inertia }: HttpContext) {
     const queues = new AdminQueueService()
-    const [unmatched, overdue, reviews, findings, makers, fraud, reports, chargebacks, support] =
-      await Promise.all([
-        queues.unmatchedOrders(),
-        queues.overdueJobs(),
-        queues.paymentReviews(),
-        queues.reconcileFindings(),
-        queues.pendingMakers(),
-        new FraudService().listOpen(),
-        new ContentReportService().listOpen(),
-        new ChargebackService().listOpen(),
-        new SupportService().listOpen(),
-      ])
+    const [
+      unmatched,
+      overdue,
+      reviews,
+      findings,
+      makers,
+      fraud,
+      reports,
+      chargebacks,
+      support,
+      shopPhotos,
+    ] = await Promise.all([
+      queues.unmatchedOrders(),
+      queues.overdueJobs(),
+      queues.paymentReviews(),
+      queues.reconcileFindings(),
+      queues.pendingMakers(),
+      new FraudService().listOpen(),
+      new ContentReportService().listOpen(),
+      new ChargebackService().listOpen(),
+      new SupportService().listOpen(),
+      new ShopPhotoService().pending(),
+    ])
     return inertia.render('admin/queues/index', {
       unmatched,
       overdue,
@@ -52,7 +64,18 @@ export default class AdminQueueController {
       reports,
       chargebacks,
       support,
+      shopPhotos,
     })
+  }
+
+  async shopPhotoDecision({ params, request, response, session, auth }: HttpContext) {
+    const { decision } = await request.validateUsing(makerValidator)
+    await new ShopPhotoService().review(Number(params.id), decision, auth.getUserOrFail().id)
+    session.flash(
+      'success',
+      decision === 'approve' ? 'Photo is now in the shop.' : 'Photo rejected.'
+    )
+    return response.redirect().toPath('/admin/queues')
   }
 
   async rematch({ params, response, session, auth }: HttpContext) {
