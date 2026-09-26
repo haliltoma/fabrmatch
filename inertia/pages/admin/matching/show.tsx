@@ -340,7 +340,7 @@ function SuggestionCard({
               <span className="font-mono text-sm font-semibold text-ink-900">{s.maker.alias}</span>
               <span className="text-ink-900">{s.maker.name}</span>
               {rank === 1 && (
-                <span className="rounded-full bg-fil-100 px-2 py-0.5 text-xs font-medium text-fil-600">
+                <span className="rounded-full bg-fil-100 px-2 py-0.5 text-xs font-medium text-fil-700">
                   {t('Best fit')}
                 </span>
               )}

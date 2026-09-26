@@ -57,7 +57,7 @@ function RoleOption({
         <span className="flex flex-wrap items-center gap-2">
           <span className="font-display text-xl font-semibold text-ink-900">{title}</span>
           {badge && (
-            <span className="rounded-full bg-fil-100 px-2 py-0.5 text-xs font-medium text-fil-600">
+            <span className="rounded-full bg-fil-100 px-2 py-0.5 text-xs font-medium text-fil-700">
               {badge}
             </span>
           )}

@@ -280,6 +280,7 @@
 
 ## Log
 
+- **2026-09-26** — R5-T6 a11y: bu oturumun sayfaları axe taramasına eklendi (`scripts/a11y.mjs` + `tests/browser/a11y_pages.spec.ts`); 2 ihlal düzeltildi (klavyeyle kaydırılamayan `pre`, yeşil rozet kontrastı → `text-fil-700`). 771 test yeşil, yerel tarama 0 ihlal.
 - **2026-09-26** — R6-T6 boya rengi: "tek renge boyanır" vaat ediliyordu ama renk seçilemiyordu. `needs_colour` bayrağı + `finishing_colour` alanları, `FinishingService.resolveColour/paintColours`, `PaintColourField` bileşeni (teklif + vitrin), renk her gösterimde. 767 test yeşil.
 - **2026-09-26** — R6-T7 kupon maliyeti raporu: `FinancialReportService.couponsCsv` + admin rapor indirmesi (`coupons`).
 - **2026-09-26** — R4-T13 logo: `seller_profiles.logo_key/logo_content_type`, `BrandingService.saveLogo/removeLogo/logo` (tür ilk baytlardan, SVG yok, 256 KB), paket kartında gömülü görsel. 765 test yeşil.

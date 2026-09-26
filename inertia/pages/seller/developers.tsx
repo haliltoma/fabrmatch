@@ -256,7 +256,12 @@ function DocsCard() {
       </CardHeader>
       <CardContent className="space-y-3 text-sm text-ink-700">
         <p>{t('Send the key as a bearer token:')}</p>
-        <pre className="overflow-x-auto rounded-md bg-paper-sunken p-3 font-mono text-xs text-ink-900">
+        {/* scrolls sideways on phones: focusable so keyboard users can scroll it too */}
+        <pre
+          tabIndex={0}
+          aria-label={t('Example requests')}
+          className="overflow-x-auto rounded-md bg-paper-sunken p-3 font-mono text-xs text-ink-900 focus-visible:outline-2 focus-visible:outline-heat-500"
+        >
           {`curl -H "Authorization: Bearer fmk_…" \\\n  https://YOUR-DOMAIN/api/v1/orders`}
         </pre>
         <ul className="list-disc space-y-1 pl-5">

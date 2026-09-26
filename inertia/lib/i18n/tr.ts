@@ -2418,4 +2418,5 @@ export const tr: Record<string, string> = {
   'Yellow': 'Sarı',
   'Paint colour': 'Boya rengi',
   'Pick the colour to paint it in.': 'Boyanacak rengi seç.',
+  'Example requests': 'Örnek istekler',
 }

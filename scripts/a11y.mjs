@@ -17,6 +17,10 @@ const publicPaths = [
   '/tools/quick-quote',
   '/tools/maker-income',
   '/materials',
+  '/use-cases',
+  '/use-cases/prototype',
+  // resolved at run time: the first product in the shop (gallery, finishing and colour pickers)
+  'first-product',
   '/blog',
   '/login',
   '/signup',
@@ -26,29 +30,67 @@ const roles = [
   {
     email: 'buyer@demo.test',
     password: 'password123',
-    paths: ['/orders', '/files', '/cart', '/notifications', '/account/security', '/account/privacy'],
+    paths: [
+      '/orders',
+      '/files',
+      '/cart',
+      '/notifications',
+      '/account/security',
+      '/account/privacy',
+    ],
   },
   {
     email: 'seller@demo.test',
     password: 'password123',
-    paths: ['/seller', '/seller/orders', '/seller/products', '/seller/analytics', '/seller/branding'],
+    paths: [
+      '/seller',
+      '/seller/orders',
+      '/seller/products',
+      '/seller/analytics',
+      '/seller/branding',
+      '/seller/developers',
+    ],
   },
   {
     email: 'maker@demo.test',
     password: 'password123',
-    paths: ['/maker', '/maker/work', '/maker/printers', '/maker/capacity', '/maker/earnings'],
+    paths: [
+      '/maker',
+      '/maker/work',
+      '/maker/printers',
+      '/maker/capacity',
+      '/maker/earnings',
+      '/maker/finishing',
+      '/maker/payout',
+    ],
   },
   {
     email: 'admin@fabrmatch.com',
     password: 'admin12345',
-    paths: ['/admin', '/admin/queues', '/admin/orders', '/admin/users', '/admin/settings'],
+    paths: [
+      '/admin',
+      '/admin/queues',
+      '/admin/matching',
+      '/admin/orders',
+      '/admin/users',
+      '/admin/finishing',
+      '/admin/reports',
+      '/admin/settings',
+    ],
   },
 ]
 
 const browser = await chromium.launch()
 let failed = 0
+let skipped = 0
 
 async function scan(page, label, path) {
+  if (path === 'first-product') {
+    await page.goto(base + '/shop', { waitUntil: 'networkidle' })
+    const href = await page.locator('a[href^="/shop/"]').first().getAttribute('href')
+    if (!href) return
+    path = href
+  }
   await page.goto(base + path, { waitUntil: 'networkidle' })
   const { violations } = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
@@ -78,7 +120,19 @@ for (const [label, width] of [
     await p.fill('input[type=password]', role.password)
     await p.click('button[type=submit]')
     try {
-      await p.waitForURL((u) => !u.pathname.startsWith('/login'), { timeout: 15000 })
+      await p.waitForURL(
+        (u) => !u.pathname.startsWith('/login') || u.pathname === '/login/two-factor',
+        {
+          timeout: 15000,
+        }
+      )
+      if (new URL(p.url()).pathname === '/login/two-factor') {
+        // not an accessibility finding: this account asks for a code (the browser suite covers these pages)
+        skipped++
+        console.log(`[${label}] skipped ${role.email}: the account has two-factor sign-in on`)
+        await signed.close()
+        continue
+      }
     } catch {
       failed++
       console.log(`[${label}] could not sign in as ${role.email} (seeded? login limiter?)`)
@@ -90,5 +144,8 @@ for (const [label, width] of [
   }
 }
 await browser.close()
-console.log(failed === 0 ? 'No accessibility violations.' : `${failed} violation(s).`)
+console.log(
+  (failed === 0 ? 'No accessibility violations.' : `${failed} violation(s).`) +
+    (skipped > 0 ? ` ${skipped} role scan(s) skipped (two-factor).` : '')
+)
 process.exit(failed === 0 ? 0 : 1)
