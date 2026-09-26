@@ -105,6 +105,9 @@ export type ScannedRoutes = {
     'seller_insight.statement': { paramsTuple?: []; params?: {} }
     'seller_branding.show': { paramsTuple?: []; params?: {} }
     'seller_branding.save': { paramsTuple?: []; params?: {} }
+    'seller_branding.logo': { paramsTuple?: []; params?: {} }
+    'seller_branding.upload_logo': { paramsTuple?: []; params?: {} }
+    'seller_branding.remove_logo': { paramsTuple?: []; params?: {} }
     'seller_developer.index': { paramsTuple?: []; params?: {} }
     'seller_developer.create_key': { paramsTuple?: []; params?: {} }
     'seller_developer.revoke_key': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -281,6 +284,7 @@ export type ScannedRoutes = {
     'seller_insight.analytics': { paramsTuple?: []; params?: {} }
     'seller_insight.statement': { paramsTuple?: []; params?: {} }
     'seller_branding.show': { paramsTuple?: []; params?: {} }
+    'seller_branding.logo': { paramsTuple?: []; params?: {} }
     'seller_developer.index': { paramsTuple?: []; params?: {} }
     'rfq.index': { paramsTuple?: []; params?: {} }
     'rfq.create': { paramsTuple?: []; params?: {} }
@@ -384,6 +388,7 @@ export type ScannedRoutes = {
     'seller_insight.analytics': { paramsTuple?: []; params?: {} }
     'seller_insight.statement': { paramsTuple?: []; params?: {} }
     'seller_branding.show': { paramsTuple?: []; params?: {} }
+    'seller_branding.logo': { paramsTuple?: []; params?: {} }
     'seller_developer.index': { paramsTuple?: []; params?: {} }
     'rfq.index': { paramsTuple?: []; params?: {} }
     'rfq.create': { paramsTuple?: []; params?: {} }
@@ -480,6 +485,8 @@ export type ScannedRoutes = {
     'dispute.add_evidence': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'test_checkout.pay': { paramsTuple: [ParamValue]; params: {'ref': ParamValue} }
     'seller_branding.save': { paramsTuple?: []; params?: {} }
+    'seller_branding.upload_logo': { paramsTuple?: []; params?: {} }
+    'seller_branding.remove_logo': { paramsTuple?: []; params?: {} }
     'seller_developer.create_key': { paramsTuple?: []; params?: {} }
     'seller_developer.revoke_key': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_developer.create_webhook': { paramsTuple?: []; params?: {} }

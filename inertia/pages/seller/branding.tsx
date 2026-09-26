@@ -8,12 +8,61 @@ import { Label } from '~/components/ui/label'
 import { PageHeader } from '~/components/page_header'
 import { useT } from '~/lib/i18n'
 
+function LogoField({ hasLogo }: { hasLogo: boolean }) {
+  const { t } = useT()
+  const [busy, setBusy] = useState(false)
+  // a new query string after each change, so the preview never shows the cached old logo
+  const [version] = useState(() => Date.now())
+  return (
+    <div className="space-y-2">
+      <Label htmlFor="brand-logo">{t('Logo (optional)')}</Label>
+      {hasLogo && (
+        <div className="flex items-center gap-3">
+          <img
+            src={`/seller/branding/logo?v=${version}`}
+            alt={t('Your logo')}
+            className="h-12 max-w-40 rounded border border-line bg-paper-raised object-contain p-1"
+          />
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => router.post('/seller/branding/logo/remove')}
+          >
+            {t('Remove')}
+          </Button>
+        </div>
+      )}
+      <Input
+        id="brand-logo"
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        disabled={busy}
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          if (!file) return
+          router.post(
+            '/seller/branding/logo',
+            { logo: file },
+            { forceFormData: true, onStart: () => setBusy(true), onFinish: () => setBusy(false) }
+          )
+        }}
+      />
+      <p className="text-xs text-ink-600">
+        {t('PNG, JPEG or WebP, up to 256 KB. It is printed in black and white on many printers.')}
+      </p>
+    </div>
+  )
+}
+
 export default function SellerBranding({
   brandName,
   brandMessage,
+  hasLogo,
 }: {
   brandName: string | null
   brandMessage: string | null
+  hasLogo: boolean
 }) {
   const { t } = useT()
 
@@ -62,13 +111,21 @@ export default function SellerBranding({
             </div>
             <Button type="submit">{t('Save')}</Button>
           </form>
+          <LogoField key={String(hasLogo)} hasLogo={hasLogo} />
           <div
             className="rounded-lg border border-line bg-paper-sunken p-4"
             aria-label={t('Preview')}
           >
             <p className="text-xs text-ink-600">{t('Preview')}</p>
+            {hasLogo && (
+              <img
+                src="/seller/branding/logo"
+                alt=""
+                className="mb-2 max-h-12 max-w-40 object-contain"
+              />
+            )}
             <p className="font-display text-xl font-semibold text-ink-900">
-              {name || 'Thank you for your order'}
+              {name || t('Thank you for your order')}
             </p>
             {message && <p className="text-sm text-ink-800">{message}</p>}
           </div>

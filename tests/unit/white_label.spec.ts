@@ -73,6 +73,7 @@ test.group('white label packing card (R4-T13)', (group) => {
     assert.deepEqual(await branding.get(shop.sellerUser.id), {
       brandName: null,
       brandMessage: null,
+      hasLogo: false,
     })
   })
 

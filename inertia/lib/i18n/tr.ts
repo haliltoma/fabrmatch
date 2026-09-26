@@ -2396,4 +2396,13 @@ export const tr: Record<string, string> = {
   'Vapour smoothed': 'Buharla pürüzsüzleştirilmiş',
   'Chemical smoothing for a glossy, sealed surface (ABS only).':
     'Parlak ve kapalı bir yüzey için kimyasal pürüzsüzleştirme (yalnız ABS).',
+  'Logo (optional)': 'Logo (isteğe bağlı)',
+  'Your logo': 'Logon',
+  'PNG, JPEG or WebP, up to 256 KB. It is printed in black and white on many printers.':
+    'PNG, JPEG ya da WebP, en çok 256 KB. Birçok yazıcıda siyah-beyaz basılır.',
+  'Logo saved. New packing cards show it.': 'Logo kaydedildi. Yeni paket kartlarında görünür.',
+  'Logo removed.': 'Logo kaldırıldı.',
+  'Choose an image': 'Bir görsel seç',
+  'The logo can be at most 256 KB': 'Logo en çok 256 KB olabilir',
+  'The logo must be a PNG, JPEG or WebP image': 'Logo PNG, JPEG ya da WebP olmalı',
 }

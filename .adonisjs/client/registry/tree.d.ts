@@ -178,6 +178,9 @@ export interface ApiDefinition {
   sellerBranding: {
     show: typeof routes['seller_branding.show']
     save: typeof routes['seller_branding.save']
+    logo: typeof routes['seller_branding.logo']
+    uploadLogo: typeof routes['seller_branding.upload_logo']
+    removeLogo: typeof routes['seller_branding.remove_logo']
   }
   sellerDeveloper: {
     index: typeof routes['seller_developer.index']

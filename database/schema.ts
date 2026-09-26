@@ -1255,7 +1255,7 @@ export class SellerProductSchema extends BaseModel {
 }
 
 export class SellerProfileSchema extends BaseModel {
-  static $columns = ['brandMessage', 'brandName', 'businessName', 'createdAt', 'defaultMarginBps', 'id', 'isCorporate', 'status', 'taxIdEnc', 'updatedAt', 'userId'] as const
+  static $columns = ['brandMessage', 'brandName', 'businessName', 'createdAt', 'defaultMarginBps', 'id', 'isCorporate', 'logoContentType', 'logoKey', 'status', 'taxIdEnc', 'updatedAt', 'userId'] as const
   $columns = SellerProfileSchema.$columns
   @column()
   declare brandMessage: string | null
@@ -1271,6 +1271,10 @@ export class SellerProfileSchema extends BaseModel {
   declare id: number
   @column()
   declare isCorporate: boolean
+  @column()
+  declare logoContentType: string | null
+  @column()
+  declare logoKey: string | null
   @column()
   declare status: string
   @column()

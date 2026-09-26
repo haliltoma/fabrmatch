@@ -299,6 +299,15 @@ router
     router
       .post('/branding', [controllers.SellerBranding, 'save'])
       .use(middleware.profile({ role: 'seller' }))
+    router
+      .get('/branding/logo', [controllers.SellerBranding, 'logo'])
+      .use(middleware.profile({ role: 'seller' }))
+    router
+      .post('/branding/logo', [controllers.SellerBranding, 'uploadLogo'])
+      .use(middleware.profile({ role: 'seller' }))
+    router
+      .post('/branding/logo/remove', [controllers.SellerBranding, 'removeLogo'])
+      .use(middleware.profile({ role: 'seller' }))
 
     // API keys and webhooks
     router.get('/developers', [controllers.SellerDeveloper, 'index'])

@@ -612,6 +612,24 @@ const routes = {
     tokens: [{"old":"/seller/branding","type":0,"val":"seller","end":""},{"old":"/seller/branding","type":0,"val":"branding","end":""}],
     types: placeholder as Registry['seller_branding.save']['types'],
   },
+  'seller_branding.logo': {
+    methods: ["GET","HEAD"],
+    pattern: '/seller/branding/logo',
+    tokens: [{"old":"/seller/branding/logo","type":0,"val":"seller","end":""},{"old":"/seller/branding/logo","type":0,"val":"branding","end":""},{"old":"/seller/branding/logo","type":0,"val":"logo","end":""}],
+    types: placeholder as Registry['seller_branding.logo']['types'],
+  },
+  'seller_branding.upload_logo': {
+    methods: ["POST"],
+    pattern: '/seller/branding/logo',
+    tokens: [{"old":"/seller/branding/logo","type":0,"val":"seller","end":""},{"old":"/seller/branding/logo","type":0,"val":"branding","end":""},{"old":"/seller/branding/logo","type":0,"val":"logo","end":""}],
+    types: placeholder as Registry['seller_branding.upload_logo']['types'],
+  },
+  'seller_branding.remove_logo': {
+    methods: ["POST"],
+    pattern: '/seller/branding/logo/remove',
+    tokens: [{"old":"/seller/branding/logo/remove","type":0,"val":"seller","end":""},{"old":"/seller/branding/logo/remove","type":0,"val":"branding","end":""},{"old":"/seller/branding/logo/remove","type":0,"val":"logo","end":""},{"old":"/seller/branding/logo/remove","type":0,"val":"remove","end":""}],
+    types: placeholder as Registry['seller_branding.remove_logo']['types'],
+  },
   'seller_developer.index': {
     methods: ["GET","HEAD"],
     pattern: '/seller/developers',

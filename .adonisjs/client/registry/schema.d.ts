@@ -1219,6 +1219,42 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_branding_controller').default['save']>>>
     }
   }
+  'seller_branding.logo': {
+    methods: ["GET","HEAD"]
+    pattern: '/seller/branding/logo'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_branding_controller').default['logo']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_branding_controller').default['logo']>>>
+    }
+  }
+  'seller_branding.upload_logo': {
+    methods: ["POST"]
+    pattern: '/seller/branding/logo'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_branding_controller').default['uploadLogo']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_branding_controller').default['uploadLogo']>>>
+    }
+  }
+  'seller_branding.remove_logo': {
+    methods: ["POST"]
+    pattern: '/seller/branding/logo/remove'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_branding_controller').default['removeLogo']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_branding_controller').default['removeLogo']>>>
+    }
+  }
   'seller_developer.index': {
     methods: ["GET","HEAD"]
     pattern: '/seller/developers'

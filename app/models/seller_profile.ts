@@ -33,6 +33,13 @@ export default class SellerProfile extends BaseModel {
   @column()
   declare brandMessage: string | null
 
+  /** private file behind the packing-card logo (R4-T13) */
+  @column()
+  declare logoKey: string | null
+
+  @column()
+  declare logoContentType: string | null
+
   @column()
   declare status: ProfileStatus
 
