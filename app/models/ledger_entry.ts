@@ -7,6 +7,12 @@ export type LedgerAccount =
   | 'manufacturer_payable'
   | 'seller_payable'
   | 'refund'
+  /** Output VAT on sales (Fabrmatch is the seller, R7-T2) */
+  | 'vat_payable'
+  /** Input VAT on payees' invoices, reclaimable (debit-normal) */
+  | 'vat_receivable'
+  /** Income tax withheld from home producers, owed to the tax office */
+  | 'withholding_payable'
 
 export type LedgerDirection = 'debit' | 'credit'
 

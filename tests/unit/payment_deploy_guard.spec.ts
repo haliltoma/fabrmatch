@@ -36,32 +36,44 @@ test.group('assertPaymentConfigured (R0-T8 deploy guard)', () => {
     )
   })
 
-  test('iyzico needs its keys, and in production the live endpoint and marketplace', ({
-    assert,
-  }) => {
+  test('iyzico needs its keys; production needs the live endpoint', ({ assert }) => {
     const iyzico = {
       baseUrl: 'https://api.iyzipay.com',
       apiKey: 'k',
       secretKey: 's',
-      marketplace: true,
-      platformSubMerchantKey: 'platform',
+      marketplace: false,
+      platformSubMerchantKey: undefined as string | undefined,
     }
-    const run = (nodeEnv: PaymentRuntime['nodeEnv'], overrides: Partial<typeof iyzico>) => () =>
-      assertPaymentConfigured({
-        nodeEnv,
-        provider: 'iyzico',
-        webhookSecret: undefined,
-        iyzico: { ...iyzico, ...overrides },
-      })
+    const run =
+      (
+        nodeEnv: PaymentRuntime['nodeEnv'],
+        overrides: Partial<typeof iyzico>,
+        salesModel: PaymentRuntime['salesModel'] = 'merchant_of_record'
+      ) =>
+      () =>
+        assertPaymentConfigured({
+          nodeEnv,
+          provider: 'iyzico',
+          webhookSecret: undefined,
+          salesModel,
+          iyzico: { ...iyzico, ...overrides },
+        })
 
+    // model B (Fabrmatch sells): a plain merchant account is what production needs
     assert.doesNotThrow(run('production', {}))
-    assert.throws(run('production', { secretKey: undefined as never }), /IYZICO_SECRET_KEY/)
-    assert.throws(run('production', { marketplace: false }), /marketplace/)
+    assert.throws(run('production', { secretKey: undefined }), /IYZICO_SECRET_KEY/)
     assert.throws(run('production', { baseUrl: 'https://sandbox-api.iyzipay.com' }), /sandbox/)
-    assert.throws(run('development', { platformSubMerchantKey: undefined as never }), /PLATFORM/)
-    // local sandbox without marketplace: pay + refund only
-    assert.doesNotThrow(
-      run('development', { baseUrl: 'https://sandbox-api.iyzipay.com', marketplace: false })
+    assert.throws(
+      run('development', { marketplace: true, platformSubMerchantKey: 'p' }),
+      /only for SALES_MODEL=marketplace/
     )
+    assert.doesNotThrow(run('development', { baseUrl: 'https://sandbox-api.iyzipay.com' }))
+
+    // model A (maker sells): money must stay with iyzico
+    assert.throws(run('production', {}, 'marketplace'), /marketplace product/)
+    assert.doesNotThrow(
+      run('production', { marketplace: true, platformSubMerchantKey: 'p' }, 'marketplace')
+    )
+    assert.throws(run('development', { marketplace: true }, 'marketplace'), /PLATFORM/)
   })
 })

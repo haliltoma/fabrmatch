@@ -902,6 +902,49 @@ export class OrderSchema extends BaseModel {
   declare updatedAt: DateTime
 }
 
+export class PayeeTaxProfileSchema extends BaseModel {
+  static $columns = ['addressEnc', 'beneficiaryId', 'beneficiaryType', 'createdAt', 'documentContentType', 'documentKey', 'ibanEnc', 'id', 'legalName', 'rejectionReason', 'reviewedAt', 'reviewedBy', 'status', 'submittedAt', 'taxNumberEnc', 'taxOffice', 'taxStatus', 'updatedAt', 'userId'] as const
+  $columns = PayeeTaxProfileSchema.$columns
+  @column()
+  declare addressEnc: string
+  @column()
+  declare beneficiaryId: number
+  @column()
+  declare beneficiaryType: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare documentContentType: string | null
+  @column()
+  declare documentKey: string | null
+  @column()
+  declare ibanEnc: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare legalName: string
+  @column()
+  declare rejectionReason: string | null
+  @column.dateTime()
+  declare reviewedAt: DateTime | null
+  @column()
+  declare reviewedBy: number | null
+  @column()
+  declare status: string
+  @column.dateTime()
+  declare submittedAt: DateTime
+  @column()
+  declare taxNumberEnc: string
+  @column()
+  declare taxOffice: string
+  @column()
+  declare taxStatus: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+  @column()
+  declare userId: number
+}
+
 export class PaymentProviderCallSchema extends BaseModel {
   static $columns = ['completedAt', 'createdAt', 'id', 'idempotencyKey', 'provider', 'resultRef'] as const
   $columns = PaymentProviderCallSchema.$columns
@@ -980,8 +1023,47 @@ export class PaymentSchema extends BaseModel {
   declare updatedAt: DateTime
 }
 
+export class PayoutDocumentSchema extends BaseModel {
+  static $columns = ['createdAt', 'currency', 'fileContentType', 'fileKey', 'grossMinor', 'id', 'issuedOn', 'kind', 'number', 'payoutId', 'rejectionReason', 'reviewedAt', 'reviewedBy', 'status', 'updatedAt', 'vatMinor', 'withholdingMinor'] as const
+  $columns = PayoutDocumentSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare currency: string
+  @column()
+  declare fileContentType: string | null
+  @column()
+  declare fileKey: string | null
+  @column()
+  declare grossMinor: number
+  @column({ isPrimary: true })
+  declare id: number
+  @column.date()
+  declare issuedOn: DateTime
+  @column()
+  declare kind: string
+  @column()
+  declare number: string
+  @column()
+  declare payoutId: number
+  @column()
+  declare rejectionReason: string | null
+  @column.dateTime()
+  declare reviewedAt: DateTime | null
+  @column()
+  declare reviewedBy: number | null
+  @column()
+  declare status: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+  @column()
+  declare vatMinor: number
+  @column()
+  declare withholdingMinor: number
+}
+
 export class PayoutSchema extends BaseModel {
-  static $columns = ['amountMinor', 'beneficiaryId', 'beneficiaryType', 'createdAt', 'currency', 'id', 'orderId', 'paidAt', 'providerRef', 'status', 'updatedAt'] as const
+  static $columns = ['amountMinor', 'beneficiaryId', 'beneficiaryType', 'createdAt', 'currency', 'grossMinor', 'id', 'orderId', 'paidAt', 'paidReference', 'providerRef', 'status', 'taxStatus', 'updatedAt', 'vatMinor', 'withholdingMinor'] as const
   $columns = PayoutSchema.$columns
   @column()
   declare amountMinor: number
@@ -993,6 +1075,8 @@ export class PayoutSchema extends BaseModel {
   declare createdAt: DateTime
   @column()
   declare currency: string
+  @column()
+  declare grossMinor: number | null
   @column({ isPrimary: true })
   declare id: number
   @column()
@@ -1000,11 +1084,19 @@ export class PayoutSchema extends BaseModel {
   @column.dateTime()
   declare paidAt: DateTime | null
   @column()
+  declare paidReference: string | null
+  @column()
   declare providerRef: string | null
   @column()
   declare status: string
+  @column()
+  declare taxStatus: string | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+  @column()
+  declare vatMinor: number
+  @column()
+  declare withholdingMinor: number
 }
 
 export class PrintProfileSchema extends BaseModel {

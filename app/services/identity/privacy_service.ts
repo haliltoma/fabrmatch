@@ -3,6 +3,7 @@ import { randomBytes } from 'node:crypto'
 import db from '@adonisjs/lucid/services/db'
 import hash from '@adonisjs/core/services/hash'
 import drive from '@adonisjs/drive/services/main'
+import PayeeTaxProfile from '#models/payee_tax_profile'
 import logger from '@adonisjs/core/services/logger'
 import { DateTime } from 'luxon'
 import AuditLog from '#models/audit_log'
@@ -87,6 +88,7 @@ export default class PrivacyService {
 
     const { default: OrderService } = await import('#services/orders/order_service')
     const orderService = new OrderService()
+    const payeeProfiles = await PayeeTaxProfile.query().where('userId', user.id)
     return {
       exportedAt: DateTime.now().toISO(),
       account: {
@@ -122,6 +124,18 @@ export default class PrivacyService {
             trustTier: maker.trustTier,
           }
         : null,
+      // tax and bank details given for payouts (R7); kept after deletion for the legal retention period
+      payoutDetails: payeeProfiles.map((p) => ({
+        role: p.beneficiaryType,
+        taxStatus: p.taxStatus,
+        legalName: p.legalName,
+        taxNumber: this.encryption.decrypt(p.taxNumberEnc),
+        taxOffice: p.taxOffice,
+        address: this.encryption.decrypt(p.addressEnc),
+        iban: this.encryption.decrypt(p.ibanEnc),
+        status: p.status,
+        submittedAt: p.submittedAt.toISO(),
+      })),
       ordersPlaced: orders.map((o) => ({
         code: o.code,
         status: o.status,

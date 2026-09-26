@@ -109,6 +109,10 @@ export type ScannedRoutes = {
     'seller_branding.logo': { paramsTuple?: []; params?: {} }
     'seller_branding.upload_logo': { paramsTuple?: []; params?: {} }
     'seller_branding.remove_logo': { paramsTuple?: []; params?: {} }
+    'seller_payout.show': { paramsTuple?: []; params?: {} }
+    'seller_payout.save': { paramsTuple?: []; params?: {} }
+    'seller_payout.invoice': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'seller_payout.voucher': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_developer.index': { paramsTuple?: []; params?: {} }
     'seller_developer.create_key': { paramsTuple?: []; params?: {} }
     'seller_developer.revoke_key': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -161,6 +165,8 @@ export type ScannedRoutes = {
     'maker_finishing.save': { paramsTuple?: []; params?: {} }
     'maker_payout.show': { paramsTuple?: []; params?: {} }
     'maker_payout.save': { paramsTuple?: []; params?: {} }
+    'maker_payout.invoice': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'maker_payout.voucher': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_performance.scorecard': { paramsTuple?: []; params?: {} }
     'maker_performance.earnings': { paramsTuple?: []; params?: {} }
     'maker_performance.statement': { paramsTuple?: []; params?: {} }
@@ -226,6 +232,14 @@ export type ScannedRoutes = {
     'admin_coupon.index': { paramsTuple?: []; params?: {} }
     'admin_coupon.store': { paramsTuple?: []; params?: {} }
     'admin_coupon.toggle': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_payout.index': { paramsTuple?: []; params?: {} }
+    'admin_payout.ready_csv': { paramsTuple?: []; params?: {} }
+    'admin_payout.review_profile': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_payout.profile_document': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_payout.review_invoice': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_payout.invoice_file': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_payout.voucher': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_payout.mark_paid': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_settings.index': { paramsTuple?: []; params?: {} }
     'admin_settings.update': { paramsTuple?: []; params?: {} }
     'admin_settings.reset': { paramsTuple?: []; params?: {} }
@@ -286,6 +300,8 @@ export type ScannedRoutes = {
     'seller_insight.statement': { paramsTuple?: []; params?: {} }
     'seller_branding.show': { paramsTuple?: []; params?: {} }
     'seller_branding.logo': { paramsTuple?: []; params?: {} }
+    'seller_payout.show': { paramsTuple?: []; params?: {} }
+    'seller_payout.voucher': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_developer.index': { paramsTuple?: []; params?: {} }
     'rfq.index': { paramsTuple?: []; params?: {} }
     'rfq.create': { paramsTuple?: []; params?: {} }
@@ -303,6 +319,7 @@ export type ScannedRoutes = {
     'maker_rfq.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_finishing.show': { paramsTuple?: []; params?: {} }
     'maker_payout.show': { paramsTuple?: []; params?: {} }
+    'maker_payout.voucher': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_performance.scorecard': { paramsTuple?: []; params?: {} }
     'maker_performance.earnings': { paramsTuple?: []; params?: {} }
     'maker_performance.statement': { paramsTuple?: []; params?: {} }
@@ -332,6 +349,11 @@ export type ScannedRoutes = {
     'admin_report.index': { paramsTuple?: []; params?: {} }
     'admin_report.download': { paramsTuple: [ParamValue]; params: {'kind': ParamValue} }
     'admin_coupon.index': { paramsTuple?: []; params?: {} }
+    'admin_payout.index': { paramsTuple?: []; params?: {} }
+    'admin_payout.ready_csv': { paramsTuple?: []; params?: {} }
+    'admin_payout.profile_document': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_payout.invoice_file': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_payout.voucher': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_settings.index': { paramsTuple?: []; params?: {} }
   }
   HEAD: {
@@ -390,6 +412,8 @@ export type ScannedRoutes = {
     'seller_insight.statement': { paramsTuple?: []; params?: {} }
     'seller_branding.show': { paramsTuple?: []; params?: {} }
     'seller_branding.logo': { paramsTuple?: []; params?: {} }
+    'seller_payout.show': { paramsTuple?: []; params?: {} }
+    'seller_payout.voucher': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_developer.index': { paramsTuple?: []; params?: {} }
     'rfq.index': { paramsTuple?: []; params?: {} }
     'rfq.create': { paramsTuple?: []; params?: {} }
@@ -407,6 +431,7 @@ export type ScannedRoutes = {
     'maker_rfq.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_finishing.show': { paramsTuple?: []; params?: {} }
     'maker_payout.show': { paramsTuple?: []; params?: {} }
+    'maker_payout.voucher': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_performance.scorecard': { paramsTuple?: []; params?: {} }
     'maker_performance.earnings': { paramsTuple?: []; params?: {} }
     'maker_performance.statement': { paramsTuple?: []; params?: {} }
@@ -436,6 +461,11 @@ export type ScannedRoutes = {
     'admin_report.index': { paramsTuple?: []; params?: {} }
     'admin_report.download': { paramsTuple: [ParamValue]; params: {'kind': ParamValue} }
     'admin_coupon.index': { paramsTuple?: []; params?: {} }
+    'admin_payout.index': { paramsTuple?: []; params?: {} }
+    'admin_payout.ready_csv': { paramsTuple?: []; params?: {} }
+    'admin_payout.profile_document': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_payout.invoice_file': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_payout.voucher': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_settings.index': { paramsTuple?: []; params?: {} }
   }
   POST: {
@@ -489,6 +519,8 @@ export type ScannedRoutes = {
     'seller_branding.save': { paramsTuple?: []; params?: {} }
     'seller_branding.upload_logo': { paramsTuple?: []; params?: {} }
     'seller_branding.remove_logo': { paramsTuple?: []; params?: {} }
+    'seller_payout.save': { paramsTuple?: []; params?: {} }
+    'seller_payout.invoice': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_developer.create_key': { paramsTuple?: []; params?: {} }
     'seller_developer.revoke_key': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_developer.create_webhook': { paramsTuple?: []; params?: {} }
@@ -519,6 +551,7 @@ export type ScannedRoutes = {
     'maker_rfq.withdraw': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_finishing.save': { paramsTuple?: []; params?: {} }
     'maker_payout.save': { paramsTuple?: []; params?: {} }
+    'maker_payout.invoice': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'capacity.set_slot': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'capacity.save_template': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'capacity.apply_template': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -554,6 +587,9 @@ export type ScannedRoutes = {
     'admin_maker.unlock_tier': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_coupon.store': { paramsTuple?: []; params?: {} }
     'admin_coupon.toggle': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_payout.review_profile': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_payout.review_invoice': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_payout.mark_paid': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_settings.update': { paramsTuple?: []; params?: {} }
     'admin_settings.reset': { paramsTuple?: []; params?: {} }
   }

@@ -204,6 +204,23 @@ export default class OrderNotifier {
     })
   }
 
+  /** Tax details reviewed, invoice needed / reviewed (R7). `beneficiaryId` as on payouts. */
+  payoutAction(
+    beneficiaryType: 'manufacturer' | 'seller',
+    beneficiaryId: number,
+    context: NotificationContext & { step: NonNullable<NotificationContext['step']> },
+    eventKey: string
+  ) {
+    return this.safely('payout_action', async () => {
+      if (beneficiaryType === 'seller') {
+        await this.send(beneficiaryId, 'seller', 'payout_action', context, eventKey)
+      } else {
+        const profile = await ManufacturerProfile.find(beneficiaryId)
+        await this.send(profile?.userId ?? null, 'maker', 'payout_action', context, eventKey)
+      }
+    })
+  }
+
   disputeOpened(disputeId: number) {
     return this.safely('dispute_opened', async () => {
       const dispute = await Dispute.findOrFail(disputeId)

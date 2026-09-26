@@ -46,7 +46,7 @@ export const makerNav: NavItem[] = [
   { label: 'Finishing', href: '/maker/finishing', icon: Brush },
   { label: 'Performance', href: '/maker/performance', icon: Award },
   { label: 'Earnings', href: '/maker/earnings', icon: Wallet },
-  { label: 'Payout account', href: '/maker/payout', icon: Landmark },
+  { label: 'Payouts and invoices', href: '/maker/payout', icon: Landmark },
 ]
 
 export const sellerNav: NavItem[] = [
@@ -56,6 +56,7 @@ export const sellerNav: NavItem[] = [
   { label: 'Analytics', href: '/seller/analytics', icon: LineChart },
   { label: 'Quote requests', href: '/rfqs', icon: FileQuestion, feature: 'rfq' },
   { label: 'Branding', href: '/seller/branding', icon: Tag },
+  { label: 'Payouts and invoices', href: '/seller/payout', icon: Landmark },
   { label: 'Developers', href: '/seller/developers', icon: KeyRound },
   { label: 'My orders', href: '/orders', icon: ClipboardList },
 ]
@@ -79,6 +80,7 @@ export const adminNav: NavItem[] = [
   { label: 'Shipping', href: '/admin/shipping', icon: Truck },
   { label: 'Coupons', href: '/admin/coupons', icon: Ticket },
   { label: 'Disputes', href: '/admin/disputes', icon: AlertTriangle },
+  { label: 'Payouts', href: '/admin/payouts', icon: Landmark },
   { label: 'Audit log', href: '/admin/audit', icon: ScrollText },
   { label: 'Settings', href: '/admin/settings', icon: Settings },
 ]

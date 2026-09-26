@@ -33,6 +33,7 @@ declare module '@adonisjs/inertia/types' {
     'admin/metrics/index': ExtractProps<(typeof import('../../inertia/pages/admin/metrics/index.tsx'))['default']>
     'admin/orders/index': ExtractProps<(typeof import('../../inertia/pages/admin/orders/index.tsx'))['default']>
     'admin/orders/show': ExtractProps<(typeof import('../../inertia/pages/admin/orders/show.tsx'))['default']>
+    'admin/payouts/index': ExtractProps<(typeof import('../../inertia/pages/admin/payouts/index.tsx'))['default']>
     'admin/profiles/index': ExtractProps<(typeof import('../../inertia/pages/admin/profiles/index.tsx'))['default']>
     'admin/queues/index': ExtractProps<(typeof import('../../inertia/pages/admin/queues/index.tsx'))['default']>
     'admin/reports/index': ExtractProps<(typeof import('../../inertia/pages/admin/reports/index.tsx'))['default']>
@@ -83,6 +84,7 @@ declare module '@adonisjs/inertia/types' {
     'seller/dashboard': ExtractProps<(typeof import('../../inertia/pages/seller/dashboard.tsx'))['default']>
     'seller/developers': ExtractProps<(typeof import('../../inertia/pages/seller/developers.tsx'))['default']>
     'seller/orders/index': ExtractProps<(typeof import('../../inertia/pages/seller/orders/index.tsx'))['default']>
+    'seller/payout': ExtractProps<(typeof import('../../inertia/pages/seller/payout.tsx'))['default']>
     'seller/products/index': ExtractProps<(typeof import('../../inertia/pages/seller/products/index.tsx'))['default']>
     'shop/index': ExtractProps<(typeof import('../../inertia/pages/shop/index.tsx'))['default']>
     'shop/show': ExtractProps<(typeof import('../../inertia/pages/shop/show.tsx'))['default']>

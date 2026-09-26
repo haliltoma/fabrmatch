@@ -199,6 +199,45 @@ export const TEMPLATES_TR: Record<NotificationType, Template> = {
         }
       : null,
 
+  payout_action: (role, c) => {
+    if (role !== 'maker' && role !== 'seller') return null
+    const link = c.payoutLink ?? (role === 'maker' ? '/maker/payout' : '/seller/payout')
+    switch (c.step) {
+      case 'profile_approved':
+        return {
+          title: 'Ödeme bilgilerin onaylandı',
+          body: 'Ödemelerin artık serbest bırakılabilir.',
+          link,
+        }
+      case 'profile_rejected':
+        return {
+          title: 'Ödeme bilgilerinde düzeltme gerekiyor',
+          body: `Vergi ve banka bilgilerin onaylanamadı: ${c.reason ?? ''}`.trim(),
+          link,
+        }
+      case 'invoice_needed':
+        return {
+          title: `${c.code} için Fabrmatch'e fatura kes`,
+          body: `Ödemeni almak için ${money(c.amountMinor, c.currency)} tutarındaki faturanı yükle.`,
+          link,
+        }
+      case 'invoice_rejected':
+        return {
+          title: `${c.code} faturası kabul edilmedi`,
+          body: `${c.reason ?? ''} Düzeltilmiş faturayı yükle.`.trim(),
+          link,
+        }
+      case 'invoice_approved':
+        return {
+          title: `${c.code} faturası onaylandı`,
+          body: 'Ödemen bir sonraki banka havalesine eklendi.',
+          link,
+        }
+      default:
+        return { title: 'Ödeme güncellemesi', body: 'Ayrıntılar için ödemeler sayfanı aç.', link }
+    }
+  },
+
   dispute_opened: (role, c) =>
     role === 'maker'
       ? {

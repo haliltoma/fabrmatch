@@ -18,6 +18,7 @@ export const NOTIFICATION_TYPES = [
   'order_cancelled',
   'refund_issued',
   'payout_paid',
+  'payout_action',
   'dispute_opened',
   'dispute_responded',
   'dispute_resolved',
@@ -48,6 +49,15 @@ export interface NotificationContext {
   /** RFQ code and title; the buyer's identity never goes with them */
   rfqCode?: string
   rfqId?: number
+  /** payout_action: what happened to the payee's tax details or purchase document */
+  step?:
+    | 'profile_approved'
+    | 'profile_rejected'
+    | 'invoice_needed'
+    | 'invoice_rejected'
+    | 'invoice_approved'
+  reason?: string | null
+  payoutLink?: string
 }
 
 export interface Rendered {
@@ -253,6 +263,41 @@ const TEMPLATES: Record<NotificationType, Template> = {
           link: orderLink[role](c),
         }
       : null,
+
+  payout_action: (role, c) => {
+    if (role !== 'maker' && role !== 'seller') return null
+    const link = c.payoutLink ?? (role === 'maker' ? '/maker/payout' : '/seller/payout')
+    switch (c.step) {
+      case 'profile_approved':
+        return { title: 'Payout details approved', body: 'Your payouts can now be released.', link }
+      case 'profile_rejected':
+        return {
+          title: 'Payout details need a fix',
+          body: `An admin could not approve your tax and bank details: ${c.reason ?? ''}`.trim(),
+          link,
+        }
+      case 'invoice_needed':
+        return {
+          title: `Invoice Fabrmatch for ${c.code}`,
+          body: `Upload your invoice of ${money(c.amountMinor, c.currency)} to get paid.`,
+          link,
+        }
+      case 'invoice_rejected':
+        return {
+          title: `Invoice for ${c.code} was not accepted`,
+          body: `${c.reason ?? ''} Upload a corrected invoice.`.trim(),
+          link,
+        }
+      case 'invoice_approved':
+        return {
+          title: `Invoice for ${c.code} approved`,
+          body: 'Your payout is queued for the next bank transfer.',
+          link,
+        }
+      default:
+        return { title: 'Payout update', body: 'Open your payouts page for the details.', link }
+    }
+  },
 
   dispute_opened: (role, c) =>
     role === 'maker'

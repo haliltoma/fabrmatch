@@ -54,6 +54,15 @@ export default await Env.create(new URL('../', import.meta.url), {
   // Payments (provider adapter, PRD §11)
   PAYMENT_PROVIDER: Env.schema.enum.optional(['fake', 'iyzico'] as const),
   PAYMENT_WEBHOOK_SECRET: Env.schema.secret.optional(),
+  // Who sells to the buyer (R7, docs/legal/satis-ve-fatura-modeli.md): Fabrmatch itself (default)
+  // or the maker through an iyzico marketplace
+  SALES_MODEL: Env.schema.enum.optional(['merchant_of_record', 'marketplace'] as const),
+  // Fabrmatch's own details, printed on what payees invoice and on expense vouchers
+  COMPANY_LEGAL_NAME: Env.schema.string.optional(),
+  COMPANY_TAX_NUMBER: Env.schema.string.optional(),
+  COMPANY_TAX_OFFICE: Env.schema.string.optional(),
+  COMPANY_ADDRESS: Env.schema.string.optional(),
+
   // iyzico (R1-T1): sandbox https://sandbox-api.iyzipay.com, live https://api.iyzipay.com
   IYZICO_BASE_URL: Env.schema.string.optional({ format: 'url', tld: false }),
   IYZICO_API_KEY: Env.schema.secret.optional(),

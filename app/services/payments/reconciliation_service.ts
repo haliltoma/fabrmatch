@@ -53,12 +53,12 @@ export default class ReconciliationService {
 
     const negative = await db.rawQuery(
       `select order_id, account, currency,
-              sum(case when (account = 'provider_cash') = (direction = 'debit')
+              sum(case when (account in ('provider_cash', 'vat_receivable')) = (direction = 'debit')
                        then amount_minor else -amount_minor end) as balance
          from ledger_entries
         where order_id is not null
         group by order_id, account, currency
-       having sum(case when (account = 'provider_cash') = (direction = 'debit')
+       having sum(case when (account in ('provider_cash', 'vat_receivable')) = (direction = 'debit')
                        then amount_minor else -amount_minor end) < 0`
     )
     for (const row of negative.rows as Array<{

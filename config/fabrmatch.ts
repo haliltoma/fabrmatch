@@ -62,6 +62,13 @@ const fabrmatchConfig = {
     maxRewards: 10,
     couponDays: 90,
   },
+  // R7: Fabrmatch buys the work from makers (sales model B). Rates change yearly: edit in /admin/settings.
+  payouts: {
+    // income tax withheld on the expense voucher of a home producer (GVK 94/13), basis points
+    homeExemptWithholdingBps: 200,
+    // GVK 9/6 home-production exemption, yearly sales limit (2026: 1,900,000 TRY)
+    homeExemptAnnualCapMinor: 190_000_000,
+  },
   pricing: {
     commissionBps: 1500,
     // buffer added to the mid rate so a rate move between pricing and payout does not cost us

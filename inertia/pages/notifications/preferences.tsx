@@ -17,6 +17,7 @@ const LABELS: Record<string, string> = {
   order_cancelled: 'Order cancelled',
   refund_issued: 'Refund sent',
   payout_paid: 'Payout paid',
+  payout_action: 'Payout details and invoices',
   dispute_opened: 'Dispute opened',
   dispute_responded: 'Dispute response',
   dispute_resolved: 'Dispute resolved',

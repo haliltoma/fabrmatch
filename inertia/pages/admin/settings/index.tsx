@@ -11,7 +11,7 @@ import { useT } from '~/lib/i18n'
 
 type SettingRow = {
   key: string
-  group: 'pricing' | 'matching' | 'orders' | 'trust' | 'fraud' | 'flags' | 'referral'
+  group: 'pricing' | 'matching' | 'orders' | 'trust' | 'fraud' | 'flags' | 'referral' | 'payouts'
   label: string
   help: string
   min: number
@@ -30,6 +30,7 @@ const GROUPS: Array<{ id: SettingRow['group']; title: string }> = [
   { id: 'trust', title: 'Maker trust tiers' },
   { id: 'fraud', title: 'Fraud checks' },
   { id: 'referral', title: 'Invite a friend' },
+  { id: 'payouts', title: 'Payouts and tax' },
   { id: 'flags', title: 'Feature flags' },
 ]
 

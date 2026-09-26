@@ -5,6 +5,7 @@ import IyzicoPaymentProvider from '#services/payments/iyzico/iyzico_provider'
 import DbSubMerchantDirectory from '#services/payments/iyzico/sub_merchant_directory'
 import DbProviderCallStore from '#services/payments/iyzico/provider_call_store'
 import { PaymentNotConfiguredError, type PaymentProvider } from '#services/payments/provider'
+import { salesModel, type SalesModel } from '#services/payments/sales_model'
 
 let current: PaymentProvider | null = null
 
@@ -21,6 +22,8 @@ export interface PaymentRuntime {
   provider: string
   webhookSecret: string | undefined
   iyzico?: IyzicoRuntime
+  /** R7: who sells to the buyer; decides whether iyzico's marketplace product is needed */
+  salesModel?: SalesModel
 }
 
 /**
@@ -56,13 +59,20 @@ export function assertPaymentConfigured(runtime: PaymentRuntime): void {
         'IYZICO_MARKETPLACE=true needs IYZICO_PLATFORM_SUBMERCHANT_KEY'
       )
     }
+    const model = runtime.salesModel ?? 'merchant_of_record'
+    // Fabrmatch as the seller collects its own sales revenue: a plain merchant account is right,
+    // sub-merchants would contradict the invoices (docs/legal/satis-ve-fatura-modeli.md)
+    if (model === 'merchant_of_record' && iyzico.marketplace) {
+      throw new PaymentNotConfiguredError('IYZICO_MARKETPLACE is only for SALES_MODEL=marketplace')
+    }
     if (nodeEnv === 'production') {
       if (iyzico.baseUrl.includes('sandbox')) {
         throw new PaymentNotConfiguredError('The iyzico sandbox is not allowed in production')
       }
-      if (!iyzico.marketplace) {
+      // the maker as seller: the money must sit with iyzico, never with us (6493)
+      if (model === 'marketplace' && !iyzico.marketplace) {
         throw new PaymentNotConfiguredError(
-          'Production needs the iyzico marketplace product (IYZICO_MARKETPLACE=true)'
+          'SALES_MODEL=marketplace needs the iyzico marketplace product (IYZICO_MARKETPLACE=true)'
         )
       }
     }
@@ -76,6 +86,7 @@ export function currentPaymentRuntime(): PaymentRuntime {
     nodeEnv: env.get('NODE_ENV'),
     provider: env.get('PAYMENT_PROVIDER', 'fake'),
     webhookSecret: env.get('PAYMENT_WEBHOOK_SECRET')?.release(),
+    salesModel: salesModel(),
     iyzico: {
       baseUrl: env.get('IYZICO_BASE_URL'),
       apiKey: env.get('IYZICO_API_KEY')?.release(),

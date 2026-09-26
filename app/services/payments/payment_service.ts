@@ -17,6 +17,7 @@ import LedgerService from '#services/payments/ledger_service'
 import OrderNotifier from '#services/notifications/order_notifier'
 import FakePaymentProvider from '#services/payments/fake_provider'
 import OrderService from '#services/orders/order_service'
+import { isValidTckn } from '#services/identity/tax_ids'
 import { paymentProvider } from '#services/payments/provider_registry'
 import type { PaymentProvider, WebhookEvent } from '#services/payments/provider'
 
@@ -35,13 +36,7 @@ export interface PayerDetails {
  */
 export function validIdentityNumber(value: string, country: string): boolean {
   if (country.toUpperCase() !== 'TR') return /^[A-Za-z0-9]{5,20}$/.test(value)
-  if (!/^[1-9]\d{10}$/.test(value)) return false
-  const d = [...value].map(Number)
-  const odd = d[0] + d[2] + d[4] + d[6] + d[8]
-  const even = d[1] + d[3] + d[5] + d[7]
-  const tenth = (((odd * 7 - even) % 10) + 10) % 10
-  const eleventh = d.slice(0, 10).reduce((a, b) => a + b, 0) % 10
-  return d[9] === tenth && d[10] === eleventh
+  return isValidTckn(value)
 }
 
 /** E.164-ish: Turkish local forms (05xx…, 5xx…) get +90, anything else keeps its own prefix. */

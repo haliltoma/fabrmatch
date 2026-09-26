@@ -280,6 +280,14 @@
 
 ## Log
 
+- **2026-09-27** — R7-T2/T3/T4 (Model B: Fabrmatch satıcı).
+  - `SALES_MODEL` + deploy koruması.
+  - Serbest bırakmada satış KDV'si / indirilecek KDV / tevkifat ledger hesapları; komisyon net kalır (property testi).
+  - Üretici/satıcı vergi ve banka profili + belge + admin onayı; onaysız alacaklıya dağıtım yok.
+  - Kayıtlı alacaklı Fabrmatch'e fatura yükler, admin onaylar. Esnaf muafiyetli için otomatik gider pusulası (GP yıl+sıra) + %2 tevkifat + yıllık sınır.
+  - Havaleler `/admin/payouts` CSV + referansla "ödendi".
+  - Dashboard ana kolonuna `min-w-0` (375 px'te geniş tablo sayfayı taşırıyordu).
+  - 816 test yeşil.
 - **2026-09-26** — Hukuki/mali yapı araştırması (`docs/legal/satis-ve-fatura-modeli.md`):
   - Pazaryeri modelinde üretici kimliği ön bilgilendirmede zorunlu (Mesafeli Söz. Yön. md.5) → iş kuralı 1 ile çelişiyor.
   - Başkası adına tahsilat 6493'e göre lisans gerektirir.

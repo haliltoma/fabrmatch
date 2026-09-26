@@ -26,6 +26,12 @@ const MAP: Record<string, Variant> = {
   unmatched: 'warning',
   responded: 'warning',
   overdue: 'warning',
+  // payouts and payee paperwork (R7)
+  awaiting_document: 'warning',
+  pending_review: 'warning',
+  submitted: 'secondary',
+  approved: 'success',
+  rejected: 'destructive',
   disputed: 'destructive',
   open: 'destructive',
   failed: 'destructive',

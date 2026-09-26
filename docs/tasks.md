@@ -236,7 +236,7 @@ Bu yüzden öneri **Model B: Fabrmatch satıcıdır** (üreticiden fason üretim
 Sıra: **R7-T0 karar → R7-T1 şirket (kullanıcı) ∥ R7-T2..T4 kod → R7-T5 fatura entegratörü → R7-T6 metinler → R7-T7 rapor → R7-T8 lansman kontrolü.**
 Kod işleri (T2–T4) karar ve şirketi beklemeden önerilen modelle yapılabilir; bayrak arkasında kalır.
 
-- [ ] **R7-T0 Karar K-L: satış modeli** · P0 · ⏸ karar (kullanıcı + mali müşavir + avukat)
+- [ ] **R7-T0 Karar K-L: satış modeli** · P0 · ✔ 2026-09-27 kullanıcı **B** dedi; ⏸ uzman teyidi (mali müşavir + avukat) bekleniyor
   - Seçenekler: A pazaryeri (aracı) · **B Fabrmatch satıcı (öneri)** · C (B'nin dış mağaza uzantısı).
   - Uzmana götürülecek 8 soru notun §5'inde. Özellikle: 3D yazıcıyla evde üretimin esnaf muafiyetine girip girmediği (özelge), muaf esnaftan alımda tevkifat oranı, satıcı marjının belge türü.
   - Kabul: karar defterinde K-L ✔; seçilen model `docs/legal/satis-ve-fatura-modeli.md`'ye işlendi.
@@ -247,7 +247,16 @@ Kod işleri (T2–T4) karar ve şirketi beklemeden önerilen modelle yapılabili
   - iyzico canlı üye işyeri başvurusu **şirket adına**; sandbox anahtarı kişisel hesapta kalır.
   - Ürün sorumluluk sigortası teklifi.
   - Kabul: canlı iyzico anahtarı + VKN + e-arşiv entegratör hesabı elde.
-- [ ] **R7-T2 Satış modeli ayarı + defter hesapları** · P0 · kod, K-L öneriyle
+- [x] **R7-T2 Satış modeli ayarı + defter hesapları** · P0 · ✔ 2026-09-27
+  - `SALES_MODEL` (varsayılan `merchant_of_record`; test ortamı eski paket için `marketplace`).
+  - Deploy koruması: MoR'da standart iyzico üretimde kabul, `IYZICO_MARKETPLACE` MoR ile birlikte reddedilir.
+  - Serbest bırakmada ledger:
+    - `vat_payable` (tüm satışın KDV'si), `vat_receivable` (kayıtlı alacaklının faturasındaki KDV), `withholding_payable`.
+    - Kalan `platform_fee` = net komisyon (alacaklının vergi durumundan bağımsız, ±2 kuruş — property testi).
+  - Alacaklıya ödeme MoR'da sağlayıcıdan değil, banka havalesiyle: admin `/admin/payouts`'ta CSV indirir, referansla "ödendi" işaretler; ledger ancak o zaman nakde geçer.
+  - Karar: KDV mükellefi olmayan alacaklıya pay KDV'siz ödenir (alıcının ödediği KDV'yi Fabrmatch devlete öder).
+  - Tevkifat oranı ve evde üretim yıllık sınırı `/admin/settings` → "Payouts and tax".
+  - Özgün tanım:
   - `SALES_MODEL=merchant_of_record|marketplace` (varsayılan MoR).
   - Deploy koruması:
     - MoR → standart iyzico (pazaryerisiz) üretimde kabul.
@@ -259,7 +268,13 @@ Kod işleri (T2–T4) karar ve şirketi beklemeden önerilen modelle yapılabili
     - `withholding_payable`: gider pusulası tevkifatı.
   - Komisyon artık fatura kalemi değil, satış ile alış arasındaki fark (brüt kâr).
   - Kabul: property testi — her sipariş için satış = alış + satıcı marjı + brüt kâr; trial balance 0; iki model de testli.
-- [ ] **R7-T3 Ödeme alan (üretici/satıcı) vergi ve ödeme bilgileri + onay** · P0 · kod · `docs/notes.md` isteği
+- [x] **R7-T3 Ödeme alan (üretici/satıcı) vergi ve ödeme bilgileri + onay** · P0 · ✔ 2026-09-27 `docs/notes.md` isteği
+  - `/maker/payout` ve yeni `/seller/payout`: vergi durumu (şirket / şahıs / basit usul / esnaf muafiyeti), unvan, VKN (sağlama) veya TCKN, vergi dairesi, adres, TR IBAN, belge (PDF/PNG/JPEG, baytlardan tanınır), şifre tekrarı.
+  - Her değişiklik `pending_review`'a döner. Admin `/admin/payouts`'ta belgeyi açıp onaylar veya gerekçeyle geri gönderir; kendi profilini onaylayamaz.
+  - Bildirim: `payout_action`.
+  - Onaysız alacaklının siparişi dağıtılmaz (süpürme onay gelince dağıtır). Onay sonrası bilgi değişirse hazır ödeme "ödendi" yapılamaz.
+  - TCKN/VKN/adres/IBAN şifreli (`ENCRYPTED_COLUMNS`), sahibine maskeli gösterilir, KVKK dışa aktarımında var.
+  - Özgün tanım:
   - Form `/maker/payout` ve satıcı eşleniği. Vergi durumu seçimi: Ltd/AŞ · şahıs şirketi (gerçek usul) · basit usul · esnaf muafiyeti belgeli (ev üretimi).
   - Alanlar: unvan/ad, VKN veya TCKN, vergi dairesi, adres, IBAN (hesap sahibi adı unvanla eşleşmeli).
   - Belge yükleme (vergi levhası / esnaf muafiyet belgesi / imza sirküleri) → admin onay kuyruğu (onay/ret gerekçeli, audit).
@@ -268,7 +283,14 @@ Kod işleri (T2–T4) karar ve şirketi beklemeden önerilen modelle yapılabili
     - Onaysız ödeme alan sipariş üretebilir ama ödemesi `pending_verification`'da bekler; payout süpürmesi onay gelince çalışır.
     - (Opsiyon) eşleştirmede onaylılara öncelik.
   - Kabul: onaysız hesaba payout yok (test); ret → kullanıcıya bildirim; KVKK dışa aktarımına dahil.
-- [ ] **R7-T4 Alış belgesi akışı (üretici → Fabrmatch)** · P0 · kod
+- [x] **R7-T4 Alış belgesi akışı (üretici → Fabrmatch)** · P0 · ✔ 2026-09-27
+  - Şirket/şahıs/basit usul: ödeme `awaiting_document` ile açılır ve alacaklıya "fatura kes" bildirimi gider.
+    - Alacaklı fatura no, tarih, toplam, KDV ve dosya yükler; toplam birebir, KDV ±1 kuruş kontrol edilir.
+    - Admin dosyayı açıp onaylar (→ `pending`, havaleye hazır) ya da gerekçeyle reddeder (yeniden yüklenir).
+  - Esnaf muafiyeti: Fabrmatch gider pusulasını kendisi düzenler (yıl bazında boşluksuz `GP2026000001`, yazdırılabilir), %2 tevkifat (ayar), 1.900.000 TL yıllık sınır aşılırsa dağıtım durur.
+  - "Bill to" alanı `COMPANY_*` env'den gelir; şirket kurulunca doldurulacak.
+  - KALAN: fatura doğrulaması elle (e-fatura portal sorgusu yok); satıcı marjının belge türü R7-T0 teyidine bağlı (şimdilik fatura).
+  - Özgün tanım:
   - Kayıtlı üretici (şirket / şahıs / basit usul):
     - Sipariş `completed` olunca "Fabrmatch'a fatura kes" görevi; tutar, unvan ve VKN hazır gösterilir.
     - Üretici e-fatura/e-arşiv numarası + PDF yükler; sistem tutar/VKN kontrolü yapar.
@@ -360,20 +382,20 @@ Bunlar analizde ayrı satır değildi; işin sağlığı için ekliyorum. Onayla
 
 ## Karar defteri (bekleyenler)
 
-| Kod    | Karar                                        | Öneri                                                                               | Durum     |
-| ------ | -------------------------------------------- | ----------------------------------------------------------------------------------- | --------- |
-| K-A    | KDV dahil gösterim, ilk pazar                | TR KDV dahil; sonra AB                                                              | ⏸         |
-| K-B    | Üretici fiyatı: platform listesi + min fiyat | v1 min fiyat                                                                        | ⏸         |
-| K-C    | Fatura entegratörü                           | Yerel e-arşiv entegratörü; model B'de alıcıya tam fatura (R7-T5)                    | ⏸         |
-| K-L    | Satış modeli (kim satıcı, kim fatura keser)  | **B: Fabrmatch satıcı**, üretici tedarikçi (`docs/legal/satis-ve-fatura-modeli.md`) | ⏸ (R7-T0) |
-| K-D/D3 | Kargo                                        | v1 tablo + manuel takip; v2 API                                                     | ⏸         |
-| K-E/D2 | Dış mağaza tahsilatı                         | Satıcı cüzdanı/kayıtlı kart                                                         | ⏸         |
-| K-F/D4 | Hosting                                      | Tek bölge + R2 + staging                                                            | ⏸         |
-| K-G    | Yeniden üretim                               | Evet (R3-T6)                                                                        | ✔ evet    |
-| K-H    | Dilimleyici                                  | Açık kaynak CLI, worker'da                                                          | ✔ karar   |
-| K-I    | Dil                                          | TR + EN                                                                             | ⏸         |
-| D1     | Stripe tüzel kişilik                         | –                                                                                   | ⏸ (R6)    |
-| D5     | Hukuki görüş (KVKK, mesafeli satış)          | Uzman metni                                                                         | ⏸         |
+| Kod    | Karar                                        | Öneri                                                                               | Durum                                   |
+| ------ | -------------------------------------------- | ----------------------------------------------------------------------------------- | --------------------------------------- |
+| K-A    | KDV dahil gösterim, ilk pazar                | TR KDV dahil; sonra AB                                                              | ⏸                                       |
+| K-B    | Üretici fiyatı: platform listesi + min fiyat | v1 min fiyat                                                                        | ⏸                                       |
+| K-C    | Fatura entegratörü                           | Yerel e-arşiv entegratörü; model B'de alıcıya tam fatura (R7-T5)                    | ⏸                                       |
+| K-L    | Satış modeli (kim satıcı, kim fatura keser)  | **B: Fabrmatch satıcı**, üretici tedarikçi (`docs/legal/satis-ve-fatura-modeli.md`) | ✔ B (2026-09-27), uzman teyidi bekliyor |
+| K-D/D3 | Kargo                                        | v1 tablo + manuel takip; v2 API                                                     | ⏸                                       |
+| K-E/D2 | Dış mağaza tahsilatı                         | Satıcı cüzdanı/kayıtlı kart                                                         | ⏸                                       |
+| K-F/D4 | Hosting                                      | Tek bölge + R2 + staging                                                            | ⏸                                       |
+| K-G    | Yeniden üretim                               | Evet (R3-T6)                                                                        | ✔ evet                                  |
+| K-H    | Dilimleyici                                  | Açık kaynak CLI, worker'da                                                          | ✔ karar                                 |
+| K-I    | Dil                                          | TR + EN                                                                             | ⏸                                       |
+| D1     | Stripe tüzel kişilik                         | –                                                                                   | ⏸ (R6)                                  |
+| D5     | Hukuki görüş (KVKK, mesafeli satış)          | Uzman metni                                                                         | ⏸                                       |
 
 ---
 

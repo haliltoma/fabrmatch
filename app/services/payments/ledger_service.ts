@@ -23,7 +23,7 @@ interface PostOptions {
 }
 
 /** Accounts whose natural balance is a debit (assets). Everything else is credit-normal. */
-const DEBIT_NORMAL: LedgerAccount[] = ['provider_cash']
+const DEBIT_NORMAL: LedgerAccount[] = ['provider_cash', 'vat_receivable']
 
 export default class LedgerService {
   /**

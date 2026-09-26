@@ -183,6 +183,12 @@ export interface ApiDefinition {
     uploadLogo: typeof routes['seller_branding.upload_logo']
     removeLogo: typeof routes['seller_branding.remove_logo']
   }
+  sellerPayout: {
+    show: typeof routes['seller_payout.show']
+    save: typeof routes['seller_payout.save']
+    invoice: typeof routes['seller_payout.invoice']
+    voucher: typeof routes['seller_payout.voucher']
+  }
   sellerDeveloper: {
     index: typeof routes['seller_developer.index']
     createKey: typeof routes['seller_developer.create_key']
@@ -249,6 +255,8 @@ export interface ApiDefinition {
   makerPayout: {
     show: typeof routes['maker_payout.show']
     save: typeof routes['maker_payout.save']
+    invoice: typeof routes['maker_payout.invoice']
+    voucher: typeof routes['maker_payout.voucher']
   }
   makerPerformance: {
     scorecard: typeof routes['maker_performance.scorecard']
@@ -359,6 +367,16 @@ export interface ApiDefinition {
     index: typeof routes['admin_coupon.index']
     store: typeof routes['admin_coupon.store']
     toggle: typeof routes['admin_coupon.toggle']
+  }
+  adminPayout: {
+    index: typeof routes['admin_payout.index']
+    readyCsv: typeof routes['admin_payout.ready_csv']
+    reviewProfile: typeof routes['admin_payout.review_profile']
+    profileDocument: typeof routes['admin_payout.profile_document']
+    reviewInvoice: typeof routes['admin_payout.review_invoice']
+    invoiceFile: typeof routes['admin_payout.invoice_file']
+    voucher: typeof routes['admin_payout.voucher']
+    markPaid: typeof routes['admin_payout.mark_paid']
   }
   adminSettings: {
     index: typeof routes['admin_settings.index']

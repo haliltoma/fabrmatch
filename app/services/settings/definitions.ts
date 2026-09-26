@@ -1,6 +1,6 @@
 export interface SettingDefinition {
   key: string
-  group: 'pricing' | 'matching' | 'orders' | 'trust' | 'fraud' | 'flags' | 'referral'
+  group: 'pricing' | 'matching' | 'orders' | 'trust' | 'fraud' | 'flags' | 'referral' | 'payouts'
   label: string
   help: string
   min: number
@@ -296,6 +296,24 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
     help: '1 turns the program on. Publish the terms first.',
     min: 0,
     max: 1,
+    integer: true,
+  },
+  {
+    key: 'payouts.homeExemptWithholdingBps',
+    group: 'payouts',
+    label: 'Withholding on home producers (basis points)',
+    help: '200 = 2%. Income tax Fabrmatch withholds on the expense voucher of a maker with the home-production exemption (GVK 94/13). Confirm the rate with the accountant.',
+    min: 0,
+    max: 2000,
+    integer: true,
+  },
+  {
+    key: 'payouts.homeExemptAnnualCapMinor',
+    group: 'payouts',
+    label: 'Home-production exemption: yearly limit (minor units, TRY)',
+    help: '190000000 = 1,900,000 TRY (2026, GVK 9/6). Payouts that would take a home producer past it this calendar year stop and wait for an admin.',
+    min: 0,
+    max: 2_000_000_000,
     integer: true,
   },
 ]

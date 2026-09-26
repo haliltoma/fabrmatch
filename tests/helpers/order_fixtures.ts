@@ -1,3 +1,5 @@
+import EncryptionService from '#services/identity/encryption_service'
+import PayeeTaxProfile from '#models/payee_tax_profile'
 import { randomUUID } from 'node:crypto'
 import redis from '@adonisjs/redis/services/main'
 import User from '#models/user'
@@ -379,5 +381,30 @@ export async function addQcPhoto(jobId: number) {
   return JobQcPhoto.create({
     productionJobId: jobId,
     storageKey: `qc/${jobId}/${randomUUID()}.jpg`,
+  })
+}
+
+/** An approved tax and bank profile for a payee (sales model B pays only approved payees). */
+export async function approvePayee(
+  type: 'manufacturer' | 'seller',
+  beneficiaryId: number,
+  userId: number,
+  taxStatus: 'company' | 'sole_proprietor' | 'simple_method' | 'home_exempt' = 'company'
+) {
+  const encryption = new EncryptionService()
+  return PayeeTaxProfile.create({
+    beneficiaryType: type,
+    beneficiaryId,
+    userId,
+    taxStatus,
+    legalName: `${type} ${beneficiaryId} Ltd`,
+    taxNumberEnc: encryption.encrypt(taxStatus === 'company' ? '1234567890' : '10000000146'),
+    taxOffice: 'Kadıköy',
+    addressEnc: encryption.encrypt('Test Sk. No:1, Kadıköy, İstanbul'),
+    ibanEnc: encryption.encrypt('TR330006100519786457841326'),
+    documentKey: 'payee-documents/test.pdf',
+    documentContentType: 'application/pdf',
+    status: 'approved',
+    submittedAt: DateTime.now(),
   })
 }

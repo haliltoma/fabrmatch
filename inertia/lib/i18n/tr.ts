@@ -2431,4 +2431,152 @@ export const tr: Record<string, string> = {
   'Add a phone number to pay': 'Ödeme için bir telefon numarası ekleyin',
   'Enter a valid identity number to pay': 'Ödeme için geçerli bir kimlik numarası girin',
   'This order has no shipping address': 'Bu siparişin teslimat adresi yok',
+  'How are you registered for tax?': 'Vergi açısından nasıl kayıtlısınız?',
+  'Company title': 'Şirket unvanı',
+  'Tax number (VKN)': 'Vergi kimlik numarası (VKN)',
+  'T.C. identity number or tax number': 'T.C. kimlik numarası veya vergi numarası',
+  'Tax office': 'Vergi dairesi',
+  'Address on your tax registration': 'Vergi kaydınızdaki adres',
+  'IBAN (in the same name)': 'IBAN (aynı ad/unvan adına)',
+  'Exemption certificate (PDF, PNG or JPEG)': 'Muafiyet belgesi (PDF, PNG veya JPEG)',
+  'Tax certificate (vergi levhası; PDF, PNG or JPEG)': 'Vergi levhası (PDF, PNG veya JPEG)',
+  'Leave empty to keep the certificate you sent before.':
+    'Daha önce gönderdiğiniz belgeyi korumak için boş bırakın.',
+  'Send for review': 'İncelemeye gönder',
+  'Invoice number': 'Fatura numarası',
+  'Invoice date': 'Fatura tarihi',
+  'Invoice total': 'Fatura toplamı',
+  'VAT on the invoice': 'Faturadaki KDV',
+  'Invoice file (PDF, PNG or JPEG)': 'Fatura dosyası (PDF, PNG veya JPEG)',
+  'Send invoice': 'Faturayı gönder',
+  'Payouts and invoices': 'Ödemeler ve faturalar',
+  'Fabrmatch sells to the buyer and buys the work from you. Your share is paid by bank transfer once the order is completed and your paperwork is in order.':
+    'Alıcıya Fabrmatch satar, işi sizden satın alır. Sipariş tamamlandığında ve belgeleriniz tamamsa payınız banka havalesiyle ödenir.',
+  'Payouts currently go through the payment provider; invoices are not needed here.':
+    'Ödemeler şu an ödeme kuruluşu üzerinden yapılıyor; burada fatura gerekmiyor.',
+  'Tax and bank details': 'Vergi ve banka bilgileri',
+  'Nothing can be paid out before an admin approves these details. It usually takes one working day.':
+    'Bu bilgiler bir yönetici tarafından onaylanmadan ödeme yapılamaz. Genellikle bir iş günü sürer.',
+  'Not approved:': 'Onaylanmadı:',
+  'An admin is checking your details. Payouts wait until they are approved.':
+    'Bilgileriniz inceleniyor. Onaylanana kadar ödemeler bekler.',
+  'Registered as': 'Kayıt türü',
+  'Name or title': 'Ad veya unvan',
+  'Tax number': 'Vergi numarası',
+  'Change details': 'Bilgileri değiştir',
+  'Changes go back to an admin; payouts wait until they are approved again.':
+    'Değişiklikler yeniden onaya gider; onaylanana kadar ödemeler bekler.',
+  'Home producers: {rate}% income tax is withheld on each voucher.':
+    'Evde üretenler: her gider pusulasında %{rate} gelir vergisi kesilir.',
+  'Invoices to send': 'Kesilecek faturalar',
+  'Nothing to invoice right now. When an order of yours is completed, it shows up here with the exact amount.':
+    'Şu an kesilecek fatura yok. Bir siparişiniz tamamlandığında tam tutarıyla burada görünür.',
+  'Bill to': 'Fatura kesilecek',
+  'Fabrmatch’s company details appear here once the company is registered.':
+    "Fabrmatch'in şirket bilgileri, şirket kurulduğunda burada görünür.",
+  'Invoice {total}, of which VAT {vat}': 'Fatura {total}, bunun {vat} tutarı KDV',
+  'Invoice {number} is being checked.': '{number} numaralı fatura kontrol ediliyor.',
+  'Invoice {number} was not accepted:': '{number} numaralı fatura kabul edilmedi:',
+  'Payout history': 'Ödeme geçmişi',
+  'No payouts yet.': 'Henüz ödeme yok.',
+  'Document total': 'Belge toplamı',
+  'Tax withheld': 'Kesilen vergi',
+  'Transferred': 'Havale edilen',
+  'Document': 'Belge',
+  'Limited or joint-stock company': 'Limited veya anonim şirket',
+  'You invoice Fabrmatch for your share, VAT included.':
+    "Payınız için Fabrmatch'e KDV dahil fatura kesersiniz.",
+  'Sole proprietor': 'Şahıs şirketi',
+  'Simple method (basit usul)': 'Basit usul',
+  'You invoice without VAT, so you are paid your share without the VAT part.':
+    "KDV'siz fatura kesersiniz; payınız KDV kısmı düşülerek ödenir.",
+  'Home production exemption (esnaf muafiyeti)': 'Evde üretim muafiyeti (esnaf muafiyeti)',
+  'No invoice needed: Fabrmatch issues an expense voucher and withholds income tax.':
+    'Fatura gerekmez: Fabrmatch gider pusulası düzenler ve gelir vergisi keser.',
+  'Reason if sending back': 'Geri gönderme nedeni',
+  'Send back': 'Geri gönder',
+  'Bank reference': 'Banka referansı',
+  'Mark paid': 'Ödendi olarak işaretle',
+  'Payouts': 'Ödemeler',
+  'Fabrmatch buys the work from makers and sellers. Check their tax details and invoices, then send the bank transfers.':
+    'Fabrmatch işi üreticilerden ve satıcılardan satın alır. Vergi bilgilerini ve faturalarını kontrol edin, sonra havaleleri gönderin.',
+  'SALES_MODEL is marketplace: payouts move through the payment provider, not here.':
+    'SALES_MODEL pazaryeri: ödemeler burada değil, ödeme kuruluşu üzerinden yapılır.',
+  'Tax and bank details to check': 'Kontrol edilecek vergi ve banka bilgileri',
+  'Nothing to check.': 'Kontrol edilecek bir şey yok.',
+  'Open the certificate': 'Belgeyi aç',
+  'Check that the IBAN holder, the name on the certificate and the tax number match.':
+    'IBAN sahibinin, belgedeki adın ve vergi numarasının eşleştiğini kontrol edin.',
+  'Invoices to check': 'Kontrol edilecek faturalar',
+  'Open invoice {number}': '{number} faturasını aç',
+  'Expected {total} (VAT {vat}); invoice says {invoiceTotal} (VAT {invoiceVat}), dated {date}.':
+    'Beklenen {total} (KDV {vat}); faturada {invoiceTotal} (KDV {invoiceVat}), tarih {date}.',
+  'Check the buyer title and tax number on the invoice are Fabrmatch’s, and the e-invoice number is real.':
+    "Faturadaki alıcı unvanı ve vergi numarasının Fabrmatch'e ait olduğunu ve e-fatura numarasının gerçek olduğunu kontrol edin.",
+  'Ready to transfer': 'Havaleye hazır',
+  'Download the transfer list (CSV)': 'Havale listesini indir (CSV)',
+  'No transfers waiting.': 'Bekleyen havale yok.',
+  'Total in TRY: {amount}': 'TRY toplamı: {amount}',
+  'Payee': 'Alacaklı',
+  'Amount': 'Tutar',
+  'Details changed — approve them first': 'Bilgiler değişti — önce onaylayın',
+  'Company': 'Şirket',
+  'Simple method': 'Basit usul',
+  'Home production exemption': 'Evde üretim muafiyeti',
+  'awaiting document': 'belge bekliyor',
+  'pending review': 'inceleniyor',
+  'submitted': 'gönderildi',
+  'Payouts and tax': 'Ödemeler ve vergi',
+  'Payout details and invoices': 'Ödeme bilgileri ve faturalar',
+  'Withholding on home producers (basis points)': 'Evde üretenlerden tevkifat (baz puan)',
+  '200 = 2%. Income tax Fabrmatch withholds on the expense voucher of a maker with the home-production exemption (GVK 94/13). Confirm the rate with the accountant.':
+    "200 = %2. Fabrmatch'in evde üretim muafiyetli üreticinin gider pusulasında kestiği gelir vergisi (GVK 94/13). Oranı mali müşavirle teyit edin.",
+  'Home-production exemption: yearly limit (minor units, TRY)':
+    'Evde üretim muafiyeti: yıllık sınır (kuruş, TRY)',
+  '190000000 = 1,900,000 TRY (2026, GVK 9/6). Payouts that would take a home producer past it this calendar year stop and wait for an admin.':
+    '190000000 = 1.900.000 TRY (2026, GVK 9/6). Evde üreteni bu takvim yılında sınırın üstüne çıkaracak ödemeler durur ve yönetici bekler.',
+  'Saved. An admin checks your details before the next payout.':
+    'Kaydedildi. Bir sonraki ödemeden önce bilgileriniz kontrol edilecek.',
+  'Invoice sent. We check it and add the payout to the next transfer.':
+    'Fatura gönderildi. Kontrol edip ödemeyi bir sonraki havaleye ekleyeceğiz.',
+  'Attach the invoice as a PDF, PNG or JPEG (at most 5 MB)':
+    'Faturayı PDF, PNG veya JPEG olarak ekleyin (en fazla 5 MB)',
+  'The file can be at most 5 MB': 'Dosya en fazla 5 MB olabilir',
+  'Details approved.': 'Bilgiler onaylandı.',
+  'Sent back to the payee.': 'Alacaklıya geri gönderildi.',
+  'Invoice approved; the payout is ready.': 'Fatura onaylandı; ödeme hazır.',
+  'Invoice sent back.': 'Fatura geri gönderildi.',
+  'Payout marked as paid.': 'Ödeme yapıldı olarak işaretlendi.',
+  'Choose a file': 'Bir dosya seçin',
+  'Upload a PDF, PNG or JPEG file': 'PDF, PNG veya JPEG dosyası yükleyin',
+  'Upload your home-production exemption certificate (esnaf muafiyet belgesi)':
+    'Esnaf muafiyet belgenizi yükleyin',
+  'Upload your tax certificate (vergi levhası)': 'Vergi levhanızı yükleyin',
+  'Say what needs to be fixed (at least 5 characters)':
+    'Neyin düzeltilmesi gerektiğini yazın (en az 5 karakter)',
+  'This profile was already reviewed': 'Bu profil zaten incelendi',
+  'You cannot review your own payout details': 'Kendi ödeme bilgilerinizi inceleyemezsiniz',
+  'Choose how you are registered for tax': 'Vergi kayıt türünüzü seçin',
+  'Enter your full legal name or company title': 'Tam adınızı veya şirket unvanınızı girin',
+  'Enter the company tax number (VKN, 10 digits)': 'Şirketin vergi numarasını girin (VKN, 10 hane)',
+  'Enter your T.C. identity number (11 digits) or tax number (10 digits)':
+    'T.C. kimlik numaranızı (11 hane) veya vergi numaranızı (10 hane) girin',
+  'Enter your tax office': 'Vergi dairenizi girin',
+  'Enter your full address': 'Tam adresinizi girin',
+  'Enter a valid Turkish IBAN (TR…)': "Geçerli bir Türk IBAN'ı girin (TR…)",
+  'Enter the invoice number as it appears on the invoice':
+    'Fatura numarasını faturadaki gibi girin',
+  'The invoice date cannot be in the future': 'Fatura tarihi ileri bir tarih olamaz',
+  'Payout not found': 'Ödeme bulunamadı',
+  'This payout does not need an invoice': 'Bu ödeme için fatura gerekmiyor',
+  'This invoice should carry no VAT': 'Bu faturada KDV olmamalı',
+  'An invoice for this payout is already waiting for review':
+    'Bu ödemenin faturası zaten incelemede',
+  'Say what is wrong with the invoice (at least 5 characters)':
+    'Faturadaki sorunu yazın (en az 5 karakter)',
+  'This invoice was already reviewed': 'Bu fatura zaten incelendi',
+  'Enter the bank transfer reference': 'Havale referansını girin',
+  'This payout is not ready to be paid': 'Bu ödeme henüz ödenmeye hazır değil',
+  'The payee’s tax and bank details are not approved':
+    'Alacaklının vergi ve banka bilgileri onaylı değil',
 }

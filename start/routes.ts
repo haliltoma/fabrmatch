@@ -314,6 +314,19 @@ router
       .post('/branding/logo/remove', [controllers.SellerBranding, 'removeLogo'])
       .use(middleware.profile({ role: 'seller' }))
 
+    // Tax and bank details, invoices to Fabrmatch (R7)
+    router.get('/payout', [controllers.SellerPayout, 'show'])
+    router
+      .post('/payout', [controllers.SellerPayout, 'save'])
+      .use(middleware.throttle({ name: 'seller-payout', requests: 10, duration: '1 hour' }))
+    router
+      .post('/payout/:id/invoice', [controllers.SellerPayout, 'invoice'])
+      .where('id', router.matchers.number())
+      .use(middleware.throttle({ name: 'payout-invoice', requests: 30, duration: '1 hour' }))
+    router
+      .get('/payout/vouchers/:id', [controllers.SellerPayout, 'voucher'])
+      .where('id', router.matchers.number())
+
     // API keys and webhooks
     router.get('/developers', [controllers.SellerDeveloper, 'index'])
     router
@@ -439,11 +452,18 @@ router
     router.get('/finishing', [controllers.MakerFinishing, 'show'])
     router.post('/finishing', [controllers.MakerFinishing, 'save'])
 
-    // Bank account for payouts
+    // Tax and bank details, invoices to Fabrmatch, expense vouchers (R7)
     router.get('/payout', [controllers.MakerPayout, 'show'])
     router
       .post('/payout', [controllers.MakerPayout, 'save'])
       .use(middleware.throttle({ name: 'maker-iban', requests: 10, duration: '1 hour' }))
+    router
+      .post('/payout/:id/invoice', [controllers.MakerPayout, 'invoice'])
+      .where('id', router.matchers.number())
+      .use(middleware.throttle({ name: 'payout-invoice', requests: 30, duration: '1 hour' }))
+    router
+      .get('/payout/vouchers/:id', [controllers.MakerPayout, 'voucher'])
+      .where('id', router.matchers.number())
 
     // Track record and payouts
     router.get('/performance', [controllers.MakerPerformance, 'scorecard'])
@@ -551,6 +571,21 @@ router
     router.get('/coupons', [controllers.AdminCoupon, 'index'])
     router.post('/coupons', [controllers.AdminCoupon, 'store'])
     router.post('/coupons/:id/toggle', [controllers.AdminCoupon, 'toggle'])
+
+    // Payee details, invoices and bank transfers (R7, sales model B)
+    router
+      .group(() => {
+        router.get('/', [controllers.AdminPayout, 'index'])
+        router.get('/ready.csv', [controllers.AdminPayout, 'readyCsv'])
+        router.post('/profiles/:id', [controllers.AdminPayout, 'reviewProfile'])
+        router.get('/profiles/:id/document', [controllers.AdminPayout, 'profileDocument'])
+        router.post('/documents/:id', [controllers.AdminPayout, 'reviewInvoice'])
+        router.get('/documents/:id/file', [controllers.AdminPayout, 'invoiceFile'])
+        router.get('/vouchers/:id', [controllers.AdminPayout, 'voucher'])
+        router.post('/:id/paid', [controllers.AdminPayout, 'markPaid'])
+      })
+      .prefix('/payouts')
+      .where('id', router.matchers.number())
 
     router.get('/settings', [controllers.AdminSettings, 'index'])
     router.post('/settings', [controllers.AdminSettings, 'update'])

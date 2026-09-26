@@ -1267,6 +1267,54 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_branding_controller').default['removeLogo']>>>
     }
   }
+  'seller_payout.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/seller/payout'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_payout_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_payout_controller').default['show']>>>
+    }
+  }
+  'seller_payout.save': {
+    methods: ["POST"]
+    pattern: '/seller/payout'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_payout_controller').default['save']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_payout_controller').default['save']>>>
+    }
+  }
+  'seller_payout.invoice': {
+    methods: ["POST"]
+    pattern: '/seller/payout/:id/invoice'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_payout_controller').default['invoice']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_payout_controller').default['invoice']>>>
+    }
+  }
+  'seller_payout.voucher': {
+    methods: ["GET","HEAD"]
+    pattern: '/seller/payout/vouchers/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_payout_controller').default['voucher']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_payout_controller').default['voucher']>>>
+    }
+  }
   'seller_developer.index': {
     methods: ["GET","HEAD"]
     pattern: '/seller/developers'
@@ -1889,6 +1937,30 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/maker_payout_controller').default['save']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/maker_payout_controller').default['save']>>>
+    }
+  }
+  'maker_payout.invoice': {
+    methods: ["POST"]
+    pattern: '/maker/payout/:id/invoice'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/maker_payout_controller').default['invoice']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/maker_payout_controller').default['invoice']>>>
+    }
+  }
+  'maker_payout.voucher': {
+    methods: ["GET","HEAD"]
+    pattern: '/maker/payout/vouchers/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/maker_payout_controller').default['voucher']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/maker_payout_controller').default['voucher']>>>
     }
   }
   'maker_performance.scorecard': {
@@ -2669,6 +2741,102 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_coupon_controller').default['toggle']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_coupon_controller').default['toggle']>>>
+    }
+  }
+  'admin_payout.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/payouts'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_payout_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_payout_controller').default['index']>>>
+    }
+  }
+  'admin_payout.ready_csv': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/payouts/ready.csv'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_payout_controller').default['readyCsv']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_payout_controller').default['readyCsv']>>>
+    }
+  }
+  'admin_payout.review_profile': {
+    methods: ["POST"]
+    pattern: '/admin/payouts/profiles/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_payout_controller').default['reviewProfile']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_payout_controller').default['reviewProfile']>>>
+    }
+  }
+  'admin_payout.profile_document': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/payouts/profiles/:id/document'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_payout_controller').default['profileDocument']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_payout_controller').default['profileDocument']>>>
+    }
+  }
+  'admin_payout.review_invoice': {
+    methods: ["POST"]
+    pattern: '/admin/payouts/documents/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_payout_controller').default['reviewInvoice']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_payout_controller').default['reviewInvoice']>>>
+    }
+  }
+  'admin_payout.invoice_file': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/payouts/documents/:id/file'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_payout_controller').default['invoiceFile']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_payout_controller').default['invoiceFile']>>>
+    }
+  }
+  'admin_payout.voucher': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/payouts/vouchers/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_payout_controller').default['voucher']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_payout_controller').default['voucher']>>>
+    }
+  }
+  'admin_payout.mark_paid': {
+    methods: ["POST"]
+    pattern: '/admin/payouts/:id/paid'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_payout_controller').default['markPaid']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_payout_controller').default['markPaid']>>>
     }
   }
   'admin_settings.index': {
