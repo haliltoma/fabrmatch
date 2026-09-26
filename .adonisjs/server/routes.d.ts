@@ -74,6 +74,7 @@ export type ScannedRoutes = {
     'health.show': { paramsTuple?: []; params?: {} }
     'carrier_webhook': { paramsTuple?: []; params?: {} }
     'payment_webhook': { paramsTuple?: []; params?: {} }
+    'payment_return': { paramsTuple?: []; params?: {} }
     'content_report.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'cart.show': { paramsTuple?: []; params?: {} }
     'cart.add': { paramsTuple?: []; params?: {} }
@@ -467,6 +468,7 @@ export type ScannedRoutes = {
     'notification.read_all': { paramsTuple?: []; params?: {} }
     'carrier_webhook': { paramsTuple?: []; params?: {} }
     'payment_webhook': { paramsTuple?: []; params?: {} }
+    'payment_return': { paramsTuple?: []; params?: {} }
     'content_report.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'cart.add': { paramsTuple?: []; params?: {} }
     'cart.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

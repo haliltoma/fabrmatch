@@ -57,6 +57,7 @@ export const controllers = {
   Onboarding: () => import('#controllers/onboarding_controller'),
   Order: () => import('#controllers/order_controller'),
   OrderMessage: () => import('#controllers/order_message_controller'),
+  PaymentReturn: () => import('#controllers/payment_return_controller'),
   PaymentWebhook: () => import('#controllers/payment_webhook_controller'),
   Printer: () => import('#controllers/printer_controller'),
   ProductImage: () => import('#controllers/product_image_controller'),

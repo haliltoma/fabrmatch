@@ -189,6 +189,11 @@ router
   .post('/webhooks/payments', [controllers.PaymentWebhook, 'handle'])
   .use(middleware.throttle({ name: 'webhook', requests: 300, duration: '1 minute' }))
 
+// Hosted payment page return (iyzico POSTs the token; outcome is read back from the provider)
+router
+  .post('/payments/return', [controllers.PaymentReturn, 'handle'])
+  .use(middleware.throttle({ name: 'payment-return', requests: 60, duration: '1 minute' }))
+
 // Report a listing (members only)
 router
   .post('/shop/:id/report', [controllers.ContentReport, 'store'])

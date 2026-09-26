@@ -52,8 +52,9 @@ const shieldConfig = defineConfig({
      * Route patterns to exclude from CSRF checks.
      * Useful for external webhooks or API endpoints.
      */
-    // Provider webhooks authenticate with a signature instead of a session/CSRF token.
-    exceptRoutes: ['/webhooks/payments', '/webhooks/carrier'],
+    // Provider webhooks authenticate with a signature instead of a session/CSRF token; the
+    // payment return is a cross-site POST from the hosted page, verified against the provider.
+    exceptRoutes: ['/webhooks/payments', '/webhooks/carrier', '/payments/return'],
 
     /**
      * Expose an encrypted XSRF-TOKEN cookie for frontend HTTP clients.

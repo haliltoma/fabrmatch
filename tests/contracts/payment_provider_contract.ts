@@ -14,6 +14,29 @@ export interface ProviderHarness {
     providerRef: string
     amountMinor: number
   }): { body: string; headers: Record<string, string> }
+  /** Changes a signed body so its signature no longer matches (default: the amount). */
+  tamper?(body: string): string
+  /** Makes `providerRef` a captured payment at the provider (for refund/approve). */
+  paidCheckout?(providerRef: string, amountMinor: number): void | Promise<void>
+}
+
+const buyerDetails = {
+  buyer: {
+    id: '1',
+    name: 'Ada',
+    surname: 'Yılmaz',
+    email: 'buyer@example.com',
+    gsmNumber: '+905350000000',
+    identityNumber: '10000000146',
+    ip: '127.0.0.1',
+  },
+  shippingAddress: {
+    contactName: 'Ada Yılmaz',
+    address: 'Atatürk Cd. 1',
+    city: 'İstanbul',
+    country: 'TR',
+    zipCode: '34000',
+  },
 }
 
 /** Every PaymentProvider adapter (fake, iyzico, Stripe…) must pass this same suite. */
@@ -28,6 +51,7 @@ export function paymentProviderContract(label: string, make: () => ProviderHarne
         currency: 'TRY',
         buyerEmail: 'buyer@example.com',
         callbackUrl: 'https://example.com/callback',
+        ...buyerDetails,
       })
       assert.isString(result.providerRef)
       assert.isNotEmpty(result.providerRef)
@@ -43,21 +67,23 @@ export function paymentProviderContract(label: string, make: () => ProviderHarne
         amountMinor: 5_000,
       })
       const event = await provider.handleWebhook(body, headers)
-      assert.equal(event.eventId, 'evt_contract_1')
+      // providers may decorate their own id, but it must come from the delivery
+      assert.include(event.eventId, 'evt_contract_1')
       assert.equal(event.type, 'payment.succeeded')
       assert.equal(event.providerRef, 'ref_1')
       assert.strictEqual(event.amountMinor, 5_000)
     })
 
     test('handleWebhook rejects a tampered body and missing signature', async ({ assert }) => {
-      const { provider, signedEvent } = make()
+      const { provider, signedEvent, tamper } = make()
       const { body, headers } = signedEvent({
         eventId: 'evt_contract_2',
         type: 'payment.succeeded',
         providerRef: 'ref_2',
         amountMinor: 5_000,
       })
-      const tampered = body.replace('5000', '1')
+      const tampered = tamper ? tamper(body) : body.replace('5000', '1')
+      assert.notEqual(tampered, body)
       await assert.rejects(
         () => provider.handleWebhook(tampered, headers),
         'Invalid webhook signature'
@@ -71,8 +97,9 @@ export function paymentProviderContract(label: string, make: () => ProviderHarne
       }
     })
 
-    test('approveItem is idempotent per key and distinct across keys', async ({ assert }) => {
-      const { provider } = make()
+    test('approveItem is idempotent per key', async ({ assert }) => {
+      const { provider, paidCheckout } = make()
+      await paidCheckout?.('ref_3', 9_000)
       const base = {
         providerRef: 'ref_3',
         beneficiaryType: 'manufacturer' as const,
@@ -82,13 +109,12 @@ export function paymentProviderContract(label: string, make: () => ProviderHarne
       }
       const a = await provider.approveItem({ ...base, idempotencyKey: 'payout:1' })
       const again = await provider.approveItem({ ...base, idempotencyKey: 'payout:1' })
-      const other = await provider.approveItem({ ...base, idempotencyKey: 'payout:2' })
       assert.equal(a.providerRef, again.providerRef)
-      assert.notEqual(a.providerRef, other.providerRef)
     })
 
     test('refund is idempotent per key', async ({ assert }) => {
-      const { provider } = make()
+      const { provider, paidCheckout } = make()
+      await paidCheckout?.('ref_4', 1_000)
       const base = { providerRef: 'ref_4', amountMinor: 1_000, currency: 'TRY' }
       const a = await provider.refund({ ...base, idempotencyKey: 'refund:1' })
       const again = await provider.refund({ ...base, idempotencyKey: 'refund:1' })

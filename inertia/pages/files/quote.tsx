@@ -101,6 +101,7 @@ function QuotePage({
     city: '',
     postalCode: '',
     country: 'TR',
+    phone: '',
   })
   const idem = useIdempotencyKey()
   const needsTerms = useLegalAcceptance()
@@ -190,6 +191,7 @@ function QuotePage({
           city: address.city,
           postalCode: address.postalCode,
           country: address.country,
+          phone: address.phone || undefined,
         },
       },
       { headers: idem.headers(), onError: idem.renew, onFinish: () => setOrdering(false) }
@@ -544,6 +546,16 @@ function QuotePage({
                       required
                       value={address.postalCode}
                       onChange={(e) => setAddress({ ...address, postalCode: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone">{t('Phone (for the courier)')}</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      autoComplete="tel"
+                      value={address.phone}
+                      onChange={(e) => setAddress({ ...address, phone: e.target.value })}
                     />
                   </div>
                 </div>

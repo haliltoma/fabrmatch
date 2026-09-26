@@ -3,12 +3,28 @@ import TestCheckoutService from '#services/payments/test_checkout_service'
 import app from '@adonisjs/core/services/app'
 import LegalService from '#services/legal/legal_service'
 import OrderService from '#services/orders/order_service'
+import type Order from '#models/order'
 import FulfillmentService from '#services/orders/fulfillment_service'
-import PaymentService from '#services/payments/payment_service'
+import PaymentService, { normalizePhone } from '#services/payments/payment_service'
 import DisputeService from '#services/disputes/dispute_service'
 import DisputeTransformer from '#transformers/dispute_transformer'
 import OrderTransformer from '#transformers/order_transformer'
-import { createOrderValidator, pageQueryValidator, reviewValidator } from '#validators/order'
+import {
+  createOrderValidator,
+  pageQueryValidator,
+  payValidator,
+  reviewValidator,
+} from '#validators/order'
+import { paymentProvider } from '#services/payments/provider_registry'
+
+function payStep(order: Order, service: OrderService) {
+  if (!['draft', 'awaiting_payment'].includes(order.status)) return null
+  if (paymentProvider().needsBuyerIdentity !== true) return null
+  const address = service.decryptShippingAddress(order)
+  const country = address?.country ?? 'TR'
+  // a landline or a typo on the address still gets the phone field at the pay step
+  return { phoneOnFile: !!normalizePhone(address?.phone ?? '', country), country }
+}
 
 export default class OrderController {
   async index({ inertia, auth, request }: HttpContext) {
@@ -27,7 +43,7 @@ export default class OrderController {
     return response.redirect().toRoute('order.show', { id: order.id })
   }
 
-  async show({ inertia, auth, params, response }: HttpContext) {
+  async show({ inertia, auth, params, request, response }: HttpContext) {
     const service = new OrderService()
     const order = await service.findForBuyer(params.id, auth.getUserOrFail().id)
     if (!order) return response.notFound()
@@ -44,6 +60,13 @@ export default class OrderController {
       evidenceUrls: dispute ? await new DisputeService().evidenceUrls(dispute.evidence) : {},
       // locally the Pay button opens the test payment page (fake provider)
       testPayments: TestCheckoutService.enabled(),
+      // iyzico asks for the identity number (and a phone when the address has none) at the pay step
+      payStep: payStep(order, service),
+      // set by the hosted page return: paid | failed | pending
+      paymentReturn:
+        (['paid', 'failed', 'pending'] as const).find(
+          (outcome) => outcome === request.input('payment')
+        ) ?? null,
     })
   }
 
@@ -54,10 +77,12 @@ export default class OrderController {
   }
 
   /** Opens a provider checkout and sends the buyer to it (3DS happens at the provider). */
-  async pay({ auth, params, inertia }: HttpContext) {
+  async pay({ auth, params, inertia, request }: HttpContext) {
+    const payer = await request.validateUsing(payValidator)
     const { redirectUrl } = await new PaymentService().startCheckout(
       params.id,
-      auth.getUserOrFail().id
+      auth.getUserOrFail().id,
+      { ...payer, ip: request.ip() }
     )
     return inertia.location(redirectUrl)
   }

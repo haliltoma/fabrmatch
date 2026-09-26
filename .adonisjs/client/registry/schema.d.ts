@@ -847,6 +847,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/payment_webhook_controller').default['handle']>>>
     }
   }
+  'payment_return': {
+    methods: ["POST"]
+    pattern: '/payments/return'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/payment_return_controller').default['handle']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/payment_return_controller').default['handle']>>>
+    }
+  }
   'content_report.store': {
     methods: ["POST"]
     pattern: '/shop/:id/report'
@@ -971,12 +983,12 @@ export interface Registry {
     methods: ["POST"]
     pattern: '/orders/:id/pay'
     types: {
-      body: {}
+      body: ExtractBody<InferInput<(typeof import('#validators/order').payValidator)>>
       paramsTuple: [ParamValue]
       params: { id: ParamValue }
-      query: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/order').payValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/order_controller').default['pay']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/order_controller').default['pay']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/order_controller').default['pay']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'order.simulate_payment': {

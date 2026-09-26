@@ -29,10 +29,39 @@ test.group('assertPaymentConfigured (R0-T8 deploy guard)', () => {
     )
   })
 
-  test('real providers are refused until their adapter exists', ({ assert }) => {
+  test('unknown providers are refused', ({ assert }) => {
     assert.throws(
-      () => assertPaymentConfigured({ ...base, provider: 'iyzico' }),
+      () => assertPaymentConfigured({ ...base, provider: 'stripe' }),
       PaymentNotConfiguredError as never
+    )
+  })
+
+  test('iyzico needs its keys, and in production the live endpoint and marketplace', ({
+    assert,
+  }) => {
+    const iyzico = {
+      baseUrl: 'https://api.iyzipay.com',
+      apiKey: 'k',
+      secretKey: 's',
+      marketplace: true,
+      platformSubMerchantKey: 'platform',
+    }
+    const run = (nodeEnv: PaymentRuntime['nodeEnv'], overrides: Partial<typeof iyzico>) => () =>
+      assertPaymentConfigured({
+        nodeEnv,
+        provider: 'iyzico',
+        webhookSecret: undefined,
+        iyzico: { ...iyzico, ...overrides },
+      })
+
+    assert.doesNotThrow(run('production', {}))
+    assert.throws(run('production', { secretKey: undefined as never }), /IYZICO_SECRET_KEY/)
+    assert.throws(run('production', { marketplace: false }), /marketplace/)
+    assert.throws(run('production', { baseUrl: 'https://sandbox-api.iyzipay.com' }), /sandbox/)
+    assert.throws(run('development', { platformSubMerchantKey: undefined as never }), /PLATFORM/)
+    // local sandbox without marketplace: pay + refund only
+    assert.doesNotThrow(
+      run('development', { baseUrl: 'https://sandbox-api.iyzipay.com', marketplace: false })
     )
   })
 })

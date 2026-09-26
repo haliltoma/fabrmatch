@@ -139,6 +139,7 @@ function SampleOrderForm({ productId, onClose }: { productId: number; onClose: (
           ['city', 'City'],
           ['postalCode', 'Postal code'],
           ['country', 'Country (2 letters)'],
+          ['phone', 'Phone (for the courier)'],
         ] as const
       ).map(([key, label]) => (
         <div key={key}>

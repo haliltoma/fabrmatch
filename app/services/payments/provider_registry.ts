@@ -1,18 +1,33 @@
 import env from '#start/env'
 import FakePaymentProvider from '#services/payments/fake_provider'
+import IyzicoClient from '#services/payments/iyzico/iyzico_client'
+import IyzicoPaymentProvider from '#services/payments/iyzico/iyzico_provider'
+import DbSubMerchantDirectory from '#services/payments/iyzico/sub_merchant_directory'
+import DbProviderCallStore from '#services/payments/iyzico/provider_call_store'
 import { PaymentNotConfiguredError, type PaymentProvider } from '#services/payments/provider'
 
 let current: PaymentProvider | null = null
+
+export interface IyzicoRuntime {
+  baseUrl: string | undefined
+  apiKey: string | undefined
+  secretKey: string | undefined
+  marketplace: boolean
+  platformSubMerchantKey: string | undefined
+}
 
 export interface PaymentRuntime {
   nodeEnv: 'development' | 'production' | 'test'
   provider: string
   webhookSecret: string | undefined
+  iyzico?: IyzicoRuntime
 }
 
 /**
  * Pure deploy guard (R0-T8): throws unless the payment setup is safe for this environment.
  * The fake provider signs webhooks with a shared secret, so outside dev/test it must never run.
+ * iyzico needs its keys; in production also the live endpoint and the marketplace product, since
+ * without sub-merchants the platform itself would be holding the buyers' money (PRD §11).
  */
 export function assertPaymentConfigured(runtime: PaymentRuntime): void {
   const { nodeEnv, provider, webhookSecret } = runtime
@@ -29,7 +44,30 @@ export function assertPaymentConfigured(runtime: PaymentRuntime): void {
     }
     return
   }
-  // iyzico adapter lands with R1-T1 (needs sandbox keys + marketplace docs).
+  if (provider === 'iyzico') {
+    const iyzico = runtime.iyzico
+    if (!iyzico?.baseUrl || !iyzico.apiKey || !iyzico.secretKey) {
+      throw new PaymentNotConfiguredError(
+        'PAYMENT_PROVIDER=iyzico needs IYZICO_BASE_URL, IYZICO_API_KEY and IYZICO_SECRET_KEY'
+      )
+    }
+    if (iyzico.marketplace && !iyzico.platformSubMerchantKey) {
+      throw new PaymentNotConfiguredError(
+        'IYZICO_MARKETPLACE=true needs IYZICO_PLATFORM_SUBMERCHANT_KEY'
+      )
+    }
+    if (nodeEnv === 'production') {
+      if (iyzico.baseUrl.includes('sandbox')) {
+        throw new PaymentNotConfiguredError('The iyzico sandbox is not allowed in production')
+      }
+      if (!iyzico.marketplace) {
+        throw new PaymentNotConfiguredError(
+          'Production needs the iyzico marketplace product (IYZICO_MARKETPLACE=true)'
+        )
+      }
+    }
+    return
+  }
   throw new PaymentNotConfiguredError(`Payment provider "${provider}" is not implemented yet`)
 }
 
@@ -38,6 +76,13 @@ export function currentPaymentRuntime(): PaymentRuntime {
     nodeEnv: env.get('NODE_ENV'),
     provider: env.get('PAYMENT_PROVIDER', 'fake'),
     webhookSecret: env.get('PAYMENT_WEBHOOK_SECRET')?.release(),
+    iyzico: {
+      baseUrl: env.get('IYZICO_BASE_URL'),
+      apiKey: env.get('IYZICO_API_KEY')?.release(),
+      secretKey: env.get('IYZICO_SECRET_KEY')?.release(),
+      marketplace: env.get('IYZICO_MARKETPLACE', false),
+      platformSubMerchantKey: env.get('IYZICO_PLATFORM_SUBMERCHANT_KEY'),
+    },
   }
 }
 
@@ -46,6 +91,19 @@ export function paymentProvider(): PaymentProvider {
   if (current) return current
   const runtime = currentPaymentRuntime()
   assertPaymentConfigured(runtime)
+  if (runtime.provider === 'iyzico' && runtime.iyzico) {
+    const { baseUrl, apiKey, secretKey, marketplace, platformSubMerchantKey } = runtime.iyzico
+    current = new IyzicoPaymentProvider(
+      new IyzicoClient({ baseUrl: baseUrl!, apiKey: apiKey!, secretKey: secretKey! }),
+      {
+        marketplace,
+        platformSubMerchantKey,
+        directory: new DbSubMerchantDirectory(),
+        calls: new DbProviderCallStore(),
+      }
+    )
+    return current
+  }
   current = new FakePaymentProvider(runtime.webhookSecret)
   return current
 }

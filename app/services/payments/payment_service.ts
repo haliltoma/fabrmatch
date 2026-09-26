@@ -16,10 +16,45 @@ import OrderStateMachine from '#services/orders/order_state_machine'
 import LedgerService from '#services/payments/ledger_service'
 import OrderNotifier from '#services/notifications/order_notifier'
 import FakePaymentProvider from '#services/payments/fake_provider'
+import OrderService from '#services/orders/order_service'
 import { paymentProvider } from '#services/payments/provider_registry'
 import type { PaymentProvider, WebhookEvent } from '#services/payments/provider'
 
 export class PaymentError extends DomainError {}
+
+/** Asked at the pay step for providers that need them; nothing here is stored. */
+export interface PayerDetails {
+  identityNumber?: string
+  phone?: string
+  ip?: string
+}
+
+/**
+ * Turkish addresses need a TCKN (11 digits, official checksum); anyone else passes their own
+ * identity or passport number, which iyzico also requires.
+ */
+export function validIdentityNumber(value: string, country: string): boolean {
+  if (country.toUpperCase() !== 'TR') return /^[A-Za-z0-9]{5,20}$/.test(value)
+  if (!/^[1-9]\d{10}$/.test(value)) return false
+  const d = [...value].map(Number)
+  const odd = d[0] + d[2] + d[4] + d[6] + d[8]
+  const even = d[1] + d[3] + d[5] + d[7]
+  const tenth = (((odd * 7 - even) % 10) + 10) % 10
+  const eleventh = d.slice(0, 10).reduce((a, b) => a + b, 0) % 10
+  return d[9] === tenth && d[10] === eleventh
+}
+
+/** E.164-ish: Turkish local forms (05xx…, 5xx…) get +90, anything else keeps its own prefix. */
+export function normalizePhone(value: string, country: string): string | null {
+  const digits = value.replace(/[^\d+]/g, '')
+  if (!digits) return null
+  if (digits.startsWith('+')) return digits.length >= 8 ? digits : null
+  if (country.toUpperCase() === 'TR') {
+    const local = digits.replace(/^(90|0)/, '')
+    return /^5\d{9}$/.test(local) ? `+90${local}` : null
+  }
+  return digits.length >= 8 ? `+${digits}` : null
+}
 
 export type WebhookOutcome =
   { status: 'duplicate' } | { status: 'processed'; paidOrderId: number | null }
@@ -56,8 +91,13 @@ export default class PaymentService {
     return (this.injectedProvider ??= paymentProvider())
   }
 
-  /** draft → awaiting_payment and a provider checkout session for the full order total. */
-  async startCheckout(orderId: number, buyerId: number) {
+  /**
+   * draft → awaiting_payment and a provider checkout session for the full order total. Hosted
+   * pages that need the buyer's identity (iyzico) get the identity number and phone asked at the
+   * pay step; the identity number goes straight to the provider and is never stored.
+   */
+  async startCheckout(orderId: number, buyerId: number, payer: PayerDetails = {}) {
+    const needsIdentity = this.provider.needsBuyerIdentity === true
     const buyerEmail = await db.transaction(async (trx) => {
       const order = await Order.query({ client: trx })
         .where('id', orderId)
@@ -82,7 +122,11 @@ export default class PaymentService {
       amountMinor: order.totalMinor,
       currency: order.currency,
       buyerEmail,
-      callbackUrl: `${env.get('APP_URL')}/orders/${orderId}`,
+      // hosted pages POST the buyer back here; the order page itself is the fake provider's return
+      callbackUrl: needsIdentity
+        ? `${env.get('APP_URL')}/payments/return`
+        : `${env.get('APP_URL')}/orders/${orderId}`,
+      ...(needsIdentity ? this.buyerDetails(order, buyerId, buyerEmail, payer) : {}),
     })
 
     const payment = await Payment.create({
@@ -97,6 +141,100 @@ export default class PaymentService {
     return { payment, redirectUrl: checkout.redirectUrl }
   }
 
+  /** Buyer, address and payout lines for a hosted page that needs them (iyzico). */
+  private buyerDetails(order: Order, buyerId: number, email: string, payer: PayerDetails) {
+    const address = new OrderService().decryptShippingAddress(order)
+    if (!address) throw new PaymentError('This order has no shipping address')
+    const phone = normalizePhone(payer.phone || address.phone || '', address.country)
+    if (!phone) throw new PaymentError('Add a phone number to pay', { status: 422 })
+    if (!validIdentityNumber(payer.identityNumber ?? '', address.country)) {
+      throw new PaymentError('Enter a valid identity number to pay', { status: 422 })
+    }
+
+    const words = address.fullName.trim().split(/\s+/)
+    const surname = words.length > 1 ? words.pop()! : words[0]
+    const street = [address.line1, address.line2, address.district].filter(Boolean).join(', ')
+    const sellerShare = order.sellerId ? order.sellerShareMinor : 0
+    return {
+      buyer: {
+        id: String(buyerId),
+        name: words.join(' '),
+        surname,
+        email,
+        gsmNumber: phone,
+        identityNumber: payer.identityNumber!,
+        ip: payer.ip ?? '127.0.0.1',
+      },
+      shippingAddress: {
+        contactName: address.fullName,
+        address: street,
+        city: address.city,
+        country: address.country,
+        zipCode: address.postalCode || undefined,
+      },
+      items: [
+        {
+          id: 'production' as const,
+          name: `3D print ${order.code}`,
+          priceMinor: order.totalMinor - sellerShare,
+        },
+        ...(sellerShare > 0
+          ? [{ id: 'seller' as const, name: `Product ${order.code}`, priceMinor: sellerShare }]
+          : []),
+      ],
+    }
+  }
+
+  /**
+   * The buyer came back from the provider's hosted page. The outcome is read from the provider,
+   * then applied through the same idempotent path as the webhook (whichever arrives first wins).
+   * Returns the order to show; `pending` while the provider has not decided yet.
+   */
+  async confirmReturn(fields: Record<string, unknown>) {
+    if (!this.provider.confirmReturn) throw new PaymentError('Not supported by this provider')
+    const event = await this.provider.confirmReturn(fields)
+    const providerRef = event?.providerRef ?? String(fields.token ?? '')
+    const payment = await Payment.query()
+      .where('provider', this.provider.name)
+      .where('providerRef', providerRef)
+      .first()
+    if (!payment) throw new PaymentError('Payment not found', { status: 404 })
+    if (event) await this.process(event)
+    return {
+      orderId: payment.orderId,
+      outcome: !event ? 'pending' : event.type === 'payment.succeeded' ? 'paid' : 'failed',
+    } as const
+  }
+
+  /**
+   * Safety net for buyers who close the tab after paying: pending hosted checkouts are looked
+   * up at the provider and applied like a callback. Returns how many were settled.
+   */
+  async syncPending(olderThanMinutes = 5): Promise<number> {
+    if (!this.provider.confirmReturn) return 0
+    const pending = await Payment.query()
+      .where('provider', this.provider.name)
+      .where('status', 'pending')
+      .where('createdAt', '<', DateTime.now().minus({ minutes: olderThanMinutes }).toSQL()!)
+      .where('createdAt', '>', DateTime.now().minus({ days: 2 }).toSQL()!)
+    let settled = 0
+    for (const payment of pending) {
+      try {
+        const event = await this.provider.confirmReturn({ token: payment.providerRef })
+        if (!event) continue
+        await this.process(event)
+        settled++
+      } catch (error) {
+        logger.warn({
+          msg: 'pending payment sync failed',
+          paymentId: payment.id,
+          error: (error as Error).message,
+        })
+      }
+    }
+    return settled
+  }
+
   /**
    * Verifies, dedupes (provider event id) and applies a provider webhook. Everything happens in
    * one transaction, so a failure rolls the dedup row back and the provider's retry re-processes.
@@ -105,8 +243,10 @@ export default class PaymentService {
     rawBody: string,
     headers: Record<string, string | undefined>
   ): Promise<WebhookOutcome> {
-    const event = await this.provider.handleWebhook(rawBody, headers)
+    return this.process(await this.provider.handleWebhook(rawBody, headers))
+  }
 
+  private async process(event: WebhookEvent): Promise<WebhookOutcome> {
     const result = await db.transaction(async (trx) => {
       const inserted = await trx
         .table('payment_webhooks')
@@ -184,7 +324,8 @@ export default class PaymentService {
   private async apply(event: WebhookEvent, trx: TransactionClientContract): Promise<Applied> {
     const none: Applied = { paidOrderId: null, orphanOrderId: null }
 
-    if (event.type === 'refund.succeeded') return none // refunds are settled synchronously
+    // refunds are settled synchronously; `ignored` deliveries are only recorded for dedup
+    if (event.type === 'refund.succeeded' || event.type === 'ignored') return none
 
     if (event.type === 'chargeback.opened') {
       const disputed = await Payment.query({ client: trx })
@@ -232,6 +373,12 @@ export default class PaymentService {
       return none
     }
 
+    if (event.currency && event.currency !== payment.currency) {
+      return {
+        ...none,
+        review: `currency mismatch on ${payment.providerRef}: expected ${payment.currency}, got ${event.currency}`,
+      }
+    }
     if (event.amountMinor !== payment.amountMinor) {
       return {
         ...none,

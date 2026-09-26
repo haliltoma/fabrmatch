@@ -119,6 +119,7 @@ export interface ApiDefinition {
   }
   carrierWebhook: typeof routes['carrier_webhook']
   paymentWebhook: typeof routes['payment_webhook']
+  paymentReturn: typeof routes['payment_return']
   contentReport: {
     store: typeof routes['content_report.store']
   }

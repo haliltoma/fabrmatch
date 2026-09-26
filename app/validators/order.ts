@@ -27,6 +27,12 @@ export const createOrderValidator = vine.create({
   }),
 })
 
+/** Pay step (iyzico): identity number and phone go to the provider only, never stored. */
+export const payValidator = vine.create({
+  identityNumber: vine.string().trim().maxLength(20).optional(),
+  phone: vine.string().trim().maxLength(32).optional(),
+})
+
 export const reviewValidator = vine.create({
   rating: vine.number().min(1).max(5).withoutDecimals(),
   comment: vine.string().trim().maxLength(1000).optional(),

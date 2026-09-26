@@ -902,6 +902,40 @@ export class OrderSchema extends BaseModel {
   declare updatedAt: DateTime
 }
 
+export class PaymentProviderCallSchema extends BaseModel {
+  static $columns = ['completedAt', 'createdAt', 'id', 'idempotencyKey', 'provider', 'resultRef'] as const
+  $columns = PaymentProviderCallSchema.$columns
+  @column.dateTime()
+  declare completedAt: DateTime | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare idempotencyKey: string
+  @column()
+  declare provider: string
+  @column()
+  declare resultRef: string | null
+}
+
+export class PaymentSubMerchantSchema extends BaseModel {
+  static $columns = ['beneficiaryId', 'beneficiaryType', 'createdAt', 'id', 'provider', 'subMerchantKey'] as const
+  $columns = PaymentSubMerchantSchema.$columns
+  @column()
+  declare beneficiaryId: number
+  @column()
+  declare beneficiaryType: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare provider: string
+  @column()
+  declare subMerchantKey: string
+}
+
 export class PaymentWebhookSchema extends BaseModel {
   static $columns = ['id', 'payload', 'processedAt', 'provider', 'providerEventId', 'receivedAt', 'type'] as const
   $columns = PaymentWebhookSchema.$columns

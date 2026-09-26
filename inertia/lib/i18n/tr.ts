@@ -2419,4 +2419,16 @@ export const tr: Record<string, string> = {
   'Paint colour': 'Boya rengi',
   'Pick the colour to paint it in.': 'Boyanacak rengi seç.',
   'Example requests': 'Örnek istekler',
+  'Your payment is being checked by the bank. This page updates once it is confirmed.':
+    'Ödemeniz banka tarafından kontrol ediliyor. Onaylandığında bu sayfa güncellenir.',
+  'The payment did not go through and no money was taken. You can try again.':
+    'Ödeme gerçekleşmedi, hesabınızdan para çekilmedi. Tekrar deneyebilirsiniz.',
+  'The payment provider needs your identity number to take a card payment. We pass it on and do not store it.':
+    'Ödeme kuruluşu kartla ödeme için kimlik numaranızı istiyor. Numarayı yalnızca iletiyoruz, saklamıyoruz.',
+  'T.C. identity number': 'T.C. kimlik numarası',
+  'ID or passport number': 'Kimlik veya pasaport numarası',
+  'Mobile phone': 'Cep telefonu',
+  'Add a phone number to pay': 'Ödeme için bir telefon numarası ekleyin',
+  'Enter a valid identity number to pay': 'Ödeme için geçerli bir kimlik numarası girin',
+  'This order has no shipping address': 'Bu siparişin teslimat adresi yok',
 }

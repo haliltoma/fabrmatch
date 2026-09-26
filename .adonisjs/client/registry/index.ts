@@ -426,6 +426,12 @@ const routes = {
     tokens: [{"old":"/webhooks/payments","type":0,"val":"webhooks","end":""},{"old":"/webhooks/payments","type":0,"val":"payments","end":""}],
     types: placeholder as Registry['payment_webhook']['types'],
   },
+  'payment_return': {
+    methods: ["POST"],
+    pattern: '/payments/return',
+    tokens: [{"old":"/payments/return","type":0,"val":"payments","end":""},{"old":"/payments/return","type":0,"val":"return","end":""}],
+    types: placeholder as Registry['payment_return']['types'],
+  },
   'content_report.store': {
     methods: ["POST"],
     pattern: '/shop/:id/report',

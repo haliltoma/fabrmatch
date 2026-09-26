@@ -121,6 +121,7 @@ export default function ShopShow({
     city: '',
     postalCode: '',
     country: 'TR',
+    phone: '',
   })
 
   const atScale = product.options.filter(
@@ -150,7 +151,7 @@ export default function ShopShow({
         material,
         quantity,
         scalePercent: scale,
-        shippingAddress: address,
+        shippingAddress: { ...address, phone: address.phone || undefined },
         acceptTerms: accepted,
         couponCode: coupon.trim() || undefined,
         finishing: finishing || undefined,
@@ -349,6 +350,16 @@ export default function ShopShow({
                           onChange={(e) =>
                             setAddress({ ...address, country: e.target.value.toUpperCase() })
                           }
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="phone">{t('Phone (for the courier)')}</Label>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          autoComplete="tel"
+                          value={address.phone}
+                          onChange={(e) => setAddress({ ...address, phone: e.target.value })}
                         />
                       </div>
                     </div>

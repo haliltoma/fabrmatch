@@ -8,6 +8,7 @@ import { formatDateTime, formatMoney } from '~/lib/format'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Label } from '~/components/ui/label'
+import { Input } from '~/components/ui/input'
 import { Badge } from '~/components/ui/badge'
 import { LayerStepper } from '~/components/layer_stepper'
 import { OrderCode } from '~/components/order_code'
@@ -264,6 +265,8 @@ export default function OrdersShow({
   dispute,
   evidenceUrls,
   testPayments,
+  payStep,
+  paymentReturn,
 }: {
   order: OrderData
   timeline: TimelineEntry[]
@@ -271,6 +274,9 @@ export default function OrdersShow({
   dispute: DisputeData
   evidenceUrls: Record<string, string>
   testPayments: boolean
+  /** Set when the provider needs the buyer's identity number (iyzico) */
+  payStep: { phoneOnFile: boolean; country: string } | null
+  paymentReturn: 'paid' | 'failed' | 'pending' | null
 }) {
   const { t } = useT()
 
@@ -278,6 +284,25 @@ export default function OrdersShow({
   const canCancelAndRefund = ['paid', 'matching', 'unmatched'].includes(order.status)
   const canPay = ['draft', 'awaiting_payment'].includes(order.status)
   const payKey = useIdempotencyKey()
+  const [payer, setPayer] = useState({ identityNumber: '', phone: '' })
+  const [paying, setPaying] = useState(false)
+  const pay = () => {
+    setPaying(true)
+    router.post(
+      `/orders/${order.id}/pay`,
+      payStep
+        ? { identityNumber: payer.identityNumber.trim(), phone: payer.phone.trim() || undefined }
+        : {},
+      {
+        headers: payKey.headers(),
+        onError: payKey.renew,
+        onFinish: () => {
+          payKey.renew()
+          setPaying(false)
+        },
+      }
+    )
+  }
   const canConfirmDelivery = order.status === 'shipped'
   const canComplete = order.status === 'delivered'
   const canReview = ['delivered', 'completed'].includes(order.status)
@@ -327,6 +352,74 @@ export default function OrdersShow({
         </p>
       )}
 
+      {paymentReturn === 'paid' && (
+        <p
+          role="status"
+          className="rounded-md border border-line bg-paper-sunken px-4 py-3 text-sm text-success"
+        >
+          {t('Payment received. We are finding a maker for your order.')}
+        </p>
+      )}
+      {paymentReturn === 'pending' && (
+        <p role="status" className="rounded-md bg-amber-soft px-4 py-3 text-sm text-amber-ink">
+          {t('Your payment is being checked by the bank. This page updates once it is confirmed.')}
+        </p>
+      )}
+      {paymentReturn === 'failed' && canPay && (
+        <p role="alert" className="rounded-md bg-danger-soft px-4 py-3 text-sm text-danger">
+          {t('The payment did not go through and no money was taken. You can try again.')}
+        </p>
+      )}
+
+      {canPay && payStep && (
+        <form
+          className="space-y-3 rounded-md border border-line bg-paper-raised p-4"
+          onSubmit={(e) => {
+            e.preventDefault()
+            pay()
+          }}
+        >
+          <p className="text-sm text-ink-700">
+            {t(
+              'The payment provider needs your identity number to take a card payment. We pass it on and do not store it.'
+            )}
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="pay-identity">
+                {payStep.country === 'TR' ? t('T.C. identity number') : t('ID or passport number')}
+              </Label>
+              <Input
+                id="pay-identity"
+                required
+                inputMode={payStep.country === 'TR' ? 'numeric' : undefined}
+                maxLength={payStep.country === 'TR' ? 11 : 20}
+                autoComplete="off"
+                value={payer.identityNumber}
+                onChange={(e) => setPayer({ ...payer, identityNumber: e.target.value })}
+              />
+            </div>
+            {!payStep.phoneOnFile && (
+              <div>
+                <Label htmlFor="pay-phone">{t('Mobile phone')}</Label>
+                <Input
+                  id="pay-phone"
+                  type="tel"
+                  required
+                  autoComplete="tel"
+                  placeholder="05xx xxx xx xx"
+                  value={payer.phone}
+                  onChange={(e) => setPayer({ ...payer, phone: e.target.value })}
+                />
+              </div>
+            )}
+          </div>
+          <Button type="submit" disabled={paying}>
+            {t('Pay now')}
+          </Button>
+        </form>
+      )}
+
       {canPay && testPayments && (
         <p className="rounded-md border border-line bg-amber-soft px-4 py-3 text-sm text-amber-ink">
           <strong>{t('Test mode')}</strong> ·{' '}
@@ -337,16 +430,8 @@ export default function OrdersShow({
 
       {(canCancel || canCancelAndRefund || canPay || canConfirmDelivery || canComplete) && (
         <div className="flex flex-wrap gap-2">
-          {canPay && (
-            <Button
-              onClick={() =>
-                router.post(
-                  `/orders/${order.id}/pay`,
-                  {},
-                  { headers: payKey.headers(), onError: payKey.renew, onFinish: payKey.renew }
-                )
-              }
-            >
+          {canPay && !payStep && (
+            <Button onClick={pay} disabled={paying}>
               {t('Pay now')}
             </Button>
           )}

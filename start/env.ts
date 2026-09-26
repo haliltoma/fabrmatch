@@ -54,6 +54,14 @@ export default await Env.create(new URL('../', import.meta.url), {
   // Payments (provider adapter, PRD §11)
   PAYMENT_PROVIDER: Env.schema.enum.optional(['fake', 'iyzico'] as const),
   PAYMENT_WEBHOOK_SECRET: Env.schema.secret.optional(),
+  // iyzico (R1-T1): sandbox https://sandbox-api.iyzipay.com, live https://api.iyzipay.com
+  IYZICO_BASE_URL: Env.schema.string.optional({ format: 'url', tld: false }),
+  IYZICO_API_KEY: Env.schema.secret.optional(),
+  IYZICO_SECRET_KEY: Env.schema.secret.optional(),
+  // true once iyzico enables the marketplace product on the account (sub-merchants, approve)
+  IYZICO_MARKETPLACE: Env.schema.boolean.optional(),
+  // our own sub-merchant that holds every basket item until the maker is known
+  IYZICO_PLATFORM_SUBMERCHANT_KEY: Env.schema.string.optional(),
 
   // Exchange rates (defaults: tcmb in production, static elsewhere)
   FX_PROVIDER: Env.schema.enum.optional(['tcmb', 'static'] as const),

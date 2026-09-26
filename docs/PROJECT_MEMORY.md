@@ -280,6 +280,7 @@
 
 ## Log
 
+- **2026-09-26** — R1-T1 iyzico: IYZWSv2 imzalı istemci + `IyzicoPaymentProvider` (Checkout Form, `/payments/return` dönüşü retrieve ile doğrulanır, webhook V3 imzası, v2 iade tek çağrı garantili, bekleyen ödemeler 5 dk'da senkron). Ödeme adımında TCKN (saklanmaz) + telefon; adres formlarına telefon. Pazaryeri (alt üye, `PUT /payment/item`, approve) `IYZICO_MARKETPLACE` bayrağı arkasında — sandbox hesabında kapalı (2000). Webhook para birimi doğrulaması eklendi. Gerçek sandbox'ta ödeme + iade doğrulandı. 801 test yeşil.
 - **2026-09-26** — R5-T3 APP_KEY rotasyonu: `EncryptionService` `APP_KEY_PREVIOUS` ile eski anahtara düşer (kesintisiz geçiş), `KeyRotationService` + `security:rotate-key` komutu tüm şifreli sütunları yeniden yazar; sütun listesi `information_schema` ile testte doğrulanır. Prosedür `docs/SECURITY.md`.
 - **2026-09-26** — R5-T6 a11y: bu oturumun sayfaları axe taramasına eklendi (`scripts/a11y.mjs` + `tests/browser/a11y_pages.spec.ts`); 2 ihlal düzeltildi (klavyeyle kaydırılamayan `pre`, yeşil rozet kontrastı → `text-fil-700`). 771 test yeşil, yerel tarama 0 ihlal.
 - **2026-09-26** — R6-T6 boya rengi: "tek renge boyanır" vaat ediliyordu ama renk seçilemiyordu. `needs_colour` bayrağı + `finishing_colour` alanları, `FinishingService.resolveColour/paintColours`, `PaintColourField` bileşeni (teklif + vitrin), renk her gösterimde. 767 test yeşil.
