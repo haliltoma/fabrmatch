@@ -1,5 +1,6 @@
 import type User from '#models/user'
 import { BaseTransformer } from '@adonisjs/core/transformers'
+import { isEmailVerified } from '#services/identity/email_verification'
 
 export default class UserTransformer extends BaseTransformer<User> {
   toObject() {
@@ -13,7 +14,7 @@ export default class UserTransformer extends BaseTransformer<User> {
         'initials',
       ]),
       roles: this.resource.roleNames,
-      emailVerified: !!this.resource.emailVerifiedAt,
+      emailVerified: isEmailVerified(this.resource),
       hasCompletedOnboarding: this.resource.roleNames.length > 0,
     }
   }

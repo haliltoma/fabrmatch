@@ -1,5 +1,6 @@
 import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
+import fabrmatchConfig from '#config/fabrmatch'
 import Order from '#models/order'
 import RoleService from '#services/identity/role_service'
 import { TR_ADDRESS, createStorefrontProduct, createUser } from '#tests/helpers/order_fixtures'
@@ -63,5 +64,28 @@ test.group('verified e-mail gate (R0-T2)', (group) => {
     orders.assertStatus(200)
     const shop = await client.get('/shop').loginAs(user)
     shop.assertStatus(200)
+  })
+
+  test('local dev switch: with verification off an unverified user can order', async ({
+    client,
+    assert,
+  }) => {
+    const shop = await createStorefrontProduct()
+    const user = await createUser('buyer', { verified: false })
+    await new RoleService().assignRole(user, 'seller')
+
+    fabrmatchConfig.security.requireEmailVerification = false
+    try {
+      const response = await client
+        .post(`/shop/${shop.product.id}/order`)
+        .withCsrfToken()
+        .loginAs(user)
+        .redirects(0)
+        .json({ material: 'PLA', quantity: 1, shippingAddress: TR_ADDRESS })
+      response.assertStatus(302)
+      assert.equal(await orderCount(user.id), 1)
+    } finally {
+      fabrmatchConfig.security.requireEmailVerification = true
+    }
   })
 })

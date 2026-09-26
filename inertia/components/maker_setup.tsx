@@ -10,6 +10,35 @@ export type Setup = { steps: SetupStep[]; doneCount: number; complete: boolean }
 /** First-run checklist: shows what is still missing before offers can arrive, and where to fix it. */
 export function MakerSetup({ setup }: { setup: Setup }) {
   const { t } = useT()
+  return (
+    <SetupChecklist
+      setup={setup}
+      title={t('Get ready for your first offer')}
+      home="/maker"
+      tip={t(
+        'Tip: print one small test part first and check its size, so your first real order goes smoothly.'
+      )}
+    />
+  )
+}
+
+/**
+ * The shared first-run checklist (maker and seller panels): progress bar, ticked steps and one
+ * button for the next step. Hidden once everything is done.
+ */
+export function SetupChecklist({
+  setup,
+  title,
+  home,
+  tip,
+}: {
+  setup: Setup
+  title: string
+  /** the page the checklist lives on; a next step pointing here gets no button */
+  home: string
+  tip?: string
+}) {
+  const { t } = useT()
 
   if (setup.complete) return null
   const next = setup.steps.find((s) => !s.done)
@@ -17,7 +46,7 @@ export function MakerSetup({ setup }: { setup: Setup }) {
     <Card>
       <CardHeader>
         <CardTitle>
-          {t('Get ready for your first offer')}{' '}
+          {title}{' '}
           <span className="tabular text-sm font-normal text-ink-600">
             {t('{done} of {total} done', { done: setup.doneCount, total: setup.steps.length })}
           </span>
@@ -60,16 +89,12 @@ export function MakerSetup({ setup }: { setup: Setup }) {
             </li>
           ))}
         </ol>
-        {next && next.href !== '/maker' && (
+        {next && next.href !== home && (
           <Button asChild>
-            <Link href={next.href}>{next.title}</Link>
+            <Link href={next.href}>{t(next.title)}</Link>
           </Button>
         )}
-        <p className="text-xs text-ink-600">
-          {t(
-            'Tip: print one small test part first and check its size, so your first real order goes smoothly.'
-          )}
-        </p>
+        {tip && <p className="text-xs text-ink-600">{tip}</p>}
       </CardContent>
     </Card>
   )

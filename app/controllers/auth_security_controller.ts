@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import LandingService from '#services/identity/landing_service'
 import AuthSecurityService from '#services/identity/auth_security_service'
 import {
   forgotPasswordValidator,
@@ -9,7 +10,7 @@ import limiter from '@adonisjs/limiter/services/main'
 
 export default class AuthSecurityController {
   // Email verification
-  async verifyEmail({ request, response, session }: HttpContext) {
+  async verifyEmail({ request, response, session, auth }: HttpContext) {
     const { token } = await request.validateUsing(verifyEmailValidator)
     const service = new AuthSecurityService()
 
@@ -20,6 +21,10 @@ export default class AuthSecurityController {
     }
 
     session.flash('success', 'Email verified successfully!')
+    // signed in (usually, the link opens in the same browser): straight on to the next step
+    if (auth.user?.id === user.id) {
+      return response.redirect().toPath(await new LandingService().homeFor(user))
+    }
     return response.redirect().toPath('/login')
   }
 

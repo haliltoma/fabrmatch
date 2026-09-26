@@ -17,14 +17,26 @@ export function isInExplorationPool(c: MatchCandidate, opts: RankingOptions): bo
   )
 }
 
-/** PRD §8: 0.35·quality + 0.25·on_time + 0.20·distance + 0.20·load_balance, each in [0,1]. */
-export function scoreCandidate(c: MatchCandidate): number {
+export const SCORE_WEIGHTS = { quality: 0.35, onTime: 0.25, distance: 0.2, load: 0.2 } as const
+
+/** The four parts of the score, each in [0,1], and their weighted total (shown to admins). */
+export function scoreParts(c: MatchCandidate) {
   const rating = c.avgRating ?? NEUTRAL_RATING
   const quality = (rating / 5) * (1 - Math.min(Math.max(c.disputeRate, 0), 1))
   const onTime = c.onTimeRate ?? NEUTRAL_ON_TIME
   const distance = c.sameCity ? 1 : 0.5
   const load = 1 / (1 + Math.max(c.activeJobs, 0))
-  return 0.35 * quality + 0.25 * onTime + 0.2 * distance + 0.2 * load
+  const total =
+    SCORE_WEIGHTS.quality * quality +
+    SCORE_WEIGHTS.onTime * onTime +
+    SCORE_WEIGHTS.distance * distance +
+    SCORE_WEIGHTS.load * load
+  return { quality, onTime, distance, load, total }
+}
+
+/** PRD §8: 0.35·quality + 0.25·on_time + 0.20·distance + 0.20·load_balance, each in [0,1]. */
+export function scoreCandidate(c: MatchCandidate): number {
+  return scoreParts(c).total
 }
 
 function byScoreDesc(a: ScoredCandidate, b: ScoredCandidate) {

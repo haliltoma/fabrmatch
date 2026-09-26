@@ -1,8 +1,11 @@
+import app from '@adonisjs/core/services/app'
 import env from '#start/env'
 
 const fabrmatchConfig = {
   security: {
     requireAdminTwoFactor: env.get('ADMIN_2FA_REQUIRED', true),
+    // local dev can skip e-mail verification; production always requires it
+    requireEmailVerification: app.inProduction || env.get('EMAIL_VERIFICATION_REQUIRED', true),
   },
   orders: {
     autoConfirmDays: 7,
@@ -13,6 +16,8 @@ const fabrmatchConfig = {
     unmatchedAutoCancelDays: 3,
   },
   matching: {
+    // 1 = offers go out automatically after payment; 0 = an admin picks the maker in /admin/matching
+    autoOffer: env.get('MATCHING_AUTO_OFFER', false) ? 1 : 0,
     maxRounds: 5,
     offerTtlMinutes: 30,
     explorationRate: 0.2,

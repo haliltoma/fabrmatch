@@ -50,6 +50,45 @@ test.group('Role access', (group) => {
     response.assertStatus(200)
   })
 
+  test('role without a profile is sent to finish the profile, not a 500', async ({ client }) => {
+    const seller = await createUser('halfseller')
+    await new RoleService().assignRole(seller, 'seller')
+    for (const path of ['/seller', '/seller/products', '/seller/branding']) {
+      const response = await client.get(path).loginAs(seller).redirects(0)
+      response.assertStatus(302)
+      response.assertHeader('location', '/onboarding/profile')
+    }
+
+    const maker = await createUser('halfmaker')
+    await new RoleService().assignRole(maker, 'manufacturer')
+    const response = await client.get('/maker').loginAs(maker).redirects(0)
+    response.assertHeader('location', '/onboarding/profile')
+
+    const form = await client
+      .get('/onboarding/profile')
+      .loginAs(seller)
+      .header('x-inertia', 'true')
+      .header('x-inertia-version', '1')
+    form.assertStatus(200)
+  })
+
+  test('profile step skips roles that already have a profile', async ({ client }) => {
+    const { user } = await createManufacturer()
+    await new RoleService().assignRole(user, 'manufacturer')
+    await new RoleService().assignRole(user, 'seller')
+
+    const page = await client.get('/onboarding/profile').loginAs(user).redirects(0)
+    page.assertStatus(200)
+    page.assertTextIncludes('seller')
+
+    await new OnboardingService().createSellerProfile(user, {
+      businessName: 'S',
+      isCorporate: false,
+    })
+    const done = await client.get('/onboarding/profile').loginAs(user).redirects(0)
+    done.assertHeader('location', '/seller')
+  })
+
   test('user without roles is sent to onboarding', async ({ client }) => {
     const user = await createUser('roleless')
 

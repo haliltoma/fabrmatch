@@ -7,6 +7,7 @@ import env from '#start/env'
 import { featureEnabled } from '#services/settings/feature_flags'
 import CartService from '#services/orders/cart_service'
 import NotificationService from '#services/notifications/notification_service'
+import SellerProfile from '#models/seller_profile'
 import BaseInertiaMiddleware from '@adonisjs/inertia/inertia_middleware'
 
 export default class InertiaMiddleware extends BaseInertiaMiddleware {
@@ -23,6 +24,12 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
 
     const cartCount = auth?.user ? await new CartService().count(auth.user.id) : 0
 
+    // a buyer holds the seller role without a shop; their menu has no seller dashboard to open
+    const hasShop =
+      !!auth?.user &&
+      auth.user.roleNames.includes('seller') &&
+      !!(await SellerProfile.query().where('userId', auth.user.id).select('id').first())
+
     const locale = pickLocale(
       ctx.request.plainCookie(LOCALE_COOKIE),
       ctx.request.header('accept-language')
@@ -37,6 +44,7 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
       legalAcceptanceRequired: env.get('LEGAL_ACCEPTANCE_REQUIRED', false),
       errors: ctx.inertia.always(translateValidationErrors(locale, this.getValidationErrors(ctx))),
       user: ctx.inertia.always(userData),
+      hasShop: ctx.inertia.always(hasShop),
       unreadNotifications: ctx.inertia.always(unread),
     }
   }

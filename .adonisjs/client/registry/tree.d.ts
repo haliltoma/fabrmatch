@@ -145,6 +145,10 @@ export interface ApiDefinition {
     addEvidence: typeof routes['dispute.add_evidence']
     respond: typeof routes['dispute.respond']
   }
+  testCheckout: {
+    show: typeof routes['test_checkout.show']
+    pay: typeof routes['test_checkout.pay']
+  }
   sellerDashboard: {
     index: typeof routes['seller_dashboard.index']
   }
@@ -287,6 +291,12 @@ export interface ApiDefinition {
   adminQueueMonitor: {
     index: typeof routes['admin_queue_monitor.index']
     runAgain: typeof routes['admin_queue_monitor.run_again']
+  }
+  adminMatching: {
+    index: typeof routes['admin_matching.index']
+    mode: typeof routes['admin_matching.mode']
+    show: typeof routes['admin_matching.show']
+    offer: typeof routes['admin_matching.offer']
   }
   adminOrder: {
     index: typeof routes['admin_order.index']

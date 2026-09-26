@@ -11,6 +11,10 @@ export default await Env.create(new URL('../', import.meta.url), {
   APP_KEY: Env.schema.secret(),
   // admins must have two-factor on before they can use the admin panel; only tests turn this off
   ADMIN_2FA_REQUIRED: Env.schema.boolean.optional(),
+  // `false` treats every account as verified (local dev only; ignored in production)
+  EMAIL_VERIFICATION_REQUIRED: Env.schema.boolean.optional(),
+  // default for automatic matching (admin can flip it in /admin/matching); off = an admin picks the maker
+  MATCHING_AUTO_OFFER: Env.schema.boolean.optional(),
   // slicer worker: `none` keeps the heuristic estimate, `orca` runs the CLI at SLICER_BIN
   // antivirus: clamd host for INSTREAM scans of model uploads; unset = signature checks only
   CLAMAV_HOST: Env.schema.string.optional(),

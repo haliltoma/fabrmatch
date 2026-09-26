@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
+import { isEmailVerified } from '#services/identity/email_verification'
 
 /**
  * Money and account-trust actions need a verified e-mail (notifications, payouts and dispute
@@ -8,7 +9,7 @@ import type { NextFn } from '@adonisjs/core/types/http'
 export default class VerifiedMiddleware {
   async handle(ctx: HttpContext, next: NextFn) {
     const user = ctx.auth.getUserOrFail()
-    if (user.emailVerifiedAt) return next()
+    if (isEmailVerified(user)) return next()
 
     const message = 'Verify your e-mail address first. We sent you a link — check your inbox.'
     const wantsJson =

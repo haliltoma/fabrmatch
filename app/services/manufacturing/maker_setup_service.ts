@@ -2,6 +2,7 @@ import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
 import type ManufacturerProfile from '#models/manufacturer_profile'
 import User from '#models/user'
+import { isEmailVerified } from '#services/identity/email_verification'
 
 export interface SetupStep {
   id: string
@@ -69,7 +70,7 @@ export default class MakerSetupService {
         title: 'Confirm your e-mail address',
         detail: 'Offers, payouts and dispute notices are sent there. Use the link we e-mailed you.',
         href: '/maker',
-        done: !!user?.emailVerifiedAt,
+        done: !!user && isEmailVerified(user),
       },
       {
         id: 'printer',

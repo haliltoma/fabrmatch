@@ -1063,6 +1063,30 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/dispute_controller').default['addEvidence']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'test_checkout.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/dev/checkout/:ref'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { ref: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/test_checkout_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/test_checkout_controller').default['show']>>>
+    }
+  }
+  'test_checkout.pay': {
+    methods: ["POST"]
+    pattern: '/dev/checkout/:ref'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/test_checkout').testCardValidator)>>
+      paramsTuple: [ParamValue]
+      params: { ref: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/test_checkout').testCardValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/test_checkout_controller').default['pay']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/test_checkout_controller').default['pay']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'seller_dashboard.index': {
     methods: ["GET","HEAD"]
     pattern: '/seller'
@@ -2165,6 +2189,54 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_queue_monitor_controller').default['runAgain']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_queue_monitor_controller').default['runAgain']>>>
+    }
+  }
+  'admin_matching.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/matching'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_matching_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_matching_controller').default['index']>>>
+    }
+  }
+  'admin_matching.mode': {
+    methods: ["POST"]
+    pattern: '/admin/matching/mode'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_matching').matchingModeValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_matching').matchingModeValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_matching_controller').default['mode']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_matching_controller').default['mode']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin_matching.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/matching/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_matching_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_matching_controller').default['show']>>>
+    }
+  }
+  'admin_matching.offer': {
+    methods: ["POST"]
+    pattern: '/admin/matching/:id/offer'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/admin_matching').adminOfferValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/admin_matching').adminOfferValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_matching_controller').default['offer']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_matching_controller').default['offer']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'admin_order.index': {

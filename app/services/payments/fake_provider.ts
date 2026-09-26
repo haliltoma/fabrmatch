@@ -30,10 +30,10 @@ export default class FakePaymentProvider implements PaymentProvider {
   constructor(private secret: string = 'fake-secret') {}
 
   async createCheckout(request: CheckoutRequest): Promise<CheckoutResult> {
-    const result = {
-      providerRef: `fake_pay_${randomBytes(6).toString('hex')}`,
-      redirectUrl: request.callbackUrl,
-    }
+    const providerRef = `fake_pay_${randomBytes(6).toString('hex')}`
+    // the local test payment page stands in for the provider's hosted checkout; relative, so it
+    // works on whatever host the site was opened on (localhost, LAN IP)
+    const result = { providerRef, redirectUrl: `/dev/checkout/${providerRef}` }
     this.checkouts.push({ ...request, ...result })
     return result
   }

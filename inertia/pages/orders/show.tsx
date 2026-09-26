@@ -13,6 +13,7 @@ import { LayerStepper } from '~/components/layer_stepper'
 import { OrderCode } from '~/components/order_code'
 import { StatusBadge } from '~/components/status_badge'
 import { useT } from '~/lib/i18n'
+import { useIdempotencyKey } from '~/lib/idempotency'
 
 type OrderItem = {
   id: number
@@ -261,20 +262,21 @@ export default function OrdersShow({
   review,
   dispute,
   evidenceUrls,
-  canSimulatePayment,
+  testPayments,
 }: {
   order: OrderData
   timeline: TimelineEntry[]
   review: ReviewData
   dispute: DisputeData
   evidenceUrls: Record<string, string>
-  canSimulatePayment: boolean
+  testPayments: boolean
 }) {
   const { t } = useT()
 
   const canCancel = ['draft', 'awaiting_payment'].includes(order.status)
   const canCancelAndRefund = ['paid', 'matching', 'unmatched'].includes(order.status)
-  const canPay = canSimulatePayment && ['draft', 'awaiting_payment'].includes(order.status)
+  const canPay = ['draft', 'awaiting_payment'].includes(order.status)
+  const payKey = useIdempotencyKey()
   const canConfirmDelivery = order.status === 'shipped'
   const canComplete = order.status === 'delivered'
   const canReview = ['delivered', 'completed'].includes(order.status)
@@ -324,14 +326,27 @@ export default function OrdersShow({
         </p>
       )}
 
+      {canPay && testPayments && (
+        <p className="rounded-md border border-line bg-amber-soft px-4 py-3 text-sm text-amber-ink">
+          <strong>{t('Test mode')}</strong> ·{' '}
+          {t('No real money moves. Pay with the test card on the next page:')}{' '}
+          <span className="font-mono tabular">4242 4242 4242 4242</span>
+        </p>
+      )}
+
       {(canCancel || canCancelAndRefund || canPay || canConfirmDelivery || canComplete) && (
         <div className="flex flex-wrap gap-2">
           {canPay && (
             <Button
-              onClick={() => router.post(`/orders/${order.id}/simulate-payment`)}
-              title={t('Dev only: Faz 5 replaces this with the real payment provider.')}
+              onClick={() =>
+                router.post(
+                  `/orders/${order.id}/pay`,
+                  {},
+                  { headers: payKey.headers(), onError: payKey.renew, onFinish: payKey.renew }
+                )
+              }
             >
-              {t('Simulate payment & match')}
+              {t('Pay now')}
             </Button>
           )}
           {canConfirmDelivery && (

@@ -4,6 +4,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import limiter from '@adonisjs/limiter/services/main'
 import TwoFactorService from '#services/identity/two_factor_service'
 import UserSessionService from '#services/identity/user_session_service'
+import { redirectAfterSignIn } from '#services/identity/landing_service'
 
 export const TWO_FACTOR_PENDING = 'twoFactorPending'
 export const TWO_FACTOR_PENDING_MINUTES = 10
@@ -13,7 +14,8 @@ export default class SessionController {
     return inertia.render('auth/login', {})
   }
 
-  async store({ request, auth, response, session }: HttpContext) {
+  async store(ctx: HttpContext) {
+    const { request, auth, response, session } = ctx
     const { email, password } = await request.validateUsing(loginValidator)
 
     // Rate limit: 5 attempts per IP + 10 per email per 15 min
@@ -54,7 +56,7 @@ export default class SessionController {
         userAgent: request.header('user-agent') ?? null,
       })
     )
-    response.redirect().toRoute('home')
+    return redirectAfterSignIn(ctx, user)
   }
 
   async destroy({ auth, response }: HttpContext) {

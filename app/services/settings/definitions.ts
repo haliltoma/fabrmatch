@@ -38,6 +38,15 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
     integer: true,
   },
   {
+    key: 'matching.autoOffer',
+    group: 'matching',
+    label: 'Automatic matching (0 = off, 1 = on)',
+    help: 'Off: every paid order waits in Matching until an admin picks the maker. On: offers go out by score.',
+    min: 0,
+    max: 1,
+    integer: true,
+  },
+  {
     key: 'matching.explorationRate',
     group: 'matching',
     label: 'New-maker discovery share',

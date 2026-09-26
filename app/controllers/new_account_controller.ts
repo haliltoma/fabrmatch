@@ -31,6 +31,7 @@ export default class NewAccountController {
     }
     await new LifecycleService().welcome(user.id)
     await auth.use('web').login(user)
-    response.redirect().toRoute('home')
+    // a new account has no role yet: pick one first; the page they wanted is kept for after
+    return response.redirect().toPath('/onboarding')
   }
 }

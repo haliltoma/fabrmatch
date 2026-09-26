@@ -54,6 +54,7 @@ export const middleware = router.named({
   auth: () => import('#middleware/auth_middleware'),
   onboarding: () => import('#middleware/onboarding_middleware'),
   role: () => import('#middleware/role_middleware'),
+  profile: () => import('#middleware/profile_middleware'),
   verified: () => import('#middleware/verified_middleware'),
   throttle: () => import('#middleware/throttle_middleware'),
   twoFactor: () => import('#middleware/two_factor_middleware'),

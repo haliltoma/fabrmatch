@@ -1034,6 +1034,7 @@ export const tr: Record<string, string> = {
   'Response sent.': 'Yanıt gönderildi.',
   'Review saved.': 'Yorum kaydedildi.',
   'Role selected. Now complete your profile.': 'Rol seçildi. Şimdi profilini tamamla.',
+  'Complete your profile to continue.': 'Devam etmek için profilini tamamla.',
   'Saved. New parcels carry your name and message.':
     'Kaydedildi. Yeni koliler adını ve mesajını taşıyacak.',
   'Saved.': 'Kaydedildi.',
@@ -2124,4 +2125,175 @@ export const tr: Record<string, string> = {
   'Print': 'Baskı',
   'How selling works: a buyer picks a design in your shop and orders it, the payment is held, a maker prints and delivers it, then the payment is released and your margin is paid to you.':
     'Satış nasıl işler: alıcı mağazandan bir tasarım seçip sipariş verir, ödeme bekletilir, bir üretici basıp teslim eder, sonra ödeme serbest bırakılır ve kârın hesabına geçer.',
+  'One step': 'Tek adım',
+  'What brings you to Fabrmatch?': "Fabrmatch'e ne için geldin?",
+  'You can add the other roles later.': 'Diğer rolleri sonra da ekleyebilirsin.',
+  'I just want something printed': 'Sadece bir şey bastırmak istiyorum',
+  'No setup': 'Kurulum yok',
+  'Upload your model, see the price in seconds and order. Payment stays protected until delivery.':
+    'Modelini yükle, fiyatı saniyeler içinde gör ve sipariş ver. Ödemen teslimata kadar güvende.',
+  'Protected payment': 'Korumalı ödeme',
+  'Sell 3D printed products under your own brand. We print and ship; the margin is yours.':
+    'Kendi markanla 3D baskı ürünler sat. Biz basıp gönderelim; kâr senin.',
+  'No stock': 'Stok yok',
+  'Pick one to continue.': 'Devam etmek için birini seç.',
+  'Your road to a first sale': 'İlk satışına giden yol',
+  'Customers see your brand on the parcel, never the maker who printed it.':
+    'Müşteriler kolide senin markanı görür, basan üreticiyi asla görmez.',
+  'Create your seller profile': 'Satıcı profilini oluştur',
+  'Done.': 'Tamam.',
+  'Upload a model and see its price': 'Bir model yükle ve fiyatını gör',
+  'Your first price takes seconds. It shows what a print costs before you add a margin.':
+    'İlk fiyatın saniyeler sürer. Kârını eklemeden önce baskının maliyetini gösterir.',
+  'List your first product': 'İlk ürününü listele',
+  'Pick one from the catalog or use your own model, set your margin and it goes live.':
+    'Katalogdan birini seç ya da kendi modelini kullan, kârını belirle ve yayına girsin.',
+  'Order a sample at cost': 'Maliyetine numune sipariş et',
+  'Check the quality yourself before your first customer does.':
+    'Kaliteyi ilk müşterinden önce kendin kontrol et.',
+  'Welcome! Upload a model to see its price in seconds.':
+    'Hoş geldin! Fiyatını saniyeler içinde görmek için bir model yükle.',
+  'Test payment': 'Test ödemesi',
+  'Test mode': 'Test modu',
+  'This page only exists on your local machine. No real card is charged and no money moves.':
+    'Bu sayfa yalnızca yerel makinende var. Gerçek karttan çekim yapılmaz, para hareket etmez.',
+  'This checkout is already finished.': 'Bu ödeme zaten tamamlandı.',
+  'Back to the order': 'Siparişe dön',
+  'Test card': 'Test kartı',
+  'Fill in': 'Doldur',
+  'Card number': 'Kart numarası',
+  'Expiry (MM/YY)': 'Son kullanma (AA/YY)',
+  'CVC': 'CVC',
+  'Name on card': 'Kart üzerindeki ad',
+  'Processing…': 'İşleniyor…',
+  'Pay': 'Öde',
+  'Any other card number is declined, so you can test a failed payment too.':
+    'Başka her kart numarası reddedilir; böylece başarısız ödemeyi de test edebilirsin.',
+  'Cancel and go back to the order': 'Vazgeç ve siparişe dön',
+  'No real money moves. Pay with the test card on the next page:':
+    'Gerçek para hareket etmez. Sonraki sayfada test kartıyla öde:',
+  'Pay now': 'Şimdi öde',
+  'Payment received. We are finding a maker for your order.':
+    'Ödeme alındı. Siparişin için bir üretici arıyoruz.',
+  'Card declined. Locally only the test card is accepted.':
+    'Kart reddedildi. Yerelde yalnızca test kartı kabul edilir.',
+  'The expiry date is in the past or not valid.': 'Son kullanma tarihi geçmiş ya da geçersiz.',
+  'The CVC is not valid.': 'CVC geçersiz.',
+  'Checkout not found': 'Ödeme bulunamadı',
+  'Matching mode': 'Eşleştirme modu',
+  'Automatic': 'Otomatik',
+  'Manual': 'Manuel',
+  'Offers go out by score as soon as an order is paid. You can still step in here.':
+    'Sipariş ödenir ödenmez teklifler puana göre gider. Yine de buradan müdahale edebilirsin.',
+  'Every paid order waits here until you choose the maker.':
+    'Ödenen her sipariş, sen üreticiyi seçene kadar burada bekler.',
+  'Switch to manual? New paid orders will wait for you.':
+    'Manuele geçilsin mi? Yeni ödenen siparişler seni bekleyecek.',
+  'Switch to automatic? Every waiting order gets an offer right away.':
+    'Otomatiğe geçilsin mi? Bekleyen her siparişe hemen teklif gönderilir.',
+  'Switch to manual': 'Manuele geç',
+  'Switch to automatic': 'Otomatiğe geç',
+  'Paid orders waiting for a maker. Open one to see who fits and send the offer.':
+    'Üretici bekleyen ödenmiş siparişler. Kimin uygun olduğunu görmek ve teklif göndermek için birini aç.',
+  'Nothing is waiting': 'Bekleyen sipariş yok',
+  'Paid orders that need a maker show up here the moment the payment lands.':
+    'Üretici gereken siparişler ödeme gelir gelmez burada görünür.',
+  'waiting since {when}': '{when} tarihinden beri bekliyor',
+  '{n} offers tried': '{n} teklif denendi',
+  'Offer to {maker}, expires {when}': '{maker} kişisine teklif, {when} tarihinde sona erer',
+  'Needs a maker': 'Üretici bekliyor',
+  'Paid and waiting for you to pick who prints it.': 'Ödendi; kimin basacağını seçmeni bekliyor.',
+  'Nobody took it. Pick a maker to reopen it, or it is refunded automatically.':
+    'Kimse almadı. Yeniden açmak için bir üretici seç; yoksa otomatik iade edilir.',
+  'Offer sent': 'Teklif gönderildi',
+  'Waiting for the maker to accept. If they decline or time runs out it comes back here.':
+    'Üreticinin kabulü bekleniyor. Reddeder ya da süre dolarsa buraya geri döner.',
+  '{n} jobs done': '{n} iş tamamlandı',
+  'no rating yet': 'henüz puan yok',
+  'no deliveries yet': 'henüz teslimat yok',
+  '{p} on time': '{p} zamanında',
+  '{p} disputes': '{p} itiraz',
+  '{n} running': '{n} devam eden',
+  'Best fit': 'En uygun',
+  'New maker': 'Yeni üretici',
+  'same city as the buyer': 'alıcıyla aynı şehir',
+  'Tier {n}': 'Seviye {n}',
+  'free from {date}': '{date} itibarıyla boş',
+  'Score': 'Puan',
+  'Quality': 'Kalite',
+  'Distance': 'Mesafe',
+  'Free hands': 'Boş kapasite',
+  'Rating × (1 − dispute rate)': 'Puan × (1 − itiraz oranı)',
+  'Share of jobs shipped by the deadline': 'Süresinde kargolanan işlerin oranı',
+  'Same city as the buyer = full': 'Alıcıyla aynı şehir = tam puan',
+  'Fewer running jobs = higher': 'Daha az devam eden iş = daha yüksek',
+  'Match with this maker': 'Bu üreticiyle eşleştir',
+  'Back to matching': 'Eşleştirmeye dön',
+  'Ships to {city}, {country}': 'Gönderim: {city}, {country}',
+  'needs tier {n} or higher': 'en az seviye {n} gerekir',
+  '~{h} h print': '~{h} sa baskı',
+  'Offer sent to {maker}. It expires {when}; if they decline it comes back here.':
+    '{maker} kişisine teklif gönderildi. {when} tarihinde sona erer; reddederse buraya geri döner.',
+  'Suggested makers': 'Önerilen üreticiler',
+  'Everyone here passes every rule right now: the part fits the printer, the material and colour are set up at or below the reference price, there is free capacity within {days} days, the tier is high enough, and they are not the buyer or seller.':
+    'Buradaki herkes şu anda tüm kuralları karşılıyor: parça yazıcıya sığıyor, malzeme ve renk referans fiyatta ya da altında tanımlı, {days} gün içinde boş kapasite var, seviye yeterli ve alıcı ya da satıcı değiller.',
+  'No maker fits right now': 'Şu anda uygun üretici yok',
+  'Makers who already declined or let an offer expire are left out. New capacity or an approved maker makes them show up here.':
+    'Daha önce reddeden ya da teklifin süresini kaçıran üreticiler dışarıda kalır. Yeni kapasite ya da onaylanan bir üretici burada görünmelerini sağlar.',
+  'Open makers': 'Üreticileri aç',
+  'Offers so far': 'Şimdiye kadarki teklifler',
+  'Match with {maker}?': '{maker} ile eşleştirilsin mi?',
+  'They get an offer for {code} and have {minutes} minutes to accept. Accepting reserves their printer and starts production. The buyer never sees who the maker is.':
+    '{code} için teklif alır ve kabul etmek için {minutes} dakikası olur. Kabul, yazıcısını ayırır ve üretimi başlatır. Alıcı üreticinin kim olduğunu asla görmez.',
+  'Cancel': 'Vazgeç',
+  'Sending…': 'Gönderiliyor…',
+  'Offer sent. The maker has to accept it before the time runs out.':
+    'Teklif gönderildi. Üreticinin süre dolmadan kabul etmesi gerekir.',
+  'Automatic matching is off. New paid orders wait here for you.':
+    'Otomatik eşleştirme kapalı. Yeni ödenen siparişler burada seni bekler.',
+  'This maker is no longer eligible for the order': 'Bu üretici artık bu sipariş için uygun değil',
+  'An offer is already out for this order': 'Bu sipariş için zaten gönderilmiş bir teklif var',
+  'This order is not waiting for a maker': 'Bu sipariş üretici beklemiyor',
+  'Automatic matching (0 = off, 1 = on)': 'Otomatik eşleştirme (0 = kapalı, 1 = açık)',
+  'Off: every paid order waits in Matching until an admin picks the maker. On: offers go out by score.':
+    'Kapalı: ödenen her sipariş, admin üreticiyi seçene kadar Eşleştirme sayfasında bekler. Açık: teklifler puana göre gider.',
+  'Automatic matching is on. Waiting orders got their offers.':
+    'Otomatik eşleştirme açık. Bekleyen siparişlere teklif gönderildi.',
+  'Profile not approved yet ({status})': 'Profil henüz onaylanmadı ({status})',
+  'Account suspended': 'Hesap askıya alındı',
+  'This is the buyer': 'Bu kişi alıcı',
+  'This is the seller': 'Bu kişi satıcı',
+  'Tier {have}, order needs {need}': 'Seviye {have}, sipariş {need} istiyor',
+  'In {country}, order ships to {need}': '{country} ülkesinde, sipariş {need} ülkesine gidiyor',
+  'Already had this order ({status})': 'Bu siparişi daha önce aldı ({status})',
+  'The quote request went to another maker': 'Teklif talebi başka bir üreticiye verildi',
+  'No active printer': 'Aktif yazıcı yok',
+  'Does not offer: {list}': 'Sunmuyor: {list}',
+  '{have} printer, order needs {need}': '{have} yazıcı, sipariş {need} istiyor',
+  'Part {part} mm does not fit {build} mm': '{part} mm parça {build} mm tablaya sığmıyor',
+  'Part size is not known yet': 'Parça ölçüsü henüz bilinmiyor',
+  'No {material} set up': '{material} tanımlı değil',
+  '{material} not in {colour}': '{material} {colour} renkte yok',
+  '{material} at {price}/g, above the {reference}/g reference':
+    '{material} {price}/g, {reference}/g referansın üstünde',
+  'Needs {need} min free in {days} days, best day has {free} min':
+    '{days} gün içinde {need} dk boş kapasite gerekli, en iyi gün {free} dk',
+  'Print profile not offered': 'Baskı profili sunulmuyor',
+  'Makers who do not fit': 'Uygun olmayan üreticiler',
+  'Closest first: fix the listed rule and they appear as a suggestion.':
+    'En yakın olan önce: yazan kuralı düzeltince öneri olarak görünürler.',
+  'fits': 'uygun',
+  'Manual mode: you can still pick one of these. Each shows what is missing, closest first.':
+    'Manuel mod: bunlardan birini yine de seçebilirsin. Her birinde neyin eksik olduğu yazar, en yakın olan önce.',
+  'cannot be overridden': 'esnetilemez',
+  'Cannot be matched': 'Eşleştirilemez',
+  'Match anyway': 'Yine de eşleştir',
+  'No maker passes every rule. In manual mode you can still pick one below.':
+    'Hiçbir üretici tüm kuralları karşılamıyor. Manuel modda aşağıdan yine de birini seçebilirsin.',
+  'This maker does not meet these rules. Send the offer anyway?':
+    'Bu üretici şu kuralları karşılamıyor. Teklif yine de gönderilsin mi?',
+  'If they accept, production starts even without free capacity on file.':
+    'Kabul ederse, kayıtlı boş kapasite olmasa da üretim başlar.',
+  'Send offer anyway': 'Yine de teklif gönder',
+  'No printer at all': 'Hiç yazıcısı yok',
 }

@@ -534,6 +534,18 @@ const routes = {
     tokens: [{"old":"/disputes/:id/evidence","type":0,"val":"disputes","end":""},{"old":"/disputes/:id/evidence","type":1,"val":"id","end":""},{"old":"/disputes/:id/evidence","type":0,"val":"evidence","end":""}],
     types: placeholder as Registry['dispute.add_evidence']['types'],
   },
+  'test_checkout.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/dev/checkout/:ref',
+    tokens: [{"old":"/dev/checkout/:ref","type":0,"val":"dev","end":""},{"old":"/dev/checkout/:ref","type":0,"val":"checkout","end":""},{"old":"/dev/checkout/:ref","type":1,"val":"ref","end":""}],
+    types: placeholder as Registry['test_checkout.show']['types'],
+  },
+  'test_checkout.pay': {
+    methods: ["POST"],
+    pattern: '/dev/checkout/:ref',
+    tokens: [{"old":"/dev/checkout/:ref","type":0,"val":"dev","end":""},{"old":"/dev/checkout/:ref","type":0,"val":"checkout","end":""},{"old":"/dev/checkout/:ref","type":1,"val":"ref","end":""}],
+    types: placeholder as Registry['test_checkout.pay']['types'],
+  },
   'seller_dashboard.index': {
     methods: ["GET","HEAD"],
     pattern: '/seller',
@@ -1085,6 +1097,30 @@ const routes = {
     pattern: '/admin/jobs/run-again',
     tokens: [{"old":"/admin/jobs/run-again","type":0,"val":"admin","end":""},{"old":"/admin/jobs/run-again","type":0,"val":"jobs","end":""},{"old":"/admin/jobs/run-again","type":0,"val":"run-again","end":""}],
     types: placeholder as Registry['admin_queue_monitor.run_again']['types'],
+  },
+  'admin_matching.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/matching',
+    tokens: [{"old":"/admin/matching","type":0,"val":"admin","end":""},{"old":"/admin/matching","type":0,"val":"matching","end":""}],
+    types: placeholder as Registry['admin_matching.index']['types'],
+  },
+  'admin_matching.mode': {
+    methods: ["POST"],
+    pattern: '/admin/matching/mode',
+    tokens: [{"old":"/admin/matching/mode","type":0,"val":"admin","end":""},{"old":"/admin/matching/mode","type":0,"val":"matching","end":""},{"old":"/admin/matching/mode","type":0,"val":"mode","end":""}],
+    types: placeholder as Registry['admin_matching.mode']['types'],
+  },
+  'admin_matching.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/matching/:id',
+    tokens: [{"old":"/admin/matching/:id","type":0,"val":"admin","end":""},{"old":"/admin/matching/:id","type":0,"val":"matching","end":""},{"old":"/admin/matching/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['admin_matching.show']['types'],
+  },
+  'admin_matching.offer': {
+    methods: ["POST"],
+    pattern: '/admin/matching/:id/offer',
+    tokens: [{"old":"/admin/matching/:id/offer","type":0,"val":"admin","end":""},{"old":"/admin/matching/:id/offer","type":0,"val":"matching","end":""},{"old":"/admin/matching/:id/offer","type":1,"val":"id","end":""},{"old":"/admin/matching/:id/offer","type":0,"val":"offer","end":""}],
+    types: placeholder as Registry['admin_matching.offer']['types'],
   },
   'admin_order.index': {
     methods: ["GET","HEAD"],

@@ -631,8 +631,10 @@ export class MarketingEventSchema extends BaseModel {
 }
 
 export class MatchOfferSchema extends BaseModel {
-  static $columns = ['createdAt', 'expiresAt', 'id', 'isExploration', 'manufacturerProfileId', 'orderId', 'printerId', 'respondedAt', 'round', 'score', 'slotDate', 'status', 'updatedAt'] as const
+  static $columns = ['adminOverride', 'createdAt', 'expiresAt', 'id', 'isExploration', 'manufacturerProfileId', 'orderId', 'printerId', 'respondedAt', 'round', 'score', 'slotDate', 'status', 'updatedAt'] as const
   $columns = MatchOfferSchema.$columns
+  @column()
+  declare adminOverride: boolean
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column.dateTime()

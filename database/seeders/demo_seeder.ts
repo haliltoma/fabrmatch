@@ -195,10 +195,10 @@ export default class DemoSeeder extends BaseSeeder {
         shippingAddress: ADDRESS,
       })
       await payments.simulateSuccess(order.id, buyerUser.id)
-      const offer = await MatchOffer.query()
-        .where('orderId', order.id)
-        .where('status', 'pending')
-        .first()
+      // with automatic matching off the offer is the admin's pick, as on /admin/matching
+      const offer =
+        (await MatchOffer.query().where('orderId', order.id).where('status', 'pending').first()) ??
+        (await matching.offerTo(order.id, maker.id, admin.id).catch(() => null))
       return { order, offer }
     }
 

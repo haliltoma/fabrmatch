@@ -59,7 +59,8 @@ test.group('login second step', (group) => {
       .redirects(0)
       .json({ code: totp.codeForStep(secret, step + 1) })
     response.assertStatus(302)
-    assert.equal(response.header('location'), '/')
+    // no role yet → their landing page is role selection
+    assert.equal(response.header('location'), '/onboarding')
     const sessions = await UserSession.query().where('userId', user.id)
     assert.lengthOf(sessions, 1)
   })

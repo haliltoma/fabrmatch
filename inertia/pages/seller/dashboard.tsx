@@ -9,6 +9,7 @@ import { OrderCode } from '~/components/order_code'
 import { PageHeader } from '~/components/page_header'
 import { StatTile } from '~/components/stat_tile'
 import { StatusBadge } from '~/components/status_badge'
+import { SetupChecklist, type Setup } from '~/components/maker_setup'
 import { useT } from '~/lib/i18n'
 
 type RecentOrder = {
@@ -26,12 +27,14 @@ function SellerDashboard({
   earnedThisMonth,
   profileStatus,
   recentOrders,
+  setup,
 }: {
   ordersTotal: number
   activeProducts: number
   earnedThisMonth: Amount[]
   profileStatus: string
   recentOrders: RecentOrder[]
+  setup: Setup
 }) {
   const { t } = useT()
 
@@ -45,6 +48,13 @@ function SellerDashboard({
             <Link href="/seller/products">{t('Manage products')}</Link>
           </Button>
         }
+      />
+
+      <SetupChecklist
+        setup={setup}
+        title={t('Your road to a first sale')}
+        home="/seller"
+        tip={t('Customers see your brand on the parcel, never the maker who printed it.')}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

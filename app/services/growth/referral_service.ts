@@ -11,6 +11,7 @@ import Referral from '#models/referral'
 import User from '#models/user'
 import CouponService from '#services/pricing/coupon_service'
 import { featureEnabled } from '#services/settings/feature_flags'
+import { isEmailVerified } from '#services/identity/email_verification'
 
 /** No 0/O/1/I: codes get read out and typed by hand. */
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
@@ -114,7 +115,7 @@ export default class ReferralService {
       await referral.useTransaction(trx).save()
     }
     const referrer = await User.query({ client: trx }).where('id', referral.referrerId).first()
-    if (!referrer || referrer.suspendedAt || !referrer.emailVerifiedAt) {
+    if (!referrer || referrer.suspendedAt || !isEmailVerified(referrer)) {
       return reject('referrer_not_eligible')
     }
     const earned = await Referral.query({ client: trx })

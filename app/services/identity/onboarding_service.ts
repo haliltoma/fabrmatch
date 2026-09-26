@@ -23,6 +23,15 @@ export default class OnboardingService {
   private roleService = new RoleService()
   private encryption = new EncryptionService()
 
+  /** The first panel role (seller before manufacturer) the user holds without its profile yet. */
+  async roleMissingProfile(user: User, roles: string[]): Promise<'seller' | 'manufacturer' | null> {
+    if (roles.includes('seller') && !(await SellerProfile.findBy('userId', user.id)))
+      return 'seller'
+    if (roles.includes('manufacturer') && !(await ManufacturerProfile.findBy('userId', user.id)))
+      return 'manufacturer'
+    return null
+  }
+
   async createSellerProfile(user: User, data: SellerProfileData): Promise<SellerProfile> {
     await this.roleService.assignRole(user, 'seller')
 

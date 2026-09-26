@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 import type { Authenticators } from '@adonisjs/auth/types'
+import LandingService from '#services/identity/landing_service'
 
 /**
  * Guest middleware is used to deny access to routes that should
@@ -23,7 +24,9 @@ export default class GuestMiddleware {
     for (let guard of options.guards || [ctx.auth.defaultGuard]) {
       if (await ctx.auth.use(guard).check()) {
         ctx.session.reflash()
-        return ctx.response.redirect(this.redirectTo, true)
+        const user = ctx.auth.use(guard).user
+        const to = user ? await new LandingService().homeFor(user) : this.redirectTo
+        return ctx.response.redirect(to, true)
       }
     }
 

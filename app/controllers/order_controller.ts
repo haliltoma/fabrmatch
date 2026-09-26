@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import TestCheckoutService from '#services/payments/test_checkout_service'
 import app from '@adonisjs/core/services/app'
 import LegalService from '#services/legal/legal_service'
 import OrderService from '#services/orders/order_service'
@@ -41,7 +42,8 @@ export default class OrderController {
         ? await DisputeTransformer.transform(dispute).resolve(app.container.createResolver(), 0)
         : null,
       evidenceUrls: dispute ? await new DisputeService().evidenceUrls(dispute.evidence) : {},
-      canSimulatePayment: app.inDev,
+      // locally the Pay button opens the test payment page (fake provider)
+      testPayments: TestCheckoutService.enabled(),
     })
   }
 

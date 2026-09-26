@@ -26,6 +26,8 @@ declare module '@adonisjs/inertia/types' {
     'admin/growth/index': ExtractProps<(typeof import('../../inertia/pages/admin/growth/index.tsx'))['default']>
     'admin/jobs/index': ExtractProps<(typeof import('../../inertia/pages/admin/jobs/index.tsx'))['default']>
     'admin/makers/index': ExtractProps<(typeof import('../../inertia/pages/admin/makers/index.tsx'))['default']>
+    'admin/matching/index': ExtractProps<(typeof import('../../inertia/pages/admin/matching/index.tsx'))['default']>
+    'admin/matching/show': ExtractProps<(typeof import('../../inertia/pages/admin/matching/show.tsx'))['default']>
     'admin/materials/index': ExtractProps<(typeof import('../../inertia/pages/admin/materials/index.tsx'))['default']>
     'admin/messages/show': ExtractProps<(typeof import('../../inertia/pages/admin/messages/show.tsx'))['default']>
     'admin/metrics/index': ExtractProps<(typeof import('../../inertia/pages/admin/metrics/index.tsx'))['default']>
@@ -45,6 +47,7 @@ declare module '@adonisjs/inertia/types' {
     'cart/index': ExtractProps<(typeof import('../../inertia/pages/cart/index.tsx'))['default']>
     'content/index': ExtractProps<(typeof import('../../inertia/pages/content/index.tsx'))['default']>
     'content/show': ExtractProps<(typeof import('../../inertia/pages/content/show.tsx'))['default']>
+    'dev/checkout': ExtractProps<(typeof import('../../inertia/pages/dev/checkout.tsx'))['default']>
     'errors/not_found': ExtractProps<(typeof import('../../inertia/pages/errors/not_found.tsx'))['default']>
     'errors/server_error': ExtractProps<(typeof import('../../inertia/pages/errors/server_error.tsx'))['default']>
     'files/index': ExtractProps<(typeof import('../../inertia/pages/files/index.tsx'))['default']>

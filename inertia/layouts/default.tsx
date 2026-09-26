@@ -63,10 +63,11 @@ const FOOTER_COLUMNS: Array<{ title: string; links: Array<{ href: string; label:
   },
 ]
 
-function panelHref(roles: string[] | undefined) {
+/** The dashboard in the top bar; a buyer without a shop has none (their orders link is right there). */
+function panelHref(roles: string[] | undefined, hasShop: boolean) {
   if (roles?.includes('admin')) return '/admin'
   if (roles?.includes('manufacturer')) return '/maker'
-  return '/seller'
+  return hasShop ? '/seller' : null
 }
 
 export default function Layout({ children }: { children: ReactElement<Data.SharedProps> }) {
@@ -77,6 +78,7 @@ export default function Layout({ children }: { children: ReactElement<Data.Share
   }, [locale])
   const { url, flash } = usePage()
   const user = children.props.user
+  const dashboardHref = user ? panelHref(user.roles, !!children.props.hasShop) : null
   const fullBleed = Boolean((children.type as { fullBleed?: boolean }).fullBleed)
   useEffect(() => {
     toast.dismiss()
@@ -120,12 +122,14 @@ export default function Layout({ children }: { children: ReactElement<Data.Share
                 >
                   {t('My orders')}
                 </Link>
-                <Link
-                  href={panelHref(user.roles)}
-                  className="px-3 py-2 text-sm font-medium text-ink-700 hover:text-ink-900"
-                >
-                  {t('Dashboard')}
-                </Link>
+                {dashboardHref && (
+                  <Link
+                    href={dashboardHref}
+                    className="px-3 py-2 text-sm font-medium text-ink-700 hover:text-ink-900"
+                  >
+                    {t('Dashboard')}
+                  </Link>
+                )}
               </>
             )}
             {user ? (

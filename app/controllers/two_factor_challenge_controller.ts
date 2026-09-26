@@ -3,6 +3,7 @@ import limiter from '@adonisjs/limiter/services/main'
 import User from '#models/user'
 import TwoFactorService from '#services/identity/two_factor_service'
 import UserSessionService from '#services/identity/user_session_service'
+import { redirectAfterSignIn } from '#services/identity/landing_service'
 import { codeValidator } from '#validators/account_security'
 import { TWO_FACTOR_PENDING, TWO_FACTOR_PENDING_MINUTES } from '#controllers/session_controller'
 
@@ -25,7 +26,8 @@ export default class TwoFactorChallengeController {
     return inertia.render('auth/two_factor', {})
   }
 
-  async store({ request, response, session, auth }: HttpContext) {
+  async store(ctx: HttpContext) {
+    const { request, response, session, auth } = ctx
     const userId = this.pendingUserId(session)
     if (userId === null) {
       session.flash('error', 'Your sign-in expired. Start again.')
@@ -66,6 +68,6 @@ export default class TwoFactorChallengeController {
     if (method === 'backup') {
       session.flash('success', 'Signed in with a backup code. Generate a fresh set soon.')
     }
-    return response.redirect().toRoute('home')
+    return redirectAfterSignIn(ctx, user)
   }
 }

@@ -29,6 +29,7 @@ import {
   Users,
   Wallet,
   Wrench,
+  Handshake,
 } from 'lucide-react'
 import type { NavItem } from '~/layouts/dashboard'
 
@@ -67,6 +68,7 @@ export const adminNav: NavItem[] = [
   { label: 'Reports', href: '/admin/reports', icon: FileSpreadsheet },
   { label: 'Growth', href: '/admin/growth', icon: Megaphone },
   { label: 'Message tests', href: '/admin/experiments', icon: FlaskConical },
+  { label: 'Matching', href: '/admin/matching', icon: Handshake },
   { label: 'Orders', href: '/admin/orders', icon: ReceiptText },
   { label: 'Users', href: '/admin/users', icon: Users },
   { label: 'Makers', href: '/admin/makers', icon: Factory },

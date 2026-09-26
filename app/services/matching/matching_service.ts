@@ -11,6 +11,9 @@ import AuditLog from '#models/audit_log'
 import OrderStateMachine from '#services/orders/order_state_machine'
 import OrderService from '#services/orders/order_service'
 import EligibilityService from '#services/matching/eligibility_service'
+import EligibilityExplainer, { isHardBlocker } from '#services/matching/eligibility_explainer'
+import Printer from '#models/printer'
+import CapacitySlot from '#models/capacity_slot'
 import { rankCandidates } from '#services/matching/ranking'
 import type { Rng } from '#services/matching/types'
 import CapacityService from '#services/manufacturing/capacity_service'
@@ -43,6 +46,16 @@ export default class MatchingService {
     return this.runRound(orderId)
   }
 
+  /** After automatic matching is switched on: a round for every order still waiting for a maker. */
+  async resumeWaiting(): Promise<number> {
+    const waiting = await Order.query().where('status', 'matching').select('id')
+    let started = 0
+    for (const { id } of waiting) {
+      if (await this.runRound(id)) started++
+    }
+    return started
+  }
+
   /**
    * Admin re-match of an `unmatched` order (e.g. after approving new makers): resets the round
    * counter and starts again. Makers that already declined or expired stay excluded.
@@ -64,12 +77,19 @@ export default class MatchingService {
     return this.runRound(orderId)
   }
 
+  /** Off = paid orders wait in /admin/matching until an admin picks the maker. */
+  static autoOffer(): boolean {
+    return fabrmatchConfig.matching.autoOffer === 1
+  }
+
   /**
    * Idempotent: does nothing unless the order is `matching` and has no pending offer.
    * After `maxRounds` offers (or with no eligible candidates left) the order becomes `unmatched`.
+   * With automatic matching off it does nothing: the order waits for an admin (`offerTo`).
    */
   async runRound(orderId: number): Promise<MatchOffer | null> {
     const cfg = fabrmatchConfig.matching
+    if (!MatchingService.autoOffer()) return null
 
     const outcome = await db.transaction(async (trx): Promise<RoundOutcome> => {
       const order = await Order.query({ client: trx }).where('id', orderId).forUpdate().first()
@@ -138,6 +158,145 @@ export default class MatchingService {
   }
 
   /**
+   * Admin match: send the offer to the maker the admin picked. A maker who passes every rule gets
+   * a normal offer. With `allowOverride` (manual mode) the admin may also pick a maker who fails
+   * some rules — the unmet rules are recorded in the audit log and the offer is flagged
+   * `adminOverride`, so it can be accepted without free capacity. Hard blockers (the buyer or
+   * seller themselves, a suspended account, no printer at all) are never overridden.
+   * The maker still has to accept. An `unmatched` order is reopened.
+   */
+  async offerTo(
+    orderId: number,
+    manufacturerProfileId: number,
+    adminId: number,
+    options: { allowOverride?: boolean } = {}
+  ): Promise<MatchOffer> {
+    const cfg = fabrmatchConfig.matching
+    const offer = await db.transaction(async (trx) => {
+      const order = await Order.query({ client: trx }).where('id', orderId).forUpdate().first()
+      if (!order || !['matching', 'unmatched'].includes(order.status)) {
+        throw new OfferError('This order is not waiting for a maker')
+      }
+      const pending = await MatchOffer.query({ client: trx })
+        .where('orderId', orderId)
+        .where('status', 'pending')
+        .first()
+      if (pending) throw new OfferError('An offer is already out for this order')
+
+      const previous = await MatchOffer.query({ client: trx })
+        .where('orderId', orderId)
+        .select('manufacturerProfileId', 'status')
+      const candidates = await this.eligibility.findCandidates(order, {
+        excludeManufacturerIds: previous.map((o) => o.manufacturerProfileId),
+        buyerCity: this.orders.decryptShippingAddress(order)?.city ?? null,
+      })
+      const { ranked } = rankCandidates(candidates, this.rng, cfg)
+      const chosen = ranked.find((c) => c.manufacturerProfileId === manufacturerProfileId)
+
+      let target: { printerId: number; slotDate: DateTime; score: number; unmet: string[] }
+      if (chosen) {
+        target = {
+          printerId: chosen.printerId,
+          slotDate: DateTime.fromISO(chosen.slotDate),
+          score: chosen.score,
+          unmet: [],
+        }
+      } else {
+        if (!options.allowOverride) {
+          throw new OfferError('This maker is no longer eligible for the order')
+        }
+        target = await this.overrideTarget(order, manufacturerProfileId, previous)
+      }
+
+      if (order.status === 'unmatched') {
+        await this.sm.transition(orderId, 'matching', {
+          trx,
+          actorId: adminId,
+          meta: { by: 'admin_match' },
+        })
+      }
+      order.matchingRound += 1
+      await order.useTransaction(trx).save()
+
+      const created = await MatchOffer.create(
+        {
+          orderId: order.id,
+          manufacturerProfileId,
+          printerId: target.printerId,
+          slotDate: target.slotDate,
+          round: order.matchingRound,
+          score: target.score,
+          isExploration: false,
+          adminOverride: !chosen,
+          status: 'pending',
+          expiresAt: DateTime.now().plus({ minutes: cfg.offerTtlMinutes }),
+        },
+        { client: trx }
+      )
+      await this.audit(
+        trx,
+        'match.offer_created',
+        order.id,
+        {
+          offerId: created.id,
+          round: created.round,
+          score: created.score,
+          rank: chosen ? ranked.indexOf(chosen) + 1 : null,
+          candidateCount: ranked.length,
+          by: 'admin',
+          ...(chosen ? {} : { override: true, unmetRules: target.unmet }),
+        },
+        adminId
+      )
+      return created
+    })
+    await this.effects.offerCreated(offer)
+    return offer
+  }
+
+  /** The printer an override offer goes to: the one missing the fewest rules, else any printer. */
+  private async overrideTarget(
+    order: Order,
+    manufacturerProfileId: number,
+    previous: MatchOffer[]
+  ) {
+    const verdicts = await new EligibilityExplainer().explain(order, {
+      offeredStatuses: new Map(previous.map((o) => [o.manufacturerProfileId, o.status])),
+    })
+    const verdict = verdicts.find((v) => v.manufacturerProfileId === manufacturerProfileId)
+    if (!verdict) throw new OfferError('Maker not found')
+    const hard = verdict.reasons.filter(isHardBlocker)
+    if (hard.length > 0) {
+      throw new OfferError(
+        `This maker cannot take the order (${hard.map((r) => r.code).join(', ')})`
+      )
+    }
+
+    const best = [...verdict.printers].sort((a, b) => a.reasons.length - b.reasons.length)[0]
+    const printer = best
+      ? await Printer.findOrFail(best.printerId)
+      : await Printer.query()
+          .where('manufacturerProfileId', manufacturerProfileId)
+          .orderBy('id', 'asc')
+          .firstOrFail()
+    const slot = await CapacitySlot.query()
+      .where('printerId', printer.id)
+      .where('date', '>=', DateTime.now().toISODate()!)
+      .orderBy('date', 'asc')
+      .first()
+    return {
+      printerId: printer.id,
+      slotDate: !slot
+        ? DateTime.now()
+        : (slot.date as unknown) instanceof Date
+          ? DateTime.fromJSDate(slot.date as unknown as Date)
+          : DateTime.fromISO(String(slot.date).slice(0, 10)),
+      score: 0,
+      unmet: [...verdict.reasons.map((r) => r.code), ...(best?.reasons.map((r) => r.code) ?? [])],
+    }
+  }
+
+  /**
    * Accept is serialized on the offer row lock: a second concurrent accept (or an expiry)
    * sees a non-pending status and fails. Capacity is reserved in the same transaction.
    */
@@ -169,7 +328,10 @@ export default class MatchingService {
         minutes,
         trx
       )
-      if (!slot) throw new OfferError('Not enough free capacity on the matched printer')
+      // an admin override may knowingly go to a printer without free hours: accept anyway
+      if (!slot && !offer.adminOverride) {
+        throw new OfferError('Not enough free capacity on the matched printer')
+      }
 
       const productionJob = await ProductionJob.create(
         {
@@ -190,7 +352,7 @@ export default class MatchingService {
       await this.sm.transition(order.id, 'in_production', {
         trx,
         actorId,
-        meta: { offerId: offer.id, productionJobId: productionJob.id, slotId: slot.id },
+        meta: { offerId: offer.id, productionJobId: productionJob.id, slotId: slot?.id ?? null },
       })
 
       const profile = await ManufacturerProfile.findOrFail(manufacturerProfileId, { client: trx })

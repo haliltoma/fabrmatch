@@ -1,6 +1,8 @@
 import env from '#start/env'
 import { defineConfig, transports } from '@adonisjs/mail'
 
+const smtpUser = env.get('SMTP_USERNAME')
+
 const mailConfig = defineConfig({
   default: 'smtp',
 
@@ -8,11 +10,10 @@ const mailConfig = defineConfig({
     smtp: transports.smtp({
       host: env.get('SMTP_HOST', 'localhost'),
       port: env.get('SMTP_PORT', 587),
-      auth: {
-        type: 'login',
-        user: env.get('SMTP_USERNAME', ''),
-        pass: env.get('SMTP_PASSWORD', ''),
-      },
+      // local catchers (Mailpit) reject AUTH, so only send credentials when configured
+      auth: smtpUser
+        ? { type: 'login', user: smtpUser, pass: env.get('SMTP_PASSWORD')?.release() ?? '' }
+        : undefined,
     }),
   },
 })

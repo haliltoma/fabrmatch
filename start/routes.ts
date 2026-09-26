@@ -265,19 +265,36 @@ router
   .where('id', router.matchers.number())
   .use([middleware.auth(), middleware.onboarding()])
 
+// Test payment page: the fake provider's stand-in for a hosted checkout (never in production)
+router
+  .group(() => {
+    router.get('/:ref', [controllers.TestCheckout, 'show'])
+    router.post('/:ref', [controllers.TestCheckout, 'pay'])
+  })
+  .prefix('/dev/checkout')
+  .use([middleware.auth(), middleware.onboarding()])
+
 // Seller panel
 router
   .group(() => {
-    router.get('/', [controllers.SellerDashboard, 'index'])
+    router
+      .get('/', [controllers.SellerDashboard, 'index'])
+      .use(middleware.profile({ role: 'seller' }))
     router.get('/orders', [controllers.SellerOrder, 'index'])
 
     // Products
-    router.get('/products', [controllers.SellerProduct, 'index'])
+    router
+      .get('/products', [controllers.SellerProduct, 'index'])
+      .use(middleware.profile({ role: 'seller' }))
     router.get('/margin-preview', [controllers.SellerInsight, 'marginPreview'])
     router.get('/analytics', [controllers.SellerInsight, 'analytics'])
     router.get('/statement.csv', [controllers.SellerInsight, 'statement'])
-    router.get('/branding', [controllers.SellerBranding, 'show'])
-    router.post('/branding', [controllers.SellerBranding, 'save'])
+    router
+      .get('/branding', [controllers.SellerBranding, 'show'])
+      .use(middleware.profile({ role: 'seller' }))
+    router
+      .post('/branding', [controllers.SellerBranding, 'save'])
+      .use(middleware.profile({ role: 'seller' }))
 
     // API keys and webhooks
     router.get('/developers', [controllers.SellerDeveloper, 'index'])
@@ -294,9 +311,15 @@ router
       })
       .prefix('/developers')
       .use(middleware.verified())
-    router.post('/products', [controllers.SellerProduct, 'store'])
-    router.put('/products/:id', [controllers.SellerProduct, 'update'])
-    router.post('/products/:id/status', [controllers.SellerProduct, 'setStatus'])
+    router
+      .post('/products', [controllers.SellerProduct, 'store'])
+      .use(middleware.profile({ role: 'seller' }))
+    router
+      .put('/products/:id', [controllers.SellerProduct, 'update'])
+      .use(middleware.profile({ role: 'seller' }))
+    router
+      .post('/products/:id/status', [controllers.SellerProduct, 'setStatus'])
+      .use(middleware.profile({ role: 'seller' }))
     router
       .post('/products/:id/sample', [controllers.SellerProduct, 'sample'])
       .use([
@@ -410,7 +433,12 @@ router
     router.post('/capacity/printers/:id/apply-template', [controllers.Capacity, 'applyTemplate'])
   })
   .prefix('/maker')
-  .use([middleware.auth(), middleware.onboarding(), middleware.role({ role: 'manufacturer' })])
+  .use([
+    middleware.auth(),
+    middleware.onboarding(),
+    middleware.role({ role: 'manufacturer' }),
+    middleware.profile({ role: 'manufacturer' }),
+  ])
 
 // Admin panel
 router
@@ -449,6 +477,16 @@ router
     router.get('/growth', [controllers.AdminGrowth, 'index'])
     router.get('/jobs', [controllers.AdminQueueMonitor, 'index'])
     router.post('/jobs/run-again', [controllers.AdminQueueMonitor, 'runAgain'])
+
+    // Matching: an admin picks the maker while automatic matching is off
+    router.get('/matching', [controllers.AdminMatching, 'index'])
+    router.post('/matching/mode', [controllers.AdminMatching, 'mode'])
+    router
+      .get('/matching/:id', [controllers.AdminMatching, 'show'])
+      .where('id', router.matchers.number())
+    router
+      .post('/matching/:id/offer', [controllers.AdminMatching, 'offer'])
+      .where('id', router.matchers.number())
 
     router.get('/orders', [controllers.AdminOrder, 'index'])
     router.get('/orders/:id', [controllers.AdminOrder, 'show'])

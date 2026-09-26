@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import redis from '@adonisjs/redis/services/main'
 import User from '#models/user'
 import ModelFile from '#models/model_file'
 import ManufacturerProfile from '#models/manufacturer_profile'
@@ -341,9 +342,15 @@ export async function ensureReferenceCatalog() {
   }
 }
 
-/** Truncates every table (for tests on real connections) and restores the reference data. */
+/**
+ * Truncates every table (for tests on real connections) and restores the reference data. Login
+ * rate-limit counters are cleared too: every browser test signs in from the same address, so
+ * without this the suite trips the per-IP login limit once it has enough of them.
+ */
 export async function resetDatabase() {
   const cleanup = await testUtils.db().truncate()
+  const throttled = await redis.keys('rlflx:login:*')
+  if (throttled.length > 0) await redis.del(...throttled)
   await ensureReferenceCatalog()
   return async () => {
     await cleanup()

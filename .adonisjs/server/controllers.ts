@@ -17,6 +17,7 @@ export const controllers = {
   AdminFinishing: () => import('#controllers/admin_finishing_controller'),
   AdminGrowth: () => import('#controllers/admin_growth_controller'),
   AdminMaker: () => import('#controllers/admin_maker_controller'),
+  AdminMatching: () => import('#controllers/admin_matching_controller'),
   AdminMessage: () => import('#controllers/admin_message_controller'),
   AdminMetrics: () => import('#controllers/admin_metrics_controller'),
   AdminOrder: () => import('#controllers/admin_order_controller'),
@@ -70,6 +71,7 @@ export const controllers = {
   Status: () => import('#controllers/status_controller'),
   Storefront: () => import('#controllers/storefront_controller'),
   Support: () => import('#controllers/support_controller'),
+  TestCheckout: () => import('#controllers/test_checkout_controller'),
   Tool: () => import('#controllers/tool_controller'),
   TwoFactorChallenge: () => import('#controllers/two_factor_challenge_controller'),
 }

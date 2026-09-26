@@ -38,6 +38,13 @@ services:
     volumes:
       - miniodata:/data
 
+  # local SMTP catcher: SMTP_HOST=localhost SMTP_PORT=1025, inbox at http://localhost:8025
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - '1025:1025'
+      - '8025:8025'
+
   # optional antivirus: `docker compose --profile av up -d clamav`, then CLAMAV_HOST=localhost
   # (debian image: multi-arch; the alpine one has no arm64)
   clamav:
