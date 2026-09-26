@@ -280,6 +280,14 @@
 
 ## Log
 
+- **2026-09-26** — Hukuki/mali yapı araştırması (`docs/legal/satis-ve-fatura-modeli.md`):
+  - Pazaryeri modelinde üretici kimliği ön bilgilendirmede zorunlu (Mesafeli Söz. Yön. md.5) → iş kuralı 1 ile çelişiyor.
+  - Başkası adına tahsilat 6493'e göre lisans gerektirir.
+  - Öneri: Fabrmatch satıcı (MoR), üretici tedarikçi. Faturalar ve belgeler:
+    - Alıcıya Fabrmatch tam fatura keser.
+    - Kayıtlı üretici Fabrmatch'a fatura keser.
+    - Muaf esnaf için Fabrmatch gider pusulası düzenler ve tevkifat keser.
+  - `tasks.md`'ye R7 rotası ve K-L kararı eklendi. Uzman teyidi bekleniyor.
 - **2026-09-26** — R1-T1 iyzico: IYZWSv2 imzalı istemci + `IyzicoPaymentProvider` (Checkout Form, `/payments/return` dönüşü retrieve ile doğrulanır, webhook V3 imzası, v2 iade tek çağrı garantili, bekleyen ödemeler 5 dk'da senkron). Ödeme adımında TCKN (saklanmaz) + telefon; adres formlarına telefon. Pazaryeri (alt üye, `PUT /payment/item`, approve) `IYZICO_MARKETPLACE` bayrağı arkasında — sandbox hesabında kapalı (2000). Webhook para birimi doğrulaması eklendi. Gerçek sandbox'ta ödeme + iade doğrulandı. 801 test yeşil.
 - **2026-09-26** — R5-T3 APP_KEY rotasyonu: `EncryptionService` `APP_KEY_PREVIOUS` ile eski anahtara düşer (kesintisiz geçiş), `KeyRotationService` + `security:rotate-key` komutu tüm şifreli sütunları yeniden yazar; sütun listesi `information_schema` ile testte doğrulanır. Prosedür `docs/SECURITY.md`.
 - **2026-09-26** — R5-T6 a11y: bu oturumun sayfaları axe taramasına eklendi (`scripts/a11y.mjs` + `tests/browser/a11y_pages.spec.ts`); 2 ihlal düzeltildi (klavyeyle kaydırılamayan `pre`, yeşil rozet kontrastı → `text-fil-700`). 771 test yeşil, yerel tarama 0 ihlal.
