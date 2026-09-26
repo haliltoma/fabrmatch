@@ -63,8 +63,8 @@ export default function MakerRfqs({ rfqs }: { rfqs: Rfq[] }) {
                     </p>
                     {r.bid && (
                       <p className="text-xs text-ink-700">
-                        Your offer: <Money minor={r.bid.unitPriceMinor} /> · {r.bid.leadDays} days ·{' '}
-                        {r.bid.status}
+                        {t('Your offer:')} <Money minor={r.bid.unitPriceMinor} /> ·{' '}
+                        {t('{n} days', { n: r.bid.leadDays })} · {t(r.bid.status)}
                       </p>
                     )}
                   </div>

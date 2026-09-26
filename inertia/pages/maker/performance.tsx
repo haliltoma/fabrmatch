@@ -95,7 +95,7 @@ function MakerPerformance({ alias, scorecard: s }: { alias: string; scorecard: S
             {s.nextTier.requirements.map((r) => (
               <li key={r.label} className="flex items-center gap-3 text-sm">
                 {r.met ? (
-                  <Check className="h-4 w-4 text-success" aria-label="met" />
+                  <Check className="h-4 w-4 text-success" aria-label={t('met')} />
                 ) : (
                   <Circle className="h-4 w-4 text-ink-400" aria-label={t('not yet')} />
                 )}

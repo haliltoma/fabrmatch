@@ -74,7 +74,7 @@ function TemplateForm({
                   type="number"
                   min={0}
                   max={1440}
-                  placeholder="min"
+                  placeholder={t('min')}
                   value={schedule[i.toString()]}
                   onChange={(e) => setSchedule({ ...schedule, [i.toString()]: e.target.value })}
                   className="text-sm"

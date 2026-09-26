@@ -2369,4 +2369,11 @@ export const tr: Record<string, string> = {
   'Enclosure lid, 80 × 60 × 15 mm': 'Kutu kapağı, 80 × 60 × 15 mm',
   'Shelf bracket, 60 × 40 × 30 mm': 'Raf braketi, 60 × 40 × 30 mm',
   'Cable clip, 30 × 15 × 12 mm': 'Kablo klipsi, 30 × 15 × 12 mm',
+  'Close': 'Kapat',
+  'min': 'dk',
+  'met': 'karşılandı',
+  'Your offer:': 'Teklifin:',
+  '{n} days': '{n} gün',
+  'won': 'kazandı',
+  'lost': 'kaybetti',
 }
