@@ -280,6 +280,7 @@
 
 ## Log
 
+- **2026-09-26** — M2-T3 kullanım sayfaları: `UseCaseService` (prototip / yedek parça / küçük seri) örnek parça fiyatlarını canlı fiyat motoru + kargo tablosuyla hesaplar; malzemeyi ≥ 3 aktif üretici basmadıkça `noindex` ve sitemap dışı (doorway yok). İçerik `resources/content/use-cases/*.md` (TR). 759 test yeşil.
 - **2026-09-26** — R4-T12: `/api/v1/openapi.json` (OpenAPI 3.1, anahtarsız): orders/order/products, 401/404/429, `webhooks` (`order.status_changed`, `webhook.test`) ve `Fabrmatch-Signature` doğrulama tarifi; `app/services/integrations/openapi.ts`. `openapi_http.spec.ts` belge alanlarını gerçek API yanıtı ve webhook yüküyle karşılaştırır (sapma = kırmızı test). 757 test yeşil.
 - **2026-09-26** — R6-T7: vitrin ürün sayfasındaki sipariş formuna kupon alanı (sunucu zaten `couponCode` kabul ediyordu; arayüz eksikti). Geçersiz kod siparişi 422 ile durdurur. 755 test yeşil.
 - **2026-09-26** — **R5-T4 e2e tamamlandı:** `tests/browser/order_lifecycle.spec.ts` iki tam yolculuk: (1) vitrin siparişi → test kartıyla ödeme → otomatik eşleşme → üretici kabul/baskı/kargo → alıcı teslim onayı + tamamlama; (2) itiraz → üretici yanıtı → admin tam iade → `resolved`. QC fotoğrafı tarayıcıdan doğrudan S3'e gittiğinden testte `JobQcPhoto` kaydıyla ikame. 754 test yeşil.

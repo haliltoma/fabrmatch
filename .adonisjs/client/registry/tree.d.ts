@@ -27,6 +27,10 @@ export interface ApiDefinition {
     index: typeof routes['material_page.index']
     show: typeof routes['material_page.show']
   }
+  useCasePage: {
+    index: typeof routes['use_case_page.index']
+    show: typeof routes['use_case_page.show']
+  }
   marketing: {
     forMakers: typeof routes['marketing.for_makers']
     forSellers: typeof routes['marketing.for_sellers']

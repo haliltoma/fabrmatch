@@ -91,5 +91,7 @@ declare module '@adonisjs/inertia/types' {
     'support/help': ExtractProps<(typeof import('../../inertia/pages/support/help.tsx'))['default']>
     'tools/maker_income': ExtractProps<(typeof import('../../inertia/pages/tools/maker_income.tsx'))['default']>
     'tools/quick_quote': ExtractProps<(typeof import('../../inertia/pages/tools/quick_quote.tsx'))['default']>
+    'use_cases/index': ExtractProps<(typeof import('../../inertia/pages/use_cases/index.tsx'))['default']>
+    'use_cases/show': ExtractProps<(typeof import('../../inertia/pages/use_cases/show.tsx'))['default']>
   }
 }

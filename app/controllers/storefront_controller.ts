@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import UseCaseService from '#services/marketing/use_case_service'
 import env from '#start/env'
 import LegalService from '#services/legal/legal_service'
 import ReviewService from '#services/storefront/review_service'
@@ -106,6 +107,8 @@ export default class StorefrontController {
     const [posts, terms] = await Promise.all([content.list('blog'), content.list('glossary')])
     const materialPages = await new MaterialPageService().list()
     const indexableMaterials = materialPages.filter((m) => m.indexable)
+    const allUseCases = await new UseCaseService().list()
+    const useCases = allUseCases.filter((u) => u.indexable)
     const urls = [
       `<url><loc>${base}/</loc></url>`,
       `<url><loc>${base}/shop</loc></url>`,
@@ -119,6 +122,8 @@ export default class StorefrontController {
       // only materials with enough real maker data are listed; the rest stay noindex
       ...(indexableMaterials.length > 0 ? [`<url><loc>${base}/materials</loc></url>`] : []),
       ...indexableMaterials.map((m) => `<url><loc>${base}/materials/${m.slug}</loc></url>`),
+      ...(useCases.length > 0 ? [`<url><loc>${base}/use-cases</loc></url>`] : []),
+      ...useCases.map((u) => `<url><loc>${base}/use-cases/${u.slug}</loc></url>`),
       ...posts.map(
         (p) => `<url><loc>${base}/blog/${p.slug}</loc><lastmod>${p.date}</lastmod></url>`
       ),

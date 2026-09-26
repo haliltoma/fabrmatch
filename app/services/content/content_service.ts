@@ -2,7 +2,7 @@ import { readdir, readFile } from 'node:fs/promises'
 import app from '@adonisjs/core/services/app'
 import { renderLegalMarkdown } from '#services/legal/legal_service'
 
-export type ContentKind = 'blog' | 'glossary' | 'materials'
+export type ContentKind = 'blog' | 'glossary' | 'materials' | 'use-cases'
 
 export interface ContentMeta {
   slug: string

@@ -84,6 +84,18 @@ const routes = {
     tokens: [{"old":"/materials/:slug","type":0,"val":"materials","end":""},{"old":"/materials/:slug","type":1,"val":"slug","end":""}],
     types: placeholder as Registry['material_page.show']['types'],
   },
+  'use_case_page.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/use-cases',
+    tokens: [{"old":"/use-cases","type":0,"val":"use-cases","end":""}],
+    types: placeholder as Registry['use_case_page.index']['types'],
+  },
+  'use_case_page.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/use-cases/:slug',
+    tokens: [{"old":"/use-cases/:slug","type":0,"val":"use-cases","end":""},{"old":"/use-cases/:slug","type":1,"val":"slug","end":""}],
+    types: placeholder as Registry['use_case_page.show']['types'],
+  },
   'marketing.for_makers': {
     methods: ["GET","HEAD"],
     pattern: '/for-makers',

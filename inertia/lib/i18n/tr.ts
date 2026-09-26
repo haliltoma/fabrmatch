@@ -2342,4 +2342,31 @@ export const tr: Record<string, string> = {
   'The discount shows on the next page, before you pay.':
     'İndirim, ödemeden önce sonraki sayfada görünür.',
   'API reference (OpenAPI)': 'API başvuru belgesi (OpenAPI)',
+  'What people print with Fabrmatch': 'Fabrmatch ile neler bastırılıyor',
+  'Prototypes, spare parts and small batches: how each works, and what it costs today.':
+    'Prototip, yedek parça ve küçük seri: her biri nasıl işler ve bugün ne tutar.',
+  'from {price} a piece': 'parça başı {price} itibarıyla',
+  'All use cases': 'Tüm kullanım alanları',
+  'What it costs today': 'Bugün ne tutar',
+  'Worked out now by our price engine for an example part: {part}, {material}, about {grams} g.':
+    'Fiyat motorumuzla şimdi hesaplandı, örnek parça: {part}, {material}, yaklaşık {grams} g.',
+  'Per piece': 'Parça başı',
+  'Total with delivery': 'Teslimat dahil toplam',
+  '{n} verified makers print {material} right now. Your own model gets its exact price when you upload it.':
+    'Şu anda {n} doğrulanmış üretici {material} basıyor. Kendi modelinin kesin fiyatı yüklediğinde çıkar.',
+  'We are still onboarding makers for {material}. Your own model gets its exact price when you upload it.':
+    '{material} için üretici almaya devam ediyoruz. Kendi modelinin kesin fiyatı yüklediğinde çıkar.',
+  'Use cases': 'Kullanım alanları',
+  'Prototypes': 'Prototipler',
+  'Spare parts': 'Yedek parçalar',
+  'Small batches': 'Küçük seriler',
+  'One part to hold in your hand before you commit to a design.':
+    'Tasarıma karar vermeden önce elde tutabileceğin tek bir parça.',
+  'A broken clip, knob or bracket, printed again in a tougher material.':
+    'Kırılan bir klips, düğme ya da braket, daha dayanıklı bir malzemeyle yeniden basılır.',
+  'Ten to a hundred of the same part, without a mould or a warehouse.':
+    'Aynı parçadan on ile yüz adet; kalıp ve depo olmadan.',
+  'Enclosure lid, 80 × 60 × 15 mm': 'Kutu kapağı, 80 × 60 × 15 mm',
+  'Shelf bracket, 60 × 40 × 30 mm': 'Raf braketi, 60 × 40 × 30 mm',
+  'Cable clip, 30 × 15 × 12 mm': 'Kablo klipsi, 30 × 15 × 12 mm',
 }

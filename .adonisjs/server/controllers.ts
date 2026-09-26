@@ -75,4 +75,5 @@ export const controllers = {
   TestCheckout: () => import('#controllers/test_checkout_controller'),
   Tool: () => import('#controllers/tool_controller'),
   TwoFactorChallenge: () => import('#controllers/two_factor_challenge_controller'),
+  UseCasePage: () => import('#controllers/use_case_page_controller'),
 }

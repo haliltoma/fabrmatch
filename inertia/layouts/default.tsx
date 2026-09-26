@@ -46,6 +46,7 @@ const FOOTER_COLUMNS: Array<{ title: string; links: Array<{ href: string; label:
     title: 'Learn',
     links: [
       { href: '/blog', label: 'Blog' },
+      { href: '/use-cases', label: 'Use cases' },
       { href: '/glossary', label: 'Glossary' },
       { href: '/changelog', label: 'Changelog' },
     ],
