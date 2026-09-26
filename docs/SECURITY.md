@@ -35,7 +35,12 @@ Reddedilen dosya `blocked_at` ile karantinaya alınır: indirme (`file_access_se
 
 ## Anahtar yönetimi ve rotasyon (G7)
 
-- `APP_KEY` şifreli alanları (adres, IBAN, vergi no, 2FA sırrı, mesaj orijinalleri) ve çerezleri korur. **Değiştirirsen şifreli alanlar çözülemez.** Rotasyon = önce eski anahtarla tüm şifreli sütunları okuyup yeni anahtarla yeniden yazan bir betik (henüz yazılmadı) + oturumların düşmesi kabul edilir.
+- `APP_KEY` şifreli alanları (adres, IBAN, vergi no, 2FA sırrı, mesaj orijinalleri, webhook sırları) ve çerezleri korur. Tüm şifreli sütunlar `ENCRYPTED_COLUMNS` listesinde (`encryption_service.ts`); bir test veritabanındaki her `*_enc` sütununun listede olduğunu doğrular.
+- **Rotasyon (kesintisiz, 3 adım):**
+  1. Yeni anahtar üret (`node ace generate:key --show`). Ortama `APP_KEY=<yeni>` ve `APP_KEY_PREVIOUS=<eski>` koyup yayına al. Şifre çözme önce yeniyi, olmazsa eskiyi dener; uygulama çalışmaya devam eder. Oturum çerezleri yeni anahtarla imzalandığı için **herkesin oturumu düşer** (yeniden giriş).
+  2. `node ace security:rotate-key --dry-run` ile say, sonra `node ace security:rotate-key` ile tüm şifreli sütunları yeni anahtarla yeniden yaz. İdempotent: yarıda kesilirse tekrar çalıştır. Hiçbir anahtarla açılmayan değer varsa üstüne yazılmaz, satır kimliği raporlanır ve komut hata koduyla biter.
+  3. Rapor "0 kaldı, 0 okunamayan" deyince `APP_KEY_PREVIOUS`'u kaldır.
+  - Geri dönüş: 2. adım bitmeden sorun çıkarsa anahtarları yer değiştir (`APP_KEY=<eski>`, `APP_KEY_PREVIOUS=<yeni>`); iki anahtarla da okunduğu için veri kaybı olmaz.
 - `PAYMENT_WEBHOOK_SECRET` sağlayıcı panelinde döndürülür; çift secret geçiş penceresi desteklenmiyor (kısa kesinti planla).
 - S3/R2 anahtarları: en az yetkili (yalnız bucket), üç ayda bir döndür.
 - Sırlar `Env.schema.secret()`; günlüklere yazılmaz.
@@ -43,6 +48,5 @@ Reddedilen dosya `blocked_at` ile karantinaya alınır: indirme (`file_access_se
 ## Açık işler
 
 - ZAP baseline taraması: çalışan bir staging ortamı gerekir (D4).
-- `APP_KEY` yeniden şifreleme betiği.
 - Üretimde `CLAMAV_HOST` ayarlanmalı (D4 barındırma kararıyla birlikte); ayarlanmazsa yalnız statik kontroller çalışır.
 - Kart parmak izi tabanlı sahtekârlık kuralları (iyzico ile).

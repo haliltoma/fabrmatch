@@ -9,6 +9,8 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   // App
   APP_KEY: Env.schema.secret(),
+  // the old key during a rotation (node ace security:rotate-key); remove it once the command is done
+  APP_KEY_PREVIOUS: Env.schema.secret.optional(),
   // admins must have two-factor on before they can use the admin panel; only tests turn this off
   ADMIN_2FA_REQUIRED: Env.schema.boolean.optional(),
   // `false` treats every account as verified (local dev only; ignored in production)
