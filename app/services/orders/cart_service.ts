@@ -1,3 +1,4 @@
+import FinishingService from '#services/catalog/finishing_service'
 import CouponService, { CouponError } from '#services/pricing/coupon_service'
 import DomainError from '#exceptions/domain_error'
 import CartItem from '#models/cart_item'
@@ -18,6 +19,8 @@ export interface CartLineInput {
   material: string
   printProfileId?: number | null
   finishing?: string | null
+  /** paint colour for a finishing that needs one */
+  finishingColour?: string | null
   color?: string | null
   infill?: number | null
   quantity: number
@@ -37,6 +40,10 @@ export default class CartService {
     }
 
     const material = input.material.trim().toUpperCase()
+    // a painted part needs a known colour: say so now, not at checkout
+    const finishingService = new FinishingService()
+    const option = await finishingService.resolve(input.finishing, material)
+    input.finishingColour = await finishingService.resolveColour(option, input.finishingColour)
     const query = CartItem.query()
       .where('userId', user.id)
       .where('modelFileId', file.id)
@@ -48,6 +55,9 @@ export default class CartService {
     const finishing = input.finishing ? input.finishing.trim().toUpperCase() : null
     if (finishing) query.where('finishingCode', finishing)
     else query.whereNull('finishingCode')
+    const finishingColour = input.finishingColour?.trim() || null
+    if (finishingColour) query.where('finishingColour', finishingColour)
+    else query.whereNull('finishingColour')
     const existing = await query.first()
 
     if (existing) {
@@ -67,6 +77,7 @@ export default class CartService {
       printProfileId: input.printProfileId ?? null,
       color: input.color ?? null,
       finishingCode: finishing,
+      finishingColour,
       infill: input.infill === null || input.infill === undefined ? null : String(input.infill),
       quantity: Math.min(input.quantity, MAX_QUANTITY),
     })
@@ -141,6 +152,7 @@ export default class CartService {
         material: l.material,
         printProfileId: l.printProfileId,
         finishing: l.finishingCode,
+        finishingColour: l.finishingColour,
         color: l.color,
         quantity: l.quantity,
         unitPriceMinor: priced?.items[i].unitCostMinor ?? null,
@@ -176,6 +188,7 @@ export default class CartService {
         material: l.material,
         printProfileId: l.printProfileId,
         finishing: l.finishingCode,
+        finishingColour: l.finishingColour,
         color: l.color,
         infill: l.infill === null ? undefined : Number(l.infill),
         quantity: l.quantity,
@@ -194,6 +207,7 @@ export default class CartService {
       material: line.material,
       printProfileId: line.printProfileId,
       finishing: line.finishingCode,
+      finishingColour: line.finishingColour,
       color: line.color,
       infill: line.infill === null ? undefined : Number(line.infill),
       quantity: line.quantity,

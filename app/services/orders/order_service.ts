@@ -46,6 +46,7 @@ export interface CreateDraftInput {
   /** Named quality preset; sets technology, infill and print-time factor. */
   printProfileId?: number | null
   finishing?: string | null
+  finishingColour?: string | null
   shippingAddress: ShippingAddress
   channel?: OrderChannel
   sellerId?: number | null
@@ -134,6 +135,7 @@ export default class OrderService {
       | 'currency'
       | 'couponCode'
       | 'finishing'
+      | 'finishingColour'
     > & {
       scalePercent?: number
     }
@@ -292,6 +294,7 @@ export default class OrderService {
           unitCostMinor: i.unitCostMinor,
           manufacturerShareMinor: i.manufacturerShareMinor,
           finishingCode: i.finishingCode,
+          finishingColour: i.finishingColour,
           finishingName: i.finishingName,
           finishingMinor: i.finishingMinor,
         })),

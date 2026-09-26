@@ -11,6 +11,7 @@ import { TermsCheckbox, useLegalAcceptance } from '~/components/terms_checkbox'
 import { useIdempotencyKey } from '~/lib/idempotency'
 import { formatDate, formatMoney } from '~/lib/format'
 import { useT } from '~/lib/i18n'
+import { PaintColourField, type PaintColour } from '~/components/paint_colour'
 
 type FileInfo = {
   id: number
@@ -53,6 +54,7 @@ function QuotePage({
   materials,
   profiles,
   finishings,
+  paintColours,
   newerVersionId,
 }: {
   file: FileInfo | null
@@ -66,7 +68,9 @@ function QuotePage({
     description: string
     priceMinor: number
     materials: string[] | null
+    needsColour: boolean
   }>
+  paintColours: PaintColour[]
 }) {
   const { t } = useT()
 
@@ -81,6 +85,10 @@ function QuotePage({
   const [finishing, setFinishing] = useState('')
   const fitting = finishings.filter((f) => !f.materials || f.materials.includes(material))
   const finishingCode = fitting.some((f) => f.code === finishing) ? finishing : ''
+  const [paintColour, setPaintColour] = useState('')
+  const needsColour = !!fitting.find((f) => f.code === finishingCode)?.needsColour
+  const finishingColour = needsColour ? paintColour || undefined : undefined
+  const missingColour = needsColour && !paintColour
   const [infill, setInfill] = useState(0.2)
   const [breakdown, setBreakdown] = useState<PriceBreakdown | null>(null)
   const [loading, setLoading] = useState(false)
@@ -106,6 +114,7 @@ function QuotePage({
       infill,
       printProfileId: profileId ?? undefined,
       finishing: finishingCode || undefined,
+      finishingColour,
     })
 
   if (!file || error) {
@@ -171,6 +180,7 @@ function QuotePage({
         infill,
         printProfileId: profileId ?? undefined,
         finishing: finishingCode || undefined,
+        finishingColour,
         acceptTerms: accepted,
         shippingAddress: {
           fullName: address.fullName,
@@ -330,8 +340,17 @@ function QuotePage({
               </select>
               {finishingCode && (
                 <p className="mt-1 text-xs text-ink-600">
-                  {fitting.find((f) => f.code === finishingCode)?.description}
+                  {t(fitting.find((f) => f.code === finishingCode)?.description ?? '')}
                 </p>
+              )}
+              {needsColour && (
+                <div className="mt-3">
+                  <PaintColourField
+                    colours={paintColours}
+                    value={paintColour}
+                    onChange={setPaintColour}
+                  />
+                </div>
               )}
             </div>
           )}
@@ -373,7 +392,7 @@ function QuotePage({
             )}
             {t('Calculate Price')}
           </Button>
-          <Button variant="outline" onClick={addToCart} className="w-full">
+          <Button variant="outline" onClick={addToCart} disabled={missingColour} className="w-full">
             {t('Add to cart')}
           </Button>
 
@@ -532,7 +551,7 @@ function QuotePage({
                 <TermsCheckbox checked={accepted} onChange={setAccepted} />
                 <Button
                   type="submit"
-                  disabled={ordering || (needsTerms && !accepted)}
+                  disabled={ordering || missingColour || (needsTerms && !accepted)}
                   className="w-full"
                 >
                   {ordering ? (

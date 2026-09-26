@@ -14,6 +14,7 @@ import {
   TR_ADDRESS,
   createManufacturer,
   createPrinter,
+  createAnalyzedFile,
   createStorefrontProduct,
   createUser,
   ensureReferenceCatalog,
@@ -70,7 +71,19 @@ test.group('finishing in the shop (R6-T6)', (group) => {
 
     const plain = await order()
     plain.assertStatus(302)
-    const painted = await order('paint')
+    const painted = await client
+      .post(`/shop/${shop.product.id}/order`)
+      .loginAs(user)
+      .withCsrfToken()
+      .headers(inertia)
+      .redirects(0)
+      .json({
+        material: 'PLA',
+        quantity: 1,
+        shippingAddress: TR_ADDRESS,
+        finishing: 'paint',
+        finishingColour: 'red',
+      })
     painted.assertStatus(302)
     const [first, second] = await Order.query()
       .where('buyerId', user.id)
@@ -78,6 +91,7 @@ test.group('finishing in the shop (R6-T6)', (group) => {
       .orderBy('id', 'asc')
     assert.isNull(first.items[0].finishingCode)
     assert.equal(second.items[0].finishingCode, 'PAINT')
+    assert.equal(second.items[0].finishingColour, 'Red', 'stored as the catalogue name')
     assert.isAbove(second.totalMinor, first.totalMinor)
 
     const wrong = await client
@@ -115,6 +129,7 @@ test.group('finishing in the shop (R6-T6)', (group) => {
       quantity: 1,
       shippingAddress: TR_ADDRESS,
       finishing: 'PAINT',
+      finishingColour: 'Black',
     })
     const sm = new OrderStateMachine()
     await sm.transition(order.id, 'awaiting_payment')
@@ -125,5 +140,56 @@ test.group('finishing in the shop (R6-T6)', (group) => {
     const job = await new MatchingService(quiet).acceptOffer(offer!.id, profile.id)
     const days = Math.round(job.dueAt.diff(job.acceptedAt!, 'days').days)
     assert.equal(days, sla + 3)
+  })
+
+  test('painting needs a known colour, in the shop and in the cart', async ({ client, assert }) => {
+    const shop = await createStorefrontProduct()
+    const user = await buyer()
+    const order = (finishingColour?: string) =>
+      client
+        .post(`/shop/${shop.product.id}/order`)
+        .loginAs(user)
+        .withCsrfToken()
+        .header('accept', 'application/json')
+        .json({
+          material: 'PLA',
+          quantity: 1,
+          shippingAddress: TR_ADDRESS,
+          finishing: 'PAINT',
+          finishingColour,
+        })
+    const noColour = await order()
+    noColour.assertStatus(422)
+    assert.match(noColour.body().error, /Choose a colour/)
+    const unknown = await order('Chartreuse')
+    unknown.assertStatus(422)
+    assert.lengthOf(await Order.query().where('buyerId', user.id), 0)
+
+    // a finishing without a colour ignores one that was sent
+    const sanded = await client
+      .post(`/shop/${shop.product.id}/order`)
+      .loginAs(user)
+      .withCsrfToken()
+      .headers(inertia)
+      .redirects(0)
+      .json({
+        material: 'PLA',
+        quantity: 1,
+        shippingAddress: TR_ADDRESS,
+        finishing: 'SAND',
+        finishingColour: 'Red',
+      })
+    sanded.assertStatus(302)
+    const [placed] = await Order.query().where('buyerId', user.id).preload('items')
+    assert.isNull(placed.items[0].finishingColour)
+
+    const file = await createAnalyzedFile(user)
+    const cart = await client
+      .post('/cart/items')
+      .loginAs(user)
+      .withCsrfToken()
+      .header('accept', 'application/json')
+      .json({ modelFileId: file.id, material: 'PLA', quantity: 1, finishing: 'PAINT' })
+    cart.assertStatus(422)
   })
 })

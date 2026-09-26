@@ -27,6 +27,7 @@ export default class QuoteController {
         materials: [],
         profiles: [],
         finishings: [],
+        paintColours: [],
       })
     }
 
@@ -43,7 +44,9 @@ export default class QuoteController {
         description: f.description,
         priceMinor: f.priceMinor,
         materials: f.materials as string[] | null,
+        needsColour: f.needsColour,
       })),
+      paintColours: await new FinishingService().paintColours(),
       profiles: profiles.map((p) => ({
         id: p.id,
         name: p.name,

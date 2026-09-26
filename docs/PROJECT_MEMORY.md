@@ -280,6 +280,7 @@
 
 ## Log
 
+- **2026-09-26** — R6-T6 boya rengi: "tek renge boyanır" vaat ediliyordu ama renk seçilemiyordu. `needs_colour` bayrağı + `finishing_colour` alanları, `FinishingService.resolveColour/paintColours`, `PaintColourField` bileşeni (teklif + vitrin), renk her gösterimde. 767 test yeşil.
 - **2026-09-26** — R6-T7 kupon maliyeti raporu: `FinancialReportService.couponsCsv` + admin rapor indirmesi (`coupons`).
 - **2026-09-26** — R4-T13 logo: `seller_profiles.logo_key/logo_content_type`, `BrandingService.saveLogo/removeLogo/logo` (tür ilk baytlardan, SVG yok, 256 KB), paket kartında gömülü görsel. 765 test yeşil.
 - **2026-09-26** — R6-T6: yüzey işlemi ek günleri (`extra_days`, admin) üretim penceresini uzatır (`app/services/orders/production_window.ts` → eşleştirme, açıklayıcı, kabulde `dueAt`); vitrin ürün sayfasında yüzey işlemi seçimi, varyant fiyatları sunucuda fiyat motoruyla (işlem ücreti üretici payına eklenir, komisyon ve marj üstüne biner — istemcide fark göstermek yanlış olurdu). JSON-LD fiyat aralığı yalnız düz seçenekler. 762 test yeşil.

@@ -86,7 +86,7 @@ export class CarrierEventSchema extends BaseModel {
 }
 
 export class CartItemSchema extends BaseModel {
-  static $columns = ['color', 'createdAt', 'finishingCode', 'id', 'infill', 'material', 'modelFileId', 'printProfileId', 'quantity', 'updatedAt', 'userId'] as const
+  static $columns = ['color', 'createdAt', 'finishingCode', 'finishingColour', 'id', 'infill', 'material', 'modelFileId', 'printProfileId', 'quantity', 'updatedAt', 'userId'] as const
   $columns = CartItemSchema.$columns
   @column()
   declare color: string | null
@@ -94,6 +94,8 @@ export class CartItemSchema extends BaseModel {
   declare createdAt: DateTime
   @column()
   declare finishingCode: string | null
+  @column()
+  declare finishingColour: string | null
   @column({ isPrimary: true })
   declare id: number
   @column()
@@ -402,7 +404,7 @@ export class FileDownloadLogSchema extends BaseModel {
 }
 
 export class FinishingOptionSchema extends BaseModel {
-  static $columns = ['code', 'createdAt', 'description', 'extraDays', 'id', 'isActive', 'materials', 'name', 'priceMinor'] as const
+  static $columns = ['code', 'createdAt', 'description', 'extraDays', 'id', 'isActive', 'materials', 'name', 'needsColour', 'priceMinor'] as const
   $columns = FinishingOptionSchema.$columns
   @column()
   declare code: string
@@ -420,6 +422,8 @@ export class FinishingOptionSchema extends BaseModel {
   declare materials: any | null
   @column()
   declare name: string
+  @column()
+  declare needsColour: boolean
   @column()
   declare priceMinor: number
 }
@@ -776,7 +780,7 @@ export class NotificationSchema extends BaseModel {
 }
 
 export class OrderItemSchema extends BaseModel {
-  static $columns = ['color', 'createdAt', 'estGrams', 'estPrintMinutes', 'finishingCode', 'finishingMinor', 'finishingName', 'id', 'manufacturerShareMinor', 'material', 'modelFileId', 'orderId', 'printProfileId', 'quantity', 'scalePercent', 'technology', 'unitCostMinor', 'updatedAt'] as const
+  static $columns = ['color', 'createdAt', 'estGrams', 'estPrintMinutes', 'finishingCode', 'finishingColour', 'finishingMinor', 'finishingName', 'id', 'manufacturerShareMinor', 'material', 'modelFileId', 'orderId', 'printProfileId', 'quantity', 'scalePercent', 'technology', 'unitCostMinor', 'updatedAt'] as const
   $columns = OrderItemSchema.$columns
   @column()
   declare color: string | null
@@ -788,6 +792,8 @@ export class OrderItemSchema extends BaseModel {
   declare estPrintMinutes: number
   @column()
   declare finishingCode: string | null
+  @column()
+  declare finishingColour: string | null
   @column()
   declare finishingMinor: number
   @column()

@@ -53,7 +53,9 @@ export interface StorefrontDetail extends StorefrontCard {
     description: string
     extraDays: number
     materials: string[] | null
+    needsColour: boolean
   }>
+  paintColours: Array<{ name: string; hex: string }>
   productionDays: number
   updatedAt: string
 }
@@ -244,7 +246,11 @@ export default class StorefrontService {
         description: f.description,
         extraDays: f.extraDays,
         materials: f.materials as string[] | null,
+        needsColour: f.needsColour,
       })),
+      paintColours: offered.some((f) => f.needsColour)
+        ? await new FinishingService().paintColours()
+        : [],
       productionDays: fabrmatchConfig.orders.productionSlaDays,
       scales,
       options,

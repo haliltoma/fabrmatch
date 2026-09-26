@@ -10,6 +10,7 @@ export const DEFAULT_FINISHINGS: Array<
     priceMinor: number,
     materials: string[] | null,
     extraDays: number,
+    needsColour?: boolean,
   ]
 > = [
   ['SAND', 'Sanded', 'Hand-sanded to remove layer lines and support marks.', 1500, null, 1],
@@ -21,6 +22,7 @@ export const DEFAULT_FINISHINGS: Array<
     6000,
     null,
     3,
+    true,
   ],
   [
     'VAPOR',

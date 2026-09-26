@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { ProductGallery, type ShopImage } from '~/components/product_image'
+import { PaintColourField, type PaintColour } from '~/components/paint_colour'
 
 type Product = {
   id: number
@@ -35,7 +36,9 @@ type Product = {
     description: string
     extraDays: number
     materials: string[] | null
+    needsColour: boolean
   }>
+  paintColours: PaintColour[]
   productionDays: number
 }
 
@@ -111,6 +114,7 @@ export default function ShopShow({
   const [busy, setBusy] = useState(false)
   const [coupon, setCoupon] = useState('')
   const [finishing, setFinishing] = useState('')
+  const [paintColour, setPaintColour] = useState('')
   const [address, setAddress] = useState({
     fullName: '',
     line1: '',
@@ -130,6 +134,7 @@ export default function ShopShow({
   const finishingFits = (f: Product['finishings'][number]) =>
     !f.materials || f.materials.map((m) => m.toUpperCase()).includes(material)
   const chosenFinishing = product.finishings.find((f) => f.code === finishing) ?? null
+  const missingColour = !!chosenFinishing?.needsColour && !paintColour
   const description =
     product.description ?? t('{title} — 3D printed on demand.', { title: product.title })
   // link previews want an absolute URL: a real photo first, else the hero render
@@ -149,6 +154,7 @@ export default function ShopShow({
         acceptTerms: accepted,
         couponCode: coupon.trim() || undefined,
         finishing: finishing || undefined,
+        finishingColour: chosenFinishing?.needsColour ? paintColour : undefined,
       },
       { headers: idem.headers(), onError: idem.renew, onFinish: () => setBusy(false) }
     )
@@ -273,6 +279,15 @@ export default function ShopShow({
                     {chosenFinishing && (
                       <p className="text-xs text-ink-600">{t(chosenFinishing.description)}</p>
                     )}
+                    {chosenFinishing?.needsColour && (
+                      <div className="pt-2">
+                        <PaintColourField
+                          colours={product.paintColours}
+                          value={paintColour}
+                          onChange={setPaintColour}
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -358,7 +373,7 @@ export default function ShopShow({
                     <TermsCheckbox checked={accepted} onChange={setAccepted} />
                     <Button
                       type="submit"
-                      disabled={busy || !material || (needsTerms && !accepted)}
+                      disabled={busy || !material || missingColour || (needsTerms && !accepted)}
                       className="w-full"
                     >
                       {t('Continue to payment')}

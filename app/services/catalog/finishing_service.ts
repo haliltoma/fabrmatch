@@ -2,6 +2,7 @@ import DomainError from '#exceptions/domain_error'
 import db from '@adonisjs/lucid/services/db'
 import AuditLog from '#models/audit_log'
 import FinishingOption from '#models/finishing_option'
+import Color from '#models/color'
 
 export class FinishingError extends DomainError {}
 
@@ -29,6 +30,31 @@ export default class FinishingService {
       throw new FinishingError(`${option.name} is not available for ${material.toUpperCase()}`)
     }
     return option
+  }
+
+  /** Colours a painted part can be ordered in (the managed colour list). */
+  async paintColours() {
+    const colours = await Color.query().where('isActive', true).orderBy('name', 'asc')
+    return colours.map((c) => ({ name: c.name, hex: c.hex }))
+  }
+
+  /**
+   * The paint colour for an option that needs one (from the managed colour list), or null for
+   * options that do not. A painted part without a colour, or with an unknown one, is refused.
+   */
+  async resolveColour(
+    option: FinishingOption | null,
+    colour: string | null | undefined
+  ): Promise<string | null> {
+    if (!option?.needsColour) return null
+    const wanted = colour?.trim()
+    if (!wanted) throw new FinishingError(`Choose a colour for ${option.name}`)
+    const match = await Color.query()
+      .whereRaw('lower(name) = ?', [wanted.toLowerCase()])
+      .where('isActive', true)
+      .first()
+    if (!match) throw new FinishingError(`${wanted} is not one of our paint colours`)
+    return match.name
   }
 
   async create(

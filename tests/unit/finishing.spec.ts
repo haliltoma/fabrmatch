@@ -174,7 +174,7 @@ test.group('finishing in prices and orders', (group) => {
         country: 'TR',
         hasSeller: false,
         currency: 'USD',
-        items: [{ file, material: 'PLA', quantity: 2, finishing: 'PAINT' }],
+        items: [{ file, material: 'PLA', quantity: 2, finishing: 'PAINT', finishingColour: 'Red' }],
       })
       const item = priced.items[0]
       assert.isAbove(item.finishingMinor, 0)

@@ -149,7 +149,9 @@ export default class MatchSuggestionService {
           sizeMm: [i.modelFile.bboxXMm, i.modelFile.bboxYMm, i.modelFile.bboxZMm].map((d) =>
             d === null ? null : Math.round((d * (i.scalePercent ?? 100)) / 100)
           ),
-          finishing: i.finishingName,
+          finishing: i.finishingName
+            ? `${i.finishingName}${i.finishingColour ? ` (${i.finishingColour})` : ''}`
+            : null,
         })),
       },
       canOffer: open && !pending,

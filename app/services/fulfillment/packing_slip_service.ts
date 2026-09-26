@@ -50,7 +50,11 @@ export default class PackingSlipService {
       .map(
         (i) =>
           `<tr><td>${escapeHtml(i.material)}${i.color ? ` · ${escapeHtml(i.color)}` : ''}${
-            i.finishingName ? ` · ${escapeHtml(i.finishingName)}` : ''
+            i.finishingName
+              ? ` · ${escapeHtml(i.finishingName)}${
+                  i.finishingColour ? ` (${escapeHtml(i.finishingColour)})` : ''
+                }`
+              : ''
           }</td><td class="r">× ${i.quantity}</td></tr>`
       )
       .join('')

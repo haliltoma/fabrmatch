@@ -22,6 +22,7 @@ type OrderItem = {
   material: string
   color: string | null
   finishing: string | null
+  finishingColour?: string | null
   quantity: number
   unitCostMinor: number
 }
@@ -395,7 +396,9 @@ export default function OrdersShow({
                 <p className="font-medium text-ink-900">
                   {item.fileName ?? 'Model file'} · {item.material}
                   {item.color ? ` · ${item.color}` : ''}
-                  {item.finishing ? ` · ${item.finishing}` : ''}
+                  {item.finishing
+                    ? ` · ${t(item.finishing)}${item.finishingColour ? ` (${t(item.finishingColour)})` : ''}`
+                    : ''}
                 </p>
                 <p className="text-ink-600">
                   {item.technology} × {item.quantity}

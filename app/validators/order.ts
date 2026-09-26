@@ -11,6 +11,7 @@ export const createOrderValidator = vine.create({
   infill: vine.number().min(0.05).max(1).optional(),
   printProfileId: vine.number().positive().withoutDecimals().optional(),
   finishing: vine.string().trim().toUpperCase().maxLength(32).optional(),
+  finishingColour: vine.string().trim().maxLength(40).optional(),
   currency: vine.enum(CURRENCIES).optional(),
   couponCode: vine.string().trim().maxLength(40).optional(),
   acceptTerms: vine.boolean().optional(),
@@ -100,6 +101,7 @@ export const cartAddValidator = vine.create({
   infill: vine.number().min(0.05).max(1).optional(),
   printProfileId: vine.number().positive().withoutDecimals().optional(),
   finishing: vine.string().trim().toUpperCase().maxLength(32).optional(),
+  finishingColour: vine.string().trim().maxLength(40).optional(),
   color: vine.string().trim().maxLength(40).optional(),
 })
 

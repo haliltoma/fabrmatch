@@ -19,6 +19,7 @@ type OfferItem = {
   material: string
   color: string | null
   finishing: string | null
+  finishingColour?: string | null
   quantity: number
   estGrams: number
   estPrintMinutes: number
@@ -145,7 +146,9 @@ function ItemList({ items }: { items: OfferItem[] }) {
           <span className="font-medium text-ink-900">
             {item.material}
             {item.color ? ` · ${item.color}` : ''}
-            {item.finishing ? ` · ${item.finishing}` : ''}
+            {item.finishing
+              ? ` · ${t(item.finishing)}${item.finishingColour ? ` (${t(item.finishingColour)})` : ''}`
+              : ''}
           </span>
           <span>×{item.quantity}</span>
           <span className="text-ink-600">~{item.estGrams} g</span>

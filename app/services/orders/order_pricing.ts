@@ -31,6 +31,8 @@ export interface PricingItemInput {
   printProfileId?: number | null
   /** post-processing option code (sanding, painting…) */
   finishing?: string | null
+  /** paint colour for a finishing that needs one */
+  finishingColour?: string | null
   /** size as a percent of the original model, 10–300; volume scales with the cube */
   scalePercent?: number
 }
@@ -57,6 +59,7 @@ export interface PricedItem {
   technology: PrinterTechnology
   printProfileId: number | null
   finishingCode: string | null
+  finishingColour: string | null
   finishingName: string | null
   /** per unit, TRY-converted like the rest; already inside `manufacturerShareMinor` */
   finishingMinor: number
@@ -159,7 +162,9 @@ export async function priceOrder(input: {
         )
       }
     }
-    const finishing = await new FinishingService().resolve(item.finishing, item.material)
+    const finishingService = new FinishingService()
+    const finishing = await finishingService.resolve(item.finishing, item.material)
+    const finishingColour = await finishingService.resolveColour(finishing, item.finishingColour)
     const reference = referencePriceFor(item.material)
     if (!reference) throw new OrderInputError(`Unknown material: ${item.material}`)
 
@@ -179,6 +184,7 @@ export async function priceOrder(input: {
     prepared.push({
       sliced,
       finishing,
+      finishingColour,
       item,
       file,
       volumeMm3: scaledVolume,
@@ -238,6 +244,7 @@ export async function priceOrder(input: {
       technology: p.technology,
       printProfileId: p.profile?.id ?? null,
       finishingCode: p.finishing?.code ?? null,
+      finishingColour: p.finishingColour,
       finishingName: p.finishing?.name ?? null,
       finishingMinor: breakdown.finishingMinor,
       material: p.item.material.toUpperCase(),

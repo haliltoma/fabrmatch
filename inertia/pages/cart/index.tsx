@@ -20,6 +20,7 @@ type Line = {
   material: string
   profileName: string | null
   finishingName: string | null
+  finishingColour?: string | null
   color: string | null
   quantity: number
   unitPriceMinor: number | null
@@ -104,7 +105,9 @@ function CartPage({
               <p className="text-xs text-ink-600">
                 {l.material}
                 {l.profileName ? ` · ${l.profileName}` : ''}
-                {l.finishingName ? ` · ${l.finishingName}` : ''}
+                {l.finishingName
+                  ? ` · ${t(l.finishingName)}${l.finishingColour ? ` (${t(l.finishingColour)})` : ''}`
+                  : ''}
                 {l.color ? ` · ${l.color}` : ''}
               </p>
             </div>

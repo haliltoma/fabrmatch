@@ -129,9 +129,17 @@ test.group('finishing over HTTP', (group) => {
       .withCsrfToken()
       .headers(inertia)
       .redirects(0)
-      .json({ modelFileId: file.id, material: 'PLA', quantity: 1, finishing: 'paint' })
+      .json({
+        modelFileId: file.id,
+        material: 'PLA',
+        quantity: 1,
+        finishing: 'paint',
+        finishingColour: 'blue',
+      })
     add.assertStatus(302)
-    assert.equal((await CartItem.firstOrFail()).finishingCode, 'PAINT')
+    const line = await CartItem.firstOrFail()
+    assert.equal(line.finishingCode, 'PAINT')
+    assert.equal(line.finishingColour, 'Blue')
 
     const cart = await client.get('/cart').headers(inertia).loginAs(user)
     assert.equal(cart.body().props.lines[0].finishingName, 'Primed and painted')
