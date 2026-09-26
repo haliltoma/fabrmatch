@@ -42,7 +42,7 @@ Alıcı Fabrmatch üzerinden para ödüyor. Para üreticiye (ve varsa satıcıya
 
 ### B. Fabrmatch satıcıdır (fason üretim satın alan) — **ÖNERİ**
 
-- **Tahsilat:** Alıcı Fabrmatch'tan satın alır. Tahsil edilen para **Fabrmatch'in kendi satış gelirdir**, başkası adına tutulan para değildir. Bu yüzden 6493 sorunu yok ve standart iyzico üye işyeri yeterli: bugün sandbox'ta çalışan kod bu model için doğru.
+- **Tahsilat:** Alıcı Fabrmatch'tan satın alır. Tahsil edilen para **Fabrmatch'in kendi satış geliridir**, başkası adına tutulan para değildir. Bu yüzden 6493 sorunu yok ve standart iyzico üye işyeri yeterli: bugün sandbox'ta çalışan kod bu model için doğru.
 - **Faturalar:**
   - Alıcıya tek fatura: Fabrmatch keser, tam tutar, KDV dahil. Kurumsal alıcı VKN'si ile e-fatura alır.
   - Üretici, Fabrmatch'a fason üretim/mal faturası keser (şirket, şahıs, basit usul).
