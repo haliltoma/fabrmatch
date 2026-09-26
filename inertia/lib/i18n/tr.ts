@@ -2338,4 +2338,7 @@ export const tr: Record<string, string> = {
   'The .3mf file has no 3D model inside': '.3mf dosyasının içinde 3D model yok',
   'The OBJ refers to a vertex that does not exist': 'OBJ, var olmayan bir köşeye başvuruyor',
   'The model is too detailed': 'Model çok ayrıntılı',
+  'Have a coupon code?': 'Kupon kodun var mı?',
+  'The discount shows on the next page, before you pay.':
+    'İndirim, ödemeden önce sonraki sayfada görünür.',
 }

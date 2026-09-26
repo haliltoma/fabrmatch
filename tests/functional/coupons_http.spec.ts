@@ -9,6 +9,7 @@ import CouponService from '#services/pricing/coupon_service'
 import {
   TR_ADDRESS,
   createAnalyzedFile,
+  createStorefrontProduct,
   createUser,
   ensureReferenceCatalog,
 } from '#tests/helpers/order_fixtures'
@@ -133,5 +134,37 @@ test.group('coupons over HTTP', (group) => {
       .json({ shippingAddress: TR_ADDRESS, couponCode: 'NOPE' })
     response.assertStatus(422)
     assert.lengthOf(await Order.all(), 0)
+  })
+
+  test('a code on the shop order form discounts the storefront order', async ({
+    client,
+    assert,
+  }) => {
+    await new CouponService().create({ code: 'SHOP10', kind: 'percent', value: 1000 })
+    const shop = await createStorefrontProduct()
+    const buyer = await createUser('shopper')
+    await new RoleService().assignRole(buyer, 'seller')
+    const order = (couponCode?: string) =>
+      client
+        .post(`/shop/${shop.product.id}/order`)
+        .loginAs(buyer)
+        .withCsrfToken()
+        .headers(inertia)
+        .redirects(0)
+        .json({ material: 'PLA', quantity: 1, shippingAddress: TR_ADDRESS, couponCode })
+
+    const placed = await order('shop10')
+    placed.assertStatus(302)
+    const discounted = await Order.query().where('buyerId', buyer.id).firstOrFail()
+    assert.isAbove(discounted.discountMinor, 0)
+
+    const bad = await client
+      .post(`/shop/${shop.product.id}/order`)
+      .loginAs(buyer)
+      .withCsrfToken()
+      .header('accept', 'application/json')
+      .json({ material: 'PLA', quantity: 1, shippingAddress: TR_ADDRESS, couponCode: 'NOPE' })
+    bad.assertStatus(422)
+    assert.lengthOf(await Order.query().where('buyerId', buyer.id), 1)
   })
 })

@@ -96,6 +96,7 @@ export default function ShopShow({
   const [scale, setScale] = useState(100)
   const [quantity, setQuantity] = useState(1)
   const [busy, setBusy] = useState(false)
+  const [coupon, setCoupon] = useState('')
   const [address, setAddress] = useState({
     fullName: '',
     line1: '',
@@ -117,7 +118,14 @@ export default function ShopShow({
     setBusy(true)
     router.post(
       `/shop/${product.id}/order`,
-      { material, quantity, scalePercent: scale, shippingAddress: address, acceptTerms: accepted },
+      {
+        material,
+        quantity,
+        scalePercent: scale,
+        shippingAddress: address,
+        acceptTerms: accepted,
+        couponCode: coupon.trim() || undefined,
+      },
       { headers: idem.headers(), onError: idem.renew, onFinish: () => setBusy(false) }
     )
   }
@@ -268,6 +276,24 @@ export default function ShopShow({
                         />
                       </div>
                     </div>
+                    <details className="group text-sm" open={coupon !== ''}>
+                      <summary className="cursor-pointer text-ink-700 underline-offset-2 hover:underline">
+                        {t('Have a coupon code?')}
+                      </summary>
+                      <div className="mt-2 space-y-1">
+                        <Label htmlFor="shop-coupon">{t('Coupon code')}</Label>
+                        <Input
+                          id="shop-coupon"
+                          value={coupon}
+                          maxLength={40}
+                          autoComplete="off"
+                          onChange={(e) => setCoupon(e.target.value.toUpperCase())}
+                        />
+                        <p className="text-xs text-ink-600">
+                          {t('The discount shows on the next page, before you pay.')}
+                        </p>
+                      </div>
+                    </details>
                     <TermsCheckbox checked={accepted} onChange={setAccepted} />
                     <Button
                       type="submit"
