@@ -2341,4 +2341,5 @@ export const tr: Record<string, string> = {
   'Have a coupon code?': 'Kupon kodun var mı?',
   'The discount shows on the next page, before you pay.':
     'İndirim, ödemeden önce sonraki sayfada görünür.',
+  'API reference (OpenAPI)': 'API başvuru belgesi (OpenAPI)',
 }

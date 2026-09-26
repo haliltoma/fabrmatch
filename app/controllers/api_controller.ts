@@ -7,6 +7,8 @@ import SellerProductService from '#services/catalog/seller_product_service'
 import OrderTransformer from '#transformers/order_transformer'
 import SellerProductTransformer from '#transformers/seller_product_transformer'
 import { sellerOrdersQueryValidator } from '#validators/order'
+import { openApiDocument } from '#services/integrations/openapi'
+import env from '#start/env'
 
 /** Read-only public API for sellers (`/api/v1`). Same identity-free views as the seller panel. */
 export default class ApiController {
@@ -46,5 +48,11 @@ export default class ApiController {
         0
       ),
     })
+  }
+
+  /** Public: the OpenAPI 3.1 document of this API and its webhooks. */
+  async openapi({ response }: HttpContext) {
+    response.header('Cache-Control', 'public, max-age=3600')
+    return response.json(openApiDocument(env.get('APP_URL').replace(/\/$/, '')))
   }
 }

@@ -120,6 +120,7 @@ export type ScannedRoutes = {
     'rfq.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'rfq.award': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'rfq.cancel': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'api.openapi': { paramsTuple?: []; params?: {} }
     'api.orders': { paramsTuple?: []; params?: {} }
     'api.order': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'api.products': { paramsTuple?: []; params?: {} }
@@ -280,6 +281,7 @@ export type ScannedRoutes = {
     'rfq.index': { paramsTuple?: []; params?: {} }
     'rfq.create': { paramsTuple?: []; params?: {} }
     'rfq.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'api.openapi': { paramsTuple?: []; params?: {} }
     'api.orders': { paramsTuple?: []; params?: {} }
     'api.order': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'api.products': { paramsTuple?: []; params?: {} }
@@ -380,6 +382,7 @@ export type ScannedRoutes = {
     'rfq.index': { paramsTuple?: []; params?: {} }
     'rfq.create': { paramsTuple?: []; params?: {} }
     'rfq.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'api.openapi': { paramsTuple?: []; params?: {} }
     'api.orders': { paramsTuple?: []; params?: {} }
     'api.order': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'api.products': { paramsTuple?: []; params?: {} }

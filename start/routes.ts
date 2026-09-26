@@ -358,6 +358,9 @@ router
     middleware.feature({ name: 'rfq' }),
   ])
 
+// OpenAPI document of the seller API (public, no key)
+router.get('/api/v1/openapi.json', [controllers.Api, 'openapi'])
+
 // Public seller API (bearer key, read-only)
 router
   .group(() => {

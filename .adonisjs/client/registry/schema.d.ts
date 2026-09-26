@@ -1399,6 +1399,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfq_controller').default['cancel']>>>
     }
   }
+  'api.openapi': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/openapi.json'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/api_controller').default['openapi']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/api_controller').default['openapi']>>>
+    }
+  }
   'api.orders': {
     methods: ["GET","HEAD"]
     pattern: '/api/v1/orders'

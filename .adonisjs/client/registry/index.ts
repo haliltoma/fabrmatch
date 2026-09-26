@@ -702,6 +702,12 @@ const routes = {
     tokens: [{"old":"/rfqs/:id/cancel","type":0,"val":"rfqs","end":""},{"old":"/rfqs/:id/cancel","type":1,"val":"id","end":""},{"old":"/rfqs/:id/cancel","type":0,"val":"cancel","end":""}],
     types: placeholder as Registry['rfq.cancel']['types'],
   },
+  'api.openapi': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/openapi.json',
+    tokens: [{"old":"/api/v1/openapi.json","type":0,"val":"api","end":""},{"old":"/api/v1/openapi.json","type":0,"val":"v1","end":""},{"old":"/api/v1/openapi.json","type":0,"val":"openapi.json","end":""}],
+    types: placeholder as Registry['api.openapi']['types'],
+  },
   'api.orders': {
     methods: ["GET","HEAD"],
     pattern: '/api/v1/orders',

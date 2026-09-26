@@ -193,6 +193,7 @@ export interface ApiDefinition {
     cancel: typeof routes['rfq.cancel']
   }
   api: {
+    openapi: typeof routes['api.openapi']
     orders: typeof routes['api.orders']
     order: typeof routes['api.order']
     products: typeof routes['api.products']

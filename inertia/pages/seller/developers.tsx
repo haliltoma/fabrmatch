@@ -65,7 +65,10 @@ function KeysCard({ keys }: { keys: Key[] }) {
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-ink-700">
-          {t('Read your orders and products from your own systems. Keys are read-only.')}
+          {t('Read your orders and products from your own systems. Keys are read-only.')}{' '}
+          <a href="/api/v1/openapi.json" className="font-medium text-heat-700 underline">
+            {t('API reference (OpenAPI)')}
+          </a>
         </p>
         {keys.length === 0 ? (
           <p className="text-ink-700">{t('No API keys yet. Create one to get started.')}</p>
