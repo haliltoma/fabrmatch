@@ -2405,4 +2405,5 @@ export const tr: Record<string, string> = {
   'Choose an image': 'Bir görsel seç',
   'The logo can be at most 256 KB': 'Logo en çok 256 KB olabilir',
   'The logo must be a PNG, JPEG or WebP image': 'Logo PNG, JPEG ya da WebP olmalı',
+  'Coupon cost': 'Kupon maliyeti',
 }

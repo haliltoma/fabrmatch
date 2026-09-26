@@ -3,6 +3,7 @@ import testUtils from '@adonisjs/core/services/test_utils'
 import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
 import OrderService from '#services/orders/order_service'
+import CouponService from '#services/pricing/coupon_service'
 import FakePaymentProvider from '#services/payments/fake_provider'
 import PaymentService from '#services/payments/payment_service'
 import PayoutService from '#services/payments/payout_service'
@@ -101,6 +102,30 @@ test.group('financial reports', (group) => {
     )
     assert.equal(rows[0].grossMinor, a.order.totalMinor)
     assert.equal(rows[1].grossMinor, b.order.totalMinor)
+  })
+
+  test('the coupon export shows what each code cost on completed orders', async ({ assert }) => {
+    await new CouponService().create({ code: 'SAVE10', kind: 'percent', value: 1000 })
+    const provider = new FakePaymentProvider()
+    const withCode = await createFundedOrder(provider, { upTo: 'completed', couponCode: 'SAVE10' })
+    await createFundedOrder(provider, { upTo: 'completed' })
+    assert.isAbove(withCode.order.discountMinor, 0)
+
+    const csv = await reports.couponsCsv(thisMonth())
+    const [header, ...lines] = csv.trim().split('\r\n')
+    assert.include(header, 'discount_cost')
+    assert.lengthOf(lines, 1, 'orders without a code are not listed')
+    assert.equal(
+      lines[0],
+      [
+        'SAVE10',
+        withCode.order.currency,
+        1,
+        minorToDecimal(withCode.order.discountMinor),
+        minorToDecimal(withCode.order.totalMinor),
+        minorToDecimal(withCode.order.platformFeeMinor),
+      ].join(',')
+    )
   })
 
   test('the summary and order exports are plain decimals with no personal data', async ({

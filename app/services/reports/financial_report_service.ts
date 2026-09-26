@@ -197,6 +197,46 @@ export default class FinancialReportService {
   }
 
   /**
+   * What coupons cost in the period: orders completed in it that used a code, per coupon and
+   * currency. The discount comes out of the platform fee, so it is the platform's cost.
+   */
+  async couponsCsv(period: Period): Promise<string> {
+    const rows = await db
+      .from('coupon_redemptions as cr')
+      .join('orders as o', 'o.id', 'cr.order_id')
+      .join('coupons as c', 'c.id', 'cr.coupon_id')
+      .where('o.status', 'completed')
+      .where('o.completed_at', '>=', sql(period.from))
+      .where('o.completed_at', '<', sql(period.to))
+      .groupBy('c.code', 'o.currency')
+      .orderBy('c.code', 'asc')
+      .orderBy('o.currency', 'asc')
+      .select('c.code', 'o.currency')
+      .count('* as orders')
+      .sum('o.discount_minor as discount')
+      .sum('o.total_minor as total')
+      .sum('o.platform_fee_minor as fee')
+    return toCsv(
+      [
+        'coupon',
+        'currency',
+        'orders',
+        'discount_cost',
+        'order_total',
+        'platform_fee_after_discount',
+      ],
+      rows.map((r) => [
+        r.code,
+        r.currency,
+        Number(r.orders),
+        minorToDecimal(Number(r.discount)),
+        minorToDecimal(Number(r.total)),
+        minorToDecimal(Number(r.fee)),
+      ])
+    )
+  }
+
+  /**
    * Payouts paid in the period. Admin export lists every beneficiary (by internal id); a member's own
    * statement is limited to their payouts and shows only the order code and amounts.
    */

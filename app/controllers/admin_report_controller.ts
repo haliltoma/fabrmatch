@@ -41,6 +41,9 @@ export default class AdminReportController {
       case 'payouts':
         body = await reports.payoutsCsv(period, null)
         break
+      case 'coupons':
+        body = await reports.couponsCsv(period)
+        break
       default:
         return response.notFound()
     }

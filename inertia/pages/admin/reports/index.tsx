@@ -124,6 +124,9 @@ export default function AdminReports({ month, rows }: { month: string; rows: Row
           <Button asChild variant="outline">
             <a href={download('payouts')}>{t('Payouts paid')}</a>
           </Button>
+          <Button asChild variant="outline">
+            <a href={download('coupons')}>{t('Coupon cost')}</a>
+          </Button>
         </CardContent>
       </Card>
       <p className="text-xs text-ink-600">
