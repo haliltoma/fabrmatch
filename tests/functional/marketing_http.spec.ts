@@ -169,6 +169,50 @@ test.group('quick quote (M2-T1)', (group) => {
     assert.equal(after[0].$extras.n, before[0].$extras.n, 'no ModelFile row was created')
   })
 
+  test('an OBJ gets the same price as the same shape in STL', async ({ client, assert }) => {
+    const dir = await mkdtemp(join(tmpdir(), 'qq-'))
+    const stl = join(dir, 'cube.stl')
+    await writeFile(stl, cubeStl())
+    const obj = join(dir, 'cube.obj')
+    const v = [
+      [0, 0, 0],
+      [20, 0, 0],
+      [20, 20, 0],
+      [0, 20, 0],
+      [0, 0, 20],
+      [20, 0, 20],
+      [20, 20, 20],
+      [0, 20, 20],
+    ]
+    await writeFile(
+      obj,
+      [
+        ...v.map(([x, y, z]) => `v ${x} ${y} ${z}`),
+        'f 1 4 3 2',
+        'f 5 6 7 8',
+        'f 1 2 6 5',
+        'f 3 4 8 7',
+        'f 2 3 7 6',
+        'f 4 1 5 8',
+      ].join('\n')
+    )
+    const quote = async (path: string) => {
+      const response = await client
+        .post('/tools/quick-quote')
+        .withCsrfToken()
+        .header('accept', 'application/json')
+        .file('model', path)
+        .fields({ material: 'PLA' })
+      assert.equal(response.status(), 200, JSON.stringify(response.body()))
+      return response.body().quote
+    }
+    const fromObj = await quote(obj)
+    const fromStl = await quote(stl)
+    assert.deepEqual(fromObj.bboxMm, [20, 20, 20])
+    assert.equal(fromObj.volumeCm3, 8)
+    assert.equal(fromObj.totalMinor, fromStl.totalMinor)
+  })
+
   test('non-STL, executables and unknown materials are refused with a message', async ({
     client,
     assert,

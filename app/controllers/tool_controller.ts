@@ -34,13 +34,19 @@ export default class ToolController {
 
   async quickQuote({ request, response, session }: HttpContext) {
     const file = request.file('model', { size: MAX_QUICK_BYTES })
-    if (!file || !file.tmpPath) return response.badRequest({ error: 'Choose an STL file' })
+    // text formats have no magic bytes, so the format comes from the name; the scan checks the content
+    const format = /\.(stl|3mf|obj)$/i.exec(file?.clientName ?? '')?.[1]?.toUpperCase() as
+      'STL' | '3MF' | 'OBJ' | undefined
+    if (!file || !file.tmpPath || !format) {
+      return response.badRequest({ error: 'Choose an STL, 3MF or OBJ file' })
+    }
     if (!file.isValid)
       return response.badRequest({ error: file.errors[0]?.message ?? 'Invalid file' })
     try {
       const quote = await quickQuoteFromFile({
         tmpPath: file.tmpPath,
         material: String(request.input('material', 'PLA')),
+        format,
       })
       await new ExperimentService().convert('home_cta', session.sessionId)
       return response.json({ quote })

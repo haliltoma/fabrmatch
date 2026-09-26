@@ -2327,4 +2327,15 @@ export const tr: Record<string, string> = {
   'This part is not sold in the shop': 'Bu parça vitrinde satılmıyor',
   'This photo was already reviewed': 'Bu fotoğraf zaten incelendi',
   'Photo not found': 'Fotoğraf bulunamadı',
+  'Choose an STL, 3MF or OBJ file.': 'Bir STL, 3MF ya da OBJ dosyası seç.',
+  'Choose an STL, 3MF or OBJ file': 'Bir STL, 3MF ya da OBJ dosyası seç',
+  'Drop your STL, 3MF or OBJ here': 'STL, 3MF ya da OBJ dosyanı buraya bırak',
+  'Drop an STL, 3MF or OBJ here or choose a file':
+    'Bir STL, 3MF ya da OBJ dosyasını buraya bırak ya da seç',
+  'The 3D preview shows STL files. Your price is worked out from the full model.':
+    '3D önizleme STL dosyalarında çalışır. Fiyatın modelin tamamından hesaplanır.',
+  'No triangles found in the model': 'Modelde üçgen bulunamadı',
+  'The .3mf file has no 3D model inside': '.3mf dosyasının içinde 3D model yok',
+  'The OBJ refers to a vertex that does not exist': 'OBJ, var olmayan bir köşeye başvuruyor',
+  'The model is too detailed': 'Model çok ayrıntılı',
 }

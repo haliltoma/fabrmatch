@@ -1,10 +1,10 @@
 import { BaseCommand, flags } from '@adonisjs/core/ace'
 import type { CommandOptions } from '@adonisjs/core/types/ace'
 
-/** Backfill: turntable renders for analysed STL files that do not have this render version yet. */
+/** Backfill: turntable renders for analysed model files that do not have this render version yet. */
 export default class RenderModelImages extends BaseCommand {
   static commandName = 'images:render'
-  static description = 'Render shop images for analysed STL models that have none yet'
+  static description = 'Render shop images for analysed models that have none yet'
   static options: CommandOptions = { startApp: true }
 
   @flags.number({ description: 'Only this model file id' })
@@ -15,7 +15,6 @@ export default class RenderModelImages extends BaseCommand {
     const { default: ProductImageService } = await import('#services/catalog/product_image_service')
 
     const query = ModelFile.query()
-      .where('format', 'STL')
       .where('analysisStatus', 'done')
       .whereNull('blockedAt')
       .orderBy('id', 'asc')

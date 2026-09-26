@@ -183,56 +183,7 @@ export function analyzeStl(buffer: Buffer): StlAnalysisResult {
       }
     }
 
-    // Volume (absolute value of sum of signed volumes)
-    let volume = 0
-    let minX = Infinity
-    let minY = Infinity
-    let minZ = Infinity
-    let maxX = -Infinity
-    let maxY = -Infinity
-    let maxZ = -Infinity
-
-    for (const t of triangles) {
-      volume += signedVolumeOfTriangle(t)
-      for (const v of [t.v1, t.v2, t.v3]) {
-        if (v[0] < minX) minX = v[0]
-        if (v[1] < minY) minY = v[1]
-        if (v[2] < minZ) minZ = v[2]
-        if (v[0] > maxX) maxX = v[0]
-        if (v[1] > maxY) maxY = v[1]
-        if (v[2] > maxZ) maxZ = v[2]
-      }
-    }
-
-    const volumeMm3 = Math.abs(volume)
-    const bboxXMm = maxX - minX
-    const bboxYMm = maxY - minY
-    const bboxZMm = maxZ - minZ
-
-    const manifold = isManifold(triangles)
-    const hasVolume = volumeMm3 > 0.001
-    const dfmIssues = analyzeDfm(triangles, {
-      signedVolume: volume,
-      bbox: [bboxXMm, bboxYMm, bboxZMm],
-    })
-    if (!manifold) {
-      dfmIssues.unshift({
-        code: 'not_watertight',
-        level: 'blocker',
-        message: 'The mesh has holes or open edges (not watertight). Repair it and upload again.',
-      })
-    }
-
-    return {
-      volumeMm3,
-      bboxXMm,
-      bboxYMm,
-      bboxZMm,
-      triangleCount: triangles.length,
-      isPrintable: manifold && hasVolume && !hasBlocker(dfmIssues),
-      dfmIssues,
-      error: null,
-    }
+    return analyzeTriangles(triangles)
   } catch (err) {
     return {
       volumeMm3: 0,
@@ -244,5 +195,74 @@ export function analyzeStl(buffer: Buffer): StlAnalysisResult {
       dfmIssues: [],
       error: `Analysis failed: ${(err as Error).message}`,
     }
+  }
+}
+
+/**
+ * Volume, bounding box, watertightness and DFM checks from triangles, whatever format they came
+ * from (STL, 3MF, OBJ). Millimetres in, millimetres out.
+ */
+export function analyzeTriangles(triangles: Triangle[]): StlAnalysisResult {
+  if (triangles.length === 0) {
+    return {
+      volumeMm3: 0,
+      bboxXMm: 0,
+      bboxYMm: 0,
+      bboxZMm: 0,
+      triangleCount: 0,
+      isPrintable: false,
+      dfmIssues: [],
+      error: 'No triangles found in the model',
+    }
+  }
+  // Volume (absolute value of sum of signed volumes)
+  let volume = 0
+  let minX = Infinity
+  let minY = Infinity
+  let minZ = Infinity
+  let maxX = -Infinity
+  let maxY = -Infinity
+  let maxZ = -Infinity
+
+  for (const t of triangles) {
+    volume += signedVolumeOfTriangle(t)
+    for (const v of [t.v1, t.v2, t.v3]) {
+      if (v[0] < minX) minX = v[0]
+      if (v[1] < minY) minY = v[1]
+      if (v[2] < minZ) minZ = v[2]
+      if (v[0] > maxX) maxX = v[0]
+      if (v[1] > maxY) maxY = v[1]
+      if (v[2] > maxZ) maxZ = v[2]
+    }
+  }
+
+  const volumeMm3 = Math.abs(volume)
+  const bboxXMm = maxX - minX
+  const bboxYMm = maxY - minY
+  const bboxZMm = maxZ - minZ
+
+  const manifold = isManifold(triangles)
+  const hasVolume = volumeMm3 > 0.001
+  const dfmIssues = analyzeDfm(triangles, {
+    signedVolume: volume,
+    bbox: [bboxXMm, bboxYMm, bboxZMm],
+  })
+  if (!manifold) {
+    dfmIssues.unshift({
+      code: 'not_watertight',
+      level: 'blocker',
+      message: 'The mesh has holes or open edges (not watertight). Repair it and upload again.',
+    })
+  }
+
+  return {
+    volumeMm3,
+    bboxXMm,
+    bboxYMm,
+    bboxZMm,
+    triangleCount: triangles.length,
+    isPrintable: manifold && hasVolume && !hasBlocker(dfmIssues),
+    dfmIssues,
+    error: null,
   }
 }

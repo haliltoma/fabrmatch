@@ -6,7 +6,9 @@ import app from '@adonisjs/core/services/app'
 import logger from '@adonisjs/core/services/logger'
 import drive from '@adonisjs/drive/services/main'
 import ModelFile from '#models/model_file'
-import { analyzeStl } from '#services/files/stl_analyzer'
+import { analyzeTriangles } from '#services/files/stl_analyzer'
+import { MeshParseError, parseModel } from '#services/files/mesh_parser'
+import type { ModelFormat } from '#services/files/file_scanner'
 
 interface AnalyzeModelFilePayload {
   modelFileId: number
@@ -66,27 +68,26 @@ export default class AnalyzeModelFile extends Job<AnalyzeModelFilePayload> {
         return
       }
 
-      if (file.format === 'STL') {
-        const result = analyzeStl(buffer)
-
-        file.volumeMm3 = result.volumeMm3
-        file.bboxXMm = result.bboxXMm
-        file.bboxYMm = result.bboxYMm
-        file.bboxZMm = result.bboxZMm
-        file.triangleCount = result.triangleCount
-        file.isPrintable = result.isPrintable
-        file.dfmIssues = result.dfmIssues
-        file.analysisError = result.error
-        file.analysisStatus = result.error ? 'failed' : 'done'
-      } else {
-        // 3MF and OBJ: mark as done with basic info, no deep analysis yet
-        file.analysisStatus = 'done'
-        file.isPrintable = null // Unknown without parser
-        file.analysisError = null
+      // STL, 3MF and OBJ all end up as triangles in millimetres, then the same checks
+      let result
+      try {
+        result = analyzeTriangles(parseModel(buffer, file.format as ModelFormat))
+      } catch (error) {
+        if (!(error instanceof MeshParseError)) throw error
+        result = { ...analyzeTriangles([]), error: error.message }
       }
+      file.volumeMm3 = result.volumeMm3
+      file.bboxXMm = result.bboxXMm
+      file.bboxYMm = result.bboxYMm
+      file.bboxZMm = result.bboxZMm
+      file.triangleCount = result.triangleCount
+      file.isPrintable = result.isPrintable
+      file.dfmIssues = result.dfmIssues
+      file.analysisError = result.error
+      file.analysisStatus = result.error ? 'failed' : 'done'
 
       await file.save()
-      if (file.analysisStatus === 'done' && file.format === 'STL' && !app.inTest) {
+      if (file.analysisStatus === 'done' && !app.inTest) {
         try {
           const { default: RenderModelFile } = await import('#jobs/render_model_file')
           await RenderModelFile.dispatch({ modelFileId })

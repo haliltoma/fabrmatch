@@ -32,8 +32,8 @@ export function HeroQuickStart() {
     if (!file) return
     setError(null)
     setBlocked(null)
-    if (!file.name.toLowerCase().endsWith('.stl')) {
-      setError('Only STL files can be priced here. Sign in to upload 3MF or OBJ.')
+    if (!/\.(stl|3mf|obj)$/i.test(file.name)) {
+      setError('Choose an STL, 3MF or OBJ file.')
       return
     }
     setBusy(true)
@@ -146,7 +146,7 @@ export function HeroQuickStart() {
         </span>
         <span>
           <span className="block font-display text-xl font-semibold text-ink-900">
-            {busy ? t('Measuring your model…') : t('Drop your STL here')}
+            {busy ? t('Measuring your model…') : t('Drop your STL, 3MF or OBJ here')}
           </span>
           <span className="block text-sm text-ink-700">
             {t('See the delivered price in seconds. No account needed.')}
@@ -155,7 +155,7 @@ export function HeroQuickStart() {
         <input
           id="hero-file"
           type="file"
-          accept=".stl"
+          accept=".stl,.3mf,.obj"
           className="sr-only"
           onChange={(e) => void price(e.target.files?.[0] ?? null)}
         />

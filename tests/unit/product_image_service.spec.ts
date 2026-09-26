@@ -41,7 +41,7 @@ test.group('ProductImageService (R4-T6)', (group) => {
     assert.equal(images.get(file.id)![0].url, `/images/${images.get(file.id)![0].id}`)
   })
 
-  test('blocked, unanalysed or non-STL files are not rendered', async ({ assert }) => {
+  test('blocked or unreadable files are not rendered', async ({ assert }) => {
     const file = await storedFile()
     file.blockedAt = file.createdAt
     await file.save()

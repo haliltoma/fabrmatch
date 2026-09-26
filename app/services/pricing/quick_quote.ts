@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises'
-import { analyzeStl } from '#services/files/stl_analyzer'
-import { scanUpload, type ScanCheck } from '#services/files/file_scanner'
+import { analyzeTriangles } from '#services/files/stl_analyzer'
+import { MeshParseError, parseModel } from '#services/files/mesh_parser'
+import { scanUpload, type ModelFormat, type ScanCheck } from '#services/files/file_scanner'
 import {
   calculatePrice,
   estimateGrams,
@@ -61,13 +62,15 @@ export const QUICK_QUOTE_MATERIALS = FDM_MATERIALS.map((key) => ({
 
 /**
  * Price for a visitor without an account. The file is analysed in memory and thrown away —
- * nothing is stored or shared (business rule 4). FDM STL only, one piece, delivery in Türkiye;
+ * nothing is stored or shared (business rule 4). STL, 3MF or OBJ, FDM, one piece, delivery in Türkiye;
  * the real quote appears once they sign in and pick their options.
  */
 export async function quickQuoteFromFile(input: {
   tmpPath: string
   material: string
+  format?: ModelFormat
 }): Promise<QuickQuote> {
+  const format = input.format ?? 'STL'
   const material = input.material.toUpperCase()
   const reference = referencePriceFor(material)
   if (!reference || !FDM_MATERIALS.includes(material)) {
@@ -75,10 +78,16 @@ export async function quickQuoteFromFile(input: {
   }
 
   const buffer = await readFile(input.tmpPath)
-  const verdict = await scanUpload(buffer, 'STL')
+  const verdict = await scanUpload(buffer, format)
   if (!verdict.ok) throw new QuickQuoteError(verdict.reason ?? 'This file cannot be used', true)
 
-  const analysis = analyzeStl(buffer)
+  let analysis
+  try {
+    analysis = analyzeTriangles(parseModel(buffer, format))
+  } catch (error) {
+    if (error instanceof MeshParseError) throw new QuickQuoteError(error.message)
+    throw error
+  }
   if (analysis.error) throw new QuickQuoteError(analysis.error)
   if (!analysis.isPrintable) {
     const blocker = analysis.dfmIssues.find((i) => i.level === 'blocker')

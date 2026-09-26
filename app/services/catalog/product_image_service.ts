@@ -3,7 +3,8 @@ import logger from '@adonisjs/core/services/logger'
 import { DateTime } from 'luxon'
 import ModelFile from '#models/model_file'
 import ProductImage from '#models/product_image'
-import { parseStl } from '#services/files/stl_analyzer'
+import { MeshParseError, parseModel } from '#services/files/mesh_parser'
+import type { ModelFormat } from '#services/files/file_scanner'
 import { RENDER_VERSION, renderTurntable } from '#services/files/model_renderer'
 
 /** Largest mesh rendered in one go; bigger files keep the placeholder instead of stalling a worker. */
@@ -30,7 +31,7 @@ export default class ProductImageService {
    */
   async renderModel(modelFileId: number): Promise<number> {
     const file = await ModelFile.find(modelFileId)
-    if (!file || file.format !== 'STL' || file.blockedAt || file.analysisStatus !== 'done') return 0
+    if (!file || file.blockedAt || file.analysisStatus !== 'done') return 0
 
     const current = await ProductImage.query()
       .where('modelFileId', file.id)
@@ -46,7 +47,15 @@ export default class ProductImageService {
 
     const disk = drive.use('s3')
     const buffer = Buffer.from(await disk.getBytes(file.storageKey))
-    const frames = renderTurntable(parseStl(buffer))
+    let triangles
+    try {
+      triangles = parseModel(buffer, file.format as ModelFormat)
+    } catch (error) {
+      if (!(error instanceof MeshParseError)) throw error
+      logger.warn({ msg: 'render skipped: unreadable model', modelFileId, error: error.message })
+      return 0
+    }
+    const frames = renderTurntable(triangles)
     if (frames.length === 0) return 0
 
     const old = await ProductImage.query().where('modelFileId', file.id).where('kind', 'render')

@@ -80,8 +80,8 @@ function QuickQuote({ materials }: { materials: Array<{ key: string; label: stri
     setBlocked(null)
     setQuote(null)
     if (!next) return
-    if (!next.name.toLowerCase().endsWith('.stl')) {
-      setError('Only STL files can be priced here. Sign in to upload 3MF or OBJ.')
+    if (!/\.(stl|3mf|obj)$/i.test(next.name)) {
+      setError('Choose an STL, 3MF or OBJ file.')
       return
     }
     if (next.size > MAX_BYTES) {
@@ -191,7 +191,15 @@ function QuickQuote({ materials }: { materials: Array<{ key: string; label: stri
                     </div>
                   }
                 >
-                  <StlViewer url={previewUrl} className="h-64" />
+                  {/\.stl$/i.test(file.name) ? (
+                    <StlViewer url={previewUrl} className="h-64" />
+                  ) : (
+                    <div className="layer-lines flex h-64 items-center justify-center px-6 text-center text-sm text-ink-700">
+                      {t(
+                        'The 3D preview shows STL files. Your price is worked out from the full model.'
+                      )}
+                    </div>
+                  )}
                 </Suspense>
                 <div className="flex flex-wrap items-center justify-between gap-3 border-t-2 border-ink-900 px-4 py-3">
                   <p className="min-w-0 truncate text-sm font-medium text-ink-900">
@@ -240,7 +248,7 @@ function QuickQuote({ materials }: { materials: Array<{ key: string; label: stri
                   <FileUp className="h-7 w-7 text-ink-900" aria-hidden />
                 </span>
                 <span className="font-display text-xl font-semibold text-ink-900">
-                  {t('Drop an STL here or choose a file')}
+                  {t('Drop an STL, 3MF or OBJ here or choose a file')}
                 </span>
                 <span className="text-sm text-ink-600">
                   {t('Up to 15 MB · stays in your browser')}
@@ -249,7 +257,7 @@ function QuickQuote({ materials }: { materials: Array<{ key: string; label: stri
                   ref={inputRef}
                   id="qq-file"
                   type="file"
-                  accept=".stl"
+                  accept=".stl,.3mf,.obj"
                   className="sr-only"
                   onChange={(e) => choose(e.target.files?.[0] ?? null)}
                 />
