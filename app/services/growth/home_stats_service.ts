@@ -15,28 +15,25 @@ export interface HomeStats {
 
 export default class HomeStatsService {
   async load(): Promise<HomeStats> {
-    const makers = Number(
-      (await db.from('manufacturer_profiles').where('status', 'active').count('* as n').first())
-        ?.n ?? 0
-    )
-    const technologies = Number(
-      (
-        await db
-          .from('printers')
-          .join(
-            'manufacturer_profiles',
-            'manufacturer_profiles.id',
-            'printers.manufacturer_profile_id'
-          )
-          .where('manufacturer_profiles.status', 'active')
-          .where('printers.is_active', true)
-          .countDistinct('printers.technology as n')
-          .first()
-      )?.n ?? 0
-    )
-    const materials = Number(
-      (await db.from('materials').where('is_active', true).count('* as n').first())?.n ?? 0
-    )
+    const makerRow = await db
+      .from('manufacturer_profiles')
+      .where('status', 'active')
+      .count('* as n')
+      .first()
+    const makers = Number(makerRow?.n ?? 0)
+
+    const technologyRow = await db
+      .from('printers')
+      .join('manufacturer_profiles', 'manufacturer_profiles.id', 'printers.manufacturer_profile_id')
+      .where('manufacturer_profiles.status', 'active')
+      .where('printers.is_active', true)
+      .countDistinct('printers.technology as n')
+      .first()
+    const technologies = Number(technologyRow?.n ?? 0)
+
+    const materialRow = await db.from('materials').where('is_active', true).count('* as n').first()
+    const materials = Number(materialRow?.n ?? 0)
+
     const rated = await db
       .from('production_jobs')
       .whereNotNull('rating')

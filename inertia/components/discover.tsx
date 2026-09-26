@@ -15,14 +15,11 @@ export type HomeProduct = {
 }
 export type HomeMaterial = { slug: string; code: string; name: string; technology: string }
 
-const SWATCH = ['#9db8a0', '#2f7d8b', '#d9a420', '#e7a79a', '#23282e', '#f0501e']
-const TINT = [
-  'bg-spool-sage/25',
-  'bg-spool-teal/15',
-  'bg-spool-mustard/20',
-  'bg-spool-rose/25',
-  'bg-spool-ink/10',
-  'bg-spool-orange/15',
+const FACES = [
+  { bg: 'bg-sun', art: '#f0501e' },
+  { bg: 'bg-lime', art: '#2f7d8b' },
+  { bg: 'bg-sky', art: '#15181c' },
+  { bg: 'bg-blush', art: '#2f7d8b' },
 ]
 const KINDS: PrintKind[] = ['vase', 'planter', 'stand', 'clip']
 
@@ -38,7 +35,7 @@ export function Discover({
   return (
     <>
       {products.length > 0 && (
-        <section className="border-t border-line bg-paper-sunken">
+        <section className="border-y-2 border-ink-900 bg-sun/25">
           <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <h2 className="max-w-xl font-display text-4xl font-semibold text-ink-900">
@@ -59,10 +56,10 @@ export function Discover({
                 <li key={p.id} className="w-64 shrink-0 snap-start">
                   <Link
                     href={`/shop/${p.id}/${p.slug}`}
-                    className="block h-full rounded-[10px] border border-line bg-paper-raised transition-colors hover:border-ink-900/40"
+                    className="block h-full rounded-[10px] border-2 border-ink-900 bg-paper-raised transition-transform duration-150 hover:-translate-y-1 hover:rotate-[0.6deg] motion-reduce:hover:transform-none"
                   >
                     <div
-                      className={`layer-lines flex h-32 items-end rounded-t-[10px] p-4 ${TINT[i % TINT.length]}`}
+                      className={`layer-lines flex h-32 items-end rounded-t-[10px] p-4 ${FACES[i % FACES.length].bg}`}
                     >
                       <span className="font-display text-5xl font-semibold leading-none text-ink-900">
                         {p.title.charAt(0)}
@@ -110,14 +107,14 @@ export function Discover({
               <li key={m.slug}>
                 <Link
                   href={`/materials/${m.slug}`}
-                  className="block rounded-[10px] border border-line bg-paper-raised p-4 transition-colors hover:border-ink-900/40"
+                  className="block rounded-[10px] border-2 border-ink-900 bg-paper-raised p-4 transition-transform duration-150 hover:-translate-y-1 hover:-rotate-[0.6deg] motion-reduce:hover:transform-none"
                 >
                   <div
-                    className={`flex h-24 items-center justify-center rounded-md ${TINT[i % TINT.length]}`}
+                    className={`flex h-24 items-center justify-center rounded-md border-2 border-ink-900 ${FACES[i % FACES.length].bg}`}
                   >
                     <PrintArt
                       kind={KINDS[i % KINDS.length]}
-                      color={SWATCH[i % SWATCH.length]}
+                      color={FACES[i % FACES.length].art}
                       className="h-4/5"
                     />
                   </div>

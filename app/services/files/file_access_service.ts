@@ -99,6 +99,9 @@ export default class FileAccessService {
       const disk = drive.use('s3')
       const url = await disk.getSignedUrl(grant.modelFile.storageKey, {
         expiresIn: '10m',
+        // served as a download, never rendered by the browser
+        contentType: 'application/octet-stream',
+        contentDisposition: `attachment; filename="${grant.modelFile.storageKey.split('/').pop()}"`,
       })
 
       return { url }

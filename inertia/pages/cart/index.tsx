@@ -183,12 +183,12 @@ function CartPage({
         </Button>
       </form>
       {couponProblem && (
-        <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+        <p role="alert" className="rounded-md bg-danger-soft p-3 text-sm text-danger">
           {t(couponProblem)}
         </p>
       )}
 
-      {problem && <p className="rounded-md bg-red-50 p-3 text-sm text-red-700">{t(problem)}</p>}
+      {problem && <p className="rounded-md bg-danger-soft p-3 text-sm text-danger">{t(problem)}</p>}
 
       {totals && (
         <dl className="space-y-1 rounded-lg border border-line bg-paper-raised p-5 text-sm">
@@ -208,7 +208,7 @@ function CartPage({
             </dd>
           </div>
           {totals.discountMinor > 0 && (
-            <div className="flex justify-between text-emerald-700">
+            <div className="flex justify-between text-fil-700">
               <dt>{t('Coupon {code}', { code: couponCode.toUpperCase() })}</dt>
               <dd>
                 −<Money minor={totals.discountMinor} currency={totals.currency} />

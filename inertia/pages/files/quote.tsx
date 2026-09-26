@@ -127,7 +127,7 @@ function QuotePage({
   }
 
   const newerBanner = newerVersionId ? (
-    <p role="note" className="rounded-md bg-amber-50 p-3 text-sm text-amber-900">
+    <p role="note" className="rounded-md bg-amber-soft p-3 text-sm text-amber-ink">
       {t('You uploaded a newer version of this model.')}{' '}
       <Link href={`/files/${newerVersionId}/quote`} className="font-medium underline">
         {t('Get a price for the newest version')}
@@ -233,9 +233,7 @@ function QuotePage({
             )}
             <div>
               <span className="text-ink-600">{t('Printable:')}</span>{' '}
-              <span
-                className={`font-medium ${file.isPrintable ? 'text-emerald-600' : 'text-red-600'}`}
-              >
+              <span className={`font-medium ${file.isPrintable ? 'text-fil-700' : 'text-danger'}`}>
                 {file.isPrintable ? 'Yes' : 'No'}
               </span>
             </div>
@@ -247,9 +245,9 @@ function QuotePage({
                   key={issue.code}
                   className={`rounded-md border px-3 py-2 text-sm ${
                     issue.level === 'blocker'
-                      ? 'border-red-300 bg-red-50 text-red-800'
+                      ? 'border-danger/40 bg-danger-soft text-danger'
                       : issue.level === 'warning'
-                        ? 'border-amber-300 bg-amber-50 text-amber-900'
+                        ? 'border-amber-ink/30 bg-amber-soft text-amber-ink'
                         : 'border-line bg-paper-sunken text-ink-700'
                   }`}
                 >
@@ -380,7 +378,7 @@ function QuotePage({
           </Button>
 
           {calcError && (
-            <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">{t(calcError)}</div>
+            <div className="rounded-md bg-danger-soft p-3 text-sm text-danger">{t(calcError)}</div>
           )}
         </CardContent>
       </Card>
@@ -440,7 +438,7 @@ function QuotePage({
                 </span>
               </div>
               {breakdown.totalPriceMinor !== breakdown.unitPriceMinor && (
-                <div className="flex justify-between text-lg font-bold text-indigo-900">
+                <div className="flex justify-between text-lg font-bold text-ink-900">
                   <span>{t('Total ({quantity} pcs)', { quantity })}</span>
                   <span>{formatMoney(breakdown.totalPriceMinor, breakdown.currency)}</span>
                 </div>

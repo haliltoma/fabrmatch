@@ -58,7 +58,9 @@ function AdminDashboard({
           openDisputes > 0 ? (
             <Button variant="accent" asChild>
               <Link href="/admin/disputes">
-                Decide {openDisputes} open dispute{openDisputes > 1 ? 's' : ''}
+                {openDisputes > 1
+                  ? t('Decide {count} open disputes', { count: openDisputes })
+                  : t('Decide {count} open dispute', { count: openDisputes })}
               </Link>
             </Button>
           ) : undefined
@@ -80,7 +82,11 @@ function AdminDashboard({
           tone={waiting > 0 ? 'alert' : 'default'}
           hint={
             waiting > 0
-              ? `${queues.pendingMakers} makers · ${queues.unmatched} unmatched · ${queues.overdue} late`
+              ? t('{makers} makers · {unmatched} unmatched · {late} late', {
+                  makers: queues.pendingMakers,
+                  unmatched: queues.unmatched,
+                  late: queues.overdue,
+                })
               : t('Nothing stuck')
           }
         />

@@ -117,7 +117,7 @@ function isManifold(triangles: Triangle[]): boolean {
   const edgeCount = new Map<string, number>()
 
   function edgeKey(a: [number, number, number], b: [number, number, number]): string {
-    return `${a[0].toFixed(6)},${a[1].toFixed(6)},${a[2].toFixed(6)}-${b[0].toFixed(6)},${b[1].toFixed(6)},${b[2].toFixed(6)}`
+    return `${a[0].toFixed(6)},${a[1].toFixed(6)},${a[2].toFixed(6)}|${b[0].toFixed(6)},${b[1].toFixed(6)},${b[2].toFixed(6)}`
   }
 
   for (const t of sample) {
@@ -135,8 +135,9 @@ function isManifold(triangles: Triangle[]): boolean {
   // Each directed edge should have a reverse. Count unpaired edges.
   let unpaired = 0
   for (const [key, count] of edgeCount) {
-    const [a, b] = key.split('-')
-    const reverseKey = `${b}-${a}`
+    // '|' and not '-': coordinates can be negative, and '-' would split inside a number
+    const [a, b] = key.split('|')
+    const reverseKey = `${b}|${a}`
     const reverseCount = edgeCount.get(reverseKey) || 0
     if (count !== reverseCount) unpaired++
   }

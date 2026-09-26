@@ -146,6 +146,24 @@ test.group('quick quote (M2-T1)', (group) => {
     assert.equal(quote.volumeCm3, 8)
     assert.equal(quote.totalMinor, quote.unitPriceMinor)
     assert.isAbove(quote.shippingMinor, 0)
+    assert.deepEqual(
+      quote.options.map((o: { material: string }) => o.material),
+      ['PLA', 'PETG', 'ABS', 'TPU']
+    )
+    assert.includeMembers(quote.security.checks, [
+      'size',
+      'signatures',
+      'active_content',
+      'structure',
+    ])
+    const petg = quote.options.find((o: { material: string }) => o.material === 'PETG')
+    assert.equal(petg.totals[0].quantity, 1)
+    assert.equal(
+      petg.totals[0].totalMinor,
+      quote.totalMinor,
+      'one piece matches the headline price'
+    )
+    assert.isBelow(petg.totals[3].totalMinor / 10, quote.totalMinor, 'ten share one parcel')
 
     const after = await import('#models/model_file').then((m) => m.default.query().count('* as n'))
     assert.equal(after[0].$extras.n, before[0].$extras.n, 'no ModelFile row was created')
@@ -165,6 +183,18 @@ test.group('quick quote (M2-T1)', (group) => {
       .file('model', exe)
       .fields({ material: 'PLA' })
     bad.assertStatus(422)
+    assert.isTrue(bad.body().blocked, 'the scan refused it')
+
+    const polyglot = join(dir, 'poly.stl')
+    await writeFile(polyglot, 'solid x\n<script>fetch("//evil")</script>\nendsolid x\n')
+    const hidden = await client
+      .post('/tools/quick-quote')
+      .withCsrfToken()
+      .header('accept', 'application/json')
+      .file('model', polyglot)
+      .fields({ material: 'PLA' })
+    hidden.assertStatus(422)
+    assert.match(hidden.body().error, /script/)
 
     const txt = join(dir, 'a.txt')
     await writeFile(txt, 'hello')
@@ -185,6 +215,7 @@ test.group('quick quote (M2-T1)', (group) => {
       .file('model', cube)
       .fields({ material: 'RESIN' })
     badMaterial.assertStatus(422)
+    assert.isFalse(badMaterial.body().blocked)
   })
 })
 

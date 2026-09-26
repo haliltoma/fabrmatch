@@ -1,3 +1,4 @@
+import ExperimentService from '#services/growth/experiment_service'
 import type { HttpContext } from '@adonisjs/core/http'
 import vine from '@vinejs/vine'
 import { parseMoneyToMinor } from '#services/pricing/money_input'
@@ -31,7 +32,7 @@ export default class ToolController {
     return inertia.render('tools/quick_quote', { materials: QUICK_QUOTE_MATERIALS })
   }
 
-  async quickQuote({ request, response }: HttpContext) {
+  async quickQuote({ request, response, session }: HttpContext) {
     const file = request.file('model', { size: MAX_QUICK_BYTES })
     if (!file || !file.tmpPath) return response.badRequest({ error: 'Choose an STL file' })
     if (!file.isValid)
@@ -41,10 +42,11 @@ export default class ToolController {
         tmpPath: file.tmpPath,
         material: String(request.input('material', 'PLA')),
       })
+      await new ExperimentService().convert('home_cta', session.sessionId)
       return response.json({ quote })
     } catch (error) {
       if (error instanceof QuickQuoteError)
-        return response.unprocessableEntity({ error: error.message })
+        return response.unprocessableEntity({ error: error.message, blocked: error.blocked })
       throw error
     }
   }

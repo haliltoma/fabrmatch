@@ -35,7 +35,7 @@ export function LearnBand({ guides }: { guides: HomeGuide[] }) {
               <Link
                 href={`/blog/${g.slug}`}
                 lang="tr"
-                className="flex h-full flex-col rounded-[10px] border border-line bg-paper-raised p-5 transition-colors hover:border-ink-900/40"
+                className="flex h-full flex-col rounded-[10px] border-2 border-ink-900 bg-paper-raised p-5 transition-transform duration-150 hover:-translate-y-1 motion-reduce:hover:transform-none"
               >
                 <time dateTime={g.date} className="font-mono text-xs text-ink-600">
                   {formatDate(g.date)}
@@ -51,7 +51,7 @@ export function LearnBand({ guides }: { guides: HomeGuide[] }) {
             <li key={l.href}>
               <Link
                 href={l.href}
-                className="inline-flex min-h-11 items-center rounded-md border border-line bg-paper-raised px-4 text-sm font-medium text-ink-900 hover:border-ink-900/40"
+                className="inline-flex min-h-11 items-center rounded-md border-2 border-ink-900 bg-paper-raised px-4 text-sm font-semibold text-ink-900 transition-transform duration-150 hover:-translate-y-0.5 motion-reduce:hover:transform-none"
               >
                 {t(l.label)}
               </Link>

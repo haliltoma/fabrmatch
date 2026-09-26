@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
 @import '@fontsource-variable/bricolage-grotesque';
 @import '@fontsource-variable/instrument-sans';
 @import '@fontsource-variable/jetbrains-mono';
@@ -38,7 +40,11 @@
   --color-fil-600: #2f7d5b;
   --color-fil-700: #23624a;
 
-  --color-tide-100: #dceaf0;
+  /* "pop" colours: bright bands, button faces and illustration tiles; never status colours */
+  --color-lime: #c8f53c;
+  --color-sun: #ffc629;
+  --color-sky: #8fd3f4;
+  --color-blush: #ff9fb8;
 
   /* filament spool colours: illustration fills only, never a status colour */
   --color-spool-orange: #f0501e;
@@ -80,6 +86,91 @@
 
   --animate-fade-in: fade-in 0.2s ease-out;
   --animate-slide-up: slide-up 0.3s ease-out;
+}
+
+/*
+ * Dark theme: <html class="dark"> (set before first paint by the script in inertia_layout.edge).
+ * Swapping the tokens flips every surface at once. Surfaces that are dark or bright by design
+ * (sidebar, ink bands, pop tiles, orange blocks) keep the light palette through .palette-light,
+ * so their text stays readable in both themes.
+ */
+:root {
+  --layer-line: rgb(21 24 28 / 0.07);
+  color-scheme: light;
+}
+.dark {
+  --color-ink-50: #1b1f24;
+  --color-ink-100: #262b31;
+  --color-ink-200: #353b42;
+  --color-ink-300: #4b525a;
+  --color-ink-400: #6b737c;
+  --color-ink-500: #8a929a;
+  --color-ink-600: #a6adb4;
+  --color-ink-700: #c3c8cd;
+  --color-ink-800: #dde0e3;
+  --color-ink-900: #f2efe9;
+  --color-ink-950: #faf8f4;
+  --color-heat-50: #2a160f;
+  --color-heat-100: #3a1c10;
+  --color-heat-200: #5a2a15;
+  --color-heat-600: #ff6a3a;
+  --color-heat-700: #ff8a5c;
+  --color-heat-800: #ffa37d;
+  --color-heat-900: #ffc1a5;
+  --color-fil-100: #173027;
+  --color-fil-500: #4fb487;
+  --color-fil-600: #5cc394;
+  --color-fil-700: #7fd3ab;
+  --color-amber-soft: #33280f;
+  --color-amber-ink: #f2c46d;
+  --color-paper: #121417;
+  --color-paper-raised: #1b1e22;
+  --color-paper-sunken: #0d0f11;
+  --color-line: rgb(242 239 233 / 0.14);
+  --color-danger: #ff6b6b;
+  --color-danger-soft: #3a1618;
+  --color-warning: #e0a347;
+  --color-success: #5cc394;
+  --color-info: #dde0e3;
+  --layer-line: rgb(242 239 233 / 0.06);
+  color-scheme: dark;
+}
+.dark :is(.palette-light, .bg-lime, .bg-sun, .bg-sky, .bg-blush, .bg-heat-500) {
+  --color-ink-50: #f4f5f6;
+  --color-ink-100: #e6e8ea;
+  --color-ink-200: #cdd1d5;
+  --color-ink-300: #a6adb4;
+  --color-ink-400: #808991;
+  --color-ink-500: #6b737c;
+  --color-ink-600: #4a525b;
+  --color-ink-700: #363d45;
+  --color-ink-800: #23282e;
+  --color-ink-900: #15181c;
+  --color-ink-950: #0c0e10;
+  --color-heat-50: #fff1ea;
+  --color-heat-100: #ffe0d2;
+  --color-heat-200: #ffc1a5;
+  --color-heat-600: #d8410f;
+  --color-heat-700: #b83a10;
+  --color-heat-800: #8f2e10;
+  --color-heat-900: #5c1e0c;
+  --color-fil-100: #dcefe5;
+  --color-fil-500: #3e9a72;
+  --color-fil-600: #2f7d5b;
+  --color-fil-700: #23624a;
+  --color-amber-soft: #fbefd5;
+  --color-amber-ink: #8a5a12;
+  --color-paper: #f5f2ec;
+  --color-paper-raised: #ffffff;
+  --color-paper-sunken: #ece7de;
+  --color-line: rgb(21 24 28 / 0.12);
+  --color-danger: #c62828;
+  --color-danger-soft: #fbe3e3;
+  --color-warning: #b7791f;
+  --color-success: #2f7d5b;
+  --color-info: #23282e;
+  --layer-line: rgb(21 24 28 / 0.07);
+  color-scheme: light;
 }
 
 @keyframes fade-in {
@@ -143,8 +234,8 @@
 .layer-lines {
   background-image: repeating-linear-gradient(
     to bottom,
-    rgb(21 24 28 / 0.07) 0,
-    rgb(21 24 28 / 0.07) 1px,
+    var(--layer-line) 0,
+    var(--layer-line) 1px,
     transparent 1px,
     transparent 6px
   );
@@ -161,4 +252,43 @@
 
 .tabular {
   font-variant-numeric: tabular-nums;
+}
+
+/* materials ticker: the track holds the list twice, so shifting by half loops seamlessly */
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  animation: marquee 32s linear infinite;
+}
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
+/* upload security scan: an indeterminate sweep while the server checks the file */
+@keyframes scan-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(300%);
+  }
+}
+.scan-bar > span {
+  animation: scan-sweep 1.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scan-bar > span {
+    animation: none;
+    width: 100%;
+    opacity: 0.6;
+  }
 }

@@ -12,6 +12,10 @@ export default await Env.create(new URL('../', import.meta.url), {
   // admins must have two-factor on before they can use the admin panel; only tests turn this off
   ADMIN_2FA_REQUIRED: Env.schema.boolean.optional(),
   // slicer worker: `none` keeps the heuristic estimate, `orca` runs the CLI at SLICER_BIN
+  // antivirus: clamd host for INSTREAM scans of model uploads; unset = signature checks only
+  CLAMAV_HOST: Env.schema.string.optional(),
+  CLAMAV_PORT: Env.schema.number.optional(),
+
   SLICER_DRIVER: Env.schema.enum.optional(['none', 'orca'] as const),
   SLICER_BIN: Env.schema.string.optional(),
   SLICER_PROFILES_DIR: Env.schema.string.optional(),

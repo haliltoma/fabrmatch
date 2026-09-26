@@ -43,9 +43,7 @@ export function MakerSetup({ setup }: { setup: Setup }) {
               <span
                 aria-hidden="true"
                 className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-xs ${
-                  s.done
-                    ? 'border-emerald-600 bg-emerald-600 text-white'
-                    : 'border-line text-ink-500'
+                  s.done ? 'border-fil-600 bg-fil-600 text-white' : 'border-line text-ink-500'
                 }`}
               >
                 {s.done ? <Check className="h-3 w-3" /> : null}

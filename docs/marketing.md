@@ -411,6 +411,22 @@ Sahte "10M+ satıcı", yıldız/yorum sayısı, logo duvarı, basın şeridi, d�
 - Hipotez H-C: kitle sekmeleri vs tek akış.
 - Yol haritası ve durum: `docs/DESIGN.md §13`.
 
+## 20. Ana sayfa pazarlama denetimi — 2026-09-26 (`marketing-plan` AARRR mercekiyle, `copywriting`, `cro`)
+
+| # | Bulgu | AARRR | Karar / uygulama |
+|---|---|---|---|
+| 1 | Sayfada "hemen başla" yok; fiyat için başka sayfaya gitmek gerekiyordu | Aktivasyon | ✔ Hero'da sürükle-bırak **hemen fiyat** (`HeroQuickStart`): STL bırak → 4 malzemede teslim fiyatı, "Sipariş için hesap oluştur"; "Örnek vazomuzla dene" |
+| 2 | Sağ görsel süreci anlatıyor, **getiriyi** (satış/para) göstermiyordu — Printify'ın "ITEM SOLD $$$" anı yoktu | Edinim (satıcı) | ✔ `HeroCube`: teslimden sonra küp sola döner → satıcı yüzü: listelenen gerçek katalog tasarımı, "SATILDI" etiketi, arka arkaya siparişler ve biriken marj. Tutarlar fiyat motorundan (%30 marj), **"örnek"** işaretli; sahte satış verisi yok |
+| 3 | "Önce İstanbul · 6 · 7 gün" şeridi küçük sayılarla küçüklük sinyali veriyordu | Güven | ✔ Kaldırıldı → `WhyStrip`: ürünün gerçekten uyguladığı 4 güvence (emanetli ödeme, yakında basılır, anonimlik, kayıttan önce fiyat) |
+| 4 | Ana sayfada itiraz yanıtı yoktu | Aktivasyon | ✔ Kapanıştan önce `HomeFaq` (yardım sayfasındaki ilk 5 soru, `/help`'e bağlantı) |
+| 5 | Başlık genel, üstte büyük harfli etiket şablon kokuyordu | Edinim | ✔ "Tasarla. Bastır. Sat." (Printify'ın "Create and sell" karşılığı, 3D'ye özgü); etiket kaldırıldı |
+| 6 | Kırmızı-turuncu düğmeler | Dönüşüm | ✔ Limon katmanlı düğmeler (DESIGN §17) |
+| 7 | **Sosyal kanıt yok** (yorum, logo, sayı) | Güven | ⏸ **Karar gerekli (M-G):** uydurulamaz. Öneri: "Kurucu satıcı/üretici programı" — ilk 50 kişiye kalıcı düşük komisyon + hikâyesi ana sayfada (yazılı izinle). Gerçek yorumlar M3-T3 ile gelince hero'nun altına |
+| 8 | Kararsız ziyaretçi için e-posta yakalama yok | Elde tutma | Öneri: kapanış bandında "örnek dosya + fiyat rehberi" karşılığı e-posta (M1-T1 rıza altyapısı hazır) — sıradaki iş |
+| 9 | İki hesaplayıcı (satıcı marjı, üretici geliri) art arda; sayfa uzun | Aktivasyon | İzle: `home_cta` deneyi ve kaydırma derinliği ölçülünce sırayı yeniden değerlendir |
+
+Ölçüm: `home_cta` deneyi sürüyor (A: satıcı bağlantısı, B: kayıt+yükleme; birincil eylem artık hero'daki fiyat alanı). Dönüşüm = oturumda ilk kayıtsız fiyat ya da kayıt.
+
 ## 18. Kaynaklar
 
 - Marketing skill deposu (dizin ve `programmatic-seo`, `free-tools`, `referrals`, `launch`, `marketing-plan/aarrr-framework` içerikleri okundu): https://github.com/coreyhaines31/marketingskills

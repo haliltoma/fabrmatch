@@ -12,6 +12,8 @@ import { Button } from '~/components/ui/button'
 import { Avatar, AvatarFallback } from '~/components/ui/avatar'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '~/components/ui/sheet'
 import { useT } from '~/lib/i18n'
+import { ThemeSwitch } from '~/components/theme_switch'
+import { useTheme } from '~/lib/theme'
 import { LanguageSwitch } from '~/components/language_switch'
 
 export interface NavItem {
@@ -75,6 +77,7 @@ export default function DashboardLayout({
   title,
 }: DashboardLayoutProps) {
   const { t } = useT()
+  const { dark } = useTheme()
 
   const { url, flash } = usePage()
   const navItems = allItems.filter((i) => i.feature !== 'rfq' || children.props.rfqEnabled)
@@ -101,6 +104,7 @@ export default function DashboardLayout({
       {/* Desktop sidebar */}
       <aside
         className={cn(
+          'palette-light',
           'hidden flex-col border-r border-sidebar-border bg-sidebar-bg text-sidebar-fg transition-all duration-200 md:flex',
           collapsed ? 'w-16' : 'w-64'
         )}
@@ -118,6 +122,8 @@ export default function DashboardLayout({
             variant="ghost"
             size="icon"
             onClick={() => setCollapsed(!collapsed)}
+            aria-label={collapsed ? t('Expand menu') : t('Collapse menu')}
+            aria-expanded={!collapsed}
             className="h-8 w-8 text-sidebar-muted hover:bg-paper-raised/10 hover:text-sidebar-fg"
           >
             <ChevronLeft
@@ -131,7 +137,10 @@ export default function DashboardLayout({
         <div className="border-t border-sidebar-border p-3">
           {!collapsed && (
             <div className="mb-3 px-1">
-              <LanguageSwitch tone="paper" />
+              <div className="flex items-center justify-between gap-2">
+                <LanguageSwitch tone="paper" />
+                <ThemeSwitch tone="paper" />
+              </div>
             </div>
           )}
           {user && (
@@ -161,6 +170,7 @@ export default function DashboardLayout({
                 <Form route="session.destroy">
                   <button
                     type="submit"
+                    aria-label={t('Log out')}
                     className="rounded-md p-1.5 text-sidebar-muted transition-colors hover:bg-paper-raised/10 hover:text-sidebar-fg"
                   >
                     <LogOut className="h-4 w-4" />
@@ -180,17 +190,23 @@ export default function DashboardLayout({
           <div className="md:hidden">
             <Sheet key={url}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" aria-label={t('Menu')}>
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-72 bg-sidebar-bg p-0 text-sidebar-fg">
+              <SheetContent
+                side="left"
+                className="palette-light w-72 bg-sidebar-bg p-0 text-sidebar-fg"
+              >
                 <SheetHeader className="border-b border-sidebar-border px-4 py-4">
                   <SheetTitle className="text-sidebar-fg">{t(title)}</SheetTitle>
                 </SheetHeader>
                 <SidebarNavItems items={navItems} url={url} collapsed={false} mobile />
                 <div className="border-t border-sidebar-border px-4 py-3">
-                  <LanguageSwitch tone="paper" />
+                  <div className="flex items-center justify-between gap-2">
+                    <LanguageSwitch tone="paper" />
+                    <ThemeSwitch tone="paper" />
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>
@@ -216,7 +232,7 @@ export default function DashboardLayout({
         </main>
       </div>
 
-      <Toaster position="top-center" richColors />
+      <Toaster position="top-center" richColors theme={dark ? 'dark' : 'light'} />
     </div>
   )
 }

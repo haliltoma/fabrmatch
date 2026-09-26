@@ -1,11 +1,11 @@
-import { useState, useCallback, lazy, Suspense } from 'react'
+import { useState, useCallback, useEffect, lazy, Suspense } from 'react'
 import { router } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog'
-import { Upload, FileBox, Loader2, Eye, Calculator } from 'lucide-react'
+import { Upload, FileBox, Loader2, Eye, Calculator, ShieldAlert, ShieldCheck } from 'lucide-react'
 import { PageHeader } from '~/components/page_header'
 import { Pagination, type PageMeta } from '~/components/pagination'
 import { EmptyState } from '~/components/empty_state'
@@ -19,6 +19,7 @@ type FileData = {
   format: string
   sizeBytes: number
   analysisStatus: string
+  blockedReason: string | null
   isPrintable: boolean | null
   volumeMm3: number | null
   bboxXMm: number | null
@@ -36,14 +37,30 @@ function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-function statusBadge(status: string) {
-  const variants: Record<string, string> = {
-    pending: 'bg-amber-100 text-amber-800',
-    processing: 'bg-blue-100 text-blue-800',
-    done: 'bg-emerald-100 text-emerald-800',
-    failed: 'bg-red-100 text-red-800',
+function StatusBadge({ status, blocked }: { status: string; blocked: boolean }) {
+  const { t } = useT()
+  if (blocked) {
+    return (
+      <Badge className="gap-1 bg-danger-soft text-danger">
+        <ShieldAlert className="h-3.5 w-3.5" aria-hidden /> {t('Blocked by the security scan')}
+      </Badge>
+    )
   }
-  return <Badge className={variants[status] || ''}>{status}</Badge>
+  if (status === 'pending' || status === 'processing') {
+    return (
+      <Badge className="gap-1 bg-amber-soft text-amber-ink">
+        <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden /> {t('Scanning for viruses…')}
+      </Badge>
+    )
+  }
+  if (status === 'done') {
+    return (
+      <Badge className="gap-1 bg-fil-100 text-fil-700">
+        <ShieldCheck className="h-3.5 w-3.5" aria-hidden /> {t('Virus scan passed')}
+      </Badge>
+    )
+  }
+  return <Badge className="bg-danger-soft text-danger">{t('Analysis failed')}</Badge>
 }
 
 function PreviewButton({ fileId, format }: { fileId: number; format: string }) {
@@ -131,7 +148,7 @@ function UploadDialog({
           },
           body: JSON.stringify({
             originalName: file.name,
-            contentType: file.type || 'application/octet-stream',
+            contentType: 'application/octet-stream',
           }),
         })
 
@@ -153,7 +170,7 @@ function UploadDialog({
         const uploadResponse = await fetch(signedUrl, {
           method: 'PUT',
           body: file,
-          headers: { 'Content-Type': file.type || 'application/octet-stream' },
+          headers: { 'Content-Type': 'application/octet-stream' },
         })
 
         if (!uploadResponse.ok) {
@@ -224,8 +241,16 @@ function UploadDialog({
         <p className="text-sm text-ink-600">
           {t('Supported formats: STL, 3MF, OBJ. Max size: 200 MB.')}
         </p>
+        <p className="flex items-start gap-2 text-sm text-ink-700">
+          <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-fil-700" aria-hidden />
+          {t(
+            'Every file is scanned for viruses and hidden code before anyone can open it. Files that fail are quarantined.'
+          )}
+        </p>
 
-        {error && <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">{t(error)}</div>}
+        {error && (
+          <div className="rounded-md bg-danger-soft p-3 text-sm text-danger">{t(error)}</div>
+        )}
 
         {uploading ? (
           <div className="flex items-center gap-2 text-sm text-ink-700">
@@ -233,7 +258,7 @@ function UploadDialog({
             {t(progress)}
           </div>
         ) : (
-          <label className="flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed border-ink-900/25 p-8 transition hover:border-indigo-400 hover:bg-paper-sunken">
+          <label className="flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed border-ink-900/25 p-8 transition hover:border-heat-500 hover:bg-paper-sunken">
             <Upload className="h-8 w-8 text-ink-600" />
             <span className="text-sm font-medium text-ink-700">{t('Click to select a file')}</span>
             <input
@@ -256,6 +281,16 @@ function FilesIndex({ files, meta }: { files: FileData[]; meta: PageMeta }) {
   const { t } = useT()
 
   const [showUpload, setShowUpload] = useState(false)
+  const scanning = files.some(
+    (f) => f.analysisStatus === 'pending' || f.analysisStatus === 'processing'
+  )
+
+  // the scan runs in the background: refresh the list until every file has a verdict
+  useEffect(() => {
+    if (!scanning) return
+    const timer = setInterval(() => router.reload({ only: ['files'] }), 3000)
+    return () => clearInterval(timer)
+  }, [scanning])
   const [replaces, setReplaces] = useState<{ id: number; name: string } | null>(null)
 
   return (
@@ -312,13 +347,11 @@ function FilesIndex({ files, meta }: { files: FileData[]; meta: PageMeta }) {
                   <div className="flex items-center gap-2">
                     {f.revision > 1 && <Badge variant="outline">v{f.revision}</Badge>}
                     <Badge variant="outline">{f.format}</Badge>
-                    {statusBadge(f.analysisStatus)}
+                    <StatusBadge status={f.analysisStatus} blocked={f.blockedReason !== null} />
                     {f.isPrintable !== null && (
                       <Badge
                         className={
-                          f.isPrintable
-                            ? 'bg-emerald-100 text-emerald-800'
-                            : 'bg-red-100 text-red-800'
+                          f.isPrintable ? 'bg-fil-100 text-fil-700' : 'bg-danger-soft text-danger'
                         }
                       >
                         {f.isPrintable ? t('Printable') : t('Not printable')}
@@ -328,6 +361,12 @@ function FilesIndex({ files, meta }: { files: FileData[]; meta: PageMeta }) {
                 </div>
               </CardHeader>
               <CardContent>
+                {f.blockedReason && (
+                  <p className="mb-2 rounded-md bg-danger-soft p-2 text-sm text-danger">
+                    {t(f.blockedReason)}{' '}
+                    {t('The file was quarantined and can never be downloaded or printed.')}
+                  </p>
+                )}
                 <div className="flex flex-wrap gap-4 text-sm text-ink-600">
                   <span>{formatBytes(f.sizeBytes)}</span>
                   {f.volumeMm3 !== null && (

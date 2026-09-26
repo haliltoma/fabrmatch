@@ -71,7 +71,7 @@ function SettingField({ row }: { row: SettingRow }) {
           max={row.max}
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          className="w-28"
+          className="h-9 w-28"
         />
         <Button type="submit" size="sm" disabled={!changed}>
           {t('Save')}

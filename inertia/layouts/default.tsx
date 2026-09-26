@@ -5,6 +5,8 @@ import { type ReactElement, useEffect } from 'react'
 import { Form, Link } from '@adonisjs/inertia/react'
 import { Menu } from 'lucide-react'
 import { Logo } from '~/components/logo'
+import { ThemeSwitch } from '~/components/theme_switch'
+import { useTheme } from '~/lib/theme'
 import { LanguageSwitch } from '~/components/language_switch'
 import { useT } from '~/lib/i18n'
 import { CartLink } from '~/components/cart_link'
@@ -22,6 +24,45 @@ import {
 } from '~/components/ui/dropdown_menu'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '~/components/ui/sheet'
 
+const FOOTER_COLUMNS: Array<{ title: string; links: Array<{ href: string; label: string }> }> = [
+  {
+    title: 'Order',
+    links: [
+      { href: '/tools/quick-quote', label: 'Instant price' },
+      { href: '/shop', label: 'Shop' },
+      { href: '/materials', label: 'Materials' },
+      { href: '/help', label: 'Help' },
+    ],
+  },
+  {
+    title: 'Earn with Fabrmatch',
+    links: [
+      { href: '/for-makers', label: 'For makers' },
+      { href: '/for-sellers', label: 'For sellers' },
+      { href: '/tools/maker-income', label: 'Maker income calculator' },
+    ],
+  },
+  {
+    title: 'Learn',
+    links: [
+      { href: '/blog', label: 'Blog' },
+      { href: '/glossary', label: 'Glossary' },
+      { href: '/changelog', label: 'Changelog' },
+    ],
+  },
+  {
+    title: 'Trust and legal',
+    links: [
+      { href: '/status', label: 'Status' },
+      { href: '/legal/terms', label: 'Terms' },
+      { href: '/legal/privacy', label: 'Privacy' },
+      { href: '/legal/distance-sales', label: 'Distance sales terms' },
+      { href: '/legal/refunds', label: 'Cancellation and refunds' },
+      { href: '/sitemap.xml', label: 'Sitemap' },
+    ],
+  },
+]
+
 function panelHref(roles: string[] | undefined) {
   if (roles?.includes('admin')) return '/admin'
   if (roles?.includes('manufacturer')) return '/maker'
@@ -30,6 +71,7 @@ function panelHref(roles: string[] | undefined) {
 
 export default function Layout({ children }: { children: ReactElement<Data.SharedProps> }) {
   const { t, locale } = useT()
+  const { dark } = useTheme()
   useEffect(() => {
     document.documentElement.lang = locale
   }, [locale])
@@ -61,6 +103,7 @@ export default function Layout({ children }: { children: ReactElement<Data.Share
 
           {/* Desktop nav */}
           <nav className="hidden items-center gap-1 md:flex">
+            <ThemeSwitch />
             <Link
               href="/shop"
               className="px-3 py-2 text-sm font-medium text-ink-700 hover:text-ink-900"
@@ -149,6 +192,7 @@ export default function Layout({ children }: { children: ReactElement<Data.Share
                   <SheetTitle>{t('Menu')}</SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col gap-2 p-6">
+                  <ThemeSwitch />
                   {user ? (
                     <>
                       <div className="mb-4 flex items-center gap-3">
@@ -195,43 +239,40 @@ export default function Layout({ children }: { children: ReactElement<Data.Share
       </main>
 
       <footer className="border-t border-line bg-paper-sunken">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-8 text-sm text-ink-700 sm:px-6 lg:px-8">
-          <Logo />
-          <nav aria-label={t('Footer')} className="flex flex-wrap gap-x-6 gap-y-2">
-            <Link href="/shop" className="hover:text-ink-900">
-              {t('Shop')}
-            </Link>
-            <Link href="/for-makers" className="hover:text-ink-900">
-              {t('For makers')}
-            </Link>
-            <Link href="/for-sellers" className="hover:text-ink-900">
-              {t('For sellers')}
-            </Link>
-            <Link href="/blog" className="hover:text-ink-900">
-              {t('Blog')}
-            </Link>
-            <Link href="/help" className="hover:text-ink-900">
-              {t('Help')}
-            </Link>
-            <Link href="/status" className="hover:text-ink-900">
-              {t('Status')}
-            </Link>
-            <Link href="/legal/terms" className="hover:text-ink-900">
-              {t('Terms')}
-            </Link>
-            <Link href="/legal/privacy" className="hover:text-ink-900">
-              {t('Privacy')}
-            </Link>
-            <Link href="/sitemap.xml" className="hover:text-ink-900">
-              {t('Sitemap')}
-            </Link>
-          </nav>
-          <LanguageSwitch />
-          <p>{t('© {v2} Fabrmatch', { v2: new Date().getFullYear() })}</p>
+        <div className="mx-auto max-w-7xl px-4 py-12 text-sm text-ink-700 sm:px-6 lg:px-8">
+          <div className="grid gap-10 md:grid-cols-[1.3fr_repeat(4,1fr)]">
+            <div className="space-y-4">
+              <Logo />
+              <p className="max-w-xs">{t('Made-to-order 3D printing, printed near you.')}</p>
+              <div className="flex items-center gap-4">
+                <LanguageSwitch />
+                <ThemeSwitch />
+              </div>
+            </div>
+            {FOOTER_COLUMNS.map((column) => (
+              <nav key={column.title} aria-label={t(column.title)}>
+                <h2 className="font-mono text-xs uppercase tracking-[0.16em] text-ink-900">
+                  {t(column.title)}
+                </h2>
+                <ul className="mt-3 space-y-2">
+                  {column.links.map((link) => (
+                    <li key={link.href}>
+                      <Link href={link.href} className="hover:text-ink-900">
+                        {t(link.label)}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            ))}
+          </div>
+          <p className="mt-10 border-t border-line pt-6 text-xs">
+            {t('© {v2} Fabrmatch', { v2: new Date().getFullYear() })}
+          </p>
         </div>
       </footer>
 
-      <Toaster position="top-center" richColors />
+      <Toaster position="top-center" richColors theme={dark ? 'dark' : 'light'} />
     </div>
   )
 }

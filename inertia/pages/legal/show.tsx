@@ -35,7 +35,7 @@ export default function Legal({
         <article>
           <p className="font-mono text-xs text-ink-600">{t('Version {version}', { version })}</p>
           <div
-            className="legal-prose mt-2 space-y-4 text-ink-800 [&_blockquote]:rounded-md [&_blockquote]:border [&_blockquote]:border-amber-300 [&_blockquote]:bg-amber-50 [&_blockquote]:p-3 [&_blockquote]:text-sm [&_h1]:font-display [&_h1]:text-3xl [&_h1]:font-semibold [&_h2]:mt-6 [&_h2]:font-display [&_h2]:text-xl [&_h2]:font-semibold [&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:pl-6"
+            className="legal-prose mt-2 space-y-4 text-ink-800 [&_blockquote]:rounded-md [&_blockquote]:border [&_blockquote]:border-amber-ink/30 [&_blockquote]:bg-amber-soft [&_blockquote]:p-3 [&_blockquote]:text-sm [&_h1]:font-display [&_h1]:text-3xl [&_h1]:font-semibold [&_h2]:mt-6 [&_h2]:font-display [&_h2]:text-xl [&_h2]:font-semibold [&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:pl-6"
             dangerouslySetInnerHTML={{ __html: html }}
           />
         </article>

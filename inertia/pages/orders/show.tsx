@@ -230,7 +230,7 @@ function ReviewForm({ orderId }: { orderId: number }) {
               aria-label={`${star} stars`}
               onClick={() => setRating(star)}
               className={`text-2xl transition-transform hover:scale-110 ${
-                star <= rating ? 'text-amber-500' : 'text-ink-500'
+                star <= rating ? 'text-amber-ink' : 'text-ink-500'
               }`}
             >
               ★
@@ -462,7 +462,7 @@ export default function OrdersShow({
           <CardContent>
             {review ? (
               <div className="space-y-1 text-sm text-ink-700">
-                <p className="font-medium text-amber-600">{'★'.repeat(review.rating)}</p>
+                <p className="font-medium text-amber-ink">{'★'.repeat(review.rating)}</p>
                 {review.comment && <p>{review.comment}</p>}
               </div>
             ) : order.status === 'delivered' ? (

@@ -1,3 +1,4 @@
+import ExperimentService from '#services/growth/experiment_service'
 import ReferralService from '#services/growth/referral_service'
 import LifecycleService from '#services/notifications/lifecycle_service'
 import GrowthService from '#services/growth/growth_service'
@@ -17,6 +18,7 @@ export default class NewAccountController {
     const { request, response, auth, session } = ctx
     const { passwordConfirmation, ...payload } = await request.validateUsing(signupValidator)
     const user = await User.create({ ...payload, locale: requestLocale(ctx) })
+    await new ExperimentService().convert('home_cta', session.sessionId)
 
     await new GrowthService().creditSignup(
       user,

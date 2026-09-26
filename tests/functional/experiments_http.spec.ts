@@ -30,6 +30,18 @@ test.group('message tests over HTTP', (group) => {
     )
   })
 
+  test('the home page shows one hero call to action and records the exposure', async ({
+    client,
+    assert,
+  }) => {
+    const page = await client.get('/').headers(inertia)
+    page.assertStatus(200)
+    assert.oneOf(page.body().props.ctaVariant, ['A', 'B'])
+    const rows = await db.from('experiment_events').where('experiment', 'home_cta')
+    assert.lengthOf(rows, 1)
+    assert.equal(rows[0].variant, page.body().props.ctaVariant)
+  })
+
   test('crawlers do not count as visitors', async ({ client, assert }) => {
     const page = await client
       .get('/for-makers')
@@ -45,7 +57,7 @@ test.group('message tests over HTTP', (group) => {
     page.assertStatus(200)
     assert.deepEqual(
       page.body().props.experiments.map((e: { key: string }) => e.key),
-      ['maker_headline', 'seller_headline']
+      ['home_cta', 'maker_headline', 'seller_headline']
     )
     const member = await createUser('member')
     await new RoleService().assignRole(member, 'seller')

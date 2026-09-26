@@ -126,7 +126,7 @@ function Countdown({ expiresAt }: { expiresAt: string }) {
   return (
     <span
       className={`inline-flex items-center gap-1 text-sm font-medium ${
-        expired ? 'text-ink-600' : minutes < 5 ? 'text-red-600' : 'text-ink-700'
+        expired ? 'text-ink-600' : minutes < 5 ? 'text-danger' : 'text-ink-700'
       }`}
     >
       <Clock className="h-3.5 w-3.5" />
@@ -383,9 +383,9 @@ function DisputeBox({ dispute }: { dispute: NonNullable<JobData['dispute']> }) {
   const [busy, setBusy] = useState(false)
 
   return (
-    <div className="space-y-2 rounded-md border border-red-200 bg-red-50 p-3 text-sm">
+    <div className="space-y-2 rounded-md border border-danger/40 bg-danger-soft p-3 text-sm">
       <div className="flex items-center justify-between">
-        <p className="font-medium text-red-800">{t('Dispute — payment on hold')}</p>
+        <p className="font-medium text-danger">{t('Dispute — payment on hold')}</p>
         <Badge variant={dispute.status === 'resolved' ? 'success' : 'destructive'}>
           {t(dispute.status)}
         </Badge>
@@ -467,20 +467,22 @@ function JobCard({ job }: { job: JobData }) {
         {job.dispute && <DisputeBox dispute={job.dispute} />}
         <FileDownloads files={job.files} />
         <ShipToCard shipTo={job.order.shipTo} />
-        <a
-          href={`/maker/jobs/${job.id}/packing-slip`}
-          target="_blank"
-          rel="noreferrer"
-          className="text-sm text-ink-800 underline"
-        >
-          {t('Print the packing card for the parcel')}
-        </a>
-        <Link
-          href={`/maker/orders/${job.order.id}/messages`}
-          className="text-sm font-medium text-heat-700 underline"
-        >
-          {t('Messages with the buyer')}
-        </Link>
+        <div className="flex flex-wrap gap-x-4 gap-y-1">
+          <a
+            href={`/maker/jobs/${job.id}/packing-slip`}
+            target="_blank"
+            rel="noreferrer"
+            className="text-sm text-ink-800 underline"
+          >
+            {t('Print the packing card for the parcel')}
+          </a>
+          <Link
+            href={`/maker/orders/${job.order.id}/messages`}
+            className="text-sm font-medium text-heat-700 underline"
+          >
+            {t('Messages with the buyer')}
+          </Link>
+        </div>
 
         {(job.status === 'shipped' || job.status === 'delivered') && (
           <p className="text-sm text-ink-700">
@@ -491,7 +493,7 @@ function JobCard({ job }: { job: JobData }) {
         {job.rating && (
           <p className="text-sm text-ink-700">
             {t('Buyer rating:')}{' '}
-            <span className="font-medium text-amber-600">{'★'.repeat(job.rating)}</span>
+            <span className="font-medium text-amber-ink">{'★'.repeat(job.rating)}</span>
           </p>
         )}
 

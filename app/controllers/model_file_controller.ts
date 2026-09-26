@@ -24,6 +24,7 @@ export default class ModelFileController {
         format: f.format,
         sizeBytes: f.sizeBytes,
         analysisStatus: f.analysisStatus,
+        blockedReason: f.blockedReason,
         isPrintable: f.isPrintable,
         volumeMm3: f.volumeMm3,
         bboxXMm: f.bboxXMm,
@@ -46,7 +47,7 @@ export default class ModelFileController {
 
     const service = new ModelFileService()
     try {
-      const result = await service.getUploadUrl(data.originalName, data.contentType)
+      const result = await service.getUploadUrl(data.originalName)
       return response.json(result)
     } catch (error) {
       return response.badRequest({ error: (error as Error).message })
@@ -100,7 +101,11 @@ export default class ModelFileController {
     }
 
     const disk = drive.use('s3')
-    const url = await disk.getSignedUrl(file.storageKey, { expiresIn: '15m' })
+    const url = await disk.getSignedUrl(file.storageKey, {
+      expiresIn: '15m',
+      contentType: 'application/octet-stream',
+      contentDisposition: 'attachment',
+    })
     return response.json({ url })
   }
 }

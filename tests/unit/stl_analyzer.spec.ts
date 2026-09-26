@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { test } from '@japa/runner'
 import { analyzeStl } from '#services/files/stl_analyzer'
 
@@ -314,5 +315,19 @@ test.group('DFM checks (R2-T10)', () => {
       analyzeDfm(debris, { signedVolume: 1000, bbox: [51, 51, 10] }).map((i) => i.code),
       'floating_parts'
     )
+  })
+})
+
+test.group('STL analyzer: meshes centred on the origin', () => {
+  test('a closed mesh with negative coordinates is watertight and printable', ({ assert }) => {
+    const buffer = readFileSync(new URL('../../public/samples/sample-vase.stl', import.meta.url))
+    const result = analyzeStl(buffer)
+    assert.isNull(result.error)
+    assert.notInclude(
+      result.dfmIssues.map((i) => i.code),
+      'not_watertight'
+    )
+    assert.isTrue(result.isPrintable)
+    assert.deepEqual([result.bboxXMm, result.bboxYMm, result.bboxZMm].map(Math.round), [41, 41, 55])
   })
 })

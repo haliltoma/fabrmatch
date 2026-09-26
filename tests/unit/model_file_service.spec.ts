@@ -16,10 +16,7 @@ test.group('ModelFileService', (group) => {
 
   test('rejects unsupported file format', async ({ assert }) => {
     const service = new ModelFileService()
-    await assert.rejects(
-      () => service.getUploadUrl('model.fbx', 'application/octet-stream'),
-      /Unsupported file format/
-    )
+    await assert.rejects(() => service.getUploadUrl('model.fbx'), /Unsupported file format/)
   })
 
   test('accepts STL format', async ({ assert }) => {
@@ -27,7 +24,7 @@ test.group('ModelFileService', (group) => {
     // getUploadUrl requires S3/R2 configured, so we test the format validation indirectly
     // by checking that STL extension is allowed in the service
     try {
-      await service.getUploadUrl('model.stl', 'application/octet-stream')
+      await service.getUploadUrl('model.stl')
     } catch (error) {
       // If it fails, it should NOT be about format — only about S3 config
       assert.notMatch((error as Error).message, /Unsupported file format/)

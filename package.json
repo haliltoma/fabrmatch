@@ -17,6 +17,7 @@
     "typecheck": "tsc --noEmit && tsc --noEmit --project inertia/tsconfig.json",
     "a11y": "node scripts/a11y.mjs",
     "i18n:check": "node scripts/i18n_check.mjs",
+    "vitals": "node scripts/vitals.mjs",
     "i18n:rendered": "node scripts/i18n_rendered.mjs"
   },
   "imports": {

@@ -26,10 +26,7 @@ export default class ModelFileService {
    * Generate a presigned upload URL for direct browser-to-R2 upload.
    * Returns the storage key and signed URL.
    */
-  async getUploadUrl(
-    originalName: string,
-    contentType: string
-  ): Promise<{ storageKey: string; signedUrl: string }> {
+  async getUploadUrl(originalName: string): Promise<{ storageKey: string; signedUrl: string }> {
     const ext = this.extractExtension(originalName)
     const format = ALLOWED_FORMATS[ext]
     if (!format) {
@@ -40,7 +37,8 @@ export default class ModelFileService {
     const disk = drive.use('s3')
     const signedUrl = await disk.getSignedUrl(storageKey, {
       expiresIn: '15m',
-      contentType,
+      // never the browser's guess: a stored model is inert bytes, whatever it claims to be
+      contentType: 'application/octet-stream',
     })
 
     return { storageKey, signedUrl }

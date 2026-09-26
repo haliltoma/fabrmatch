@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unknown-property */
-import { Suspense, useRef, useState, useEffect } from 'react'
+import { Component, Suspense, useRef, useState, useEffect, type ReactNode } from 'react'
 import { Canvas, useLoader } from '@react-three/fiber'
-import { OrbitControls, Center, PerspectiveCamera } from '@react-three/drei'
+import { OrbitControls, Center, PerspectiveCamera, Bounds } from '@react-three/drei'
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js'
 import type * as THREE from 'three'
 import { Loader2 } from 'lucide-react'
@@ -19,8 +19,9 @@ function StlModel({ url }: { url: string }) {
 
   return (
     <Center>
-      <mesh ref={meshRef} geometry={geometry}>
-        <meshStandardMaterial color="#6366f1" flatShading={false} metalness={0.1} roughness={0.6} />
+      {/* STL files are Z-up; three.js is Y-up, so stand the part upright */}
+      <mesh ref={meshRef} geometry={geometry} rotation={[-Math.PI / 2, 0, 0]}>
+        <meshStandardMaterial color="#2f7d8b" flatShading={false} metalness={0.1} roughness={0.6} />
       </mesh>
     </Center>
   )
@@ -35,6 +36,17 @@ function LoadingFallback() {
   )
 }
 
+/** A file the loader cannot parse must not take the page down with it. */
+class PreviewBoundary extends Component<{ fallback: ReactNode; children: ReactNode }> {
+  state = { failed: false }
+  static getDerivedStateFromError() {
+    return { failed: true }
+  }
+  render() {
+    return this.state.failed ? this.props.fallback : this.props.children
+  }
+}
+
 interface StlViewerProps {
   url: string
   className?: string
@@ -44,42 +56,56 @@ export default function StlViewer({ url, className = '' }: StlViewerProps) {
   const { t } = useT()
 
   const [error, setError] = useState<string | null>(null)
+  const [reduceMotion] = useState(
+    () =>
+      typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  )
 
-  if (error) {
-    return (
-      <div
-        className={`flex items-center justify-center rounded-lg border border-line bg-paper-sunken text-sm text-ink-600 ${className}`}
-      >
-        {t('Failed to load 3D preview')}
-      </div>
-    )
-  }
+  const failed = (
+    <div
+      className={`flex items-center justify-center rounded-lg border border-line bg-paper-sunken text-sm text-ink-600 ${className}`}
+    >
+      {t('Failed to load 3D preview')}
+    </div>
+  )
+  if (error) return failed
 
   return (
-    <div
-      className={`relative overflow-hidden rounded-lg border border-line bg-paper-sunken ${className}`}
-    >
-      <Suspense
-        fallback={
-          <div className="flex h-full items-center justify-center">
-            <Loader2 className="h-6 w-6 animate-spin text-ink-600" />
-          </div>
-        }
+    <PreviewBoundary key={url} fallback={failed}>
+      <div
+        className={`relative overflow-hidden rounded-lg border border-line bg-paper-sunken ${className}`}
       >
-        <Canvas onError={() => setError(t('Failed to render'))}>
-          <PerspectiveCamera makeDefault position={[0, 0, 150]} fov={45} />
-          <ambientLight intensity={0.5} />
-          <directionalLight position={[10, 10, 10]} intensity={1} />
-          <directionalLight position={[-10, -10, -5]} intensity={0.3} />
-          <Suspense fallback={<LoadingFallback />}>
-            <StlModel url={url} />
-          </Suspense>
-          <OrbitControls enablePan enableZoom enableRotate />
-        </Canvas>
-      </Suspense>
-      <div className="pointer-events-none absolute bottom-2 right-2 rounded bg-black/50 px-2 py-1 text-xs text-white">
-        {t('Drag to rotate')}
+        <Suspense
+          fallback={
+            <div className="flex h-full items-center justify-center">
+              <Loader2 className="h-6 w-6 animate-spin text-ink-600" />
+            </div>
+          }
+        >
+          <Canvas onError={() => setError(t('Failed to render'))}>
+            <PerspectiveCamera makeDefault position={[90, 70, 120]} fov={40} />
+            <ambientLight intensity={0.5} />
+            <directionalLight position={[10, 10, 10]} intensity={1} />
+            <directionalLight position={[-10, -10, -5]} intensity={0.3} />
+            <Suspense fallback={<LoadingFallback />}>
+              <Bounds fit clip observe margin={1.3}>
+                <StlModel url={url} />
+              </Bounds>
+            </Suspense>
+            <OrbitControls
+              makeDefault
+              enablePan
+              enableZoom
+              enableRotate
+              autoRotate={!reduceMotion}
+              autoRotateSpeed={1.2}
+            />
+          </Canvas>
+        </Suspense>
+        <div className="pointer-events-none absolute bottom-2 right-2 rounded bg-black/50 px-2 py-1 text-xs text-white">
+          {t('Drag to rotate')}
+        </div>
       </div>
-    </div>
+    </PreviewBoundary>
   )
 }

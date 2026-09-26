@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import { analyzeStl } from '#services/files/stl_analyzer'
-import { scanModelFile } from '#services/files/file_scanner'
+import { scanUpload, type ScanCheck } from '#services/files/file_scanner'
 import {
   calculatePrice,
   estimateGrams,
@@ -21,9 +21,36 @@ export interface QuickQuote {
   totalMinor: number
   currency: string
   warnings: string[]
+  /** every FDM material priced by the same engine, so the page can switch without re-uploading */
+  options: QuickQuoteOption[]
+  /** what the upload scan ran, shown to the visitor */
+  security: { checks: ScanCheck[]; engine: 'signatures' | 'clamav' }
 }
 
-export class QuickQuoteError extends Error {}
+export interface QuickQuoteOption {
+  material: string
+  label: string
+  grams: number
+  printMinutes: number
+  /** one printed piece without shipping, and how it splits */
+  partMinor: number
+  makerMinor: number
+  platformMinor: number
+  /** delivered total for each offered quantity (shipping is per parcel, shared by the pieces) */
+  totals: Array<{ quantity: number; totalMinor: number; shippingMinor: number }>
+}
+
+export const QUICK_QUOTE_QUANTITIES = [1, 2, 5, 10]
+
+export class QuickQuoteError extends Error {
+  /** true when the security scan refused the file (the UI shows it in the scan panel) */
+  constructor(
+    message: string,
+    public blocked = false
+  ) {
+    super(message)
+  }
+}
 
 const FDM_MATERIALS = ['PLA', 'PETG', 'ABS', 'TPU']
 
@@ -48,8 +75,8 @@ export async function quickQuoteFromFile(input: {
   }
 
   const buffer = await readFile(input.tmpPath)
-  const verdict = scanModelFile(buffer, 'STL')
-  if (!verdict.ok) throw new QuickQuoteError(verdict.reason ?? 'This file cannot be used')
+  const verdict = await scanUpload(buffer, 'STL')
+  if (!verdict.ok) throw new QuickQuoteError(verdict.reason ?? 'This file cannot be used', true)
 
   const analysis = analyzeStl(buffer)
   if (analysis.error) throw new QuickQuoteError(analysis.error)
@@ -87,5 +114,40 @@ export async function quickQuoteFromFile(input: {
     totalMinor: breakdown.totalPriceMinor,
     currency: breakdown.currency,
     warnings: analysis.dfmIssues.filter((i) => i.level !== 'info').map((i) => i.message),
+    security: { checks: verdict.checks, engine: verdict.engine },
+    options: FDM_MATERIALS.map((key) => {
+      const ref = REFERENCE_PRICES[key]
+      const g = estimateGrams(analysis.volumeMm3, key)
+      const part = calculatePrice({
+        volumeMm3: analysis.volumeMm3,
+        material: key,
+        pricePerGramMinor: ref.pricePerGramMinor,
+        quantity: 1,
+        sellerMarginBps: 0,
+        shippingMinor: 0,
+      })
+      return {
+        material: key,
+        label: ref.label,
+        grams: part.estGrams,
+        printMinutes: estimatePrintMinutes(g),
+        partMinor: part.unitPriceMinor,
+        makerMinor: part.manufacturerShareMinor,
+        platformMinor: part.platformCommissionMinor,
+        totals: QUICK_QUOTE_QUANTITIES.map((quantity) => {
+          const perUnit = table.perUnitMinor({
+            country: 'TR',
+            gramsPerUnit: g,
+            bboxMm: bbox,
+            quantity,
+          })
+          return {
+            quantity,
+            shippingMinor: perUnit * quantity,
+            totalMinor: (part.unitPriceMinor + perUnit) * quantity,
+          }
+        }),
+      }
+    }),
   }
 }

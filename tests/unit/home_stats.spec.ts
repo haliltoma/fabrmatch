@@ -22,6 +22,7 @@ test.group('home stats', (group) => {
   test('pending makers are not counted', async ({ assert }) => {
     for (let i = 0; i < HOME_MIN_MAKERS; i++) await createManufacturer()
     await db.from('manufacturer_profiles').update({ status: 'pending' })
-    assert.isNull((await new HomeStatsService().load()).makers)
+    const stats = await new HomeStatsService().load()
+    assert.isNull(stats.makers)
   })
 })

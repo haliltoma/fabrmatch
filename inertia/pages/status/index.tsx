@@ -28,7 +28,7 @@ export default function Status({
           className={`flex items-start gap-3 rounded-[10px] border p-5 ${
             ok
               ? 'border-fil-600 bg-fil-100 text-ink-900'
-              : 'border-amber-300 bg-amber-50 text-amber-900'
+              : 'border-amber-ink/30 bg-amber-soft text-amber-ink'
           }`}
         >
           {ok ? (

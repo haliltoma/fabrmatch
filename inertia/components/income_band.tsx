@@ -4,6 +4,7 @@ import { ArrowRight } from 'lucide-react'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
+import { CountUp } from '~/components/count_up'
 import { formatMoney } from '~/lib/format'
 import { monthlyIncomeMinor, type IncomeRules } from '~/lib/income'
 import { parseMoneyToMinor } from '~/lib/money'
@@ -53,7 +54,7 @@ export function IncomeBand({ rules }: { rules: IncomeRules }) {
   )
 
   return (
-    <section className="layer-lines-light bg-ink-900 text-paper">
+    <section className="palette-light layer-lines-light bg-ink-900 text-paper">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:px-8">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-heat-400">
@@ -90,8 +91,11 @@ export function IncomeBand({ rules }: { rules: IncomeRules }) {
             <p className="text-sm text-ink-200">{t('Estimated per month')}</p>
             {result ? (
               <>
-                <p className="font-display text-6xl font-semibold tabular-nums text-fil-500">
-                  {formatMoney(result.monthlyMinor, 'TRY')}
+                <p className="font-display text-6xl font-semibold tabular-nums text-lime">
+                  <CountUp
+                    value={result.monthlyMinor}
+                    format={(minor) => formatMoney(minor, 'TRY')}
+                  />
                 </p>
                 <p className="mt-2 text-sm text-ink-300">
                   {t(

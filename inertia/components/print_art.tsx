@@ -1,4 +1,5 @@
 import { useId } from 'react'
+import { motion, useReducedMotion } from 'motion/react'
 
 export type PrintKind = 'vase' | 'stand' | 'clip' | 'planter'
 
@@ -38,13 +39,21 @@ export function PrintArt({
   color,
   className,
   label,
+  printing = false,
+  delay = 0,
 }: {
   kind: PrintKind
   color: string
   className?: string
   label?: string
+  /** Loop a "being printed" animation: the part builds up from the bed, holds, then starts over. */
+  printing?: boolean
+  delay?: number
 }) {
   const id = useId()
+  const reduce = useReducedMotion()
+  const animate = printing && !reduce
+  const reveal = `${id}-reveal`
   const mask = `${id}-mask`
   const lines = `${id}-lines`
   return (
@@ -63,13 +72,31 @@ export function PrintArt({
         <mask id={mask}>
           <g fill="#fff">{SHAPES[kind]}</g>
         </mask>
+        {animate && (
+          <clipPath id={reveal}>
+            <motion.rect
+              x="0"
+              width="120"
+              height="130"
+              initial={{ y: 130 }}
+              animate={{ y: [130, 0, 0, 130] }}
+              transition={{
+                duration: 7,
+                times: [0, 0.45, 0.9, 1],
+                ease: 'easeInOut',
+                repeat: Infinity,
+                delay,
+              }}
+            />
+          </clipPath>
+        )}
       </defs>
       {kind === 'planter' && (
         <g fill="#2f7d5b" transform="translate(0 6)">
           {LEAVES}
         </g>
       )}
-      <g mask={`url(#${mask})`}>
+      <g mask={`url(#${mask})`} clipPath={animate ? `url(#${reveal})` : undefined}>
         <rect width="120" height="120" fill={color} />
         <rect width="120" height="120" fill={`url(#${lines})`} />
       </g>

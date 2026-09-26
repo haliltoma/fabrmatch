@@ -32,10 +32,10 @@ test.group('language switch (browser)', (group) => {
   }) => {
     const page = await visit('/')
     await page.getByRole('heading', { level: 1 }).waitFor()
-    assert.include(await page.getByRole('heading', { level: 1 }).innerText(), 'Send a model')
+    assert.include(await page.getByRole('heading', { level: 1 }).innerText(), 'Design it.')
 
     await page.getByRole('button', { name: 'tr', exact: true }).click()
-    await page.getByText('Modeli gönder.').waitFor()
+    await page.getByText('Tasarla.').waitFor()
     assert.equal(await page.locator('html').getAttribute('lang'), 'tr')
 
     await page.goto(page.url().replace(/\/$/, '') + '/login')

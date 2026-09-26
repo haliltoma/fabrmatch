@@ -142,14 +142,14 @@ bir dönüşüm iskeleti olsun (hero → kanıt → kitle adımları → keşif 
 
 | Referans deseni | Görülen | Biz |
 | --- | --- | --- |
-| Tam genişlik renk bantları | Printify limon/koyu yeşil/açık mavi, Printful koyu deniz mavisi/kırmızı, Gelato krem/mercan | `paper` (#F5F2EC) ↔ `ink-900` ↔ **tint bantları**: `fil-100`, `heat-100`, `amber-100` (yeni: `tide-100 #DCEAF0` yalnız harita/istatistik bandı) |
+| Tam genişlik renk bantları | Printify limon/koyu yeşil/açık mavi, Printful koyu deniz mavisi/kırmızı, Gelato krem/mercan | `paper` (#F5F2EC) ↔ `ink-900` ↔ **tint bantları**: `fil-100`, `heat-100`, `amber-100` (pop revizyonunda `sky`/`sun`/`lime` bantları, bkz. §14) |
 | Pastel blok kolajı + gerçek fotoğraf | Gelato: turuncu/pembe/mavi/sarı bloklar içinde insan+ürün | Bloklar = **filament spool paleti** (aşağıda) içinde özgün SVG baskı parçaları; fotoğraf yok (§8: harici CDN yasak) |
 | Büyük sonuç rakamı | Printify limon yeşili $321.16, Printful kırmızı | Sonuç rakamı `font-display` 64px, `fil-600` (kazanç) — turuncu değil |
 | Cesur, kısa, büyük harfli/serif olmayan H1 | Printify tam büyük harf | Bricolage Grotesque 600–700, `tracking-tight`; büyük harf yok (okunurluk, TR karakter) |
 | Sıfır risk rozet satırı | "100% free · 2000+ products · global delivery" | 3 rozet, **yalnız doğru olanlar** (bkz. marketing §19.1-2), Lucide ikon + etiket |
 
 **Filament spool paleti (yalnız illüstrasyon zemini; UI durum rengi DEĞİL):** `spool-orange #F0501E`, `spool-teal #2F7D8B`, `spool-mustard #D9A420`, `spool-sage #9DB8A0`, `spool-rose #E7A79A`, `spool-ink #23282E`.
-Tint zeminler: her birinin %15–25 karışımı (`bg-spool-*/15`). Uygulandı: `inertia/css/app.css` (`--color-spool-*`, `--color-tide-100`), `components/print_art.tsx` (vase, planter, stand, clip; katman çizgisi maskesi). Yasak listesi geçerli (indigo/mor yok). Turuncu kuralı: **bir ekranda CTA + en çok bir illüstrasyon parçası**.
+Tint zeminler: her birinin %15–25 karışımı (`bg-spool-*/15`). Uygulandı: `inertia/css/app.css` (`--color-spool-*`, `--color-lime/sun/sky/blush`), `components/print_art.tsx` (vase, planter, stand, clip; katman çizgisi maskesi). Yasak listesi geçerli (indigo/mor yok). Turuncu kuralı: **bir ekranda CTA + en çok bir illüstrasyon parçası**.
 
 ### 13.2 Bölüm sırası (hedef ana sayfa)
 
@@ -159,7 +159,7 @@ Tint zeminler: her birinin %15–25 karışımı (`bg-spool-*/15`). Uygulandı: 
 4. **Keşif** — katalogdan gerçek ürün şeridi (kaydırmalı, `/shop`'a) + malzeme kartları (`/materials`).
 5. **Hesaplayıcı bandı** (koyu `ink-900`) — satıcı marjı / üretici geliri mini araç + "örnektir, söz değil".
 6. **Emanet bandı** (mevcut, LayerStepper ile birleşik).
-7. **Yakınlık/ağ bandı** (`tide-100`) — Türkiye illüstrasyonu (İstanbul işaretli), gerçek sayaçlar eşik üstündeyse.
+7. **Yakınlık/ağ bandı** (`sky`) — Türkiye illüstrasyonu (İstanbul işaretli), gerçek sayaçlar eşik üstündeyse.
 8. **Öğren** — blog/sözlük/malzeme/araç kartları (gerçek içerik).
 9. **Kapanış bandı** (`heat` tam genişlik, ink metin — tek turuncu blok) + zengin footer (malzemeler, araçlar, blog, sözlük, yasal, durum, dil).
 
@@ -173,9 +173,92 @@ Tint zeminler: her birinin %15–25 karışımı (`bg-spool-*/15`). Uygulandı: 
 - [x] ✔ 2026-09-24 (üretici geliri; satıcı marj mini aracı **H-6b** olarak açık) **H-6 Hesaplayıcı bandı:** satıcı marj mini aracı (fiyat motoru, `/tools/…` ile aynı formül) + üretici geliri bağlantısı; "söz değil" notu
 - [x] ✔ 2026-09-24 (harita yerine soyut "en yakın üretici" diyagramı: kapsama iddiası yok) **H-7 Yakınlık bandı:** Türkiye SVG haritası (İstanbul), "şehir şehir" hikâyesi, eşik üstü sayaçlar
 - [x] ✔ 2026-09-24 **H-8 Öğren kartları:** blog/sözlük/malzeme/araç (gerçek içerikten)
-- [ ] **H-9 Kapanış bandı + zengin footer** (`layouts/default.tsx`): SEO bağlantı ağı, dil anahtarı
-- [ ] **H-10 Hareket:** tek "katman katman belirme" sahnesi (`Reveal`/GSAP), reduced-motion
-- [ ] **H-11 Ölçüm/deney:** `home_cta` deneyi (H-A), olaylar (`marketing_events`), `/admin/growth` huni
-- [ ] **H-12 Doğrulama turu:** 375/768/1024/1440 ekran görüntüleri EN+TR, a11y (`npm run a11y`), Lighthouse, §12 listesi
-- [ ] **H-6b Satıcı marj mini aracı** (ana sayfada): gerçek bir mağaza ürününün fiyat motoru dökümüyle "marjın = parça başı şu kadar"; `inertia/lib/income.ts` gibi sunucu formülüyle eşlenmiş test şart
+- [x] ✔ 2026-09-24 **H-9 Kapanış bandı + zengin footer** (`layouts/default.tsx`): SEO bağlantı ağı, dil anahtarı
+- [x] ✔ 2026-09-25 **H-10 Hareket:** artık `§14` Pop revizyonuyla birleşti: P-2..P-4 (marquee, kart eğimi, sayı sayma); tek "katman katman belirme" sahnesi = hero `PrintArt printing` (yapıldı, P-1)
+- [x] ✔ 2026-09-25 **H-11 Ölçüm/deney:** `home_cta` deneyi (H-A), olaylar (`marketing_events`), `/admin/growth` huni — A "Anında fiyat gör" (`/tools/quick-quote`) / B "Model yükle" (kayıt); maruz kalma ana sayfada, dönüşüm = oturumda ilk kayıtsız fiyat veya hesap açma; ana sayfa `landing_view` olayı `/admin/growth`'a düşer
+- [x] ✔ 2026-09-25 **H-12 Doğrulama turu:** 375/768/1024/1440 ekran görüntüleri EN+TR, a11y (`npm run a11y`), Lighthouse, §12 listesi — 8 görünümde yatay taşma yok, tek H1, axe WCAG 2.2 AA 0 ihlal, konsol hatası yok, ilk ekranda turuncu ≤ 2, yasak listesi (indigo/mor/emoji/lorem) temiz; tekrar eden eski "iki kitle" kartları kaldırıldı (kitle sekmeleri kapsıyor). **Lighthouse ölçülmedi** (araç kurulu değil; P-8'e devredildi)
+- [x] ✔ 2026-09-25 **H-6b Satıcı marj mini aracı** (ana sayfada): gerçek bir mağaza ürününün fiyat motoru dökümüyle "marjın = parça başı şu kadar"; `inertia/lib/income.ts` gibi sunucu formülüyle eşlenmiş test şart
 - [x] ✔ 2026-09-24 **H-6c Emanet bandındaki sabit "7 gün"** metnini `autoConfirmDays` ayarına bağla (ProofStrip gibi)
+
+## 14. "Pop" revizyonu — daha canlı renk, hareketli nesneler, katmanlı düğme (2026-09-25)
+
+Karar: kullanıcı ana sayfayı ve genel görünümü daha canlı/hareketli istedi. §1–§4'teki kimlik (ink + kâğıt + katman çizgisi + Bricolage) **korunur**; bu bölüm onu **genişletir**. Çelişen yerde bu bölüm kazanır: §1 imza 4 ("ekran başına en çok 2 turuncu") ve §4 "süs animasyon yok" **yalnız pazarlama sayfalarında** gevşer; panel/dashboard sayfaları sakin kalır. Yasak listesi (indigo/mor, iki duraklı gradyan, emoji ikon, uydurma metrik) aynen geçerli.
+
+Kaynaklar: 21st.dev MCP araması ("Pop Button" [tom_ui, itme animasyonlu 3D düğme; alt kenarlık kalınlığı + `active:scale-y` fikri uyarlandı], "Brutal Button", "Press Depth", marquee ailesi) ve skill'ler `framer-motion`, `frontend-design`, `anti-ai-slop-design`, `ui-ux-pro-max`. Kod ham alınmadı; Fabrmatch token'larına yeniden yazıldı.
+
+### 14.1 Canlı palet (`inertia/css/app.css`, `--color-*`)
+
+| Token | Değer | Kullanım |
+| ----- | ----- | -------- |
+| `lime` | `#C8F53C` | Bant/kutucuk zemini, ikincil düğme yüzü, sonuç vurgusu. Metin üstünde yalnız `ink` |
+| `sun` | `#FFC629` | Bant/kutucuk zemini, uyarı DEĞİL (uyarı `amber` kalır) |
+| `sky` | `#8FD3F4` | Bant/kutucuk zemini (eski `tide-100` kaldırıldı, yerini aldı) |
+| `blush` | `#FF9FB8` | Kutucuk zemini, sıcak vurgu |
+| `heat`, `fil`, `ink`, `paper` | değişmedi | Birincil CTA = `heat-500` yüz + ink metin |
+
+Kurallar: (1) Pop renkleri **durum rengi değildir** (StatusBadge, hata, başarı eski token'larla). (2) Pop renk üstünde metin her zaman `ink-900` (kontrast ≥ 4.5:1 doğrulandı: ink/lime, ink/sun, ink/sky, ink/blush). (3) Bir bölüm bandı = **tek** pop renk; yan yana iki pop bant yok, aralarına `paper` gelir. (4) Renkli kutucuklar `2px ink` kenarlıklı (düğmelerle aynı dil).
+
+### 14.2 Katmanlı düğme (`components/ui/button.tsx`)
+
+Tüm birincil düğmeler "katmanlı": düz yüz + kalın `ink` alt kenarlık (`border-2 border-b-[5px]`), üzerine gelince 2px yukarı, basınca 3px aşağı ve alt kenarlık 2px'e iner (basılan katman hissi; 3D baskı imzasına bağlı). Varyantlar: `default` (ink), `accent` (heat), `lime`, `sun`, `outline` (kâğıt yüz). `sm`/`icon` boyutlar ve `secondary/ghost/link/destructive` **düz** kalır (yoğun panel ekranları bağırmasın). `prefers-reduced-motion`: hareket yok, yalnız renk.
+
+### 14.3 Hareketli nesneler
+
+- **Basılan parça** (`PrintArt printing`): parça yataktan yukarı katman katman belirir (7 sn döngü: 45% inşa, bekle, sıfırla), kutucuk başına 0,9 sn kaydırmalı. Yalnız `clipPath` içindeki `rect` animasyonu (transform), reduced-motion'da statik.
+- **Kayan malzeme şeridi (marquee):** gerçek aktif malzeme adları + küçük SVG parçalar, CSS `translateX` döngüsü, üzerine gelince duraklar, reduced-motion'da durur. (H-13)
+- **Kart eğimi/kalkışı:** ürün ve malzeme kartları hover'da 2px yukarı + hafif dönüş (`rotate-1`), tıklamada bastırma. (H-14)
+- **Sayı sayma:** kanıt şeridi ve hesaplayıcı sonucu görünür olunca 0'dan sayar (yalnız gerçek sayılar). (H-15)
+- Kural: yalnız `transform`/`opacity`; aynı anda ≤ 4 sürekli döngü; kullanıcı etkileşiminde döngü duraklar; hiçbir animasyon içerik okumayı engellemez.
+
+### 14.4 Ana sayfa renk haritası (hedef)
+
+Hero: `paper` zemin + katman çizgisi, sağda 4 pop kutucuk (sun/lime/sky/blush) · Kanıt şeridi: `paper-raised` · Kitle sekmeleri: `paper`, aktif sekme `lime` · Keşif (ürünler): `sun`/%20 bant · Malzeme kartları: her kart farklı pop yüz · Hesaplayıcı: `ink-900`, sonuç `lime` · Emanet: `ink-900` · Yakınlık: `sky` bant · Öğren: `paper-sunken`, kartlar pop kenarlık · Kapanış: `heat-500` · Footer: `paper-sunken`.
+
+### 14.5 Yol haritası (Pop) — döngü bu maddelere de bakar
+
+- [x] ✔ 2026-09-25 **P-1 Token + katmanlı düğme + basılan parça animasyonu + hero pop kutucuklar** (`app.css`, `button.tsx`, `print_art.tsx`, `home.tsx`)
+- [x] ✔ 2026-09-25 **P-2 Kitle sekmeleri aktif = `lime`, ürün/malzeme kartları pop yüz + hover eğimi** (H-14)
+- [x] ✔ 2026-09-25 **P-3 Kayan malzeme şeridi (marquee)** hero altına (H-13)
+- [x] ✔ 2026-09-25 **P-4 Hesaplayıcı sonucu `lime`, sayı sayma** (H-15), kanıt şeridi rakamları
+- [x] ✔ 2026-09-25 **P-5 Bant renklerini §14.4 haritasına uydur** (`sky`, `sun`), `tide-100` kaldır
+- [x] ✔ 2026-09-25 **P-6 Düğme denetimi:** dashboard/admin/form ekranlarında `sm` ve düz varyantlar doğru mu; taşma/yükseklik kayması yok; 375–1440 ekran görüntüleri
+- [x] ✔ 2026-09-25 **P-7 Panel sayfalarına sınırlı pop:** yalnız boş durum illüstrasyonları ve `StatTile` vurgusu; tablo/form sakin
+- [x] ✔ 2026-09-25 **P-8 Erişilebilirlik + performans:** `npm run a11y`, reduced-motion elle test, Lighthouse, CLS — `npm run a11y` artık genel 14 sayfa + 4 demo rolle 21 oturumlu sayfa × telefon/masaüstü tarar (0 ihlal; admin için sunucu `ADMIN_2FA_REQUIRED=false`, giriş limiti 10/15 dk/IP → art arda çalıştırmada redis `rlflx:login:*` temizle). Lighthouse yerine `npm run vitals` (tarayıcı PerformanceObserver, telefon + 4× CPU yavaşlatma): 7 genel sayfada LCP 312–496 ms, CLS ≤ 0.04 (dev sunucusu). Reduced-motion H-12'de 8 görünümde doğrulandı
+
+## 15. Açık / koyu tema (2026-09-25)
+
+- **Seçim:** `ThemeSwitch` (Açık · Koyu · Sistem) her yerleşimde: genel üst bar + mobil menü + footer, panel kenar çubuğu, giriş/kayıt ekranı. Varsayılan **Sistem** (`prefers-color-scheme`). Seçim yalnız bu tarayıcıda, `localStorage.fm_theme`.
+- **Boyamadan önce:** `resources/views/inertia_layout.edge` içindeki küçük betik `<html class="dark">`'ı ilk boyamadan önce koyar → yanıp sönme yok; SSR tema bilmez, bilmesi de gerekmez.
+- **Nasıl çalışır:** Tüm renkler Tailwind v4 CSS değişkeni. `.dark` altında `ink` ölçeği ters çevrilir (ink-900 = açık metin), `paper` yüzeyleri koyulaşır, `heat/fil/amber/danger` koyu zemine uygun tonlara geçer, `line` ve katman çizgisi (`--layer-line`) açık alfa olur. Yeni renk eklersen **iki temada da** değer ver (`inertia/css/app.css`, `.dark` bloğu).
+- **Tasarımı gereği sabit yüzeyler:** `.palette-light` açık paletin değerlerini geri yükler; böylece koyu bantlar koyu, parlak kutucuklar parlak kalır ve üzerlerindeki metin okunur. Otomatik: `bg-lime`, `bg-sun`, `bg-sky`, `bg-blush`, `bg-heat-500`. Elle: panel kenar çubuğu + mobil kenar çubuğu, giriş ekranının sol paneli, ana sayfa emanet ve hesaplayıcı bantları. Yeni "hep koyu" ya da "hep parlak" yüzeye `palette-light` ekle.
+- **Yasak:** ham Tailwind renkleri (`red-*`, `amber-*`, `emerald-*`, `blue-*`, `bg-white`) — koyu temaya uymaz; `danger`, `amber-soft/ink`, `fil`, `ink`, `paper-raised` kullan (2026-09-25'te hepsi token'a çevrildi). Sabit hex yalnız `palette-light` bir yüzeyin içindeki SVG'de.
+- **Doğrulama:** koyu temada 20 sayfa (genel + 4 rol) axe WCAG 2.2 AA, kontrast dahil 0 ihlal; açık tema değişmedi (`npm run a11y` 0 ihlal). Koyu tema taraması için Playwright `colorScheme: 'dark'`.
+
+## 16. Hero sahnesi: "Baskıdan kapıya" (2026-09-25)
+
+- **Ne:** `inertia/components/print_journey.tsx` — yere sabit 3 eksenli endüstriyel robot kol ısıtmalı tablada vazo basar, kavrayıp kartona koyar; karton kapanır, bantlanır, konveyörde kayar, kuryeye geçer, kurye kapıda alıcıya verir, onay işareti çıkar. 14 sn döngü; alttaki adım şeridi (Basılıyor · Paketleniyor · Yolda · Teslim edildi) animasyonla ilerler ve metin karşılığıdır.
+- **Zaman çizelgesi saf fonksiyon:** `inertia/lib/journey.ts` (`sceneAt(t)`, ters kinematik `solveArm`, ileri kinematik `armJoints`). Çizim yalnız bunun döndürdüğünü boyar; `tests/unit/journey.spec.ts` nozülün her 0,05 sn'de hedefe ulaştığını ve adım sırasını doğrular. Zamanlama/konum değişikliği bu dosyada yapılır.
+- **Çizim dili:** 2,5px mürekkep kontur, iki ton gölge, çelik gri mafsal gövdeleri + cıvata halkası, kablo demeti, hidrolik piston, uyarı şeritli taban. Renkler site paleti; sahne `palette-light` zeminde, iki temada aynı. Gerçek kişi/marka yok.
+- **Performans ve erişim:** ~30 fps, ekranda değilken ve sekme gizliyken durur; `prefers-reduced-motion` → teslim karesi durağan; SSR aynı kareyi çizer, animasyon oradan başlar (sıçrama yok). Ana sayfa LCP ~0,5 sn, CLS 0 (dev).
+
+## 17. Düğme rengi ve hızlı fiyat aracı (2026-09-26)
+
+- **Kırmızı-turuncu düğme yok:** `Button variant="accent"` artık `lime` yüz + ink metin (katmanlı). Kapanış bandı `sun`. Turuncu (`heat`) yalnız marka vurgusu olarak kalır: logo, sayaç rozetleri, ilerleme noktası, illüstrasyon. **Kırmızı yalnız `destructive`** (sil, reddet, askıya al) — geri alınamaz eylem uyarısı olduğu için.
+- **`/tools/quick-quote`:** iki sütunlu hesap makinesi. Sol: sürükle-bırak alanı → yerel 3D önizleme (dosya tarayıcıda açılır; sunucuya yalnız fiyat isteğiyle gider, saklanmaz), açıklamalı malzeme kartları (her kartta o adet için fiyat), adet (1/2/5/10). Sağ: yapışkan sonuç paneli — büyük toplam (`CountUp`, `lime`), parça başı fiyat, toplu siparişte parça başı fark, "para nereye gidiyor" çubuğu (üretici / Fabrmatch payı / teslimat; toplamı tam tutar), boyut/hacim/ağırlık/baskı süresi, DFM uyarıları, "Sipariş için hesap oluştur" + "Başka bir dosya fiyatla".
+- **Sunucu:** `quickQuoteFromFile` tek istekte 4 FDM malzemesinin tamamını ve 1/2/5/10 adet toplamlarını fiyat motoruyla döndürür (`options`); malzeme/adet değişince yeniden yükleme yok. Test: 1 adet toplam = eski başlık fiyatı.
+- **Örnek dosya:** `public/samples/sample-vase.stl` (kapalı, 41×41×55 mm) — "Örnek vazomuzla dene" dosyası olmayan ziyaretçiyi fiyata götürür.
+- **3D önizleme (`stl_viewer`):** STL'ler Z-yukarı çizildiği için model dik çevrilir, `Bounds` ile kadraja sığdırılır, yavaşça döner (reduced-motion'da dönmez). Dosyalar sayfasındaki önizleme de düzeldi.
+
+## 18. Hero v3: hemen fiyat + dönen küp (2026-09-26)
+
+- **Sol:** H1 "Tasarla. Bastır. Sat." ("Sat." altında eğik limon vurgu şeridi), alt metin, `HeroQuickStart` (satır içi STL fiyatı, örnek vazo), üç kitle bağlantısı, güven satırı.
+- **Sağ `HeroCube`:** CSS 3B küp (`perspective`, `preserve-3d`, `backfaceVisibility`), 22 sn döngü: 0–13,5 baskı→kapı sahnesi; 13,5–14,4 sola dönüş; satıcı yüzü (listeleme, SATILDI, 3 sipariş, marj sayacı); 21,1–22 geri dönüş, baskı baştan. Yüz dönerken hafif kararma (`bg-black`, temadan bağımsız). Mobilde satıcı yüzü sadeleşir (liste + kazanç). Reduced-motion/SSR: teslim karesi, dönüş yok. Saat: `lib/use_loop_clock.ts` (paylaşılan), `PrintJourney time` ile dışarıdan sürülür.
+- **`WhyStrip`** "Önce İstanbul" şeridinin yerine; **`HomeFaq`** kapanıştan önce.
+
+## 19. Dört yüzlü küp + güvenlik tarama paneli (2026-09-26)
+
+- **`HeroCube` v2 (4 yüz, sola döner):** ① *Alıcı tasarımını seçer* — mağaza ızgarası (gerçek katalog ürünleri, fiyat = gerçek maliyet + %30), imleç kartın üstüne gider, kart kalkar, tıklanır, limon çerçeve + tik. ② *Siparişi verir* — ürün detayı, imleç "Sipariş ver"e gider, basılır → "Sipariş verildi · FO-…" + kilit "Ödeme teslimata kadar bekletilir". ③ Baskı→kapı sahnesi (`PrintJourney time`). ④ *Teslim edildi. Kazanç senin.* — kilit açılır, fiyat çubuğu maliyet (mürekkep) / marj (limon) olarak ayrılır, ₺ jetonu düşer, "Hesabına geçen" sayacı. Sonra mağazaya dönülür (−360° = 0, kesintisiz).
+- Zaman çizelgesi saf fonksiyon: `inertia/lib/cube_story.ts` (`storyAt`, `cursorAt`; 35,6 sn; her yüz ≥5 sn önde, sayfa açılınca mağaza 2 sn sakin bekler, seçimden sonra ~2 sn daha), testi `tests/unit/cube_story.spec.ts`. Seçilen ürün kupa/vazo biçimli olan (baskı sahnesi vazo basar); silüet başlıktan (`kindFor`). SSR/reduced-motion karesi ve döngü başı: mağaza, henüz seçim yok.
+- Küp altında 4 adım çipi (Seç · Sipariş · Baskı · Paranı al), öndeki yüz limon. Mobilde numaralar gizli. Tüm metin `t()`; ekran okuyucuya tek cümlelik özet.
+- **`ScanPanel`** (`components/scan_panel.tsx`): yükleme altında "Virüs ve gizli kod taranıyor…" (süpürme çubuğu, reduced-motion'da sabit) → "Virüs taraması temiz" (yalnız sunucunun döndürdüğü geçen kontroller tik alır; ClamAV satırı yalnız motor gerçekten çalıştıysa) → "Güvenlik taraması engelledi" + neden. Hızlı fiyat sayfası ve hero'da; dosyalarım listesinde rozet (taranıyor / temiz / engellendi) + 3 sn yenileme. Ayrıntı `SECURITY.md`.
+

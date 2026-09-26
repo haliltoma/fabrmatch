@@ -38,6 +38,14 @@ services:
     volumes:
       - miniodata:/data
 
+  # optional antivirus: `docker compose --profile av up -d clamav`, then CLAMAV_HOST=localhost
+  # (debian image: multi-arch; the alpine one has no arm64)
+  clamav:
+    image: clamav/clamav-debian:stable
+    profiles: ['av']
+    ports:
+      - '3310:3310'
+
 volumes:
   pgdata:
   miniodata:

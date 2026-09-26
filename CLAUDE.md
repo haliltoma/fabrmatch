@@ -52,6 +52,8 @@ Teknik şartname: docs/FABRMATCH_FULLSTACK_PRD.md · Plan ve durum: docs/PROJECT
 - Skill'leri kullanıcıya sormadan, DESIGN_SKILLS.md akışına göre çağır; çıktı DESIGN.md ile çelişirse DESIGN.md kazanır.
 - Bitirmeden DESIGN.md §12 kontrol listesi + gerçek tarayıcı ekran görüntüsü. Boş/şablon görünümlü sayfa teslim edilmez.
 
+- Açık/koyu tema: yeni renk iki temada da tanımlanır, ham Tailwind rengi kullanılmaz, hep koyu/parlak yüzeye `palette-light` (bkz. `docs/DESIGN.md §15`).
+
 ## Dil (i18n)
 
 - UI metni İngilizce yazılır ve `t('English text')` ile sarılır (`useT()` from `~/lib/i18n`); Türkçe karşılık `inertia/lib/i18n/tr.ts`'ye eklenir. Eksik çeviri İngilizce görünür, kırılmaz.

@@ -13,8 +13,13 @@ export async function postJson<T = unknown>(url: string, body?: unknown): Promis
   })
 
   if (!res.ok) {
-    const data = (await res.json().catch(() => null)) as { error?: string } | null
-    throw new Error(data?.error || `Request failed (${res.status})`)
+    const data = (await res.json().catch(() => null)) as {
+      error?: string
+      blocked?: boolean
+    } | null
+    throw Object.assign(new Error(data?.error || `Request failed (${res.status})`), {
+      blocked: data?.blocked === true,
+    })
   }
   return (await res.json()) as T
 }
@@ -47,8 +52,13 @@ export async function postForm<T = unknown>(url: string, form: FormData): Promis
     body: form,
   })
   if (!res.ok) {
-    const data = (await res.json().catch(() => null)) as { error?: string } | null
-    throw new Error(data?.error || `Request failed (${res.status})`)
+    const data = (await res.json().catch(() => null)) as {
+      error?: string
+      blocked?: boolean
+    } | null
+    throw Object.assign(new Error(data?.error || `Request failed (${res.status})`), {
+      blocked: data?.blocked === true,
+    })
   }
   return (await res.json()) as T
 }

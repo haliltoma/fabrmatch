@@ -1,25 +1,22 @@
 import { Head, usePage } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
-import { ArrowRight, BadgeCheck, FileUp, Printer, ShieldCheck, ShoppingBag } from 'lucide-react'
+import { BadgeCheck, FileUp, ShieldCheck } from 'lucide-react'
 import { useT } from '~/lib/i18n'
-import { Button } from '~/components/ui/button'
-import { LayerStepper } from '~/components/layer_stepper'
 import { Reveal } from '~/components/reveal'
 import { AudienceTabs } from '~/components/audience_tabs'
-import { ProofStrip, type HomeStats } from '~/components/proof_strip'
+import type { HomeStats } from '~/lib/home_stats'
+import { WhyStrip } from '~/components/why_strip'
+import { HomeFaq } from '~/components/home_faq'
+import { HeroQuickStart } from '~/components/hero_quick_start'
+import { HeroCube } from '~/components/hero_cube'
+import { ClosingBand } from '~/components/closing_band'
 import { LearnBand, type HomeGuide } from '~/components/learn_band'
+import { MaterialMarquee } from '~/components/material_marquee'
 import { NearbyBand } from '~/components/nearby_band'
+import { MarginBand, type MarginSample } from '~/components/margin_band'
 import { IncomeBand } from '~/components/income_band'
 import type { IncomeRules } from '~/lib/income'
 import { Discover, type HomeMaterial, type HomeProduct } from '~/components/discover'
-import { PrintArt, type PrintKind } from '~/components/print_art'
-
-const HERO_PARTS: Array<{ kind: PrintKind; color: string; tint: string; name: string }> = [
-  { kind: 'vase', color: '#f0501e', tint: 'bg-spool-orange/15', name: 'Vase' },
-  { kind: 'planter', color: '#9db8a0', tint: 'bg-spool-sage/25', name: 'Planter' },
-  { kind: 'stand', color: '#d9a420', tint: 'bg-spool-mustard/20', name: 'Phone stand' },
-  { kind: 'clip', color: '#2f7d8b', tint: 'bg-spool-teal/15', name: 'Cable clip' },
-]
 
 const TRUST = [
   { icon: FileUp, text: 'See a price without an account' },
@@ -27,22 +24,20 @@ const TRUST = [
   { icon: BadgeCheck, text: 'Only verified makers print' },
 ]
 
-const SAMPLE_TIMELINE = [
-  { status: 'paid', at: '2026-01-12T09:14:00Z' },
-  { status: 'matching', at: '2026-01-12T09:14:20Z' },
-  { status: 'in_production', at: '2026-01-12T09:41:00Z' },
-  { status: 'shipped', at: '2026-01-14T15:02:00Z' },
-  { status: 'delivered', at: '2026-01-15T11:30:00Z' },
-]
-
 export default function Home({
   stats,
+  ctaVariant,
+  faq,
+  marginSamples,
   incomeRules,
   guides,
   products,
   materials,
 }: {
   stats: HomeStats
+  ctaVariant: string
+  faq: Array<{ q: string; a: string }>
+  marginSamples: MarginSample[]
   incomeRules: IncomeRules
   guides: HomeGuide[]
   products: HomeProduct[]
@@ -86,30 +81,48 @@ export default function Home({
       <section className="layer-lines border-b border-line">
         <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1.15fr_1fr] lg:px-8">
           <div>
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-heat-700">
-              {t('Made to order')}
-            </p>
-            <h1 className="mt-4 font-display text-5xl font-semibold leading-[1.02] text-ink-900 sm:text-6xl lg:text-7xl">
-              {t('Send a model.')}
+            <h1 className="font-display text-5xl font-semibold leading-[1.02] text-ink-900 sm:text-6xl lg:text-7xl">
+              {t('Design it.')}
               <br />
-              {t('Get a printed part.')}
+              {t('Print it.')}
+              <br />
+              <span className="relative inline-block">
+                <span
+                  className="absolute inset-x-0 bottom-1 -z-0 h-4 -rotate-1 bg-lime sm:h-5"
+                  aria-hidden
+                />
+                <span className="relative">{t('Sell it.')}</span>
+              </span>
             </h1>
             <p className="mt-6 max-w-xl text-lg text-ink-700">
               {t(
-                'A verified maker near you prints it, ships it, and your payment stays held until it is in your hands.'
+                'Drop a 3D model and see its price. A verified maker near you prints and ships it. Selling? No stock, no printer — your margin is yours.'
               )}
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button size="lg" variant="accent" asChild>
-                <Link href="/tools/quick-quote">
-                  {t('Get an instant price')} <ArrowRight />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link href="/shop">{t('Browse the shop')}</Link>
-              </Button>
+            <div className="mt-8 max-w-xl">
+              <HeroQuickStart />
             </div>
-            <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink-700">
+            <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-semibold">
+              {ctaVariant === 'B' ? (
+                <Link
+                  route="new_account.create"
+                  className="text-ink-900 underline underline-offset-4"
+                >
+                  {t('Upload a model')}
+                </Link>
+              ) : (
+                <Link href="/for-sellers" className="text-ink-900 underline underline-offset-4">
+                  {t('Start selling without stock')}
+                </Link>
+              )}
+              <Link href="/shop" className="text-ink-900 underline underline-offset-4">
+                {t('Browse the shop')}
+              </Link>
+              <Link href="/for-makers" className="text-ink-900 underline underline-offset-4">
+                {t('Earn with your printer')}
+              </Link>
+            </div>
+            <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink-700">
               {TRUST.map((item) => (
                 <li key={item.text} className="flex items-center gap-2">
                   <item.icon className="h-4 w-4 text-fil-600" aria-hidden />
@@ -119,34 +132,13 @@ export default function Home({
             </ul>
           </div>
 
-          <div className="space-y-3">
-            <ul className="grid grid-cols-2 gap-3">
-              {HERO_PARTS.map((part) => (
-                <li
-                  key={part.kind}
-                  className={`flex aspect-[4/3] items-center justify-center rounded-lg border border-line ${part.tint}`}
-                >
-                  <PrintArt
-                    kind={part.kind}
-                    color={part.color}
-                    label={t(part.name)}
-                    className="h-4/5"
-                  />
-                </li>
-              ))}
-            </ul>
-            <figure className="rounded-lg border border-line bg-paper-raised p-5">
-              <figcaption className="mb-4 flex items-center justify-between text-sm">
-                <span className="font-medium text-ink-900">{t('How an order moves')}</span>
-                <span className="font-mono text-xs text-ink-600">{t('example')}</span>
-              </figcaption>
-              <LayerStepper entries={SAMPLE_TIMELINE} />
-            </figure>
-          </div>
+          <HeroCube samples={marginSamples} />
         </div>
       </section>
 
-      <ProofStrip stats={stats} />
+      <MaterialMarquee materials={materials} />
+
+      <WhyStrip />
 
       {/* How it works, per audience */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
@@ -157,10 +149,12 @@ export default function Home({
 
       <Discover products={products} materials={materials} />
 
+      <MarginBand samples={marginSamples} />
+
       <IncomeBand rules={incomeRules} />
 
       {/* Escrow band */}
-      <section className="layer-lines-light bg-ink-900 text-paper">
+      <section className="palette-light layer-lines-light bg-ink-900 text-paper">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-[1fr_1.2fr] lg:px-8">
           <h2 className="font-display text-4xl font-semibold leading-tight">
             {t("Your payment waits until you say it's fine.")}
@@ -185,45 +179,9 @@ export default function Home({
 
       <LearnBand guides={guides} />
 
-      {/* Two audiences */}
-      <section className="mx-auto grid max-w-7xl gap-6 px-4 py-20 sm:px-6 md:grid-cols-2 lg:px-8">
-        <Reveal>
-          <div className="flex h-full flex-col justify-between rounded-lg border border-line bg-paper-raised p-8">
-            <div>
-              <Printer className="h-7 w-7 text-ink-900" aria-hidden />
-              <h3 className="mt-4 font-display text-2xl font-semibold text-ink-900">
-                {t('Own a printer?')}
-              </h3>
-              <p className="mt-2 max-w-sm text-ink-700">
-                {t(
-                  'Set your machines, materials and weekly capacity. Get offers that fit, and get paid when the buyer confirms.'
-                )}
-              </p>
-            </div>
-            <Button className="mt-6 self-start" variant="outline" asChild>
-              <Link route="new_account.create">{t('Become a maker')}</Link>
-            </Button>
-          </div>
-        </Reveal>
-        <Reveal delay={0.06}>
-          <div className="flex h-full flex-col justify-between rounded-lg border border-line bg-paper-raised p-8">
-            <div>
-              <ShoppingBag className="h-7 w-7 text-ink-900" aria-hidden />
-              <h3 className="mt-4 font-display text-2xl font-semibold text-ink-900">
-                {t('Selling designs?')}
-              </h3>
-              <p className="mt-2 max-w-sm text-ink-700">
-                {t(
-                  'List products from the catalog, set your margin, and we handle printing, shipping and payment for every order.'
-                )}
-              </p>
-            </div>
-            <Button className="mt-6 self-start" variant="outline" asChild>
-              <Link route="new_account.create">{t('Start selling')}</Link>
-            </Button>
-          </div>
-        </Reveal>
-      </section>
+      <HomeFaq faq={faq} />
+
+      <ClosingBand />
     </>
   )
 }

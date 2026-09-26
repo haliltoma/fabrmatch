@@ -130,10 +130,10 @@ export function AudienceTabs() {
             tabIndex={active === a.id ? 0 : -1}
             onClick={() => setActive(a.id)}
             onKeyDown={(e) => onKeyDown(e, i)}
-            className={`min-h-11 rounded-md border px-4 py-2 text-sm font-medium transition-colors ${
+            className={`min-h-11 rounded-md border-2 px-4 py-2 text-sm font-semibold transition-[transform,border-width] duration-150 ${
               active === a.id
-                ? 'border-ink-900 bg-ink-900 text-paper'
-                : 'border-line bg-paper-raised text-ink-800 hover:border-ink-900/40'
+                ? 'border-ink-900 border-b-4 bg-lime text-ink-900'
+                : 'border-line bg-paper-raised text-ink-800 hover:-translate-y-0.5 hover:border-ink-900'
             }`}
           >
             {t(a.label)}

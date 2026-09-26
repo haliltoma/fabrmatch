@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { scanModelFile } from '#services/files/file_scanner'
+import { scanUpload } from '#services/files/file_scanner'
 import { Job } from '@adonisjs/queue'
 import type { JobOptions } from '@adonisjs/queue/types'
 import app from '@adonisjs/core/services/app'
@@ -47,7 +47,10 @@ export default class AnalyzeModelFile extends Job<AnalyzeModelFilePayload> {
       }
       const buffer = Buffer.concat(chunks)
 
-      const verdict = scanModelFile(buffer, file.format)
+      const verdict = await scanUpload(buffer, file.format, {
+        sha256: file.sha256,
+        sizeBytes: file.sizeBytes,
+      })
       if (!verdict.ok) {
         file.analysisStatus = 'failed'
         file.isPrintable = false

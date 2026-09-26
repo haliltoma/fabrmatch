@@ -172,7 +172,7 @@ Paket çıkış ölçütü: gerçek ödeme sandbox'ta uçtan uca; vergi+fatura k
   - OpenTelemetry (uyumluluk kontrolü), hata izleme, kuyruk derinliği/webhook gecikmesi alarmı, sağlık ucu.
 - [x] **R3-T10 Sahtekârlık kural motoru (basit)** · P1 · ✔ 2026-09-24 (`FraudService`: yeni hesap+yüksek tutar ve alıcı/satıcı aynı adres = HOLD [eşleşme admin kararına kadar başlamaz]; ortak adreste çok hesap, sipariş hızı = review; `fraud_flags`, admin kuyruğunda "Looks fine"/"Reject and refund"; eşikler ayarlarda. Kart parmak izi kuralı iyzico ile) · `Ref: G5`
   - Yeni hesap + yüksek tutar → manuel inceleme; aynı kart/IP çoklu hesap; admin kuyruğu.
-- [x] **R3-T11 Dosya güvenliği** · P1 · ✔ 2026-09-24 (yüklemede imza taraması: çalıştırılabilir/betik/EICAR/yanlış format reddi → dosya bloke; "Report this listing" + admin kuyruğunda Block/Dismiss; bloklu model sipariş, vitrin ve indirmeden düşer. Gerçek antivirüs motoru [ClamAV] aynı `scanModelFile` çağrısının arkasına eklenecek; içerik politikası sayfası metni D5 hukuk kararıyla) · `Ref: G6`
+- [x] **R3-T11 Dosya güvenliği** · P1 · ✔ 2026-09-24 (yüklemede imza taraması: çalıştırılabilir/betik/EICAR/yanlış format reddi → dosya bloke; "Report this listing" + admin kuyruğunda Block/Dismiss; bloklu model sipariş, vitrin ve indirmeden düşer. 2026-09-26: ClamAV `scanUpload()` içinde (CLAMAV_HOST, kapalı başarısızlık), katı yapı/polyglot/zip bombası kontrolleri, octet-stream+attachment imzalı URL'ler, arayüzde tarama paneli — bkz. SECURITY.md; içerik politikası sayfası metni D5 hukuk kararıyla) · `Ref: G6`
   - Yüklemede zararlı içerik taraması, içerik politikası, "şikâyet et" akışı.
 
 ---

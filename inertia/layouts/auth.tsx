@@ -5,10 +5,13 @@ import { usePage } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { Logo } from '~/components/logo'
 import { useT } from '~/lib/i18n'
+import { ThemeSwitch } from '~/components/theme_switch'
+import { useTheme } from '~/lib/theme'
 import { LanguageSwitch } from '~/components/language_switch'
 
 export default function AuthLayout({ children }: { children: ReactElement<Data.SharedProps> }) {
   const { t } = useT()
+  const { dark } = useTheme()
 
   const { url, flash } = usePage()
 
@@ -24,7 +27,7 @@ export default function AuthLayout({ children }: { children: ReactElement<Data.S
   return (
     <div className="grid min-h-screen grid-rows-1 lg:grid-cols-2">
       {/* Left: brand panel */}
-      <div className="layer-lines-light hidden flex-col justify-between bg-ink-900 p-10 text-paper lg:flex">
+      <div className="palette-light layer-lines-light hidden flex-col justify-between bg-ink-900 p-10 text-paper lg:flex">
         <Link route="home" aria-label={t('Fabrmatch home')}>
           <Logo tone="paper" />
         </Link>
@@ -54,14 +57,17 @@ export default function AuthLayout({ children }: { children: ReactElement<Data.S
           <Link route="home" aria-label={t('Fabrmatch home')} className="lg:invisible">
             <Logo />
           </Link>
-          <LanguageSwitch />
+          <div className="flex items-center gap-3">
+            <ThemeSwitch />
+            <LanguageSwitch />
+          </div>
         </div>
         <div className="flex flex-1 items-center justify-center p-6">
           <div className="w-full max-w-sm">{children}</div>
         </div>
       </main>
 
-      <Toaster position="top-center" richColors />
+      <Toaster position="top-center" richColors theme={dark ? 'dark' : 'light'} />
     </div>
   )
 }

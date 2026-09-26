@@ -21,7 +21,7 @@ function NearbyDiagram() {
           r={r}
           fill="none"
           stroke="#15181c"
-          strokeOpacity="0.22"
+          strokeOpacity="0.45"
           strokeDasharray="3 5"
         />
       ))}
@@ -40,16 +40,16 @@ function NearbyDiagram() {
 export function NearbyBand({ makers }: { makers: number | null }) {
   const { t } = useT()
   return (
-    <section className="bg-tide-100">
+    <section className="border-y-2 border-ink-900 bg-sky">
       <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 md:grid-cols-[1.1fr_1fr] lg:px-8">
         <div>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-ink-700">
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-ink-900">
             {t('We open city by city')}
           </p>
           <h2 className="mt-3 max-w-lg font-display text-4xl font-semibold leading-tight text-ink-900">
             {t('Printed near you, not across the world.')}
           </h2>
-          <p className="mt-4 max-w-lg text-ink-800">
+          <p className="mt-4 max-w-lg text-ink-900">
             {t(
               'A nearby maker prints your order, so shipping stays short. We start in İstanbul with FDM printing and open more cities as makers join.'
             )}

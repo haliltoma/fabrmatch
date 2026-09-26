@@ -14,6 +14,17 @@ export interface ExperimentDefinition {
  */
 export const EXPERIMENTS: ExperimentDefinition[] = [
   {
+    key: 'home_cta',
+    hypothesis:
+      'A price without an account (A) gets more home visitors to a first price or a sign-up than asking them to upload after signing up (B).',
+    variants: [
+      { name: 'A', weight: 1 },
+      { name: 'B', weight: 1 },
+    ],
+    minPerVariant: 200,
+    enabled: true,
+  },
+  {
     key: 'maker_headline',
     hypothesis:
       'Naming the payment protection in the headline gets more makers on the waiting list.',

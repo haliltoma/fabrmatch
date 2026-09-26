@@ -72,8 +72,10 @@ export default function AdminExperiments({ experiments }: { experiments: Result[
             </table>
             <p className="text-xs text-ink-600">
               {e.pValue === null
-                ? `Needs at least ${e.minPerVariant} visitors per version.`
-                : `Chance of seeing this gap by luck alone: ${(e.pValue * 100).toFixed(1)}%.`}
+                ? t('Needs at least {n} visitors per version.', { n: e.minPerVariant })
+                : t('Chance of seeing this gap by luck alone: {pct}%.', {
+                    pct: (e.pValue * 100).toFixed(1),
+                  })}
             </p>
           </CardContent>
         </Card>

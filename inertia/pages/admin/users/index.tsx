@@ -63,7 +63,7 @@ function UserActions({ user }: { user: Row }) {
       <Input
         aria-label={t('Reason')}
         placeholder={t('Reason (shown in audit log)')}
-        className="w-56"
+        className="h-9 w-56"
         value={reason}
         onChange={(e) => setReason(e.target.value)}
       />

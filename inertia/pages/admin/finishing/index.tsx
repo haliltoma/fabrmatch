@@ -57,7 +57,7 @@ function Row({ option }: { option: Option }) {
             type="number"
             step="0.01"
             min="0"
-            className="w-28"
+            className="h-9 w-28"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
           />
