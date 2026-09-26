@@ -45,7 +45,12 @@ test.group('StorefrontService: visibility', (group) => {
     const { product } = await createStorefrontProduct()
     const detail = await shop.find(product.id)
     assert.isNotNull(detail)
-    assert.lengthOf(detail!.options, 2)
+    // one plain price per material, plus a priced variant per finishing that suits it
+    assert.lengthOf(
+      detail!.options.filter((o) => o.finishing === null),
+      2
+    )
+    assert.isAbove(detail!.options.length, 2)
     assert.deepEqual(detail!.bboxMm, [20, 20, 20])
     const serialized = JSON.stringify(detail)
     for (const forbidden of [

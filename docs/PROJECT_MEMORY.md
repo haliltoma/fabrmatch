@@ -280,6 +280,7 @@
 
 ## Log
 
+- **2026-09-26** — R6-T6: yüzey işlemi ek günleri (`extra_days`, admin) üretim penceresini uzatır (`app/services/orders/production_window.ts` → eşleştirme, açıklayıcı, kabulde `dueAt`); vitrin ürün sayfasında yüzey işlemi seçimi, varyant fiyatları sunucuda fiyat motoruyla (işlem ücreti üretici payına eklenir, komisyon ve marj üstüne biner — istemcide fark göstermek yanlış olurdu). JSON-LD fiyat aralığı yalnız düz seçenekler. 762 test yeşil.
 - **2026-09-26** — R5-T5 i18n kapanışı: son sarılmamış görünür metinler `t()` + TR (diyalog/çekmece "Kapat" ekran okuyucu etiketi dahil); e-posta/bildirim ve tarih/para yerelleştirmesinin zaten yapıldığı doğrulandı.
 - **2026-09-26** — M2-T3 kullanım sayfaları: `UseCaseService` (prototip / yedek parça / küçük seri) örnek parça fiyatlarını canlı fiyat motoru + kargo tablosuyla hesaplar; malzemeyi ≥ 3 aktif üretici basmadıkça `noindex` ve sitemap dışı (doorway yok). İçerik `resources/content/use-cases/*.md` (TR). 759 test yeşil.
 - **2026-09-26** — R4-T12: `/api/v1/openapi.json` (OpenAPI 3.1, anahtarsız): orders/order/products, 401/404/429, `webhooks` (`order.status_changed`, `webhook.test`) ve `Fabrmatch-Signature` doğrulama tarifi; `app/services/integrations/openapi.ts`. `openapi_http.spec.ts` belge alanlarını gerçek API yanıtı ve webhook yüküyle karşılaştırır (sapma = kırmızı test). 757 test yeşil.

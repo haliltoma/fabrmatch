@@ -12,6 +12,7 @@ export default class AdminFinishingController {
         name: o.name,
         description: o.description,
         priceMinor: o.priceMinor,
+        extraDays: o.extraDays,
         materials: o.materials as string[] | null,
         isActive: o.isActive,
       })),
@@ -46,6 +47,7 @@ export default class AdminFinishingController {
       {
         priceMinor: data.price === undefined ? undefined : Math.round(data.price * 100),
         isActive: data.isActive,
+        extraDays: data.extraDays,
       },
       auth.getUserOrFail().id
     )

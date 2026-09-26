@@ -12,6 +12,7 @@ export const finishingCreateValidator = vine.create({
 export const finishingUpdateValidator = vine.create({
   price: vine.number().min(0).max(10_000).optional(),
   isActive: vine.boolean().optional(),
+  extraDays: vine.number().withoutDecimals().min(0).max(30).optional(),
 })
 
 export const makerFinishingValidator = vine.create({

@@ -51,7 +51,8 @@ export default class StorefrontController {
     if (params.slug !== product.slug) return response.redirect(canonicalPath, false, 301)
 
     const canonicalUrl = `${siteUrl()}${canonicalPath}`
-    const prices = product.options.map((o) => o.unitPriceMinor)
+    // the listed range is the plain part; finishing is an extra the buyer adds
+    const prices = product.options.filter((o) => o.finishing === null).map((o) => o.unitPriceMinor)
     const reviews = await new ReviewService().forListing(product.id)
     const jsonLd = {
       '@context': 'https://schema.org',

@@ -17,6 +17,7 @@ import CapacitySlot from '#models/capacity_slot'
 import { rankCandidates } from '#services/matching/ranking'
 import type { Rng } from '#services/matching/types'
 import CapacityService from '#services/manufacturing/capacity_service'
+import { productionDaysFor } from '#services/orders/production_window'
 import FileAccessService from '#services/files/file_access_service'
 import type { MatchingEffects } from '#services/matching/matching_effects'
 import QueueMatchingEffects from '#services/matching/matching_effects'
@@ -318,7 +319,7 @@ export default class MatchingService {
 
       const minutes = order.items.reduce((sum, i) => sum + i.estPrintMinutes, 0)
       const now = DateTime.now()
-      const dueAt = now.plus({ days: fabrmatchConfig.orders.productionSlaDays })
+      const dueAt = now.plus({ days: await productionDaysFor(order.items) })
 
       if (!offer.printerId) throw new OfferError('Offer has no printer assigned')
       const slot = await this.capacity.reserveInWindow(

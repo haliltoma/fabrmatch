@@ -1,12 +1,12 @@
 import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
-import fabrmatchConfig from '#config/fabrmatch'
 import ManufacturerProfile from '#models/manufacturer_profile'
 import type Order from '#models/order'
 import type OrderItem from '#models/order_item'
 import type Printer from '#models/printer'
 import { fitsBuildVolume, makerPriceFits } from '#services/matching/eligibility_service'
 import { referencePriceFor } from '#services/pricing/reference_prices'
+import { productionDaysFor } from '#services/orders/production_window'
 
 /**
  * Why a maker is not offered an order. Each code is one rule of `EligibilityService.findCandidates`,
@@ -82,7 +82,8 @@ export default class EligibilityExplainer {
     const requiredMinutes = items.reduce((sum, i) => sum + i.estPrintMinutes, 0)
     const now = options.now ?? DateTime.now()
     const from = now.toISODate()!
-    const to = now.plus({ days: fabrmatchConfig.orders.productionSlaDays }).toISODate()!
+    const days = await productionDaysFor(items)
+    const to = now.plus({ days }).toISODate()!
     const offered = options.offeredStatuses ?? new Map<number, string>()
     const checkPrice = order.channel !== 'rfq'
 
@@ -151,6 +152,7 @@ export default class EligibilityExplainer {
           checkPrice,
           wantedProfiles: wantedProfiles as number[],
           offeredProfiles: printerProfiles.get(printer.id),
+          days,
         }),
       }))
 
@@ -182,6 +184,7 @@ export default class EligibilityExplainer {
       checkPrice: boolean
       wantedProfiles: number[]
       offeredProfiles: Set<number> | undefined
+      days: number
     }
   ): Reason[] {
     const reasons: Reason[] = []
@@ -199,7 +202,7 @@ export default class EligibilityExplainer {
         code: 'no_capacity',
         neededMinutes: ctx.requiredMinutes,
         bestFreeMinutes: Math.max(0, ...free),
-        days: fabrmatchConfig.orders.productionSlaDays,
+        days: ctx.days,
       })
     }
 

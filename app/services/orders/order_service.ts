@@ -127,7 +127,13 @@ export default class OrderService {
     productId: number,
     input: Pick<
       CreateDraftInput,
-      'material' | 'color' | 'quantity' | 'shippingAddress' | 'currency' | 'couponCode'
+      | 'material'
+      | 'color'
+      | 'quantity'
+      | 'shippingAddress'
+      | 'currency'
+      | 'couponCode'
+      | 'finishing'
     > & {
       scalePercent?: number
     }

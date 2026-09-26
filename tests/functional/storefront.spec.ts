@@ -53,7 +53,10 @@ test.group('storefront (public)', (group) => {
     assert.equal(data['@type'], 'Product')
     assert.equal(data.name, 'Desk Organizer')
     assert.equal(data.offers.priceCurrency, 'TRY')
-    assert.equal(data.offers.offerCount, shown.options.length)
+    assert.equal(
+      data.offers.offerCount,
+      shown.options.filter((o: { finishing: string | null }) => o.finishing === null).length
+    )
     assert.match(data.offers.lowPrice, /^\d+\.\d{2}$/)
   })
 

@@ -402,7 +402,7 @@ export class FileDownloadLogSchema extends BaseModel {
 }
 
 export class FinishingOptionSchema extends BaseModel {
-  static $columns = ['code', 'createdAt', 'description', 'id', 'isActive', 'materials', 'name', 'priceMinor'] as const
+  static $columns = ['code', 'createdAt', 'description', 'extraDays', 'id', 'isActive', 'materials', 'name', 'priceMinor'] as const
   $columns = FinishingOptionSchema.$columns
   @column()
   declare code: string
@@ -410,6 +410,8 @@ export class FinishingOptionSchema extends BaseModel {
   declare createdAt: DateTime
   @column()
   declare description: string
+  @column()
+  declare extraDays: number
   @column({ isPrimary: true })
   declare id: number
   @column()

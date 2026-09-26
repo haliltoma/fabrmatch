@@ -23,7 +23,20 @@ type Product = {
   bboxMm: number[] | null
   images: ShopImage[]
   scales: number[]
-  options: Array<{ material: string; scalePercent: number; unitPriceMinor: number }>
+  options: Array<{
+    material: string
+    scalePercent: number
+    finishing: string | null
+    unitPriceMinor: number
+  }>
+  finishings: Array<{
+    code: string
+    name: string
+    description: string
+    extraDays: number
+    materials: string[] | null
+  }>
+  productionDays: number
 }
 
 function ReportListing({ productId }: { productId: number }) {
@@ -97,6 +110,7 @@ export default function ShopShow({
   const [quantity, setQuantity] = useState(1)
   const [busy, setBusy] = useState(false)
   const [coupon, setCoupon] = useState('')
+  const [finishing, setFinishing] = useState('')
   const [address, setAddress] = useState({
     fullName: '',
     line1: '',
@@ -105,8 +119,17 @@ export default function ShopShow({
     country: 'TR',
   })
 
-  const atScale = product.options.filter((o) => o.scalePercent === scale)
+  const atScale = product.options.filter(
+    (o) => o.scalePercent === scale && o.finishing === (finishing || null)
+  )
   const unit = atScale.find((o) => o.material === material)?.unitPriceMinor ?? 0
+  // the material list always shows every material at the plain price; finishing is chosen after
+  const plainAtScale = product.options.filter(
+    (o) => o.scalePercent === scale && o.finishing === null
+  )
+  const finishingFits = (f: Product['finishings'][number]) =>
+    !f.materials || f.materials.map((m) => m.toUpperCase()).includes(material)
+  const chosenFinishing = product.finishings.find((f) => f.code === finishing) ?? null
   const description =
     product.description ?? t('{title} — 3D printed on demand.', { title: product.title })
   // link previews want an absolute URL: a real photo first, else the hero render
@@ -125,6 +148,7 @@ export default function ShopShow({
         shippingAddress: address,
         acceptTerms: accepted,
         couponCode: coupon.trim() || undefined,
+        finishing: finishing || undefined,
       },
       { headers: idem.headers(), onError: idem.renew, onFinish: () => setBusy(false) }
     )
@@ -179,9 +203,19 @@ export default function ShopShow({
                       id="material"
                       className="flex h-10 w-full rounded-md border border-line bg-paper-raised px-3 text-sm"
                       value={material}
-                      onChange={(e) => setMaterial(e.target.value)}
+                      onChange={(e) => {
+                        const next = e.target.value
+                        setMaterial(next)
+                        const f = product.finishings.find((x) => x.code === finishing)
+                        if (
+                          f?.materials &&
+                          !f.materials.map((m) => m.toUpperCase()).includes(next)
+                        ) {
+                          setFinishing('')
+                        }
+                      }}
                     >
-                      {atScale.map((o) => (
+                      {plainAtScale.map((o) => (
                         <option key={o.material} value={o.material}>
                           {o.material} — {formatMoney(o.unitPriceMinor, product.currency)}
                         </option>
@@ -220,8 +254,35 @@ export default function ShopShow({
                   </div>
                 </div>
 
+                {product.finishings.some(finishingFits) && (
+                  <div className="space-y-1">
+                    <Label htmlFor="finishing">{t('Finishing (optional)')}</Label>
+                    <select
+                      id="finishing"
+                      className="flex h-10 w-full rounded-md border border-line bg-paper-raised px-3 text-sm"
+                      value={finishing}
+                      onChange={(e) => setFinishing(e.target.value)}
+                    >
+                      <option value="">{t('None — straight from the printer')}</option>
+                      {product.finishings.filter(finishingFits).map((f) => (
+                        <option key={f.code} value={f.code}>
+                          {t(f.name)} · {t('+{n} days', { n: f.extraDays })}
+                        </option>
+                      ))}
+                    </select>
+                    {chosenFinishing && (
+                      <p className="text-xs text-ink-600">{t(chosenFinishing.description)}</p>
+                    )}
+                  </div>
+                )}
+
                 <p className="text-lg font-semibold text-ink-900">
                   {t('Total')}: {formatMoney(unit * quantity, product.currency)}
+                </p>
+                <p className="text-xs text-ink-600">
+                  {t('Made within {n} days of a maker accepting it, then shipped.', {
+                    n: product.productionDays + (chosenFinishing?.extraDays ?? 0),
+                  })}
                 </p>
 
                 {props.user ? (

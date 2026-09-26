@@ -318,11 +318,11 @@ export async function ensureReferenceCatalog() {
       ]
     )
   }
-  for (const [code, name, description, priceMinor, materials] of DEFAULT_FINISHINGS) {
+  for (const [code, name, description, priceMinor, materials, extraDays] of DEFAULT_FINISHINGS) {
     await db.rawQuery(
-      `insert into finishing_options (code, name, description, price_minor, materials, created_at)
-       values (?, ?, ?, ?, nullif(?, '')::jsonb, now()) on conflict (code) do nothing`,
-      [code, name, description, priceMinor, materials ? JSON.stringify(materials) : '']
+      `insert into finishing_options (code, name, description, price_minor, materials, extra_days, created_at)
+       values (?, ?, ?, ?, nullif(?, '')::jsonb, ?, now()) on conflict (code) do nothing`,
+      [code, name, description, priceMinor, materials ? JSON.stringify(materials) : '', extraDays]
     )
   }
   for (const zone of DEFAULT_SHIPPING_ZONES) {

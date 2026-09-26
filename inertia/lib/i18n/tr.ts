@@ -2376,4 +2376,24 @@ export const tr: Record<string, string> = {
   '{n} days': '{n} gün',
   'won': 'kazandı',
   'lost': 'kaybetti',
+  'Finishing (optional)': 'Yüzey işlemi (isteğe bağlı)',
+  'None — straight from the printer': 'Yok — doğrudan yazıcıdan',
+  '+{n} days': '+{n} gün',
+  'Made within {n} days of a maker accepting it, then shipped.':
+    'Bir üretici kabul ettikten sonra {n} gün içinde üretilir, ardından kargolanır.',
+  '+{n} production days': '+{n} üretim günü',
+  'Extra days': 'Ek gün',
+  'Extra days must be a whole number from 0 to 30': 'Ek gün 0 ile 30 arasında tam sayı olmalı',
+  'Sanded': 'Zımparalanmış',
+  'Hand-sanded to remove layer lines and support marks.':
+    'Katman çizgilerini ve destek izlerini gidermek için elle zımparalanır.',
+  'Primed': 'Astarlanmış',
+  'Sanded and coated with a sandable primer, ready to paint.':
+    'Zımparalanır ve zımparalanabilir astarla kaplanır; boyaya hazırdır.',
+  'Primed and painted': 'Astarlanmış ve boyanmış',
+  'Sanded, primed and painted in one colour of your choice.':
+    'Zımparalanır, astarlanır ve seçtiğin tek renge boyanır.',
+  'Vapour smoothed': 'Buharla pürüzsüzleştirilmiş',
+  'Chemical smoothing for a glossy, sealed surface (ABS only).':
+    'Parlak ve kapalı bir yüzey için kimyasal pürüzsüzleştirme (yalnız ABS).',
 }

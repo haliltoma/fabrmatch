@@ -2,11 +2,11 @@ import { DateTime } from 'luxon'
 import Printer from '#models/printer'
 import type Order from '#models/order'
 import type OrderItem from '#models/order_item'
-import fabrmatchConfig from '#config/fabrmatch'
 import db from '@adonisjs/lucid/services/db'
 import { referencePriceFor } from '#services/pricing/reference_prices'
 import type { MatchCandidate } from '#services/matching/types'
 import MakerStatsService from '#services/manufacturing/maker_stats_service'
+import { productionDaysFor } from '#services/orders/production_window'
 
 type Dims = [number, number, number]
 
@@ -56,7 +56,7 @@ export default class EligibilityService {
     const requiredMinutes = items.reduce((sum, i) => sum + i.estPrintMinutes, 0)
     const now = options.now ?? DateTime.now()
     const from = now.toISODate()!
-    const to = now.plus({ days: fabrmatchConfig.orders.productionSlaDays }).toISODate()!
+    const to = now.plus({ days: await productionDaysFor(items) }).toISODate()!
     const excludedUserIds = [order.buyerId, order.sellerId].filter((id): id is number => !!id)
     const excludedProfileIds = options.excludeManufacturerIds ?? []
 

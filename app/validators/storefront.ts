@@ -17,6 +17,7 @@ export const shopOrderValidator = vine.create({
   quantity: vine.number().min(1).max(100).withoutDecimals(),
   currency: vine.enum(['TRY', 'USD', 'EUR', 'GBP'] as const).optional(),
   couponCode: vine.string().trim().maxLength(40).optional(),
+  finishing: vine.string().trim().toUpperCase().maxLength(32).optional(),
   acceptTerms: vine.boolean().optional(),
   scalePercent: vine.number().withoutDecimals().min(10).max(300).optional(),
   shippingAddress: vine.object({

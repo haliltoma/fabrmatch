@@ -82,7 +82,11 @@ export default class FinishingService {
   }
 
   /** New orders use the new price; orders already priced keep theirs (frozen on the item). */
-  async update(id: number, changes: { priceMinor?: number; isActive?: boolean }, adminId: number) {
+  async update(
+    id: number,
+    changes: { priceMinor?: number; isActive?: boolean; extraDays?: number },
+    adminId: number
+  ) {
     const option = await FinishingOption.findOrFail(id)
     if (changes.priceMinor !== undefined) {
       if (
@@ -93,6 +97,12 @@ export default class FinishingService {
         throw new FinishingError('The price must be between 0 and 10,000.00 per unit')
       }
       option.priceMinor = changes.priceMinor
+    }
+    if (changes.extraDays !== undefined) {
+      if (!Number.isInteger(changes.extraDays) || changes.extraDays < 0 || changes.extraDays > 30) {
+        throw new FinishingError('Extra days must be a whole number from 0 to 30')
+      }
+      option.extraDays = changes.extraDays
     }
     if (changes.isActive !== undefined) option.isActive = changes.isActive
     await option.save()

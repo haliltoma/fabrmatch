@@ -1,3 +1,5 @@
+import FinishingService from '#services/catalog/finishing_service'
+import fabrmatchConfig from '#config/fabrmatch'
 import ProductImageService, { type ShopImage } from '#services/catalog/product_image_service'
 import db from '@adonisjs/lucid/services/db'
 import SellerProduct from '#models/seller_product'
@@ -38,7 +40,21 @@ export interface StorefrontDetail extends StorefrontCard {
   /** every approved picture: maker photos, then the turntable in angle order */
   images: ShopImage[]
   scales: number[]
-  options: Array<{ material: string; scalePercent: number; unitPriceMinor: number }>
+  /** unit price per material × size × finishing (null = none), from the live price engine */
+  options: Array<{
+    material: string
+    scalePercent: number
+    finishing: string | null
+    unitPriceMinor: number
+  }>
+  finishings: Array<{
+    code: string
+    name: string
+    description: string
+    extraDays: number
+    materials: string[] | null
+  }>
+  productionDays: number
   updatedAt: string
 }
 
@@ -63,7 +79,8 @@ export function unitPriceFor(
   file: ModelFile,
   material: string,
   shipping?: ShippingTable,
-  scalePercent = 100
+  scalePercent = 100,
+  finishingMinor = 0
 ): number | null {
   const reference = referencePriceFor(material)
   if (!reference || !file.volumeMm3) return null
@@ -84,6 +101,7 @@ export function unitPriceFor(
     quantity: 1,
     sellerMarginBps: product.marginBps,
     shippingMinor,
+    finishingMinor,
   }).unitPriceMinor
 }
 
@@ -196,15 +214,38 @@ export default class StorefrontService {
     if (!card || !file) return null
 
     const scales = product.catalogProduct.allowedScales ?? [100]
+    const finishings = await new FinishingService().list({ activeOnly: true })
+    const suits = (f: (typeof finishings)[number], material: string) =>
+      !f.materials || (f.materials as string[]).map((m) => m.toUpperCase()).includes(material)
     const options = scales.flatMap((scalePercent) =>
-      card.materials.flatMap((material) => {
-        const unitPriceMinor = unitPriceFor(product, file, material, shipping, scalePercent)
-        return unitPriceMinor === null ? [] : [{ material, scalePercent, unitPriceMinor }]
-      })
+      card.materials.flatMap((material) =>
+        [null, ...finishings.filter((f) => suits(f, material))].flatMap((f) => {
+          const unitPriceMinor = unitPriceFor(
+            product,
+            file,
+            material,
+            shipping,
+            scalePercent,
+            f?.priceMinor ?? 0
+          )
+          return unitPriceMinor === null
+            ? []
+            : [{ material, scalePercent, finishing: f?.code ?? null, unitPriceMinor }]
+        })
+      )
     )
+    const offered = finishings.filter((f) => card.materials.some((m) => suits(f, m)))
     return {
       ...card,
       images: images.get(file.id) ?? [],
+      finishings: offered.map((f) => ({
+        code: f.code,
+        name: f.name,
+        description: f.description,
+        extraDays: f.extraDays,
+        materials: f.materials as string[] | null,
+      })),
+      productionDays: fabrmatchConfig.orders.productionSlaDays,
       scales,
       options,
       updatedAt: product.updatedAt.toISO()!,

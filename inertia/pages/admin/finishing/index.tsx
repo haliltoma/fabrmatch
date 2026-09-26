@@ -16,6 +16,7 @@ type Option = {
   name: string
   description: string
   priceMinor: number
+  extraDays: number
   materials: string[] | null
   isActive: boolean
 }
@@ -24,7 +25,9 @@ function Row({ option }: { option: Option }) {
   const { t } = useT()
 
   const [price, setPrice] = useState((option.priceMinor / 100).toFixed(2))
-  const changed = Math.round(Number(price) * 100) !== option.priceMinor
+  const [days, setDays] = useState(String(option.extraDays))
+  const changed =
+    Math.round(Number(price) * 100) !== option.priceMinor || Number(days) !== option.extraDays
   return (
     <li className="flex flex-wrap items-end justify-between gap-3 py-3">
       <div className="space-y-1">
@@ -40,14 +43,18 @@ function Row({ option }: { option: Option }) {
           {option.materials
             ? t('Only for {materials}', { materials: option.materials.join(', ') })
             : t('Any material')}{' '}
-          · {t('now {amount} per unit', { amount: formatMoney(option.priceMinor, 'TRY') })}
+          · {t('now {amount} per unit', { amount: formatMoney(option.priceMinor, 'TRY') })} ·{' '}
+          {t('+{n} production days', { n: option.extraDays })}
         </p>
       </div>
       <form
         className="flex items-end gap-2"
         onSubmit={(e) => {
           e.preventDefault()
-          router.post(`/admin/finishing/${option.id}`, { price: Number(price) })
+          router.post(`/admin/finishing/${option.id}`, {
+            price: Number(price),
+            extraDays: Number(days),
+          })
         }}
       >
         <div className="space-y-1">
@@ -60,6 +67,19 @@ function Row({ option }: { option: Option }) {
             className="h-9 w-28"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
+          />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor={`fd-${option.id}`}>{t('Extra days')}</Label>
+          <Input
+            id={`fd-${option.id}`}
+            type="number"
+            step="1"
+            min="0"
+            max="30"
+            className="h-9 w-20"
+            value={days}
+            onChange={(e) => setDays(e.target.value)}
           />
         </div>
         <Button type="submit" size="sm" disabled={!changed}>
@@ -100,7 +120,7 @@ export default function AdminFinishing({ options }: { options: Option[] }) {
         <CardContent>
           <ul className="divide-y divide-line">
             {options.map((o) => (
-              <Row key={`${o.id}:${o.priceMinor}:${o.isActive}`} option={o} />
+              <Row key={`${o.id}:${o.priceMinor}:${o.extraDays}:${o.isActive}`} option={o} />
             ))}
           </ul>
         </CardContent>
