@@ -5,6 +5,8 @@ import { sameHex } from '#services/payments/iyzico/iyzico_client'
 import {
   StoreWebhookSignatureError,
   type IncomingOrder,
+  type PublishInput,
+  type PublishResult,
   type StoreAdapter,
   type StoreVariant,
 } from '#services/integrations/stores/store_adapter'
@@ -26,6 +28,45 @@ export default class FakeStoreAdapter implements StoreAdapter {
   ]
   fulfillments: Array<{ externalOrderId: string; carrier: string; trackingNumber: string }> = []
   failFulfillment = false
+  webhooks: string[] = []
+  published = new Map<string, PublishInput>()
+  private nextId = 100
+
+  async verify(connection: StoreConnection) {
+    return { shopName: connection.shopName || 'Test shop', currency: 'TRY' }
+  }
+
+  async ensureWebhooks(_connection: StoreConnection, callbackUrl: string) {
+    if (!this.webhooks.includes(callbackUrl)) this.webhooks.push(callbackUrl)
+  }
+
+  async publishProduct(
+    _connection: StoreConnection,
+    input: PublishInput,
+    existingProductId: string | null
+  ): Promise<PublishResult> {
+    const productId = existingProductId ?? `p${++this.nextId}`
+    this.published.set(productId, input)
+    // an update keeps the variant ids of materials that were already there
+    const known = new Map(
+      this.variants.filter((v) => v.productId === productId).map((v) => [v.sku, v.variantId])
+    )
+    const variants = input.variants.map((v) => ({
+      variantId: known.get(v.sku) ?? `v${++this.nextId}`,
+      sku: v.sku,
+      material: v.material,
+    }))
+    this.variants = [
+      ...this.variants.filter((v) => v.productId !== productId),
+      ...variants.map((v) => ({
+        productId,
+        variantId: v.variantId,
+        sku: v.sku,
+        title: `${input.title} — ${v.material}`,
+      })),
+    ]
+    return { productId, variants }
+  }
 
   async listVariants(): Promise<StoreVariant[]> {
     return this.variants

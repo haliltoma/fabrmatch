@@ -22,7 +22,8 @@ export type OrderStatus =
   | 'resolved'
   | 'cancelled'
 
-export type OrderChannel = 'storefront' | 'shopify' | 'etsy' | 'rfq' | 'direct' | 'sample'
+export type OrderChannel =
+  'storefront' | 'shopify' | 'etsy' | 'woocommerce' | 'rfq' | 'direct' | 'sample'
 
 export default class Order extends OrderSchema {
   declare status: OrderStatus

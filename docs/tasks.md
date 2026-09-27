@@ -180,7 +180,12 @@ Paket çıkış ölçütü: gerçek ödeme sandbox'ta uçtan uca; vergi+fatura k
 
 ## R4 — Satıcı büyümesi (Printify çekirdeği)
 
-- [ ] **R4-T1 Shopify entegrasyonu** · P1 · 🔒 ⏸ K-E · `Ref: S1`
+- [x] **R4-T1 Shopify entegrasyonu** · P1 · ✔ 2026-09-27 satıcının kendi uygulamasıyla (Printify modeli, kullanıcı kararı) `Ref: S1`
+  - Bağlantı: mağaza adresi + Dev Dashboard uygulamasının Client ID/Secret'ı. 1.1.2026'dan beri Shopify admin'de yeni özel uygulama/token açılmıyor; 24 saatlik token client-credentials ile alınıyor ve süresi dolmadan yenileniyor. Eski admin tokenı da kabul ediliyor.
+  - Bilgiler canlı çağrıyla doğrulanır, şifreli saklanır. `ORDERS_PAID` webhook'u otomatik kurulur; webhook client secret ile HMAC doğrulanır.
+  - Yayınlama: `productSet` (Material seçeneği, malzeme başına varyant, fiyat, `FM-<ürün>-<malzeme>` SKU, `inventoryPolicy: CONTINUE`, görseller APP_URL https ise). Yeniden yayınlama aynı ürünü günceller.
+  - Takip: `fulfillmentOrders` → `fulfillmentCreate` (trackingInfo, müşteriye bildirim).
+  - Gerçek bir Shopify mağazasında henüz denenmedi (bellek içi Admin API taklidiyle test edildi).
   - OAuth uygulaması, HMAC doğrulamalı webhook (orders/create, app/uninstalled), idempotent `external_orders`.
 - [ ] **R4-T2 Satıcı cüzdanı / taban maliyet tahsilatı** · P1 · ⏸ K-E (öneri: cüzdan/kayıtlı kart)
 - [x] **R4-T3 SKU eşleme ekranı** · P1 · ✔ 2026-09-27 çekirdek (`flags.externalStores` KAPALI)
@@ -194,7 +199,13 @@ Paket çıkış ölçütü: gerçek ödeme sandbox'ta uçtan uca; vergi+fatura k
   - Üretici kargoladığında dış sipariş `pending` olur; `PushStoreFulfillments` 5 dk'da bir takip numarasını mağazaya yazar (adaptör tekrarı güvenli).
   - Hata → deneme sayısı; 10 denemede `failed`, satıcı "Tekrar dene" diyebilir.
   - KALAN: gerçek Shopify/Etsy çağrıları (R4-T1/T5 🔒).
-- [ ] **R4-T5 Etsy entegrasyonu** (OAuth2 PKCE + periyodik çekme) · P2
+- [ ] **R4-T5 Etsy entegrasyonu** (OAuth2 PKCE + periyodik çekme) · P2 · 🔒 Etsy yalnız API anahtarıyla bağlanmaya izin vermiyor: bizim onaylı Etsy uygulamamız (keystring) + satıcı başına OAuth gerekiyor; sipariş webhook'u yok, periyodik çekme. Adaptör sözleşmesi hazır.
+- [x] **R4-T14 WooCommerce entegrasyonu** · P1 · ✔ 2026-09-27
+  - Site URL + Consumer key/secret (Okuma/Yazma); SSRF korumalı https istemci.
+  - `order.created` + `order.updated` webhook'ları kendi gizli anahtarımızla kurulur. İmza base64 HMAC-SHA256; yalnız `processing`/`completed` siparişler alınır; kurulum ping'i yok sayılır.
+  - Yayınlama: değişken ürün + Material özniteliği + varyasyon batch'i. Takip: müşteriye görünen sipariş notu + `completed`.
+  - Kanal `woocommerce`.
+  - Gerçek bir WooCommerce sitesinde henüz denenmedi.
 - [x] **R4-T6 Mockup/render üretimi** · P1 · ✔ 2026-09-26 (sunucuda bağımlılıksız render: `model_renderer.ts` z-buffer, 8 açılı döner tabla, yan yüzlerde katman çizgisi, şeffaf PNG; analiz sonrası `RenderModelFile` işi + `node ace images:render` geri doldurma; `product_images` tablosu; `/images/:id` yalnız onaylıyı, önbellekli akıtır; vitrin kartı + ürün sayfasında sürükle/kaydırıcıyla döndürülen galeri; `og:image` + JSON-LD `image`. Üretici fotoğrafı: vitrin ürünü basılan işin QC fotoğrafı "Öner" → admin kuyruğunda "İncelenecek vitrin fotoğrafları" onayı (kimlik ele veren bir şey yoksa) → vitrinde renderlardan önce. Alıcının kendi modeli asla. 3MF/OBJ ✔ 2026-09-26: `mesh_parser.ts` [3MF zip+XML: birim, bileşen, dönüşüm; OBJ: çokgen, negatif indeks] → analiz, fiyat, render ve anonim hızlı fiyat artık üç biçimde. KALAN: malzeme rengine göre render, WebP) · `Ref: S2`
   - Model turntable render (worker), `product_images`, OG görseli; üretici gerçek foto yükleyebilir; vitrinde harf plakası yerine görsel.
 - [x] **R4-T7 Satıcı marj aracı + analitik** · P1 · ✔ 2026-09-24 (ürün formunda canlı "bu marj = parça başı şu kadar" [fiyat motoruyla aynı], `/seller/analytics`: sipariş, kazanılan/bekleyen, en çok satanlar; görüntülenme/dönüşüm izlenmiyor) · `Ref: S3, S4`

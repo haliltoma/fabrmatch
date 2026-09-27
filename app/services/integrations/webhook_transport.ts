@@ -19,7 +19,7 @@ const TIMEOUT_MS = 10_000
  * Runs at connect time, so a host name that resolved to a public address when the URL was saved
  * cannot later be pointed at an internal one (DNS rebinding).
  */
-const guardedLookup: LookupFunction = (hostname, options, callback) => {
+export const guardedLookup: LookupFunction = (hostname, options, callback) => {
   dnsLookup(hostname, { ...options, all: true }, (error, addresses) => {
     if (error) return callback(error, '', 4)
     if (addresses.length === 0 || addresses.some((a) => !isPublicAddress(a.address))) {

@@ -12,13 +12,35 @@ import StoreConnection from '#models/store_connection'
 import User from '#models/user'
 import EncryptionService from '#services/identity/encryption_service'
 import OrderService, { type ShippingAddress } from '#services/orders/order_service'
+import env from '#start/env'
+import ProductImageService from '#services/catalog/product_image_service'
 import { storeAdapter } from '#services/integrations/stores/store_registry'
-import type { IncomingOrder } from '#services/integrations/stores/store_adapter'
+import { fabrmatchSku, type IncomingOrder } from '#services/integrations/stores/store_adapter'
+import { shopifyDomain } from '#services/integrations/stores/shopify_adapter'
+import { wooSiteUrl } from '#services/integrations/stores/woocommerce_adapter'
 
 export class StoreError extends DomainError {}
 
 /** After this many failed write-backs the order waits for someone to look at it. */
 export const MAX_FULFILLMENT_ATTEMPTS = 10
+
+export interface ConnectInput {
+  provider: 'shopify' | 'woocommerce'
+  shopUrl: string
+  /** Shopify client id / WooCommerce consumer key */
+  apiKey: string | null
+  /** Shopify client secret (also signs webhooks) / WooCommerce consumer secret */
+  apiSecret: string
+  /** Shopify only: an admin token from a legacy custom app, instead of the client id */
+  accessToken?: string | null
+}
+
+export interface PublishVariant {
+  material: string
+  priceMinor: number
+}
+
+const SKU_PATTERN = /^FM-(\d+)-([A-Z0-9]+)$/
 
 export interface ListingMapping {
   sellerProductId: number | null
@@ -51,6 +73,182 @@ export default class StoreService {
       .first()
     if (!connection) throw new StoreError('Shop not found', { status: 404 })
     return connection
+  }
+
+  /**
+   * Printify-style connection with the seller's own credentials. The credentials are checked
+   * with a real call before anything is stored; then the paid-order webhook is registered and
+   * the shop's products are read. Returns a warning when the webhook could not be set up.
+   */
+  async connect(seller: User, input: ConnectInput) {
+    const shopUrl =
+      input.provider === 'shopify' ? shopifyDomain(input.shopUrl) : wooSiteUrl(input.shopUrl)
+    if (!shopUrl) {
+      throw new StoreError(
+        input.provider === 'shopify'
+          ? 'Enter your shop address, e.g. my-shop.myshopify.com'
+          : 'Enter your shop address, e.g. https://www.my-shop.com'
+      )
+    }
+    const secret = input.apiSecret.trim()
+    const key = input.apiKey?.trim() || null
+    const token = input.accessToken?.trim() || null
+    if (secret.length < 8) throw new StoreError('Enter the secret from your shop')
+    if (!key && !(input.provider === 'shopify' && token)) {
+      throw new StoreError(
+        input.provider === 'shopify' ? 'Enter the client ID of your app' : 'Enter the consumer key'
+      )
+    }
+
+    const externalShopId = input.provider === 'shopify' ? shopUrl : new URL(shopUrl).host
+    const existing = await StoreConnection.query()
+      .where('provider', input.provider)
+      .where('externalShopId', externalShopId)
+      .first()
+    if (existing && existing.sellerUserId !== seller.id) {
+      throw new StoreError('This shop is already connected to another Fabrmatch account')
+    }
+
+    const connection = existing ?? new StoreConnection()
+    connection.merge({
+      sellerUserId: seller.id,
+      provider: input.provider,
+      externalShopId,
+      shopUrl,
+      shopName: connection.shopName ?? externalShopId,
+      apiKeyEnc: key ? this.encryption.encrypt(key) : null,
+      apiSecretEnc: this.encryption.encrypt(secret),
+      accessTokenEnc: token ? this.encryption.encrypt(token) : null,
+      tokenExpiresAt: null,
+      status: 'active',
+    })
+    const adapter = storeAdapter(input.provider)
+    const shop = await adapter.verify(connection)
+    connection.shopName = shop.shopName.slice(0, 200)
+    connection.currency = shop.currency?.slice(0, 3) ?? null
+    await connection.save()
+    await AuditLog.create({
+      actorId: seller.id,
+      action: 'store.connected',
+      subjectType: 'store_connection',
+      subjectId: connection.id,
+      meta: { provider: input.provider, shop: externalShopId },
+    })
+
+    let warning: string | null = null
+    try {
+      await adapter.ensureWebhooks(connection, this.callbackUrl(connection))
+    } catch (error) {
+      warning = `Orders will not arrive automatically yet: ${(error as Error).message}`
+      logger.warn({ msg: 'store webhook setup failed', id: connection.id, error })
+    }
+    await this.syncListings(seller, connection.id)
+    return { connection, warning }
+  }
+
+  callbackUrl(connection: StoreConnection) {
+    return `${env.get('APP_URL').replace(/\/$/, '')}/webhooks/stores/${connection.id}/orders`
+  }
+
+  /**
+   * Printify-style publish: the product goes to the seller's shop with one variant per material
+   * at the seller's price, and every variant is linked here at once (no manual mapping).
+   * Publishing again updates the same product in the shop.
+   */
+  async publish(
+    seller: User,
+    connectionId: number,
+    sellerProductId: number,
+    variants: PublishVariant[]
+  ) {
+    const connection = await this.ownConnection(seller, connectionId)
+    const product = await SellerProduct.query()
+      .where('id', sellerProductId)
+      .whereHas('sellerProfile', (q) => q.where('userId', seller.id))
+      .preload('catalogProduct')
+      .first()
+    const catalog = product?.catalogProduct
+    if (!product || !catalog || !catalog.isActive || !catalog.modelFileId) {
+      throw new StoreError('Choose one of your own, available products')
+    }
+    const allowed = catalog.allowedMaterials.map((m) => m.toUpperCase())
+    const chosen = [...new Map(variants.map((v) => [v.material.toUpperCase(), v])).values()]
+    if (chosen.length === 0) throw new StoreError('Choose at least one material')
+    for (const v of chosen) {
+      if (!allowed.includes(v.material.toUpperCase())) {
+        throw new StoreError(`Material ${v.material} is not available for this product`)
+      }
+      if (!Number.isInteger(v.priceMinor) || v.priceMinor < 100) {
+        throw new StoreError('Set a price for every material')
+      }
+    }
+
+    const previous = await ExternalListing.query()
+      .where('storeConnectionId', connection.id)
+      .where('sellerProductId', product.id)
+      .where('published', true)
+      .first()
+    const images = await new ProductImageService().forModelFiles([catalog.modelFileId])
+    const base = env.get('APP_URL').replace(/\/$/, '')
+    // the shop downloads images from us, so only a public https address works
+    const imageUrls = base.startsWith('https://')
+      ? (images.get(catalog.modelFileId) ?? []).slice(0, 8).map((i) => `${base}${i.url}`)
+      : []
+
+    const result = await storeAdapter(connection.provider).publishProduct(
+      connection,
+      {
+        title: product.title,
+        description: product.description ?? '',
+        imageUrls,
+        currency: connection.currency ?? 'TRY',
+        variants: chosen.map((v) => ({
+          material: v.material.toUpperCase(),
+          sku: fabrmatchSku(product.id, v.material),
+          priceMinor: v.priceMinor,
+        })),
+      },
+      previous?.externalProductId ?? null
+    )
+    const price = new Map(chosen.map((v) => [v.material.toUpperCase(), v.priceMinor]))
+    for (const variant of result.variants) {
+      await db
+        .table('external_listings')
+        .insert({
+          store_connection_id: connection.id,
+          external_product_id: result.productId,
+          external_variant_id: variant.variantId,
+          sku: variant.sku,
+          title: `${product.title} — ${variant.material}`.slice(0, 300),
+          seller_product_id: product.id,
+          material: variant.material,
+          scale_percent: 100,
+          published: true,
+          price_minor: price.get(variant.material) ?? null,
+          created_at: new Date(),
+          updated_at: new Date(),
+        })
+        .onConflict(['store_connection_id', 'external_variant_id'])
+        .merge([
+          'external_product_id',
+          'sku',
+          'title',
+          'seller_product_id',
+          'material',
+          'scale_percent',
+          'published',
+          'price_minor',
+          'updated_at',
+        ])
+    }
+    await AuditLog.create({
+      actorId: seller.id,
+      action: previous ? 'store.product_updated' : 'store.product_published',
+      subjectType: 'store_connection',
+      subjectId: connection.id,
+      meta: { sellerProductId: product.id, externalProductId: result.productId },
+    })
+    return result
   }
 
   /** Local development and tests: a pretend shop that behaves like Shopify. */
@@ -101,9 +299,34 @@ export default class StoreService {
         .onConflict(['store_connection_id', 'external_variant_id'])
         .merge(['external_product_id', 'sku', 'title', 'updated_at'])
     }
+    await this.autoMapBySku(seller, connection)
     connection.lastSyncedAt = DateTime.now()
     await connection.save()
     return variants.length
+  }
+
+  /** Variants carrying our SKU (FM-<product>-<material>) link themselves to the seller's product. */
+  private async autoMapBySku(seller: User, connection: StoreConnection) {
+    const unmapped = await ExternalListing.query()
+      .where('storeConnectionId', connection.id)
+      .whereNull('sellerProductId')
+      .whereLike('sku', 'FM-%')
+    for (const listing of unmapped) {
+      const match = SKU_PATTERN.exec(listing.sku ?? '')
+      if (!match) continue
+      const product = await SellerProduct.query()
+        .where('id', Number(match[1]))
+        .whereHas('sellerProfile', (q) => q.where('userId', seller.id))
+        .preload('catalogProduct')
+        .first()
+      if (
+        !product?.catalogProduct?.allowedMaterials.map((m) => m.toUpperCase()).includes(match[2])
+      ) {
+        continue
+      }
+      listing.merge({ sellerProductId: product.id, material: match[2], scalePercent: 100 })
+      await listing.save()
+    }
   }
 
   async listings(seller: User, connectionId: number) {
@@ -175,6 +398,7 @@ export default class StoreService {
       rawBody,
       headers
     )
+    if (!incoming) return { duplicate: false as const, ignored: true as const }
     return this.importOrder(connection, incoming)
   }
 
@@ -220,7 +444,38 @@ export default class StoreService {
         order.lines.map((l) => l.variantId)
       )
     const byVariant = new Map(listings.map((l) => [l.externalVariantId, l]))
-    const unmapped = order.lines.filter((l) => !byVariant.get(l.variantId)?.sellerProductId)
+    const mapping = new Map<
+      string,
+      {
+        sellerProductId: number
+        material: string
+        color: string | null
+        scalePercent: number | null
+      }
+    >()
+    for (const line of order.lines) {
+      const listing = byVariant.get(line.variantId)
+      if (listing?.sellerProductId && listing.material) {
+        mapping.set(line.variantId, {
+          sellerProductId: listing.sellerProductId,
+          material: listing.material,
+          color: listing.color,
+          scalePercent: listing.scalePercent,
+        })
+        continue
+      }
+      // a product we published carries our SKU even before its variants were read back
+      const bySku = SKU_PATTERN.exec(line.sku ?? '')
+      if (bySku) {
+        mapping.set(line.variantId, {
+          sellerProductId: Number(bySku[1]),
+          material: bySku[2],
+          color: null,
+          scalePercent: 100,
+        })
+      }
+    }
+    const unmapped = order.lines.filter((l) => !mapping.has(l.variantId))
     if (order.lines.length === 0) {
       order.merge({ status: 'ignored', error: 'The order has no printable lines' })
       await order.save()
@@ -240,16 +495,7 @@ export default class StoreService {
     try {
       const created = await new OrderService().createExternalDraft(
         seller,
-        order.lines.map((l) => {
-          const listing = byVariant.get(l.variantId)!
-          return {
-            sellerProductId: listing.sellerProductId!,
-            material: listing.material!,
-            color: listing.color,
-            scalePercent: listing.scalePercent,
-            quantity: l.quantity,
-          }
-        }),
+        order.lines.map((l) => ({ ...mapping.get(l.variantId)!, quantity: l.quantity })),
         address,
         storeAdapter(connection.provider).channel
       )

@@ -14,7 +14,9 @@ export default class StoreWebhookController {
         raw,
         request.headers() as never
       )
-      return response.ok({ status: result.duplicate ? 'duplicate' : 'received' })
+      return response.ok({
+        status: 'ignored' in result ? 'ignored' : result.duplicate ? 'duplicate' : 'received',
+      })
     } catch (error) {
       if (error instanceof StoreWebhookSignatureError) {
         return response.unauthorized({ error: 'Invalid signature' })

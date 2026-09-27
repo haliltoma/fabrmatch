@@ -648,6 +648,18 @@ const routes = {
     tokens: [{"old":"/seller/stores","type":0,"val":"seller","end":""},{"old":"/seller/stores","type":0,"val":"stores","end":""}],
     types: placeholder as Registry['seller_store.index']['types'],
   },
+  'seller_store.connect': {
+    methods: ["POST"],
+    pattern: '/seller/stores/connect',
+    tokens: [{"old":"/seller/stores/connect","type":0,"val":"seller","end":""},{"old":"/seller/stores/connect","type":0,"val":"stores","end":""},{"old":"/seller/stores/connect","type":0,"val":"connect","end":""}],
+    types: placeholder as Registry['seller_store.connect']['types'],
+  },
+  'seller_store.publish': {
+    methods: ["POST"],
+    pattern: '/seller/stores/:id/publish',
+    tokens: [{"old":"/seller/stores/:id/publish","type":0,"val":"seller","end":""},{"old":"/seller/stores/:id/publish","type":0,"val":"stores","end":""},{"old":"/seller/stores/:id/publish","type":1,"val":"id","end":""},{"old":"/seller/stores/:id/publish","type":0,"val":"publish","end":""}],
+    types: placeholder as Registry['seller_store.publish']['types'],
+  },
   'seller_store.connect_test': {
     methods: ["POST"],
     pattern: '/seller/stores/test',

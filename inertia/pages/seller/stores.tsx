@@ -10,10 +10,18 @@ import { OrderCode } from '~/components/order_code'
 import { PageHeader } from '~/components/page_header'
 import { StatusBadge } from '~/components/status_badge'
 import { formatMoney } from '~/lib/format'
+import { MoneyInput } from '~/components/money_input'
 import { useT } from '~/lib/i18n'
 import { cn } from '~/lib/utils'
 
-type Connection = { id: number; provider: string; shopName: string; lastSyncedAt: string | null }
+type Connection = {
+  id: number
+  provider: string
+  shopName: string
+  shopUrl: string | null
+  currency: string | null
+  lastSyncedAt: string | null
+}
 type Listing = {
   id: number
   title: string
@@ -22,6 +30,9 @@ type Listing = {
   material: string | null
   color: string | null
   scalePercent: number | null
+  published: boolean
+  priceMinor: number | null
+  externalProductId: string
 }
 type ExternalOrder = {
   id: number
@@ -33,7 +44,13 @@ type ExternalOrder = {
   fulfillmentStatus: 'none' | 'pending' | 'pushed' | 'failed'
   fulfillmentError: string | null
 }
-type Product = { id: number; title: string; materials: string[]; scales: number[] }
+type Product = {
+  id: number
+  title: string
+  materials: string[]
+  scales: number[]
+  prices: Array<{ material: string; costMinor: number; suggestedMinor: number }>
+}
 
 const selectClass =
   'h-10 w-full rounded-md border border-line bg-paper-raised px-3 text-sm text-ink-900 focus-visible:outline-2 focus-visible:outline-heat-500'
@@ -136,8 +153,315 @@ function MappingRow({ listing, products }: { listing: Listing; products: Product
   )
 }
 
+function ConnectForm({ shopifyScopes }: { shopifyScopes: string[] }) {
+  const { t } = useT()
+  const [provider, setProvider] = useState<'shopify' | 'woocommerce' | 'etsy'>('shopify')
+  const [form, setForm] = useState({ shopUrl: '', apiKey: '', apiSecret: '', accessToken: '' })
+  const [legacy, setLegacy] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const set = (key: keyof typeof form) => (e: { target: { value: string } }) =>
+    setForm({ ...form, [key]: e.target.value })
+
+  return (
+    <div className="space-y-4">
+      <div role="radiogroup" aria-label={t('Platform')} className="flex flex-wrap gap-2">
+        {(
+          [
+            ['shopify', 'Shopify'],
+            ['woocommerce', 'WooCommerce'],
+            ['etsy', 'Etsy'],
+          ] as const
+        ).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            role="radio"
+            aria-checked={provider === value}
+            onClick={() => setProvider(value)}
+            className={cn(
+              'rounded-md border px-3 py-2 text-sm',
+              provider === value
+                ? 'border-heat-500 text-ink-900'
+                : 'border-line text-ink-700 hover:border-ink-500'
+            )}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {provider === 'etsy' ? (
+        <p className="rounded-md bg-paper-sunken px-4 py-3 text-sm text-ink-700">
+          {t(
+            'Etsy does not allow connecting with an API key alone: it opens with a “Connect with Etsy” button once Etsy approves our app.'
+          )}
+        </p>
+      ) : (
+        <>
+          <ol className="list-decimal space-y-1 pl-5 text-sm text-ink-700">
+            {provider === 'shopify' ? (
+              <>
+                <li>
+                  {t('Open dev.shopify.com (Dev Dashboard) and create an app for your shop.')}
+                </li>
+                <li>
+                  {t('Give it these permissions:')}{' '}
+                  <span className="font-mono text-xs">{shopifyScopes.join(', ')}</span>
+                </li>
+                <li>{t('Install the app on your shop.')}</li>
+                <li>{t('Copy the Client ID and Client secret from the app settings here.')}</li>
+              </>
+            ) : (
+              <>
+                <li>{t('In WordPress go to WooCommerce → Settings → Advanced → REST API.')}</li>
+                <li>{t('Add a key with Read/Write permission.')}</li>
+                <li>{t('Copy the Consumer key and Consumer secret here.')}</li>
+              </>
+            )}
+          </ol>
+          <form
+            className="grid gap-3 sm:grid-cols-2"
+            onSubmit={(e) => {
+              e.preventDefault()
+              setBusy(true)
+              router.post(
+                '/seller/stores/connect',
+                {
+                  provider,
+                  shopUrl: form.shopUrl,
+                  apiKey: legacy ? undefined : form.apiKey,
+                  apiSecret: form.apiSecret,
+                  accessToken: legacy ? form.accessToken : undefined,
+                },
+                {
+                  onFinish: () => {
+                    setBusy(false)
+                    setForm((f) => ({ ...f, apiSecret: '', accessToken: '' }))
+                  },
+                }
+              )
+            }}
+          >
+            <div className="space-y-1 sm:col-span-2">
+              <Label htmlFor="c-url">{t('Shop address')}</Label>
+              <Input
+                id="c-url"
+                required
+                placeholder={
+                  provider === 'shopify' ? 'my-shop.myshopify.com' : 'https://www.my-shop.com'
+                }
+                value={form.shopUrl}
+                onChange={set('shopUrl')}
+              />
+            </div>
+            {provider === 'shopify' && legacy ? (
+              <div className="space-y-1">
+                <Label htmlFor="c-token">{t('Admin API access token')}</Label>
+                <Input
+                  id="c-token"
+                  required
+                  autoComplete="off"
+                  value={form.accessToken}
+                  onChange={set('accessToken')}
+                />
+              </div>
+            ) : (
+              <div className="space-y-1">
+                <Label htmlFor="c-key">
+                  {provider === 'shopify' ? t('Client ID') : t('Consumer key')}
+                </Label>
+                <Input
+                  id="c-key"
+                  required
+                  autoComplete="off"
+                  value={form.apiKey}
+                  onChange={set('apiKey')}
+                />
+              </div>
+            )}
+            <div className="space-y-1">
+              <Label htmlFor="c-secret">
+                {provider === 'shopify'
+                  ? legacy
+                    ? t('API secret key')
+                    : t('Client secret')
+                  : t('Consumer secret')}
+              </Label>
+              <Input
+                id="c-secret"
+                type="password"
+                required
+                autoComplete="off"
+                value={form.apiSecret}
+                onChange={set('apiSecret')}
+              />
+            </div>
+            {provider === 'shopify' && (
+              <label className="flex items-center gap-2 text-sm text-ink-700 sm:col-span-2">
+                <input
+                  type="checkbox"
+                  checked={legacy}
+                  onChange={(e) => setLegacy(e.target.checked)}
+                  className="accent-heat-600"
+                />
+                {t('I have an older custom app with an admin API token (created before 2026)')}
+              </label>
+            )}
+            <p className="text-xs text-ink-600 sm:col-span-2">
+              {t(
+                'We check the keys with your shop before saving them, store them encrypted and use them only for your products and orders.'
+              )}
+            </p>
+            <div className="sm:col-span-2">
+              <Button type="submit" disabled={busy}>
+                {t('Connect shop')}
+              </Button>
+            </div>
+          </form>
+        </>
+      )}
+    </div>
+  )
+}
+
+function PublishForm({
+  connection,
+  products,
+  listings,
+}: {
+  connection: Connection
+  products: Product[]
+  listings: Listing[]
+}) {
+  const { t } = useT()
+  const [productId, setProductId] = useState<number | null>(products[0]?.id ?? null)
+  const product = products.find((p) => p.id === productId) ?? null
+  const publishedPrice = (material: string) =>
+    listings.find((l) => l.published && l.sellerProductId === productId && l.material === material)
+      ?.priceMinor ?? null
+  const [prices, setPrices] = useState<Record<string, number | null>>({})
+  const [chosen, setChosen] = useState<Record<string, boolean>>({})
+  const [busy, setBusy] = useState(false)
+  const alreadyPublished = listings.some((l) => l.published && l.sellerProductId === productId)
+  const currency = connection.currency ?? 'TRY'
+
+  if (products.length === 0) {
+    return (
+      <p className="text-sm text-ink-700">
+        {t('Create a product first; then publish it to your shop from here.')}{' '}
+        <Link href="/seller/products" className="text-heat-700 underline">
+          {t('Products')}
+        </Link>
+      </p>
+    )
+  }
+
+  const rows = product?.prices ?? []
+  const priceOf = (material: string, suggested: number) =>
+    prices[`${productId}:${material}`] ?? publishedPrice(material) ?? suggested
+  const isChosen = (material: string) => chosen[`${productId}:${material}`] ?? true
+
+  return (
+    <form
+      className="space-y-4"
+      onSubmit={(e) => {
+        e.preventDefault()
+        if (!product) return
+        setBusy(true)
+        router.post(
+          `/seller/stores/${connection.id}/publish`,
+          {
+            sellerProductId: product.id,
+            variants: rows
+              .filter((r) => isChosen(r.material))
+              .map((r) => ({
+                material: r.material,
+                priceMinor: priceOf(r.material, r.suggestedMinor),
+              })),
+          },
+          { onFinish: () => setBusy(false) }
+        )
+      }}
+    >
+      <div className="space-y-1">
+        <Label htmlFor="pub-product">{t('Product')}</Label>
+        <select
+          id="pub-product"
+          className={selectClass}
+          value={productId ?? ''}
+          onChange={(e) => setProductId(Number(e.target.value))}
+        >
+          {products.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.title}
+            </option>
+          ))}
+        </select>
+      </div>
+      {currency !== 'TRY' && (
+        <p className="rounded-md bg-amber-soft px-4 py-3 text-sm text-amber-ink">
+          {t(
+            'Your shop sells in {currency}. Enter shop prices in {currency}; what you pay us stays in TRY.',
+            {
+              currency,
+            }
+          )}
+        </p>
+      )}
+      {rows.length === 0 ? (
+        <p className="text-sm text-ink-600">{t('This product has no priced material yet.')}</p>
+      ) : (
+        <fieldset className="space-y-3">
+          <legend className="text-sm font-medium text-ink-900">
+            {t('Materials and shop prices')}
+          </legend>
+          {rows.map((r) => {
+            const id = `pub-${productId}-${r.material}`
+            return (
+              <div key={id} className="grid items-end gap-3 sm:grid-cols-[auto_1fr_1fr]">
+                <label className="flex items-center gap-2 pb-2 text-sm text-ink-900">
+                  <input
+                    type="checkbox"
+                    className="accent-heat-600"
+                    checked={isChosen(r.material)}
+                    onChange={(e) =>
+                      setChosen({ ...chosen, [`${productId}:${r.material}`]: e.target.checked })
+                    }
+                  />
+                  <span className="font-mono">{r.material}</span>
+                </label>
+                <div className="space-y-1">
+                  <Label htmlFor={id}>{t('Price in your shop')}</Label>
+                  <MoneyInput
+                    key={id}
+                    id={id}
+                    currency={currency}
+                    valueMinor={priceOf(r.material, r.suggestedMinor)}
+                    onChange={(minor) =>
+                      setPrices({ ...prices, [`${productId}:${r.material}`]: minor })
+                    }
+                  />
+                </div>
+                <p className="pb-2 text-sm text-ink-600">
+                  {t('You pay {cost} per piece incl. delivery in Türkiye', {
+                    cost: formatMoney(r.costMinor, 'TRY'),
+                  })}
+                </p>
+              </div>
+            )
+          })}
+        </fieldset>
+      )}
+      <Button type="submit" disabled={busy || !product || !rows.some((r) => isChosen(r.material))}>
+        {alreadyPublished ? t('Update in my shop') : t('Publish to my shop')}
+      </Button>
+    </form>
+  )
+}
+
 export default function SellerStores({
   testShops,
+  shopifyScopes,
   connections,
   currentId,
   listings,
@@ -145,7 +469,9 @@ export default function SellerStores({
   products,
 }: {
   testShops: boolean
-  webhookBase: string
+  shopifyScopes: string[]
+  callbackUrl: string | null
+  currency: string | null
   connections: Connection[]
   currentId: number | null
   listings: Listing[]
@@ -189,22 +515,11 @@ export default function SellerStores({
               ))}
             </nav>
           )}
-          <div className="flex flex-wrap items-center gap-3">
-            <Button disabled variant="outline">
-              {t('Connect Shopify')}
+          {testShops && (
+            <Button variant="outline" onClick={() => router.post('/seller/stores/test')}>
+              {t('Add a test shop')}
             </Button>
-            <Button disabled variant="outline">
-              {t('Connect Etsy')}
-            </Button>
-            {testShops && (
-              <Button onClick={() => router.post('/seller/stores/test')}>
-                {t('Add a test shop')}
-              </Button>
-            )}
-          </div>
-          <p className="text-sm text-ink-600">
-            {t('Shopify and Etsy open as soon as our apps are approved by the platforms.')}
-          </p>
+          )}
           {current && (
             <div className="flex flex-wrap gap-2 border-t border-line pt-4">
               <Button
@@ -228,8 +543,28 @@ export default function SellerStores({
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            {connections.length === 0 ? t('Connect your shop') : t('Connect another shop')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ConnectForm shopifyScopes={shopifyScopes} />
+        </CardContent>
+      </Card>
+
       {current && (
         <>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('Publish a product to {shop}', { shop: current.shopName })}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PublishForm connection={current} products={products} listings={listings} />
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>

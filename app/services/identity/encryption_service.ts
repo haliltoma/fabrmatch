@@ -21,6 +21,8 @@ export const ENCRYPTED_COLUMNS: Array<{ table: string; column: string }> = [
   { table: 'payee_tax_profiles', column: 'tax_number_enc' },
   { table: 'seller_profiles', column: 'tax_id_enc' },
   { table: 'store_connections', column: 'access_token_enc' },
+  { table: 'store_connections', column: 'api_key_enc' },
+  { table: 'store_connections', column: 'api_secret_enc' },
   { table: 'store_connections', column: 'webhook_secret_enc' },
   { table: 'users', column: 'two_factor_secret_enc' },
   { table: 'webhook_endpoints', column: 'secret_enc' },

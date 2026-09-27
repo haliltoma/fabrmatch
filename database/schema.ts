@@ -364,7 +364,7 @@ export class ExperimentEventSchema extends BaseModel {
 }
 
 export class ExternalListingSchema extends BaseModel {
-  static $columns = ['color', 'createdAt', 'externalProductId', 'externalVariantId', 'id', 'material', 'scalePercent', 'sellerProductId', 'sku', 'storeConnectionId', 'title', 'updatedAt'] as const
+  static $columns = ['color', 'createdAt', 'externalProductId', 'externalVariantId', 'id', 'material', 'priceMinor', 'published', 'scalePercent', 'sellerProductId', 'sku', 'storeConnectionId', 'title', 'updatedAt'] as const
   $columns = ExternalListingSchema.$columns
   @column()
   declare color: string | null
@@ -378,6 +378,10 @@ export class ExternalListingSchema extends BaseModel {
   declare id: number
   @column()
   declare material: string | null
+  @column()
+  declare priceMinor: number | null
+  @column()
+  declare published: boolean
   @column()
   declare scalePercent: number | null
   @column()
@@ -1566,12 +1570,18 @@ export class SliceEstimateSchema extends BaseModel {
 }
 
 export class StoreConnectionSchema extends BaseModel {
-  static $columns = ['accessTokenEnc', 'createdAt', 'externalShopId', 'id', 'lastSyncedAt', 'provider', 'sellerUserId', 'shopName', 'status', 'updatedAt', 'webhookSecretEnc'] as const
+  static $columns = ['accessTokenEnc', 'apiKeyEnc', 'apiSecretEnc', 'createdAt', 'currency', 'externalShopId', 'id', 'lastSyncedAt', 'provider', 'sellerUserId', 'shopName', 'shopUrl', 'status', 'tokenExpiresAt', 'updatedAt', 'webhookSecretEnc'] as const
   $columns = StoreConnectionSchema.$columns
   @column()
   declare accessTokenEnc: string | null
+  @column()
+  declare apiKeyEnc: string | null
+  @column()
+  declare apiSecretEnc: string | null
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
+  @column()
+  declare currency: string | null
   @column()
   declare externalShopId: string
   @column({ isPrimary: true })
@@ -1585,7 +1595,11 @@ export class StoreConnectionSchema extends BaseModel {
   @column()
   declare shopName: string
   @column()
+  declare shopUrl: string | null
+  @column()
   declare status: string
+  @column.dateTime()
+  declare tokenExpiresAt: DateTime | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
   @column()

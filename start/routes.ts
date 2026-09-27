@@ -324,6 +324,10 @@ router
     router
       .group(() => {
         router.get('/', [controllers.SellerStore, 'index'])
+        router
+          .post('/connect', [controllers.SellerStore, 'connect'])
+          .use(middleware.throttle({ name: 'store-connect', requests: 10, duration: '1 hour' }))
+        router.post('/:id/publish', [controllers.SellerStore, 'publish'])
         router.post('/test', [controllers.SellerStore, 'connectTest'])
         router.post('/:id/sync', [controllers.SellerStore, 'sync'])
         router.post('/:id/disconnect', [controllers.SellerStore, 'disconnect'])

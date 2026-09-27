@@ -2632,4 +2632,68 @@ export const tr: Record<string, string> = {
   'Choose a material this product can be printed in': 'Bu ürünün basılabileceği bir malzeme seçin',
   'Nothing to retry': 'Yeniden denenecek bir şey yok',
   'The test shop is not available here': 'Test mağazası burada kullanılamaz',
+  'Platform': 'Platform',
+  'Etsy does not allow connecting with an API key alone: it opens with a “Connect with Etsy” button once Etsy approves our app.':
+    'Etsy yalnızca API anahtarıyla bağlanmaya izin vermiyor: Etsy uygulamamızı onayladığında “Etsy ile bağlan” düğmesiyle açılacak.',
+  'Open dev.shopify.com (Dev Dashboard) and create an app for your shop.':
+    'dev.shopify.com (Dev Dashboard) adresinde mağazanız için bir uygulama oluşturun.',
+  'Give it these permissions:': 'Şu izinleri verin:',
+  'Install the app on your shop.': 'Uygulamayı mağazanıza yükleyin.',
+  'Copy the Client ID and Client secret from the app settings here.':
+    'Uygulama ayarlarındaki Client ID ve Client secret değerlerini buraya kopyalayın.',
+  'In WordPress go to WooCommerce → Settings → Advanced → REST API.':
+    "WordPress'te WooCommerce → Ayarlar → Gelişmiş → REST API bölümüne gidin.",
+  'Add a key with Read/Write permission.': 'Okuma/Yazma izinli bir anahtar ekleyin.',
+  'Copy the Consumer key and Consumer secret here.':
+    'Consumer key ve Consumer secret değerlerini buraya kopyalayın.',
+  'Shop address': 'Mağaza adresi',
+  'Admin API access token': 'Admin API erişim tokenı',
+  'Client ID': 'Client ID',
+  'Consumer key': 'Consumer key',
+  'API secret key': 'API gizli anahtarı',
+  'Client secret': 'Client secret',
+  'Consumer secret': 'Consumer secret',
+  'I have an older custom app with an admin API token (created before 2026)':
+    'Admin API tokenı olan eski bir özel uygulamam var (2026 öncesi oluşturuldu)',
+  'We check the keys with your shop before saving them, store them encrypted and use them only for your products and orders.':
+    'Anahtarları kaydetmeden önce mağazanızla doğrular, şifreli saklar ve yalnızca ürünleriniz ve siparişleriniz için kullanırız.',
+  'Connect shop': 'Mağazayı bağla',
+  'Create a product first; then publish it to your shop from here.':
+    'Önce bir ürün oluşturun; sonra buradan mağazanızda yayınlayın.',
+  'Product': 'Ürün',
+  'Your shop sells in {currency}. Enter shop prices in {currency}; what you pay us stays in TRY.':
+    'Mağazanız {currency} ile satış yapıyor. Mağaza fiyatlarını {currency} olarak girin; bize ödediğiniz tutar TRY kalır.',
+  'This product has no priced material yet.':
+    'Bu ürünün henüz fiyatı hesaplanan bir malzemesi yok.',
+  'Materials and shop prices': 'Malzemeler ve mağaza fiyatları',
+  'Price in your shop': 'Mağazanızdaki fiyat',
+  'You pay {cost} per piece incl. delivery in Türkiye':
+    'Parça başına {cost} ödersiniz (Türkiye içi kargo dahil)',
+  'Update in my shop': 'Mağazamda güncelle',
+  'Publish to my shop': 'Mağazamda yayınla',
+  'Connect your shop': 'Mağazanızı bağlayın',
+  'Connect another shop': 'Başka bir mağaza bağlayın',
+  'Publish a product to {shop}': '{shop} mağazasında ürün yayınla',
+  'Shop connected. Paid orders will arrive here automatically.':
+    'Mağaza bağlandı. Ödenen siparişler buraya otomatik gelecek.',
+  'Published to your shop.': 'Mağazanızda yayınlandı.',
+  'Enter your shop address, e.g. my-shop.myshopify.com':
+    'Mağaza adresinizi girin, ör. my-shop.myshopify.com',
+  'Enter your shop address, e.g. https://www.my-shop.com':
+    'Mağaza adresinizi girin, ör. https://www.my-shop.com',
+  'Enter the secret from your shop': 'Mağazanızdaki gizli anahtarı girin',
+  'Enter the client ID of your app': 'Uygulamanızın Client ID değerini girin',
+  'Enter the consumer key': 'Consumer key girin',
+  'This shop is already connected to another Fabrmatch account':
+    'Bu mağaza başka bir Fabrmatch hesabına bağlı',
+  'Choose one of your own, available products': 'Kendi ürünlerinizden satışta olan birini seçin',
+  'Choose at least one material': 'En az bir malzeme seçin',
+  'Set a price for every material': 'Her malzeme için fiyat girin',
+  'Shopify refused the credentials or a permission is missing':
+    'Shopify bilgileri reddetti ya da bir izin eksik',
+  'Shopify did not give an access token: check the client id and secret, and that the app is installed on this shop':
+    "Shopify erişim tokenı vermedi: Client ID ve secret'ı ve uygulamanın bu mağazaya yüklü olduğunu kontrol edin",
+  'WooCommerce refused the key: it needs Read/Write permission':
+    'WooCommerce anahtarı reddetti: Okuma/Yazma izni gerekiyor',
+  'Etsy is not connected yet': 'Etsy henüz bağlanamıyor',
 }

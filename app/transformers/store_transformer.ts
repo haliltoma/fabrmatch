@@ -11,6 +11,8 @@ export class StoreConnectionTransformer extends BaseTransformer<StoreConnection>
       id: c.id,
       provider: c.provider,
       shopName: c.shopName,
+      shopUrl: c.shopUrl,
+      currency: c.currency,
       lastSyncedAt: c.lastSyncedAt?.toISO() ?? null,
     }
   }
@@ -27,6 +29,9 @@ export class ExternalListingTransformer extends BaseTransformer<ExternalListing>
       material: l.material,
       color: l.color,
       scalePercent: l.scalePercent,
+      published: l.published,
+      priceMinor: l.priceMinor,
+      externalProductId: l.externalProductId,
     }
   }
 }

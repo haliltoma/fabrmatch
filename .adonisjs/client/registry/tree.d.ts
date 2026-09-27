@@ -188,6 +188,8 @@ export interface ApiDefinition {
   }
   sellerStore: {
     index: typeof routes['seller_store.index']
+    connect: typeof routes['seller_store.connect']
+    publish: typeof routes['seller_store.publish']
     connectTest: typeof routes['seller_store.connect_test']
     sync: typeof routes['seller_store.sync']
     disconnect: typeof routes['seller_store.disconnect']

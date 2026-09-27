@@ -13,12 +13,14 @@ export interface StoreHarness {
   signedOrder(order: IncomingOrder): { body: string; headers: Record<string, string> }
   /** What the shop now shows as shipped for this order, if anything. */
   shippedTracking(externalOrderId: string): Promise<string[]>
+  /** Puts an unfulfilled order with this id in the shop. */
+  prepareShipment?(externalOrderId: string): void
 }
 
 const order: IncomingOrder = {
-  externalOrderId: 'contract-1',
+  externalOrderId: '9001',
   name: '#1',
-  lines: [{ variantId: 'v1', sku: 'SKU-1', title: 'Thing', quantity: 3 }],
+  lines: [{ variantId: '101', sku: 'SKU-1', title: 'Thing', quantity: 3 }],
   shippingAddress: {
     fullName: 'Ada Yılmaz',
     line1: 'Atatürk Cd. 1',
@@ -46,9 +48,12 @@ export function storeAdapterContract(label: string, make: () => Promise<StoreHar
       const { adapter, connection, signedOrder } = await make()
       const { body, headers } = signedOrder(order)
       const parsed = await adapter.parseOrderWebhook(connection, body, headers)
-      assert.equal(parsed.externalOrderId, 'contract-1')
-      assert.equal(parsed.lines[0].quantity, 3)
-      assert.equal(parsed.shippingAddress.country, 'TR')
+      assert.isNotNull(parsed)
+      assert.equal(parsed!.externalOrderId, '9001')
+      assert.equal(parsed!.lines[0].variantId, '101')
+      assert.equal(parsed!.lines[0].quantity, 3)
+      assert.match(parsed!.shippingAddress.country, /^[A-Z]{2}$/)
+      assert.isNotEmpty(parsed!.shippingAddress.fullName)
 
       await assert.rejects(
         () =>
@@ -66,11 +71,42 @@ export function storeAdapterContract(label: string, make: () => Promise<StoreHar
     })
 
     test('writing the same tracking twice leaves one shipment', async ({ assert }) => {
-      const { adapter, connection, shippedTracking } = await make()
+      const { adapter, connection, shippedTracking, prepareShipment } = await make()
+      prepareShipment?.('9002')
       const shipment = { carrier: 'Yurtiçi', trackingNumber: 'YK1' }
-      await adapter.pushFulfillment(connection, 'contract-2', shipment)
-      await adapter.pushFulfillment(connection, 'contract-2', shipment)
-      assert.deepEqual(await shippedTracking('contract-2'), ['YK1'])
+      await adapter.pushFulfillment(connection, '9002', shipment)
+      await adapter.pushFulfillment(connection, '9002', shipment)
+      assert.deepEqual(await shippedTracking('9002'), ['YK1'])
+    })
+
+    test('publishing twice updates the same product and keeps variant ids', async ({ assert }) => {
+      const { adapter, connection } = await make()
+      const input = {
+        title: 'Spiral vase',
+        description: 'Printed on demand',
+        imageUrls: [],
+        currency: 'TRY',
+        variants: [
+          { material: 'PLA', sku: 'FM-1-PLA', priceMinor: 25_000 },
+          { material: 'PETG', sku: 'FM-1-PETG', priceMinor: 29_900 },
+        ],
+      }
+      const first = await adapter.publishProduct(connection, input, null)
+      assert.lengthOf(first.variants, 2)
+      const again = await adapter.publishProduct(
+        connection,
+        { ...input, variants: [{ ...input.variants[0], priceMinor: 26_000 }, input.variants[1]] },
+        first.productId
+      )
+      assert.equal(again.productId, first.productId)
+      const ids = (r: typeof first) =>
+        Object.fromEntries(r.variants.map((v) => [v.sku, v.variantId]))
+      assert.deepEqual(ids(again), ids(first))
+      const variants = await adapter.listVariants(connection)
+      assert.includeMembers(
+        variants.map((v) => v.sku),
+        ['FM-1-PLA', 'FM-1-PETG']
+      )
     })
   })
 }

@@ -8,6 +8,13 @@ export class StoreWebhookSignatureError extends DomainError {
   }
 }
 
+/** The shop refused or failed a call; the message is safe to show the seller. */
+export class StoreApiError extends DomainError {
+  constructor(message: string) {
+    super(message, { status: 502 })
+  }
+}
+
 export interface StoreVariant {
   productId: string
   variantId: string
@@ -23,25 +30,62 @@ export interface IncomingOrder {
   shippingAddress: ShippingAddress
 }
 
+/** A Fabrmatch product as it should appear in the seller's shop (one variant per material). */
+export interface PublishInput {
+  title: string
+  description: string
+  imageUrls: string[]
+  variants: Array<{ material: string; sku: string; priceMinor: number }>
+  currency: string
+}
+
+export interface PublishResult {
+  productId: string
+  variants: Array<{ variantId: string; sku: string; material: string }>
+}
+
 /**
- * One platform (Shopify R4-T1, Etsy R4-T5). The core (mapping, import, write-back) depends on
- * this interface only; every adapter must pass `tests/contracts/store_adapter_contract.ts`.
+ * One platform. The core (connect, publish, mapping, import, write-back) depends on this
+ * interface only; every adapter passes `tests/contracts/store_adapter_contract.ts`.
  */
 export interface StoreAdapter {
   readonly provider: StoreConnection['provider']
   /** Order channel the platform's orders are recorded under */
-  readonly channel: 'shopify' | 'etsy'
+  readonly channel: 'shopify' | 'etsy' | 'woocommerce'
+  /** Proves the credentials work; returns what the shop calls itself and its currency. */
+  verify(connection: StoreConnection): Promise<{ shopName: string; currency: string | null }>
+  /** Subscribes the shop's paid orders to our endpoint (safe to call again). */
+  ensureWebhooks(connection: StoreConnection, callbackUrl: string): Promise<void>
   listVariants(connection: StoreConnection): Promise<StoreVariant[]>
-  /** Verifies the signature and parses an order webhook; throws StoreWebhookSignatureError. */
+  /** Creates the product in the shop, or updates it when `existingProductId` is given. */
+  publishProduct(
+    connection: StoreConnection,
+    input: PublishInput,
+    existingProductId: string | null
+  ): Promise<PublishResult>
+  /**
+   * Verifies the signature and parses an order webhook; throws StoreWebhookSignatureError.
+   * Null: a genuine delivery that is not a paid order to print (ping, other topic, unpaid).
+   */
   parseOrderWebhook(
     connection: StoreConnection,
     rawBody: string,
     headers: Record<string, string | undefined>
-  ): Promise<IncomingOrder>
+  ): Promise<IncomingOrder | null>
   /** Marks the order shipped in the shop with our tracking; must be safe to repeat. */
   pushFulfillment(
     connection: StoreConnection,
     externalOrderId: string,
     shipment: { carrier: string; trackingNumber: string }
   ): Promise<void>
+}
+
+/** Stable SKU for a Fabrmatch product in a material, so orders map even without a listing row. */
+export function fabrmatchSku(sellerProductId: number, material: string) {
+  return `FM-${sellerProductId}-${material.toUpperCase()}`
+}
+
+/** 12345 → "123.45" (prices travel as decimal strings; integer maths only). */
+export function decimalPrice(minor: number) {
+  return `${Math.floor(minor / 100)}.${String(minor % 100).padStart(2, '0')}`
 }

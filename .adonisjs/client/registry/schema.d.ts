@@ -1291,6 +1291,30 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['index']>>>
     }
   }
+  'seller_store.connect': {
+    methods: ["POST"]
+    pattern: '/seller/stores/connect'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['connect']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['connect']>>>
+    }
+  }
+  'seller_store.publish': {
+    methods: ["POST"]
+    pattern: '/seller/stores/:id/publish'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['publish']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['publish']>>>
+    }
+  }
   'seller_store.connect_test': {
     methods: ["POST"]
     pattern: '/seller/stores/test'

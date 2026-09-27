@@ -1,6 +1,6 @@
 import { StoreConnectionSchema } from '#database/schema'
 
-export type StoreProvider = 'shopify' | 'etsy' | 'fake'
+export type StoreProvider = 'shopify' | 'etsy' | 'woocommerce' | 'fake'
 
 /** A seller's shop on another platform (R4). */
 export default class StoreConnection extends StoreConnectionSchema {
