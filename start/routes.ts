@@ -354,14 +354,19 @@ router
 
     // Prepaid balance for orders from the seller's own shop (R4-T2)
     router.get('/wallet', [controllers.SellerWallet, 'show'])
+    // money only goes in while shops are on; the page and refunds stay reachable so a balance
+    // left over from before can always be taken back out
     router
       .post('/wallet/top-up', [controllers.SellerWallet, 'topUp'])
       .use([
+        middleware.feature({ name: 'externalStores' }),
         middleware.verified(),
         middleware.idempotent(),
         middleware.throttle({ name: 'wallet-top-up', requests: 10, duration: '1 hour' }),
       ])
-    router.post('/wallet/auto-pay', [controllers.SellerWallet, 'autoPay'])
+    router
+      .post('/wallet/auto-pay', [controllers.SellerWallet, 'autoPay'])
+      .use(middleware.feature({ name: 'externalStores' }))
     router
       .post('/wallet/refund', [controllers.SellerWallet, 'refund'])
       .use([

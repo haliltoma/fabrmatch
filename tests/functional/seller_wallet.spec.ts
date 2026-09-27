@@ -253,6 +253,19 @@ test.group('Seller wallet (R4-T2)', (group) => {
     )
   })
 
+  test('with shops switched off no money can go in, but the page and refunds stay open', async ({
+    client,
+  }) => {
+    const { sellerUser } = await seller()
+    ;(fabrmatchConfig.flags as Record<string, number>).externalStores = 0
+    const post = (path: string, body: object) =>
+      client.post(path).withCsrfToken().loginAs(sellerUser).headers(inertia).redirects(0).json(body)
+    ;(await post('/seller/wallet/top-up', { amountMinor: 200_000 })).assertStatus(404)
+    ;(await post('/seller/wallet/auto-pay', { enabled: true })).assertStatus(404)
+    const page = await client.get('/seller/wallet').headers(inertia).loginAs(sellerUser)
+    page.assertStatus(200)
+  })
+
   test('over HTTP: wallet page, top-up via the test card page, pay an order from it', async ({
     client,
     assert,

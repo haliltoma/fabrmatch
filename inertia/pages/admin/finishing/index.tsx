@@ -48,7 +48,7 @@ function Row({ option }: { option: Option }) {
         </p>
       </div>
       <form
-        className="flex items-end gap-2"
+        className="flex flex-wrap items-end gap-2"
         onSubmit={(e) => {
           e.preventDefault()
           router.post(`/admin/finishing/${option.id}`, {

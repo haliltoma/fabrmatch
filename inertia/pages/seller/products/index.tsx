@@ -319,10 +319,10 @@ export default function SellerProductsIndex({
           action={<Button onClick={() => setShowAdd(true)}>{t('Add your first product')}</Button>}
         />
       ) : (
-        <div className="grid gap-4">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-4">
           {products.map((product) => (
             <Card key={product.id}>
-              <CardHeader className="flex flex-row items-center justify-between">
+              <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
                 <div>
                   <CardTitle className="text-lg">{product.title}</CardTitle>
                   {product.catalogProduct && (

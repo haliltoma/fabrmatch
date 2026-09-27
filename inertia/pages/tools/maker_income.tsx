@@ -64,7 +64,7 @@ function MakerIncome({
         </div>
       </section>
 
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:px-8">
+      <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:px-8">
         <form
           className="space-y-4 rounded-[10px] border border-line bg-paper-raised p-6"
           onSubmit={(e) => {
