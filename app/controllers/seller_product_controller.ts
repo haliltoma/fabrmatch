@@ -111,6 +111,15 @@ export default class SellerProductController {
     }
 
     await service.setStatus(product, status)
+    // a retired product must not keep selling in the seller's own shops
+    if (status === 'archived') {
+      const { default: StoreService } = await import('#services/integrations/stores/store_service')
+      const { failed } = await new StoreService().unpublish(user, product.id)
+      if (failed.length > 0) {
+        session.flash('error', `Archived, but still on sale in: ${failed.join(' ')}`)
+        return response.redirect().toPath('/seller/products')
+      }
+    }
     session.flash('success', `Product set to ${status}.`)
     return response.redirect().toPath('/seller/products')
   }

@@ -15,6 +15,8 @@ export interface StoreHarness {
   shippedTracking(externalOrderId: string): Promise<string[]>
   /** A signed delivery saying the shop cancelled this order. */
   signedCancellation(externalOrderId: string): { body: string; headers: Record<string, string> }
+  /** Whether the shop sells this product right now. */
+  onSale(productId: string): boolean
   /** Puts an unfulfilled order with this id in the shop. */
   prepareShipment?(externalOrderId: string): void
 }
@@ -90,8 +92,10 @@ export function storeAdapterContract(label: string, make: () => Promise<StoreHar
       assert.deepEqual(await shippedTracking('9002'), ['YK1'])
     })
 
-    test('publishing twice updates the same product and keeps variant ids', async ({ assert }) => {
-      const { adapter, connection } = await make()
+    test('publishing twice updates the same product; taking it off sale keeps it', async ({
+      assert,
+    }) => {
+      const { adapter, connection, onSale } = await make()
       const input = {
         title: 'Spiral vase',
         description: 'Printed on demand',
@@ -113,6 +117,9 @@ export function storeAdapterContract(label: string, make: () => Promise<StoreHar
       const ids = (r: typeof first) =>
         Object.fromEntries(r.variants.map((v) => [v.sku, v.variantId]))
       assert.deepEqual(ids(again), ids(first))
+      assert.isTrue(onSale(first.productId))
+      await adapter.unpublishProduct(connection, first.productId)
+      assert.isFalse(onSale(first.productId))
       const variants = await adapter.listVariants(connection)
       assert.includeMembers(
         variants.map((v) => v.sku),

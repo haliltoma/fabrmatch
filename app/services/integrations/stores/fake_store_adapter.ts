@@ -73,6 +73,12 @@ export default class FakeStoreAdapter implements StoreAdapter {
     return this.variants
   }
 
+  unpublished: string[] = []
+
+  async unpublishProduct(_connection: StoreConnection, productId: string) {
+    if (!this.unpublished.includes(productId)) this.unpublished.push(productId)
+  }
+
   /** The body and headers the shop would POST for a new order. */
   signedOrder(connection: StoreConnection, order: IncomingOrder) {
     const body = JSON.stringify(order)

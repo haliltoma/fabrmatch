@@ -24,7 +24,7 @@ export class FakeShopify {
   webhooks: Array<{ topic: string; uri: string }> = []
   products = new Map<
     string,
-    { title: string; variants: Array<{ id: string; sku: string; price: string }> }
+    { title: string; variants: Array<{ id: string; sku: string; price: string }>; status?: string }
   >()
   fulfillmentOrders = new Map<string, Array<{ id: string; status: string }>>()
   fulfillments: Array<{ orderId: string; number: string; company: string }> = []
@@ -118,7 +118,7 @@ export class FakeShopify {
         sku: v.sku,
         price: v.price,
       }))
-      this.products.set(id, { title: input.title, variants })
+      this.products.set(id, { title: input.title, variants, status: input.status })
       return json(200, {
         data: {
           productSet: {
@@ -131,6 +131,29 @@ export class FakeShopify {
                 })),
               },
             },
+            userErrors: [],
+          },
+        },
+      })
+    }
+    if (query.includes('productUpdate(')) {
+      const id = variables.product.id.split('/').pop()
+      const product = this.products.get(id)
+      if (!product) {
+        return json(200, {
+          data: {
+            productUpdate: {
+              product: null,
+              userErrors: [{ field: ['id'], message: 'Product does not exist' }],
+            },
+          },
+        })
+      }
+      product.status = variables.product.status
+      return json(200, {
+        data: {
+          productUpdate: {
+            product: { id: variables.product.id, status: product.status },
             userErrors: [],
           },
         },
@@ -233,7 +256,11 @@ export class FakeWoo {
   webhooks: Array<{ topic: string; delivery_url: string; secret: string }> = []
   products = new Map<
     number,
-    { name: string; variations: Array<{ id: number; sku: string; regular_price: string }> }
+    {
+      name: string
+      variations: Array<{ id: number; sku: string; regular_price: string }>
+      status?: string
+    }
   >()
   orders = new Map<number, { status: string; notes: string[] }>()
   private seq = 500
@@ -282,14 +309,15 @@ export class FakeWoo {
     }
     if (req.method === 'POST' && path === '/products') {
       const id = ++this.seq
-      this.products.set(id, { name: body.name, variations: [] })
+      this.products.set(id, { name: body.name, variations: [], status: body.status })
       return json(201, { id })
     }
     let match = /^\/products\/(\d+)$/.exec(path)
     if (req.method === 'PUT' && match) {
       const product = this.products.get(Number(match[1]))
       if (!product) return json(404, { message: 'Invalid ID.' })
-      product.name = body.name
+      if (body.name) product.name = body.name
+      if (body.status) product.status = body.status
       return json(200, { id: Number(match[1]) })
     }
     match = /^\/products\/(\d+)\/variations$/.exec(path)

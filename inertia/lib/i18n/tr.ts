@@ -2735,4 +2735,10 @@ export const tr: Record<string, string> = {
   'Refund balance to card': 'Bakiyeyi karta iade et',
   'There is no balance to refund': 'İade edilecek bakiye yok',
   'Refund your wallet balance to your card first.': 'Önce cüzdan bakiyenizi kartınıza iade edin.',
+  'Take this product off sale in your shop? It stays there as a draft.':
+    'Bu ürün mağazanızda satıştan kaldırılsın mı? Taslak olarak kalır.',
+  'Take off sale': 'Satıştan kaldır',
+  'Taken off sale in your shop.': 'Mağazanızda satıştan kaldırıldı.',
+  'This product is archived; make it active or draft first':
+    'Bu ürün arşivde; önce etkin ya da taslak yapın',
 }

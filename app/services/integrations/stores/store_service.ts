@@ -175,6 +175,9 @@ export default class StoreService {
     if (!product || !catalog || !catalog.isActive || !catalog.modelFileId) {
       throw new StoreError('Choose one of your own, available products')
     }
+    if (product.status === 'archived') {
+      throw new StoreError('This product is archived; make it active or draft first')
+    }
     const allowed = catalog.allowedMaterials.map((m) => m.toUpperCase())
     const chosen = [...new Map(variants.map((v) => [v.material.toUpperCase(), v])).values()]
     if (chosen.length === 0) throw new StoreError('Choose at least one material')
@@ -187,10 +190,12 @@ export default class StoreService {
       }
     }
 
+    // the shop product we created before (also when it was taken off sale), found by our SKU
     const previous = await ExternalListing.query()
       .where('storeConnectionId', connection.id)
       .where('sellerProductId', product.id)
-      .where('published', true)
+      .whereLike('sku', `FM-${product.id}-%`)
+      .orderBy('id', 'desc')
       .first()
     const images = await new ProductImageService().forModelFiles([catalog.modelFileId])
     const base = env.get('APP_URL').replace(/\/$/, '')
@@ -253,6 +258,46 @@ export default class StoreService {
       meta: { sellerProductId: product.id, externalProductId: result.productId },
     })
     return result
+  }
+
+  /**
+   * Takes a published product off sale in one shop, or in every shop of the seller when
+   * `connectionId` is null (used when the seller archives the product). A shop that cannot be
+   * reached does not stop the others; the failures are returned.
+   */
+  async unpublish(seller: User, sellerProductId: number, connectionId: number | null = null) {
+    const listings = await ExternalListing.query()
+      .where('sellerProductId', sellerProductId)
+      .where('published', true)
+    const byShop = new Map<number, string>()
+    for (const listing of listings) byShop.set(listing.storeConnectionId, listing.externalProductId)
+    const failed: string[] = []
+    for (const [shopId, productId] of byShop) {
+      if (connectionId !== null && shopId !== connectionId) continue
+      const connection = await StoreConnection.query()
+        .where('id', shopId)
+        .where('sellerUserId', seller.id)
+        .where('status', 'active')
+        .first()
+      if (!connection) continue
+      try {
+        await storeAdapter(connection.provider).unpublishProduct(connection, productId)
+        await ExternalListing.query()
+          .where('storeConnectionId', shopId)
+          .where('externalProductId', productId)
+          .update({ published: false, updated_at: new Date() })
+        await AuditLog.create({
+          actorId: seller.id,
+          action: 'store.product_unpublished',
+          subjectType: 'store_connection',
+          subjectId: shopId,
+          meta: { sellerProductId, externalProductId: productId },
+        })
+      } catch (error) {
+        failed.push(`${connection.shopName}: ${(error as Error).message}`)
+      }
+    }
+    return { failed }
   }
 
   /** Local development and tests: a pretend shop that behaves like Shopify. */

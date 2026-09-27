@@ -20,6 +20,7 @@ storeAdapterContract('fake', async () => {
     connection,
     signedOrder: (order) => adapter.signedOrder(connection, order),
     signedCancellation: (id) => adapter.signedCancellation(connection, id),
+    onSale: (id) => adapter.published.has(id) && !adapter.unpublished.includes(id),
     shippedTracking: async (id) =>
       adapter.fulfillments.filter((f) => f.externalOrderId === id).map((f) => f.trackingNumber),
   }
@@ -42,6 +43,7 @@ storeAdapterContract('shopify (in-memory Admin API)', async () => {
         })),
       }),
     signedCancellation: (id) => shop.cancelledOrder(Number(id)),
+    onSale: (id) => shop.products.get(id)?.status === 'ACTIVE',
     prepareShipment: (id) =>
       shop.fulfillmentOrders.set(id, [
         { id: `gid://shopify/FulfillmentOrder/${id}1`, status: 'OPEN' },
@@ -71,6 +73,7 @@ storeAdapterContract('woocommerce (in-memory REST API)', async () => {
       }),
     signedCancellation: (id) =>
       shop.orderWebhook('woo-webhook-secret', { id: Number(id), status: 'cancelled', lines: [] }),
+    onSale: (id) => shop.products.get(Number(id))?.status === 'publish',
     prepareShipment: (id) => shop.orders.set(Number(id), { status: 'processing', notes: [] }),
     shippedTracking: async (id) => {
       const order = shop.orders.get(Number(id))

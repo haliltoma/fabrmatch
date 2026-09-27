@@ -185,6 +185,21 @@ export default class ShopifyAdapter implements StoreAdapter {
     }
   }
 
+  async unpublishProduct(connection: StoreConnection, productId: string) {
+    const data = await this.graphql<{ productUpdate: { userErrors: Array<{ message: string }> } }>(
+      connection,
+      `mutation productUpdate($product: ProductUpdateInput!) {
+        productUpdate(product: $product) {
+          product { id status }
+          userErrors { field message }
+        }
+      }`,
+      { product: { id: gid('Product', productId), status: 'DRAFT' } }
+    )
+    const errors = data.productUpdate.userErrors
+    if (errors.length > 0) throw new StoreApiError(`Shopify: ${errors[0].message}`)
+  }
+
   async parseOrderWebhook(
     connection: StoreConnection,
     rawBody: string,

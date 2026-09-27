@@ -67,6 +67,8 @@ export interface StoreAdapter {
     input: PublishInput,
     existingProductId: string | null
   ): Promise<PublishResult>
+  /** Takes the product off sale in the shop (kept as a draft, so it can come back). */
+  unpublishProduct(connection: StoreConnection, productId: string): Promise<void>
   /**
    * Verifies the signature and parses an order webhook; throws StoreWebhookSignatureError.
    * A paid order to print, a cancellation, or null for anything else (ping, unpaid, other topic).

@@ -666,6 +666,12 @@ const routes = {
     tokens: [{"old":"/seller/stores/:id/publish","type":0,"val":"seller","end":""},{"old":"/seller/stores/:id/publish","type":0,"val":"stores","end":""},{"old":"/seller/stores/:id/publish","type":1,"val":"id","end":""},{"old":"/seller/stores/:id/publish","type":0,"val":"publish","end":""}],
     types: placeholder as Registry['seller_store.publish']['types'],
   },
+  'seller_store.unpublish': {
+    methods: ["POST"],
+    pattern: '/seller/stores/:id/unpublish',
+    tokens: [{"old":"/seller/stores/:id/unpublish","type":0,"val":"seller","end":""},{"old":"/seller/stores/:id/unpublish","type":0,"val":"stores","end":""},{"old":"/seller/stores/:id/unpublish","type":1,"val":"id","end":""},{"old":"/seller/stores/:id/unpublish","type":0,"val":"unpublish","end":""}],
+    types: placeholder as Registry['seller_store.unpublish']['types'],
+  },
   'seller_store.connect_test': {
     methods: ["POST"],
     pattern: '/seller/stores/test',

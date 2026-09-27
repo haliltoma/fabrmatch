@@ -1327,6 +1327,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['publish']>>>
     }
   }
+  'seller_store.unpublish': {
+    methods: ["POST"]
+    pattern: '/seller/stores/:id/unpublish'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['unpublish']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['unpublish']>>>
+    }
+  }
   'seller_store.connect_test': {
     methods: ["POST"]
     pattern: '/seller/stores/test'

@@ -452,9 +452,34 @@ function PublishForm({
           })}
         </fieldset>
       )}
-      <Button type="submit" disabled={busy || !product || !rows.some((r) => isChosen(r.material))}>
-        {alreadyPublished ? t('Update in my shop') : t('Publish to my shop')}
-      </Button>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          type="submit"
+          disabled={busy || !product || !rows.some((r) => isChosen(r.material))}
+        >
+          {alreadyPublished ? t('Update in my shop') : t('Publish to my shop')}
+        </Button>
+        {alreadyPublished && product && (
+          <Button
+            type="button"
+            variant="ghost"
+            disabled={busy}
+            onClick={() => {
+              if (
+                window.confirm(
+                  t('Take this product off sale in your shop? It stays there as a draft.')
+                )
+              ) {
+                router.post(`/seller/stores/${connection.id}/unpublish`, {
+                  sellerProductId: product.id,
+                })
+              }
+            }}
+          >
+            {t('Take off sale')}
+          </Button>
+        )}
+      </div>
     </form>
   )
 }

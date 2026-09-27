@@ -114,6 +114,7 @@ export type ScannedRoutes = {
     'seller_store.index': { paramsTuple?: []; params?: {} }
     'seller_store.connect': { paramsTuple?: []; params?: {} }
     'seller_store.publish': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'seller_store.unpublish': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_store.connect_test': { paramsTuple?: []; params?: {} }
     'seller_store.sync': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_store.disconnect': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -541,6 +542,7 @@ export type ScannedRoutes = {
     'seller_branding.remove_logo': { paramsTuple?: []; params?: {} }
     'seller_store.connect': { paramsTuple?: []; params?: {} }
     'seller_store.publish': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'seller_store.unpublish': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_store.connect_test': { paramsTuple?: []; params?: {} }
     'seller_store.sync': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_store.disconnect': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

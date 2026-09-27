@@ -333,3 +333,62 @@ test.group('Printify-style shops: connect → publish → paid order → trackin
     assert.equal(shopify.products.size, 1)
   })
 })
+
+test.group('Printify-style shops: taking products off sale', (group) => {
+  let shopify: FakeShopify
+  group.each.setup(() => testUtils.db().withGlobalTransaction())
+  group.each.setup(() => {
+    flags.externalStores = 1
+    shopify = new FakeShopify()
+    setStoreAdapter('shopify', new ShopifyAdapter(shopify.http))
+    return () => {
+      flags.externalStores = 0
+      setStoreAdapter('shopify', null)
+    }
+  })
+
+  test('archiving a product takes it off sale in the seller’s shops', async ({
+    client,
+    assert,
+  }) => {
+    const { sellerUser, product } = await seller()
+    const stores = new StoreService()
+    const { connection } = await stores.connect(sellerUser, {
+      provider: 'shopify',
+      shopUrl: 'test-shop',
+      apiKey: shopify.clientId,
+      apiSecret: shopify.clientSecret,
+    })
+    const published = await stores.publish(sellerUser, connection.id, product.id, [
+      { material: 'PLA', priceMinor: 25_000 },
+    ])
+    assert.equal(shopify.products.get(published.productId)!.status, 'ACTIVE')
+
+    await client
+      .post(`/seller/products/${product.id}/status`)
+      .withCsrfToken()
+      .loginAs(sellerUser)
+      .headers(inertia)
+      .form({ status: 'archived' })
+    assert.equal(shopify.products.get(published.productId)!.status, 'DRAFT')
+    const listings = await ExternalListing.query().where('storeConnectionId', connection.id)
+    assert.isTrue(listings.every((l) => !l.published))
+
+    // archived products cannot be published; back to active, publishing again reuses the product
+    await assert.rejects(
+      () =>
+        stores.publish(sellerUser, connection.id, product.id, [
+          { material: 'PLA', priceMinor: 25_000 },
+        ]),
+      /archived/
+    )
+    await product.refresh()
+    product.status = 'active'
+    await product.save()
+    await stores.publish(sellerUser, connection.id, product.id, [
+      { material: 'PLA', priceMinor: 25_000 },
+    ])
+    assert.equal(shopify.products.get(published.productId)!.status, 'ACTIVE')
+    assert.equal(shopify.products.size, 1)
+  })
+})

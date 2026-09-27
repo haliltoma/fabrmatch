@@ -38,6 +38,10 @@ const publishValidator = vine.create({
     .maxLength(20),
 })
 
+const unpublishValidator = vine.create({
+  sellerProductId: vine.number().withoutDecimals().positive(),
+})
+
 const mapValidator = vine.create({
   sellerProductId: vine.number().withoutDecimals().positive().nullable(),
   material: vine.string().trim().maxLength(20).nullable().optional(),
@@ -133,6 +137,19 @@ export default class SellerStoreController {
       data.variants
     )
     session.flash('success', 'Published to your shop.')
+    return response.redirect().toPath(`/seller/stores?shop=${params.id}`)
+  }
+
+  /** Takes a product off sale in this shop (kept there as a draft). */
+  async unpublish({ auth, params, request, response, session }: HttpContext) {
+    const { sellerProductId } = await request.validateUsing(unpublishValidator)
+    const { failed } = await this.stores.unpublish(
+      auth.getUserOrFail(),
+      sellerProductId,
+      Number(params.id)
+    )
+    if (failed.length > 0) session.flash('error', failed.join(' '))
+    else session.flash('success', 'Taken off sale in your shop.')
     return response.redirect().toPath(`/seller/stores?shop=${params.id}`)
   }
 

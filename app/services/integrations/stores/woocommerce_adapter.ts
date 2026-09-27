@@ -182,6 +182,10 @@ export default class WooCommerceAdapter implements StoreAdapter {
     }
   }
 
+  async unpublishProduct(connection: StoreConnection, productId: string) {
+    await this.call(connection, 'PUT', `/products/${productId}`, { status: 'draft' })
+  }
+
   async parseOrderWebhook(
     connection: StoreConnection,
     rawBody: string,
