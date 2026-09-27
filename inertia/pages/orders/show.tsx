@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { FormErrors } from '~/components/field_error'
 import { router } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { ArrowLeft } from 'lucide-react'
@@ -289,6 +290,10 @@ export default function OrdersShow({
   const payKey = useIdempotencyKey()
   const [payer, setPayer] = useState({ identityNumber: '', phone: '' })
   const [paying, setPaying] = useState(false)
+  // one state change at a time: a double click must not send "confirm delivery" twice
+  const [acting, setActing] = useState(false)
+  const act = (path: string) =>
+    router.post(path, {}, { onStart: () => setActing(true), onFinish: () => setActing(false) })
   const pay = () => {
     setPaying(true)
     router.post(
@@ -417,6 +422,7 @@ export default function OrdersShow({
               </div>
             )}
           </div>
+          <FormErrors />
           <Button type="submit" disabled={paying}>
             {t('Pay now')}
           </Button>
@@ -463,23 +469,24 @@ export default function OrdersShow({
             </Button>
           )}
           {canConfirmDelivery && (
-            <Button onClick={() => router.post(`/orders/${order.id}/delivered`)}>
+            <Button disabled={acting} onClick={() => act(`/orders/${order.id}/delivered`)}>
               {t('Confirm delivery')}
             </Button>
           )}
           {canComplete && (
-            <Button onClick={() => router.post(`/orders/${order.id}/complete`)}>
+            <Button disabled={acting} onClick={() => act(`/orders/${order.id}/complete`)}>
               {t('Complete order')}
             </Button>
           )}
           {canCancelAndRefund && (
             <Button
               variant="outline"
+              disabled={acting}
               onClick={() => {
                 if (
                   window.confirm(t('Cancel this order? Your payment will be refunded in full.'))
                 ) {
-                  router.post(`/orders/${order.id}/cancel`)
+                  act(`/orders/${order.id}/cancel`)
                 }
               }}
             >
@@ -487,7 +494,11 @@ export default function OrdersShow({
             </Button>
           )}
           {canCancel && (
-            <Button variant="outline" onClick={() => router.post(`/orders/${order.id}/cancel`)}>
+            <Button
+              variant="outline"
+              disabled={acting}
+              onClick={() => act(`/orders/${order.id}/cancel`)}
+            >
               {t('Cancel order')}
             </Button>
           )}

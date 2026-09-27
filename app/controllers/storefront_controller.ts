@@ -50,7 +50,9 @@ export default class StorefrontController {
 
   async show({ params, inertia, auth, response, request }: HttpContext) {
     await auth.check()
-    const country = visitorCountry({ request })
+    // the buyer can price for another delivery country than we guessed (?country=DE)
+    const asked = String(request.input('country', '')).toUpperCase()
+    const country = /^[A-Z]{2}$/.test(asked) ? asked : visitorCountry({ request })
     const terms = await new PricingRegionService().termsFor(country)
     const product = await new StorefrontService().find(params.id, terms)
     if (!product) return response.notFound()

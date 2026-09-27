@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { FieldError, FormErrors } from '~/components/field_error'
 import { router } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { ShoppingBag } from 'lucide-react'
@@ -61,6 +62,7 @@ function CartPage({
   const needsTerms = useLegalAcceptance()
   const [accepted, setAccepted] = useState(false)
   const [coupon, setCoupon] = useState(couponCode)
+  const [busy, setBusy] = useState(false)
   const [address, setAddress] = useState({
     fullName: '',
     line1: '',
@@ -74,6 +76,7 @@ function CartPage({
   if (lines.length === 0) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-10">
+        <h1 className="sr-only">{t('Your cart')}</h1>
         <EmptyState
           icon={ShoppingBag}
           title={t('Your cart is empty')}
@@ -258,7 +261,12 @@ function CartPage({
                   currency,
                   couponCode: totals && totals.discountMinor > 0 ? couponCode : undefined,
                 },
-                { headers: idem.headers(), onError: idem.renew }
+                {
+                  headers: idem.headers(),
+                  onStart: () => setBusy(true),
+                  onError: idem.renew,
+                  onFinish: () => setBusy(false),
+                }
               )
             }}
           >
@@ -275,9 +283,11 @@ function CartPage({
                 <Label htmlFor={`a-${key}`}>{label}</Label>
                 <Input
                   id={`a-${key}`}
+                  required={key !== 'phone'}
                   value={address[key]}
                   onChange={(e) => set(key)(e.target.value)}
                 />
+                <FieldError name={`shippingAddress.${key}`} />
               </div>
             ))}
             <div className="space-y-1">
@@ -288,22 +298,25 @@ function CartPage({
                 value={address.country}
                 onChange={(e) => set('country')(e.target.value.toUpperCase())}
                 onBlur={() =>
+                  // keep the chosen currency and coupon: only the delivery country changes
                   router.get(
                     '/cart',
-                    { country: address.country },
+                    { country: address.country, currency, coupon: coupon.trim() || undefined },
                     { preserveState: true, preserveScroll: true }
                   )
                 }
               />
+              <FieldError name="shippingAddress.country" />
             </div>
             <div className="space-y-3 sm:col-span-2">
               <TermsCheckbox checked={accepted} onChange={setAccepted} />
+              <FormErrors />
               <Button
                 type="submit"
                 className="w-full"
-                disabled={!!problem || (needsTerms && !accepted)}
+                disabled={busy || !!problem || (needsTerms && !accepted)}
               >
-                {t('Continue to payment')}
+                {busy ? t('Please wait…') : t('Continue to payment')}
               </Button>
             </div>
           </form>

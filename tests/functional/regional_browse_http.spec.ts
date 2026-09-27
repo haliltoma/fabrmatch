@@ -110,4 +110,19 @@ test.group('regional prices while browsing (P2-T8)', (group) => {
     await createDraftOrder(user)
     assert.equal((await cart('de-DE')).body().props.country, 'TR')
   })
+
+  test('the product page can be priced for another delivery country (?country=)', async ({
+    client,
+    assert,
+  }) => {
+    const shop = await createStorefrontProduct({ materials: ['PLA'] })
+    await PricingRegion.query().where('code', 'EU').update({ referenceMultiplierBps: 20_000 })
+    const page = (query: string) =>
+      client.get(`/shop/${shop.product.id}/desk-organizer${query}`).headers(visitor('tr-TR'))
+    const tr = (await page('')).body().props
+    const de = (await page('?country=de')).body().props
+    assert.equal(de.delivery.country, 'DE')
+    assert.isAbove(de.product.options[0].unitPriceMinor, tr.product.options[0].unitPriceMinor)
+    assert.equal((await page('?country=XYZ')).body().props.delivery.country, 'TR')
+  })
 })

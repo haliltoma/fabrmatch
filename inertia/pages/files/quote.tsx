@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { FormErrors } from '~/components/field_error'
 import { ChargeNote } from '~/components/money'
 import { router } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
@@ -10,7 +11,7 @@ import { ArrowLeft, Calculator, Loader2, Package } from 'lucide-react'
 import { postJson } from '~/lib/api'
 import { TermsCheckbox, useLegalAcceptance } from '~/components/terms_checkbox'
 import { useIdempotencyKey } from '~/lib/idempotency'
-import { formatDate, formatPrice } from '~/lib/format'
+import { formatDate, formatMoney, formatPrice } from '~/lib/format'
 import { useT } from '~/lib/i18n'
 import { PaintColourField, type PaintColour } from '~/components/paint_colour'
 
@@ -57,6 +58,7 @@ function QuotePage({
   finishings,
   paintColours,
   newerVersionId,
+  defaultCountry,
 }: {
   file: FileInfo | null
   error: string | null
@@ -72,6 +74,8 @@ function QuotePage({
     needsColour: boolean
   }>
   paintColours: PaintColour[]
+  /** the visitor's likely delivery country (review fix 6) */
+  defaultCountry?: string
 }) {
   const { t } = useT()
 
@@ -94,6 +98,8 @@ function QuotePage({
   const [breakdown, setBreakdown] = useState<PriceBreakdown | null>(null)
   const [loading, setLoading] = useState(false)
   const [calcError, setCalcError] = useState<string | null>(null)
+  // the inputs the shown price was calculated for: any change makes it stale (review fix 8)
+  const [pricedFor, setPricedFor] = useState<string | null>(null)
   const [address, setAddress] = useState({
     fullName: '',
     line1: '',
@@ -101,9 +107,18 @@ function QuotePage({
     district: '',
     city: '',
     postalCode: '',
-    country: 'TR',
+    country: defaultCountry ?? 'TR',
     phone: '',
   })
+  const quoteInputs = JSON.stringify([
+    material,
+    quantity,
+    infill,
+    profileId,
+    finishingCode,
+    address.country,
+  ])
+  const stale = breakdown !== null && pricedFor !== quoteInputs
   const idem = useIdempotencyKey()
   const needsTerms = useLegalAcceptance()
   const [accepted, setAccepted] = useState(false)
@@ -163,6 +178,7 @@ function QuotePage({
       })
       setBreakdown(data.breakdown)
       setEta(data.eta)
+      setPricedFor(quoteInputs)
     } catch (err) {
       setCalcError((err as Error).message)
     } finally {
@@ -172,6 +188,7 @@ function QuotePage({
 
   const placeOrder = (e: React.FormEvent) => {
     e.preventDefault()
+    if (stale) return
     setOrdering(true)
     router.post(
       '/orders',
@@ -485,6 +502,13 @@ function QuotePage({
               </p>
             ) : (
               <form onSubmit={placeOrder} className="space-y-4">
+                {stale && (
+                  <p role="status" className="rounded-md bg-amber-soft p-3 text-sm text-amber-ink">
+                    {t(
+                      'You changed the options or the country since the price was calculated. Calculate the price again before ordering.'
+                    )}
+                  </p>
+                )}
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <Label htmlFor="fullName">{t('Full name')}</Label>
@@ -563,9 +587,10 @@ function QuotePage({
                 </div>
 
                 <TermsCheckbox checked={accepted} onChange={setAccepted} />
+                <FormErrors />
                 <Button
                   type="submit"
-                  disabled={ordering || missingColour || (needsTerms && !accepted)}
+                  disabled={ordering || stale || missingColour || (needsTerms && !accepted)}
                   className="w-full"
                 >
                   {ordering ? (
@@ -573,8 +598,9 @@ function QuotePage({
                   ) : (
                     <Package className="mr-2 h-4 w-4" />
                   )}
+                  {/* what will be charged, in its own currency — not the ≈ browse estimate */}
                   {t('Order — {total}', {
-                    total: formatPrice(breakdown.totalPriceMinor, breakdown.currency),
+                    total: formatMoney(breakdown.totalPriceMinor, breakdown.currency),
                   })}
                 </Button>
                 <p className="text-center text-xs text-ink-600">

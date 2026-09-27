@@ -16,7 +16,7 @@ import PricingRegionService, { roundUnitMinor } from '#services/pricing/pricing_
 import { visitorCountry } from '#services/pricing/visitor_country'
 
 export default class QuoteController {
-  async show({ inertia, auth, params }: HttpContext) {
+  async show({ inertia, auth, params, request }: HttpContext) {
     const user = auth.getUserOrFail()
     const service = new ModelFileService()
     const file = await service.findByIdForOwner(params.id, user.id)
@@ -49,6 +49,7 @@ export default class QuoteController {
         needsColour: f.needsColour,
       })),
       paintColours: await new FinishingService().paintColours(),
+      defaultCountry: visitorCountry({ request }),
       profiles: profiles.map((p) => ({
         id: p.id,
         name: p.name,

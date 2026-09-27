@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { FieldError, FormErrors } from '~/components/field_error'
 import { DeliveryNotice, type Delivery } from '~/components/delivery_notice'
 import { ChargeNote } from '~/components/money'
 import { Head, router, usePage } from '@inertiajs/react'
@@ -124,9 +125,20 @@ export default function ShopShow({
     line1: '',
     city: '',
     postalCode: '',
-    country: 'TR',
+    // the price on the page is for this country: start the address there
+    country: delivery?.country ?? 'TR',
     phone: '',
   })
+  const cannotDeliver = !!delivery && !delivery.served
+  // a different country means a different price: reprice the page for it
+  const repriceFor = (country: string) => {
+    if (!/^[A-Z]{2}$/.test(country) || country === delivery?.country) return
+    router.get(
+      window.location.pathname,
+      { country },
+      { preserveScroll: true, preserveState: true, replace: true }
+    )
+  }
 
   const atScale = product.options.filter(
     (o) => o.scalePercent === scale && o.finishing === (finishing || null)
@@ -318,6 +330,7 @@ export default function ShopShow({
                           value={address.fullName}
                           onChange={(e) => setAddress({ ...address, fullName: e.target.value })}
                         />
+                        <FieldError name="shippingAddress.fullName" />
                       </div>
                       <div className="col-span-2">
                         <Label htmlFor="line1">{t('Address')}</Label>
@@ -327,6 +340,7 @@ export default function ShopShow({
                           value={address.line1}
                           onChange={(e) => setAddress({ ...address, line1: e.target.value })}
                         />
+                        <FieldError name="shippingAddress.line1" />
                       </div>
                       <div>
                         <Label htmlFor="city">{t('City')}</Label>
@@ -336,6 +350,7 @@ export default function ShopShow({
                           value={address.city}
                           onChange={(e) => setAddress({ ...address, city: e.target.value })}
                         />
+                        <FieldError name="shippingAddress.city" />
                       </div>
                       <div>
                         <Label htmlFor="postalCode">{t('Postal code')}</Label>
@@ -345,6 +360,7 @@ export default function ShopShow({
                           value={address.postalCode}
                           onChange={(e) => setAddress({ ...address, postalCode: e.target.value })}
                         />
+                        <FieldError name="shippingAddress.postalCode" />
                       </div>
                       <div>
                         <Label htmlFor="country">{t('Country')}</Label>
@@ -353,10 +369,16 @@ export default function ShopShow({
                           required
                           maxLength={2}
                           value={address.country}
+                          aria-describedby="country-help"
                           onChange={(e) =>
                             setAddress({ ...address, country: e.target.value.toUpperCase() })
                           }
+                          onBlur={(e) => repriceFor(e.target.value.toUpperCase())}
                         />
+                        <p id="country-help" className="mt-1 text-xs text-ink-600">
+                          {t('Two letters, like TR or DE. The price updates for it.')}
+                        </p>
+                        <FieldError name="shippingAddress.country" />
                       </div>
                       <div>
                         <Label htmlFor="phone">{t('Phone (for the courier)')}</Label>
@@ -388,13 +410,25 @@ export default function ShopShow({
                       </div>
                     </details>
                     <TermsCheckbox checked={accepted} onChange={setAccepted} />
+                    <FormErrors />
                     <Button
                       type="submit"
-                      disabled={busy || !material || missingColour || (needsTerms && !accepted)}
+                      disabled={
+                        busy ||
+                        cannotDeliver ||
+                        !material ||
+                        missingColour ||
+                        (needsTerms && !accepted)
+                      }
                       className="w-full"
                     >
-                      {t('Continue to payment')}
+                      {busy ? t('Please wait…') : t('Continue to payment')}
                     </Button>
+                    {cannotDeliver && (
+                      <p className="text-center text-xs text-ink-600">
+                        {t('Change the country above to one where makers print to order.')}
+                      </p>
+                    )}
                   </>
                 ) : (
                   <Link href="/login">

@@ -2910,4 +2910,12 @@ export const tr: Record<string, string> = {
   'Malformed WebP': 'Bozuk WebP dosyası',
   'Upload not found or expired. Please upload the file again.':
     'Yükleme bulunamadı ya da süresi doldu. Lütfen dosyayı yeniden yükleyin.',
+  'Please check the form:': 'Lütfen formu kontrol edin:',
+  'Two letters, like TR or DE. The price updates for it.':
+    'İki harf, ör. TR veya DE. Fiyat buna göre güncellenir.',
+  'Change the country above to one where makers print to order.':
+    'Sipariş için yukarıdaki ülkeyi, üreticilerin baskı yaptığı bir ülkeyle değiştirin.',
+  'Please wait…': 'Lütfen bekleyin…',
+  'You changed the options or the country since the price was calculated. Calculate the price again before ordering.':
+    'Fiyat hesaplandıktan sonra seçenekleri veya ülkeyi değiştirdiniz. Sipariş vermeden önce fiyatı yeniden hesaplayın.',
 }
