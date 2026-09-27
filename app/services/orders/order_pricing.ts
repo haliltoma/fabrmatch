@@ -178,8 +178,9 @@ export async function priceOrder(input: {
     }
 
     const profile = item.printProfileId ? await profiles.resolveForOrder(item.printProfileId) : null
+    // the material decides the technology when no profile names it (resin → SLA, nylon → SLS)
+    const catalogued = await Material.findBy('code', item.material.toUpperCase())
     if (profile) {
-      const catalogued = await Material.findBy('code', item.material.toUpperCase())
       if (catalogued && catalogued.technology !== profile.technology) {
         throw new OrderInputError(
           `${catalogued.code} is a ${catalogued.technology} material; the chosen profile is ${profile.technology}`
@@ -216,7 +217,10 @@ export async function priceOrder(input: {
       profile,
       infill,
       reference,
-      technology: (profile?.technology ?? item.technology ?? 'FDM') as PrinterTechnology,
+      technology: (profile?.technology ??
+        item.technology ??
+        catalogued?.technology ??
+        'FDM') as PrinterTechnology,
       timeFactor: (profile?.timeFactorBps ?? 10_000) / 10_000,
       gramsPerUnit: sliced
         ? (sliced.grams + sliced.supportGrams) * densityRatioToPla(item.material)
