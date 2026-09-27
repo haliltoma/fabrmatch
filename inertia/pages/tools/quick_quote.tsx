@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { DeliveryNotice, countryName, type Delivery } from '~/components/delivery_notice'
 import { ChargeNote } from '~/components/money'
 import { Head } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
@@ -38,6 +39,7 @@ type Quote = {
   volumeCm3: number
   bboxMm: [number, number, number]
   currency: string
+  country?: string
   warnings: string[]
   options: Option[]
   security: { checks: ScanCheck[]; engine: 'signatures' | 'clamav' }
@@ -58,8 +60,14 @@ function hours(minutes: number) {
   return minutes < 60 ? `${minutes} min` : `${(minutes / 60).toFixed(1)} h`
 }
 
-function QuickQuote({ materials }: { materials: Array<{ key: string; label: string }> }) {
-  const { t } = useT()
+function QuickQuote({
+  materials,
+  delivery,
+}: {
+  materials: Array<{ key: string; label: string }>
+  delivery?: Delivery
+}) {
+  const { t, locale } = useT()
   const inputRef = useRef<HTMLInputElement>(null)
   const [file, setFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
@@ -401,9 +409,10 @@ function QuickQuote({ materials }: { materials: Array<{ key: string; label: stri
             <div className="overflow-hidden rounded-[14px] border-2 border-ink-900 bg-paper-raised shadow-[6px_6px_0_#15181c]">
               <div className="palette-light layer-lines-light bg-ink-900 p-6 text-paper">
                 <p className="text-sm text-ink-200">
-                  {t('{n} × {material}, delivered in Türkiye', {
+                  {t('{n} × {material}, delivered to {country}', {
                     n: line.quantity,
                     material: option.label,
+                    country: countryName(quote.country ?? delivery?.country ?? 'TR', locale),
                   })}
                 </p>
                 <p className="mt-1 font-display text-6xl font-semibold tabular-nums text-lime">
@@ -420,6 +429,7 @@ function QuickQuote({ materials }: { materials: Array<{ key: string; label: stri
               </div>
 
               <div className="space-y-5 p-6">
+                <DeliveryNotice delivery={delivery} />
                 <div>
                   <p className="text-sm font-semibold text-ink-900">{t('Where the money goes')}</p>
                   <div className="mt-2 flex h-4 overflow-hidden rounded-full border-2 border-ink-900">

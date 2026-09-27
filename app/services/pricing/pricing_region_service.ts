@@ -22,7 +22,27 @@ export function regionalReferenceMinor(
   return Math.ceil((baseMinor * multiplierBps) / 10_000)
 }
 
+/** What browse prices (shop, quotes) need from a region, resolved once per request. */
+export interface BrowseTerms {
+  country: string
+  regionId: number
+  commissionBps?: number
+  rounding: RoundingRule
+  referenceFor(material: string): number | null
+}
+
 export default class PricingRegionService {
+  async termsFor(country: string): Promise<BrowseTerms> {
+    const region = await this.forCountry(country)
+    return {
+      country: country.trim().toUpperCase(),
+      regionId: region.id,
+      commissionBps: region.commissionBps ?? undefined,
+      rounding: region.rounding,
+      referenceFor: (material) => this.referenceFor(region, material),
+    }
+  }
+
   /** The region a delivery country belongs to; the fallback region when none lists it. */
   async forCountry(country: string): Promise<PricingRegion> {
     const code = country.trim().toUpperCase()

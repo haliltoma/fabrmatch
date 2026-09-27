@@ -8,6 +8,7 @@ import { calculatePrice, estimateGrams } from '#services/pricing/price_engine'
 import ShippingService from '#services/shipping/shipping_service'
 import { bboxOf, type default as ShippingTable } from '#services/shipping/shipping_table'
 import { referencePriceFor } from '#services/pricing/reference_prices'
+import { roundUnitMinor, type BrowseTerms } from '#services/pricing/pricing_region_service'
 
 export interface StorefrontFilters {
   q?: string
@@ -19,6 +20,8 @@ export interface StorefrontFilters {
   sort?: 'newest' | 'price_asc' | 'price_desc'
   page?: number
   perPage?: number
+  /** the visitor's region terms; without them prices are for delivery within Türkiye */
+  terms?: BrowseTerms
 }
 
 export interface StorefrontCard {
@@ -75,36 +78,44 @@ export function slugify(title: string): string {
   )
 }
 
-/** Unit price a buyer pays for one piece, computed from the current reference price list. */
+/**
+ * Unit price a buyer pays for one piece, computed from the current reference price list. With
+ * `terms` the visitor's pricing region (P2) and country apply; without, delivery in Türkiye.
+ */
 export function unitPriceFor(
   product: SellerProduct,
   file: ModelFile,
   material: string,
   shipping?: ShippingTable,
   scalePercent = 100,
-  finishingMinor = 0
+  finishingMinor = 0,
+  terms?: BrowseTerms
 ): number | null {
-  const reference = referencePriceFor(material)
-  if (!reference || !file.volumeMm3) return null
+  const reference = terms
+    ? terms.referenceFor(material)
+    : (referencePriceFor(material)?.pricePerGramMinor ?? null)
+  if (reference === null || !file.volumeMm3) return null
   const k = scalePercent / 100
   const volumeMm3 = file.volumeMm3 * k ** 3
   const bbox = bboxOf(file)?.map((d) => d * k) as [number, number, number] | undefined
-  // the shop shows the price for delivery within Türkiye; checkout recomputes for the real address
+  // a browse price for the visitor's likely country; checkout recomputes for the real address
   const shippingMinor = shipping?.perUnitMinor({
-    country: 'TR',
+    country: terms?.country ?? 'TR',
     gramsPerUnit: estimateGrams(volumeMm3, material),
     bboxMm: bbox ?? null,
     quantity: 1,
   })
-  return calculatePrice({
+  const unit = calculatePrice({
     volumeMm3,
     material,
-    pricePerGramMinor: reference.pricePerGramMinor,
+    pricePerGramMinor: reference,
     quantity: 1,
     sellerMarginBps: product.marginBps,
     shippingMinor,
     finishingMinor,
+    commissionBps: terms?.commissionBps,
   }).unitPriceMinor
+  return roundUnitMinor(unit, terms?.rounding ?? 'none')
 }
 
 /**
@@ -163,7 +174,7 @@ export default class StorefrontService {
       rows.flatMap((p) => (p.catalogProduct.modelFileId ? [p.catalogProduct.modelFileId] : []))
     )
     let cards = rows.flatMap((p) => {
-      const card = this.toCard(p, shipping, images, filters.material)
+      const card = this.toCard(p, shipping, images, filters.material, filters.terms)
       return card ? [card] : []
     })
 
@@ -201,7 +212,7 @@ export default class StorefrontService {
     return result.rows as Array<{ slug: string; name: string }>
   }
 
-  async find(id: number): Promise<StorefrontDetail | null> {
+  async find(id: number, terms?: BrowseTerms): Promise<StorefrontDetail | null> {
     const product = await this.visible()
       .where('seller_products.id', id)
       .select('seller_products.*')
@@ -211,7 +222,7 @@ export default class StorefrontService {
     const images = await new ProductImageService().forModelFiles(
       product.catalogProduct.modelFileId ? [product.catalogProduct.modelFileId] : []
     )
-    const card = this.toCard(product, shipping, images)
+    const card = this.toCard(product, shipping, images, undefined, terms)
     const file = product.catalogProduct.modelFile
     if (!card || !file) return null
 
@@ -228,7 +239,8 @@ export default class StorefrontService {
             material,
             shipping,
             scalePercent,
-            f?.priceMinor ?? 0
+            f?.priceMinor ?? 0,
+            terms
           )
           return unitPriceMinor === null
             ? []
@@ -270,14 +282,15 @@ export default class StorefrontService {
     product: SellerProduct,
     shipping: ShippingTable,
     images: Map<number, ShopImage[]>,
-    preferredMaterial?: string
+    preferredMaterial?: string,
+    terms?: BrowseTerms
   ): StorefrontCard | null {
     const catalog = product.catalogProduct
     const file = catalog.modelFile
     if (!file) return null
     const materials = catalog.allowedMaterials.map((m) => m.toUpperCase())
     const prices = materials
-      .map((m) => ({ m, price: unitPriceFor(product, file, m, shipping) }))
+      .map((m) => ({ m, price: unitPriceFor(product, file, m, shipping, 100, 0, terms) }))
       .filter((x): x is { m: string; price: number } => x.price !== null)
     if (prices.length === 0) return null
 

@@ -2833,4 +2833,9 @@ export const tr: Record<string, string> = {
   'Currency': 'Para birimi',
   "≈ {display} at today's rate. You pay in {charge}.":
     '≈ bugünkü kurla {display}. Ödemeniz {charge} olarak alınır.',
+  'Prices are shown for delivery to {country}, but no maker prints there yet, so orders to {country} cannot be placed for now.':
+    'Fiyatlar {country} teslimatı için gösteriliyor, ancak orada henüz baskı yapan üretici yok; bu yüzden şimdilik {country} adresine sipariş verilemiyor.',
+  '{n} × {material}, delivered to {country}': '{n} × {material}, teslimat: {country}',
+  '{file} · {size} mm · one piece, delivered to {country}':
+    '{file} · {size} mm · tek parça, teslimat: {country}',
 }

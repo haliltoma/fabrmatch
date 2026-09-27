@@ -1,3 +1,4 @@
+import { roundUnitMinor, type BrowseTerms } from '#services/pricing/pricing_region_service'
 import { readFile } from 'node:fs/promises'
 import { analyzeTriangles } from '#services/files/stl_analyzer'
 import { MeshParseError, parseModel } from '#services/files/mesh_parser'
@@ -21,6 +22,8 @@ export interface QuickQuote {
   shippingMinor: number
   totalMinor: number
   currency: string
+  /** delivery country the price is for (the visitor's likely country) */
+  country: string
   warnings: string[]
   /** every FDM material priced by the same engine, so the page can switch without re-uploading */
   options: QuickQuoteOption[]
@@ -69,10 +72,14 @@ export async function quickQuoteFromFile(input: {
   tmpPath: string
   material: string
   format?: ModelFormat
+  /** the visitor's region (P2); without it, delivery in Türkiye at the base reference */
+  terms?: BrowseTerms
 }): Promise<QuickQuote> {
   const format = input.format ?? 'STL'
   const material = input.material.toUpperCase()
   const reference = referencePriceFor(material)
+  const regional = (m: string) =>
+    input.terms ? input.terms.referenceFor(m) : (referencePriceFor(m)?.pricePerGramMinor ?? null)
   if (!reference || !FDM_MATERIALS.includes(material)) {
     throw new QuickQuoteError('Pick one of the listed materials')
   }
@@ -98,7 +105,7 @@ export async function quickQuoteFromFile(input: {
   const bbox: [number, number, number] = [analysis.bboxXMm, analysis.bboxYMm, analysis.bboxZMm]
   const table = await new ShippingService().table()
   const shippingMinor = table.perUnitMinor({
-    country: 'TR',
+    country: input.terms?.country ?? 'TR',
     gramsPerUnit: grams,
     bboxMm: bbox,
     quantity: 1,
@@ -106,11 +113,14 @@ export async function quickQuoteFromFile(input: {
   const breakdown: PriceBreakdown = calculatePrice({
     volumeMm3: analysis.volumeMm3,
     material,
-    pricePerGramMinor: reference.pricePerGramMinor,
+    pricePerGramMinor: regional(material)!,
     quantity: 1,
     sellerMarginBps: 0,
     shippingMinor,
+    commissionBps: input.terms?.commissionBps,
   })
+  const rounding = input.terms?.rounding ?? 'none'
+  const unitPriceMinor = roundUnitMinor(breakdown.unitPriceMinor, rounding)
 
   return {
     volumeCm3: Math.round(analysis.volumeMm3 / 100) / 10,
@@ -118,10 +128,11 @@ export async function quickQuoteFromFile(input: {
     material,
     grams: breakdown.estGrams,
     printMinutes: estimatePrintMinutes(grams),
-    unitPriceMinor: breakdown.unitPriceMinor,
+    unitPriceMinor,
     shippingMinor: breakdown.shippingMinor,
-    totalMinor: breakdown.totalPriceMinor,
+    totalMinor: unitPriceMinor,
     currency: breakdown.currency,
+    country: input.terms?.country ?? 'TR',
     warnings: analysis.dfmIssues.filter((i) => i.level !== 'info').map((i) => i.message),
     security: { checks: verdict.checks, engine: verdict.engine },
     options: FDM_MATERIALS.map((key) => {
@@ -130,10 +141,11 @@ export async function quickQuoteFromFile(input: {
       const part = calculatePrice({
         volumeMm3: analysis.volumeMm3,
         material: key,
-        pricePerGramMinor: ref.pricePerGramMinor,
+        pricePerGramMinor: regional(key)!,
         quantity: 1,
         sellerMarginBps: 0,
         shippingMinor: 0,
+        commissionBps: input.terms?.commissionBps,
       })
       return {
         material: key,
@@ -145,7 +157,7 @@ export async function quickQuoteFromFile(input: {
         platformMinor: part.platformCommissionMinor,
         totals: QUICK_QUOTE_QUANTITIES.map((quantity) => {
           const perUnit = table.perUnitMinor({
-            country: 'TR',
+            country: input.terms?.country ?? 'TR',
             gramsPerUnit: g,
             bboxMm: bbox,
             quantity,
@@ -153,7 +165,7 @@ export async function quickQuoteFromFile(input: {
           return {
             quantity,
             shippingMinor: perUnit * quantity,
-            totalMinor: (part.unitPriceMinor + perUnit) * quantity,
+            totalMinor: roundUnitMinor(part.unitPriceMinor + perUnit, rounding) * quantity,
           }
         }),
       }

@@ -10,6 +10,9 @@ import {
 } from '#services/pricing/quick_quote'
 import GrowthService from '#services/growth/growth_service'
 import type { Attribution } from '#services/growth/attribution'
+import CoverageService from '#services/matching/coverage_service'
+import PricingRegionService from '#services/pricing/pricing_region_service'
+import { visitorCountry } from '#services/pricing/visitor_country'
 
 const validator = vine.create({
   printers: vine.number().withoutDecimals().min(1).max(50).optional(),
@@ -23,13 +26,17 @@ const DEFAULTS = { printers: 2, hours: 10, busy: 40, price: '0.50' }
 const MAX_QUICK_BYTES = 15 * 1024 * 1024
 
 export default class ToolController {
-  async quickQuotePage({ inertia, session }: HttpContext) {
+  async quickQuotePage({ inertia, session, request }: HttpContext) {
     await new GrowthService().track(
       'landing_view',
       (session.get('attribution') as Attribution | undefined) ?? null,
       '/tools/quick-quote'
     )
-    return inertia.render('tools/quick_quote', { materials: QUICK_QUOTE_MATERIALS })
+    const country = visitorCountry({ request })
+    return inertia.render('tools/quick_quote', {
+      materials: QUICK_QUOTE_MATERIALS,
+      delivery: { country, served: await new CoverageService().servesCountry(country) },
+    })
   }
 
   async quickQuote({ request, response, session }: HttpContext) {
@@ -47,6 +54,7 @@ export default class ToolController {
         tmpPath: file.tmpPath,
         material: String(request.input('material', 'PLA')),
         format,
+        terms: await new PricingRegionService().termsFor(visitorCountry({ request })),
       })
       await new ExperimentService().convert('home_cta', session.sessionId)
       return response.json({ quote })

@@ -9,6 +9,9 @@ import CityPageService from '#services/marketing/city_page_service'
 import MaterialPageService from '#services/marketing/material_page_service'
 import StorefrontService from '#services/storefront/storefront_service'
 import { shopOrderValidator, shopQueryValidator } from '#validators/storefront'
+import CoverageService from '#services/matching/coverage_service'
+import PricingRegionService from '#services/pricing/pricing_region_service'
+import { visitorCountry } from '#services/pricing/visitor_country'
 
 const siteUrl = () => env.get('APP_URL').replace(/\/$/, '')
 
@@ -17,7 +20,9 @@ export default class StorefrontController {
   async index({ request, inertia, auth }: HttpContext) {
     await auth.check()
     const query = await request.validateUsing(shopQueryValidator)
+    const terms = await new PricingRegionService().termsFor(visitorCountry({ request }))
     const result = await new StorefrontService().list({
+      terms,
       q: query.q,
       material: query.material,
       category: query.category,
@@ -43,9 +48,11 @@ export default class StorefrontController {
     })
   }
 
-  async show({ params, inertia, auth, response }: HttpContext) {
+  async show({ params, inertia, auth, response, request }: HttpContext) {
     await auth.check()
-    const product = await new StorefrontService().find(params.id)
+    const country = visitorCountry({ request })
+    const terms = await new PricingRegionService().termsFor(country)
+    const product = await new StorefrontService().find(params.id, terms)
     if (!product) return response.notFound()
 
     const canonicalPath = `/shop/${product.id}/${product.slug}`
@@ -87,6 +94,8 @@ export default class StorefrontController {
       product,
       reviews,
       canonicalUrl,
+      // prices follow the visitor's likely country; say so when nobody prints there yet (K-K)
+      delivery: { country, served: await new CoverageService().servesCountry(country) },
       jsonLd: JSON.stringify(jsonLd).replaceAll('<', '\\u003c'),
     })
   }

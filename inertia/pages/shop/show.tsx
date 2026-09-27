@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { DeliveryNotice, type Delivery } from '~/components/delivery_notice'
 import { ChargeNote } from '~/components/money'
 import { Head, router, usePage } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
@@ -94,10 +95,12 @@ export default function ShopShow({
   canonicalUrl,
   jsonLd,
   reviews,
+  delivery,
 }: {
   product: Product
   canonicalUrl: string
   jsonLd: string
+  delivery?: Delivery
   reviews: {
     count: number
     average: number | null
@@ -297,6 +300,7 @@ export default function ShopShow({
                   {t('Total')}: {formatPrice(unit * quantity, product.currency)}
                 </p>
                 <ChargeNote />
+                <DeliveryNotice delivery={delivery} />
                 <p className="text-xs text-ink-600">
                   {t('Made within {n} days of a maker accepting it, then shipped.', {
                     n: product.productionDays + (chosenFinishing?.extraDays ?? 0),

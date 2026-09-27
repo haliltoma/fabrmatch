@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { countryName } from '~/components/delivery_notice'
 import { Link } from '@adonisjs/inertia/react'
 import { ArrowRight, FileUp, Loader2, RotateCcw, ShieldCheck } from 'lucide-react'
 import { Button } from '~/components/ui/button'
@@ -13,13 +14,18 @@ type Option = {
   label: string
   totals: Array<{ quantity: number; totalMinor: number }>
 }
-type Quote = { currency: string; bboxMm: [number, number, number]; options: Option[] }
+type Quote = {
+  currency: string
+  country?: string
+  bboxMm: [number, number, number]
+  options: Option[]
+}
 
 const SAMPLE_URL = '/samples/sample-vase.stl'
 
 /** Price right in the hero: drop an STL, see the delivered price in four materials. */
 export function HeroQuickStart() {
-  const { t } = useT()
+  const { t, locale } = useT()
   const [dragging, setDragging] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -69,9 +75,10 @@ export function HeroQuickStart() {
         className="rounded-[14px] border-2 border-ink-900 bg-paper-raised p-5 shadow-[5px_5px_0_#15181c]"
       >
         <p className="truncate text-sm text-ink-700">
-          {t('{file} · {size} mm · one piece, delivered in Türkiye', {
+          {t('{file} · {size} mm · one piece, delivered to {country}', {
             file: name,
             size: quote.bboxMm.join(' × '),
+            country: countryName(quote.country ?? 'TR', locale),
           })}
         </p>
         <p className="mt-1 font-display text-5xl font-semibold tabular-nums text-ink-900">

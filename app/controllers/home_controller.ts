@@ -13,6 +13,8 @@ import {
   GRAMS_PER_PRINT_HOUR,
 } from '#services/pricing/price_engine'
 import { FAQ } from '#controllers/support_controller'
+import PricingRegionService from '#services/pricing/pricing_region_service'
+import { visitorCountry } from '#services/pricing/visitor_country'
 import StorefrontService from '#services/storefront/storefront_service'
 
 export default class HomeController {
@@ -29,7 +31,9 @@ export default class HomeController {
     )
     const [stats, shop, materials, posts, marginSamples] = await Promise.all([
       new HomeStatsService().load(),
-      new StorefrontService().list({ sort: 'newest', perPage: 8 }),
+      new PricingRegionService()
+        .termsFor(visitorCountry({ request }))
+        .then((terms) => new StorefrontService().list({ sort: 'newest', perPage: 8, terms })),
       new MaterialPageService().list(),
       new ContentService().list('blog'),
       this.marginSamples(),

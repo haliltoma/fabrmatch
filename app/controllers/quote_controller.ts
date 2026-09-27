@@ -12,6 +12,8 @@ import GrowthService from '#services/growth/growth_service'
 import EtaService from '#services/orders/eta_service'
 import Material from '#models/material'
 import { quoteValidator } from '#validators/quote'
+import PricingRegionService, { roundUnitMinor } from '#services/pricing/pricing_region_service'
+import { visitorCountry } from '#services/pricing/visitor_country'
 
 export default class QuoteController {
   async show({ inertia, auth, params }: HttpContext) {
@@ -86,8 +88,11 @@ export default class QuoteController {
       return response.badRequest({ error: 'File not analyzed or not found' })
     }
 
-    const materialInfo = referencePriceFor(data.material)
-    if (!materialInfo) {
+    // region rules (P2) for the chosen delivery country, else the visitor's likely one
+    const country = data.country ?? visitorCountry({ request })
+    const terms = await new PricingRegionService().termsFor(country)
+    const regionalReference = terms.referenceFor(data.material)
+    if (!referencePriceFor(data.material) || regionalReference === null) {
       return response.badRequest({ error: `Unknown material: ${data.material}` })
     }
 
@@ -104,16 +109,17 @@ export default class QuoteController {
       sliced?.printMinutes ?? Math.ceil(estimatePrintMinutes(gramsPerUnit) * timeFactor)
     const shipping = await new ShippingService().table()
     const shippingMinor = shipping.perUnitMinor({
-      country: data.country ?? 'TR',
+      country,
       gramsPerUnit,
       bboxMm: bboxOf(file),
       quantity: data.quantity,
     })
-    const breakdown = calculatePrice({
+    const raw = calculatePrice({
       shippingMinor,
+      commissionBps: terms.commissionBps,
       volumeMm3: file.volumeMm3,
       material: data.material,
-      pricePerGramMinor: materialInfo.pricePerGramMinor,
+      pricePerGramMinor: regionalReference,
       quantity: data.quantity,
       sellerMarginBps: 2000, // Default 20% — will come from seller profile
       infill,
@@ -121,12 +127,20 @@ export default class QuoteController {
       estPrintMinutes: unitMinutes,
       finishingMinor: finishing?.priceMinor ?? 0,
     })
+    // the region's rounding lifts the unit price; the difference is platform commission
+    const unitPriceMinor = roundUnitMinor(raw.unitPriceMinor, terms.rounding)
+    const breakdown = {
+      ...raw,
+      platformCommissionMinor: raw.platformCommissionMinor + unitPriceMinor - raw.unitPriceMinor,
+      unitPriceMinor,
+      totalPriceMinor: unitPriceMinor * data.quantity,
+    }
 
     const printMinutes = unitMinutes * data.quantity
     const eta = await new EtaService().estimate({
       technology: profile?.technology ?? 'FDM',
       printMinutes,
-      country: data.country ?? 'TR',
+      country,
     })
     // counted once per browser session so the funnel step means "got a price", not "clicked calculate"
     if (!session.has('quoted')) {
