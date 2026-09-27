@@ -1,6 +1,6 @@
 import { Head } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
-import { formatMoney } from '~/lib/format'
+import { formatPrice } from '~/lib/format'
 import { useT } from '~/lib/i18n'
 
 type Props = {
@@ -50,7 +50,7 @@ export default function UseCaseIndex({ useCases, indexable, canonicalUrl }: Prop
                   <span className="text-ink-700">{t(u.summary)}</span>
                 </span>
                 <span className="tabular text-sm text-ink-700">
-                  {t('from {price} a piece', { price: formatMoney(u.fromMinor, u.currency) })}
+                  {t('from {price} a piece', { price: formatPrice(u.fromMinor, u.currency) })}
                 </span>
               </Link>
             </li>

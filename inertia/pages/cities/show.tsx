@@ -1,6 +1,6 @@
 import { Head } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
-import { formatMoney } from '~/lib/format'
+import { formatPrice } from '~/lib/format'
 import { useT } from '~/lib/i18n'
 
 type Props = {
@@ -66,7 +66,7 @@ export default function CityShow({ city, canonicalUrl }: Props) {
                     {m.code}
                   </Link>
                   <span className="tabular text-ink-700">
-                    {formatMoney(m.minMinor, m.currency)} – {formatMoney(m.maxMinor, m.currency)}{' '}
+                    {formatPrice(m.minMinor, m.currency)} – {formatPrice(m.maxMinor, m.currency)}{' '}
                     {t('per gram')}
                   </span>
                 </li>

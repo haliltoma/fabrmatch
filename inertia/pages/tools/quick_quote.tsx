@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { ChargeNote } from '~/components/money'
 import { Head } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import {
@@ -18,7 +19,7 @@ import { Button } from '~/components/ui/button'
 import { CountUp } from '~/components/count_up'
 import { PrintArt } from '~/components/print_art'
 import { ScanPanel, type ScanCheck } from '~/components/scan_panel'
-import { formatMoney } from '~/lib/format'
+import { formatPrice } from '~/lib/format'
 import { useT } from '~/lib/i18n'
 
 const StlViewer = lazy(() => import('~/components/stl_viewer'))
@@ -319,7 +320,7 @@ function QuickQuote({ materials }: { materials: Array<{ key: string; label: stri
                         <span className="font-semibold text-ink-900">{m.label}</span>
                         {tot && (
                           <span className="tabular text-sm font-semibold text-ink-900">
-                            {formatMoney(tot.totalMinor, quote!.currency)}
+                            {formatPrice(tot.totalMinor, quote!.currency)}
                           </span>
                         )}
                       </span>
@@ -406,15 +407,16 @@ function QuickQuote({ materials }: { materials: Array<{ key: string; label: stri
                   })}
                 </p>
                 <p className="mt-1 font-display text-6xl font-semibold tabular-nums text-lime">
-                  <CountUp value={line.totalMinor} format={(m) => formatMoney(m, quote.currency)} />
+                  <CountUp value={line.totalMinor} format={(m) => formatPrice(m, quote.currency)} />
                 </p>
                 <p className="mt-2 text-sm text-ink-200">
-                  {t('{amount} per piece', { amount: formatMoney(perPiece, quote.currency) })}
+                  {t('{amount} per piece', { amount: formatPrice(perPiece, quote.currency) })}
                   {saving > 0 &&
                     ` · ${t('{amount} less per piece than ordering one', {
-                      amount: formatMoney(saving, quote.currency),
+                      amount: formatPrice(saving, quote.currency),
                     })}`}
                 </p>
+                <ChargeNote className="mt-1 !text-ink-200" />
               </div>
 
               <div className="space-y-5 p-6">
@@ -437,7 +439,7 @@ function QuickQuote({ materials }: { materials: Array<{ key: string; label: stri
                           {p.label}
                         </dt>
                         <dd className="tabular font-medium text-ink-900">
-                          {formatMoney(p.minor, quote.currency)}
+                          {formatPrice(p.minor, quote.currency)}
                         </dd>
                       </div>
                     ))}

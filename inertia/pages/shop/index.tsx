@@ -4,7 +4,7 @@ import { Link } from '@adonisjs/inertia/react'
 import { Search } from 'lucide-react'
 import { useT } from '~/lib/i18n'
 import { ProductThumb, type ShopImage } from '~/components/product_image'
-import { formatMoney } from '~/lib/format'
+import { formatPrice } from '~/lib/format'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent } from '~/components/ui/card'
@@ -198,7 +198,7 @@ export default function ShopIndex({
                       <p className="text-sm text-ink-800">
                         {t('from')}{' '}
                         <span className="font-semibold">
-                          {formatMoney(p.fromPriceMinor, p.currency)}
+                          {formatPrice(p.fromPriceMinor, p.currency)}
                         </span>
                       </p>
                       <div className="flex flex-wrap gap-1">

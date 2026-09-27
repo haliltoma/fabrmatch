@@ -5,7 +5,7 @@ import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { CountUp } from '~/components/count_up'
-import { formatMoney } from '~/lib/format'
+import { formatPrice } from '~/lib/format'
 import { monthlyIncomeMinor, type IncomeRules } from '~/lib/income'
 import { parseMoneyToMinor } from '~/lib/money'
 import { useT } from '~/lib/i18n'
@@ -94,7 +94,7 @@ export function IncomeBand({ rules }: { rules: IncomeRules }) {
                 <p className="font-display text-6xl font-semibold tabular-nums text-lime">
                   <CountUp
                     value={result.monthlyMinor}
-                    format={(minor) => formatMoney(minor, 'TRY')}
+                    format={(minor) => formatPrice(minor, 'TRY')}
                   />
                 </p>
                 <p className="mt-2 text-sm text-ink-300">

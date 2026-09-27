@@ -12,7 +12,7 @@ import {
   STORY_STILL,
   storyAt,
 } from '~/lib/cube_story'
-import { formatMoney } from '~/lib/format'
+import { formatPrice } from '~/lib/format'
 import { useT } from '~/lib/i18n'
 import { useLoopClock } from '~/lib/use_loop_clock'
 
@@ -138,7 +138,7 @@ function ShopFace({ items, local }: { items: MarginSample[]; local: number }) {
                   {item.title}
                 </p>
                 <p className="text-xs tabular-nums text-ink-700">
-                  {formatMoney(item.costMinor + margin(item.costMinor), 'TRY')}
+                  {formatPrice(item.costMinor + margin(item.costMinor), 'TRY')}
                 </p>
               </div>
               {chosen && c.clicked && (
@@ -188,7 +188,7 @@ function OrderFace({ sale, local }: { sale: MarginSample; local: number }) {
             </span>
           </div>
           <p className="font-display text-2xl font-semibold tabular-nums text-ink-900 sm:text-4xl">
-            {formatMoney(price, 'TRY')}
+            {formatPrice(price, 'TRY')}
           </p>
           <div className="mt-auto">
             {placed ? (
@@ -254,7 +254,7 @@ function PaidFace({ sale, local }: { sale: MarginSample; local: number }) {
             )}
             {released ? t('Payment released') : t('Payment held until delivery')}
           </span>
-          <span className="tabular-nums text-ink-700">{formatMoney(price, 'TRY')}</span>
+          <span className="tabular-nums text-ink-700">{formatPrice(price, 'TRY')}</span>
         </div>
         <div className="flex h-4 shrink-0 overflow-hidden rounded-full border-2 border-ink-900 bg-ink-100 sm:h-5">
           <span
@@ -269,14 +269,14 @@ function PaidFace({ sale, local }: { sale: MarginSample; local: number }) {
               <span className="h-2.5 w-2.5 rounded-sm bg-ink-900" />
               {t('Printing, delivery and fees')}
             </dt>
-            <dd className="tabular-nums text-ink-900">{formatMoney(sale.costMinor, 'TRY')}</dd>
+            <dd className="tabular-nums text-ink-900">{formatPrice(sale.costMinor, 'TRY')}</dd>
           </div>
           <div className="flex items-center justify-between gap-2">
             <dt className="flex items-center gap-1.5 font-semibold text-ink-900">
               <span className="h-2.5 w-2.5 rounded-sm border border-ink-900 bg-lime" />
               {t('Your margin')}
             </dt>
-            <dd className="font-semibold tabular-nums text-ink-900">{formatMoney(earn, 'TRY')}</dd>
+            <dd className="font-semibold tabular-nums text-ink-900">{formatPrice(earn, 'TRY')}</dd>
           </div>
         </dl>
       </div>
@@ -295,7 +295,7 @@ function PaidFace({ sale, local }: { sale: MarginSample; local: number }) {
         <div>
           <p className="text-xs text-ink-200 sm:text-sm">{t('Paid to you')}</p>
           <p className="font-display text-2xl font-semibold tabular-nums text-lime sm:text-4xl">
-            +{formatMoney(counted, 'TRY')}
+            +{formatPrice(counted, 'TRY')}
           </p>
         </div>
         <p className="hidden max-w-[13rem] text-right text-xs text-ink-200 sm:block">

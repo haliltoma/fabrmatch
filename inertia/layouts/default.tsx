@@ -8,6 +8,7 @@ import { Logo } from '~/components/logo'
 import { ThemeSwitch } from '~/components/theme_switch'
 import { useTheme } from '~/lib/theme'
 import { LanguageSwitch } from '~/components/language_switch'
+import { CurrencySwitch } from '~/components/currency_switch'
 import { useT } from '~/lib/i18n'
 import { CartLink } from '~/components/cart_link'
 import { NotificationBell } from '~/components/notification_bell'
@@ -204,6 +205,7 @@ export default function Layout({ children }: { children: ReactElement<Data.Share
                 </SheetHeader>
                 <nav className="flex flex-col gap-2 p-6">
                   <ThemeSwitch />
+                  <CurrencySwitch />
                   {user ? (
                     <>
                       <div className="mb-4 flex items-center gap-3">
@@ -261,8 +263,11 @@ export default function Layout({ children }: { children: ReactElement<Data.Share
             <div className="space-y-4">
               <Logo />
               <p className="max-w-xs">{t('Made-to-order 3D printing, printed near you.')}</p>
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center gap-4">
                 <LanguageSwitch />
+                <span className="border-l border-line pl-4">
+                  <CurrencySwitch />
+                </span>
                 <ThemeSwitch />
               </div>
             </div>

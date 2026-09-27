@@ -1,6 +1,6 @@
 import { Head } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
-import { formatMoney } from '~/lib/format'
+import { formatPrice } from '~/lib/format'
 import { useT } from '~/lib/i18n'
 
 type Props = {
@@ -72,10 +72,10 @@ export default function UseCaseShow({
                 <tr key={p.quantity} className="border-t border-line">
                   <td className="py-2 text-ink-900">{p.quantity}</td>
                   <td className="py-2 text-ink-900">
-                    {formatMoney(p.perPieceMinor, useCase.currency)}
+                    {formatPrice(p.perPieceMinor, useCase.currency)}
                   </td>
                   <td className="py-2 text-right font-medium text-ink-900">
-                    {formatMoney(p.totalMinor, useCase.currency)}
+                    {formatPrice(p.totalMinor, useCase.currency)}
                   </td>
                 </tr>
               ))}

@@ -1,6 +1,7 @@
 import { usePage } from '@inertiajs/react'
 import { tr } from '~/lib/i18n/tr'
 import { trPatterns } from '~/lib/i18n/patterns'
+import { setActiveMoney, type SharedMoney } from '~/lib/display_money'
 
 export type Locale = 'en' | 'tr'
 const dictionaries: Record<Locale, Record<string, string>> = { en: {}, tr }
@@ -33,9 +34,10 @@ function setActiveLocale(locale: Locale) {
 }
 
 export function useT() {
-  const { props } = usePage<{ locale?: Locale }>()
+  const { props } = usePage<{ locale?: Locale; money?: SharedMoney }>()
   const locale = props.locale ?? 'en'
   setActiveLocale(locale)
+  setActiveMoney(props.money)
   return {
     locale,
     t: (text: string, vars?: Record<string, string | number>) => translate(locale, text, vars),

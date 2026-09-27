@@ -1,6 +1,6 @@
 import { Head } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
-import { formatMoney } from '~/lib/format'
+import { formatPrice } from '~/lib/format'
 import { useT } from '~/lib/i18n'
 
 type Props = {
@@ -48,8 +48,8 @@ export default function MaterialShow({
             <div>
               <dt className="text-xs text-ink-600">{t('Maker rate per gram')}</dt>
               <dd className="tabular font-mono text-xl text-ink-900">
-                {formatMoney(material.rate.minMinor, material.rate.currency)} –{' '}
-                {formatMoney(material.rate.maxMinor, material.rate.currency)}
+                {formatPrice(material.rate.minMinor, material.rate.currency)} –{' '}
+                {formatPrice(material.rate.maxMinor, material.rate.currency)}
               </dd>
             </div>
             <p className="text-xs text-ink-600 sm:col-span-2">

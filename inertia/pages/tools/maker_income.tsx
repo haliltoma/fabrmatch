@@ -4,7 +4,7 @@ import { Link } from '@adonisjs/inertia/react'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { Money } from '~/components/money'
+import { Price } from '~/components/money'
 import { useT } from '~/lib/i18n'
 
 type Estimate = {
@@ -122,7 +122,7 @@ function MakerIncome({
               <div className="rounded-[10px] border border-line bg-paper-raised p-6">
                 <p className="text-sm text-ink-600">{t('Estimated per month')}</p>
                 <p className="tabular font-display text-5xl font-semibold text-ink-900">
-                  <Money minor={estimate.monthlyMinor} />
+                  <Price minor={estimate.monthlyMinor} />
                 </p>
                 <p className="mt-2 text-sm text-ink-600">
                   {t(
@@ -143,30 +143,30 @@ function MakerIncome({
                   <div className="flex justify-between">
                     <dt className="text-ink-600">{t('Material at your price')}</dt>
                     <dd>
-                      <Money minor={estimate.materialMinor} />
+                      <Price minor={estimate.materialMinor} />
                     </dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-ink-600">{t('Machine time')}</dt>
                     <dd>
-                      <Money minor={estimate.machineMinor} />
+                      <Price minor={estimate.machineMinor} />
                     </dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-ink-600">{t('Your margin')}</dt>
                     <dd>
-                      <Money minor={estimate.profitMinor} />
+                      <Price minor={estimate.profitMinor} />
                     </dd>
                   </div>
                   <div className="flex justify-between border-t border-line pt-2 font-semibold text-ink-900">
                     <dt>{t('Your share')}</dt>
                     <dd>
-                      <Money minor={estimate.monthlyMinor} />
+                      <Price minor={estimate.monthlyMinor} />
                     </dd>
                   </div>
                 </dl>
                 <p className="mt-3 text-xs text-ink-600">
-                  {t('Per print hour that is')} <Money minor={estimate.perPrintHourMinor} />
+                  {t('Per print hour that is')} <Price minor={estimate.perPrintHourMinor} />
                   {t(
                     '. It assumes a printer produces about 12 g an hour; large or dense parts differ. The platform fee is added on top of your share, so it does not reduce it. Shipping is paid to you separately.'
                   )}

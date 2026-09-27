@@ -30,6 +30,7 @@ import { paymentProvider } from '#services/payments/provider_registry'
 import { salesModel } from '#services/payments/sales_model'
 import WalletService from '#services/payments/wallet_service'
 import InvoiceService from '#services/invoicing/invoice_service'
+import FxService from '#services/pricing/fx_service'
 
 const ADDRESS = {
   fullName: 'Deniz Yılmaz',
@@ -65,6 +66,8 @@ export default class DemoSeeder extends BaseSeeder {
 
   async run() {
     if (app.inProduction) return
+    // today's rates (static provider outside production) so browse prices can be converted
+    await new FxService().refresh()
     const roles = new RoleService()
     const onboarding = new OnboardingService()
 

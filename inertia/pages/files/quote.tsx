@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ChargeNote } from '~/components/money'
 import { router } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { Button } from '~/components/ui/button'
@@ -9,7 +10,7 @@ import { ArrowLeft, Calculator, Loader2, Package } from 'lucide-react'
 import { postJson } from '~/lib/api'
 import { TermsCheckbox, useLegalAcceptance } from '~/components/terms_checkbox'
 import { useIdempotencyKey } from '~/lib/idempotency'
-import { formatDate, formatMoney } from '~/lib/format'
+import { formatDate, formatPrice } from '~/lib/format'
 import { useT } from '~/lib/i18n'
 import { PaintColourField, type PaintColour } from '~/components/paint_colour'
 
@@ -293,7 +294,7 @@ function QuotePage({
             >
               {visibleMaterials.map((m) => (
                 <option key={m.key} value={m.key}>
-                  {m.label} ({formatMoney(m.pricePerGramMinor)}/g)
+                  {m.label} ({formatPrice(m.pricePerGramMinor)}/g)
                 </option>
               ))}
             </select>
@@ -336,7 +337,7 @@ function QuotePage({
                 <option value="">{t('None (as printed)')}</option>
                 {fitting.map((f) => (
                   <option key={f.code} value={f.code}>
-                    {f.name} · {t('+{amount} each', { amount: formatMoney(f.priceMinor, 'TRY') })}
+                    {f.name} · {t('+{amount} each', { amount: formatPrice(f.priceMinor, 'TRY') })}
                   </option>
                 ))}
               </select>
@@ -417,38 +418,38 @@ function QuotePage({
               </div>
               <div className="flex justify-between text-ink-600">
                 <span>{t('Material cost')}</span>
-                <span>{formatMoney(breakdown.materialCostMinor, breakdown.currency)}</span>
+                <span>{formatPrice(breakdown.materialCostMinor, breakdown.currency)}</span>
               </div>
               <div className="flex justify-between text-ink-600">
                 <span>{t('Machine cost')}</span>
-                <span>{formatMoney(breakdown.machineCostMinor, breakdown.currency)}</span>
+                <span>{formatPrice(breakdown.machineCostMinor, breakdown.currency)}</span>
               </div>
               {breakdown.finishingMinor > 0 && (
                 <div className="flex justify-between text-ink-600">
                   <span>{t('Finishing')}</span>
-                  <span>{formatMoney(breakdown.finishingMinor, breakdown.currency)}</span>
+                  <span>{formatPrice(breakdown.finishingMinor, breakdown.currency)}</span>
                 </div>
               )}
               <div className="flex justify-between text-ink-600">
                 <span>{t('Manufacturer share (incl. finishing)')}</span>
-                <span>{formatMoney(breakdown.manufacturerShareMinor, breakdown.currency)}</span>
+                <span>{formatPrice(breakdown.manufacturerShareMinor, breakdown.currency)}</span>
               </div>
               <div className="flex justify-between text-ink-600">
                 <span>{t('Platform commission')}</span>
-                <span>{formatMoney(breakdown.platformCommissionMinor, breakdown.currency)}</span>
+                <span>{formatPrice(breakdown.platformCommissionMinor, breakdown.currency)}</span>
               </div>
               <div className="flex justify-between text-ink-600">
                 <span>{t('Shipping (est.)')}</span>
-                <span>{formatMoney(breakdown.shippingMinor, breakdown.currency)}</span>
+                <span>{formatPrice(breakdown.shippingMinor, breakdown.currency)}</span>
               </div>
               <div className="flex justify-between text-ink-600">
                 <span>{t('Seller margin')}</span>
-                <span>{formatMoney(breakdown.sellerMarginMinor, breakdown.currency)}</span>
+                <span>{formatPrice(breakdown.sellerMarginMinor, breakdown.currency)}</span>
               </div>
               <div className="border-t border-line pt-2" />
               <div className="flex justify-between font-medium">
                 <span>{t('Unit price')}</span>
-                <span>{formatMoney(breakdown.unitPriceMinor, breakdown.currency)}</span>
+                <span>{formatPrice(breakdown.unitPriceMinor, breakdown.currency)}</span>
               </div>
               <div className="flex justify-between text-ink-600">
                 <span>{t('Estimated delivery')}</span>
@@ -461,9 +462,10 @@ function QuotePage({
               {breakdown.totalPriceMinor !== breakdown.unitPriceMinor && (
                 <div className="flex justify-between text-lg font-bold text-ink-900">
                   <span>{t('Total ({quantity} pcs)', { quantity })}</span>
-                  <span>{formatMoney(breakdown.totalPriceMinor, breakdown.currency)}</span>
+                  <span>{formatPrice(breakdown.totalPriceMinor, breakdown.currency)}</span>
                 </div>
               )}
+              <ChargeNote />
             </div>
           </CardContent>
         </Card>
@@ -572,7 +574,7 @@ function QuotePage({
                     <Package className="mr-2 h-4 w-4" />
                   )}
                   {t('Order — {total}', {
-                    total: formatMoney(breakdown.totalPriceMinor, breakdown.currency),
+                    total: formatPrice(breakdown.totalPriceMinor, breakdown.currency),
                   })}
                 </Button>
                 <p className="text-center text-xs text-ink-600">

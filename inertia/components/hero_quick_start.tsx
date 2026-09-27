@@ -5,7 +5,7 @@ import { Button } from '~/components/ui/button'
 import { CountUp } from '~/components/count_up'
 import { ScanPanel } from '~/components/scan_panel'
 import { postForm } from '~/lib/api'
-import { formatMoney } from '~/lib/format'
+import { formatPrice } from '~/lib/format'
 import { useT } from '~/lib/i18n'
 
 type Option = {
@@ -75,7 +75,7 @@ export function HeroQuickStart() {
           })}
         </p>
         <p className="mt-1 font-display text-5xl font-semibold tabular-nums text-ink-900">
-          <CountUp value={total} format={(m) => formatMoney(m, quote.currency)} />
+          <CountUp value={total} format={(m) => formatPrice(m, quote.currency)} />
         </p>
         <p className="mt-1 flex items-center gap-1.5 text-sm font-medium text-fil-700">
           <ShieldCheck className="h-4 w-4" aria-hidden /> {t('Virus scan passed')}
@@ -94,7 +94,7 @@ export function HeroQuickStart() {
                   : 'border-ink-900/25 text-ink-800 hover:border-ink-900'
               }`}
             >
-              {o.label} · {formatMoney(o.totals[0].totalMinor, quote.currency)}
+              {o.label} · {formatPrice(o.totals[0].totalMinor, quote.currency)}
             </button>
           ))}
         </div>

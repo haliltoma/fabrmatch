@@ -2,7 +2,7 @@ import { Link } from '@adonisjs/inertia/react'
 import { ArrowRight } from 'lucide-react'
 import { Badge } from '~/components/ui/badge'
 import { PrintArt, type PrintKind } from '~/components/print_art'
-import { formatMoney } from '~/lib/format'
+import { formatPrice } from '~/lib/format'
 import { ProductThumb, type ShopImage } from '~/components/product_image'
 import { useT } from '~/lib/i18n'
 
@@ -73,7 +73,7 @@ export function Discover({
                       <p className="text-sm text-ink-700">
                         {t('from')}{' '}
                         <span className="font-semibold">
-                          {formatMoney(p.fromPriceMinor, p.currency)}
+                          {formatPrice(p.fromPriceMinor, p.currency)}
                         </span>
                       </p>
                       <div className="flex flex-wrap gap-1">

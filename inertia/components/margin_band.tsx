@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react'
 import { Button } from '~/components/ui/button'
 import { Label } from '~/components/ui/label'
 import { CountUp } from '~/components/count_up'
-import { formatMoney } from '~/lib/format'
+import { formatPrice } from '~/lib/format'
 import { marginSplit } from '~/lib/margin'
 import { useT } from '~/lib/i18n'
 
@@ -80,19 +80,19 @@ export function MarginBand({ samples }: { samples: MarginSample[] }) {
             <div>
               <dt className="text-ink-600">{t('Cost')}</dt>
               <dd className="mt-1 font-semibold tabular-nums text-ink-900">
-                {formatMoney(sample.costMinor, 'TRY')}
+                {formatPrice(sample.costMinor, 'TRY')}
               </dd>
             </div>
             <div>
               <dt className="text-ink-600">{t('Buyer pays')}</dt>
               <dd className="mt-1 font-semibold tabular-nums text-ink-900">
-                {formatMoney(buyerPriceMinor, 'TRY')}
+                {formatPrice(buyerPriceMinor, 'TRY')}
               </dd>
             </div>
             <div>
               <dt className="text-ink-600">{t('You keep')}</dt>
               <dd className="mt-1 font-display text-3xl font-semibold tabular-nums text-fil-600">
-                <CountUp value={earnsMinor} format={(m) => formatMoney(m, 'TRY')} />
+                <CountUp value={earnsMinor} format={(m) => formatPrice(m, 'TRY')} />
               </dd>
             </div>
           </dl>

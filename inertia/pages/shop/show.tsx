@@ -1,10 +1,11 @@
 import { useState } from 'react'
+import { ChargeNote } from '~/components/money'
 import { Head, router, usePage } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { ArrowLeft } from 'lucide-react'
 import { TermsCheckbox, useLegalAcceptance } from '~/components/terms_checkbox'
 import { useIdempotencyKey } from '~/lib/idempotency'
-import { formatMoney } from '~/lib/format'
+import { formatPrice } from '~/lib/format'
 import { useT } from '~/lib/i18n'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
@@ -224,7 +225,7 @@ export default function ShopShow({
                     >
                       {plainAtScale.map((o) => (
                         <option key={o.material} value={o.material}>
-                          {o.material} — {formatMoney(o.unitPriceMinor, product.currency)}
+                          {o.material} — {formatPrice(o.unitPriceMinor, product.currency)}
                         </option>
                       ))}
                     </select>
@@ -293,8 +294,9 @@ export default function ShopShow({
                 )}
 
                 <p className="text-lg font-semibold text-ink-900">
-                  {t('Total')}: {formatMoney(unit * quantity, product.currency)}
+                  {t('Total')}: {formatPrice(unit * quantity, product.currency)}
                 </p>
+                <ChargeNote />
                 <p className="text-xs text-ink-600">
                   {t('Made within {n} days of a maker accepting it, then shipped.', {
                     n: product.productionDays + (chosenFinishing?.extraDays ?? 0),

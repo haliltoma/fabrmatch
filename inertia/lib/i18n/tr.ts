@@ -2830,4 +2830,7 @@ export const tr: Record<string, string> = {
   'See my orders': 'Siparişlerimi gör',
   'incl. VAT': 'KDV dahil',
   'Voided': 'İptal edildi',
+  'Currency': 'Para birimi',
+  "≈ {display} at today's rate. You pay in {charge}.":
+    '≈ bugünkü kurla {display}. Ödemeniz {charge} olarak alınır.',
 }

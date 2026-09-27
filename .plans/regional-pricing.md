@@ -1,6 +1,6 @@
 # Plan: Local currency display + regional pricing
 Date: 2026-09-27
-Status: PENDING (design approved: country→currency else USD; country groups; admin-set region pricing)
+Status: P1 DONE 2026-09-27, P2 next (design approved: country→currency else USD; country groups; admin-set region pricing)
 
 ## Goal
 Visitors see prices in their own currency, and each region (country group) is priced by its own admin-set rules instead of one global TRY price converted at the FX rate.
@@ -12,10 +12,12 @@ Visitors see prices in their own currency, and each region (country group) is pr
 
 ## Tasks
 ### P1 — Display currency (no pricing change)
-- [ ] T1 `resolveDisplayCurrency(ctx)` service + unit tests (cookie > address country > Accept-Language region > language default; only currencies with an FX rate, else TRY).
-- [ ] T2 Share `displayCurrency` + needed FX rates via inertia_middleware share(); `/currency` POST to set the cookie (validator, functional test).
-- [ ] T3 Frontend `useMoney()` helper: converts minor amounts with shared rates, integer math, "≈" marker when charge currency differs; replace hardcoded 'TRY' in hero_cube, discover, income/margin bands, quick-quote, shop cards.
-- [ ] T4 Currency switcher next to LanguageSwitch (header, footer, panels); i18n strings; DESIGN.md §12 screenshots EN+TR at 4 widths.
+- [x] T1 `resolveDisplayCurrency(ctx)` service + unit tests (cookie > address country > Accept-Language region > language default; only currencies with an FX rate, else TRY).
+- [x] T2 Share `displayCurrency` + needed FX rates via inertia_middleware share(); `/currency` POST to set the cookie (validator, functional test).
+- [x] T3 Frontend `useMoney()` helper: converts minor amounts with shared rates, integer math, "≈" marker when charge currency differs; replace hardcoded 'TRY' in hero_cube, discover, income/margin bands, quick-quote, shop cards.
+- [x] T4 Currency switcher next to LanguageSwitch (header, footer, panels); i18n strings; DESIGN.md §12 screenshots EN+TR at 4 widths.
+
+Notes P1: browse surfaces only (home animation, shop, product, quick quote, file quote, materials/cities/use cases, maker income tool) show `≈` converted prices + "You pay in TRY" note; carts, orders, wallets, payouts and panels stay in the charged currency. Switch sits in the public footer and mobile menu (not in panels). Shared prop is `money` (a `currency` page prop already exists on cart/stores).
 
 ### P2 — Regional pricing
 - [ ] T5 Migration `pricing_regions` (code, name, currency, countries jsonb, platform_fee_bps, min_order_minor, rounding rule, shipping_zone_id, is_active) + `pricing_region_materials` (region, material, reference_rate_minor | multiplier_bps); seed TR/EU/UK/US/ROW; model + unit tests.
