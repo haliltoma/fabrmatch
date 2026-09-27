@@ -3,6 +3,10 @@ import app from '@adonisjs/core/services/app'
 import vine from '@vinejs/vine'
 import ModelFile from '#models/model_file'
 import SellerProduct from '#models/seller_product'
+import type EtsyAdapter from '#services/integrations/stores/etsy_adapter'
+import { etsyConfigured } from '#services/integrations/stores/etsy_adapter'
+import { storeAdapter } from '#services/integrations/stores/store_registry'
+import EtsyOAuthService, { type PkceState } from '#services/integrations/stores/etsy_oauth_service'
 import StoreService from '#services/integrations/stores/store_service'
 import { SHOPIFY_SCOPES } from '#services/integrations/stores/shopify_adapter'
 import ShippingService from '#services/shipping/shipping_service'
@@ -27,6 +31,11 @@ const connectValidator = vine.create({
 
 const publishValidator = vine.create({
   sellerProductId: vine.number().withoutDecimals().positive(),
+  categoryId: vine
+    .string()
+    .trim()
+    .regex(/^\d{1,12}$/)
+    .optional(),
   variants: vine
     .array(
       vine.object({
@@ -48,6 +57,18 @@ const mapValidator = vine.create({
   color: vine.string().trim().maxLength(40).nullable().optional(),
   scalePercent: vine.number().withoutDecimals().min(10).max(1000).nullable().optional(),
 })
+
+/** Etsy's category tree changes rarely; one copy per process for a day. */
+let categoryCache: { at: number; list: Array<{ id: number; path: string }> } | null = null
+async function etsyCategories() {
+  if (!categoryCache || Date.now() - categoryCache.at > 24 * 3600_000) {
+    categoryCache = {
+      at: Date.now(),
+      list: await (storeAdapter('etsy') as EtsyAdapter).categories(),
+    }
+  }
+  return categoryCache.list
+}
 
 /** /seller/stores: the seller's own shops (R4-T3 mapping, imported orders, R4-T4 write-back). */
 export default class SellerStoreController {
@@ -86,6 +107,7 @@ export default class SellerStoreController {
     return inertia.render('seller/stores', {
       testShops: app.inDev || app.inTest,
       shopifyScopes: SHOPIFY_SCOPES,
+      etsyAvailable: etsyConfigured(),
       callbackUrl: current ? this.stores.callbackUrl(current) : null,
       currency: current?.currency ?? null,
       connections: await StoreConnectionTransformer.transform(connections).resolve(resolver, 0),
@@ -134,7 +156,8 @@ export default class SellerStoreController {
       auth.getUserOrFail(),
       Number(params.id),
       data.sellerProductId,
-      data.variants
+      data.variants,
+      data.categoryId ?? null
     )
     session.flash('success', 'Published to your shop.')
     return response.redirect().toPath(`/seller/stores?shop=${params.id}`)
@@ -151,6 +174,39 @@ export default class SellerStoreController {
     if (failed.length > 0) session.flash('error', failed.join(' '))
     else session.flash('success', 'Taken off sale in your shop.')
     return response.redirect().toPath(`/seller/stores?shop=${params.id}`)
+  }
+
+  /** "Connect with Etsy": off to Etsy's consent page, PKCE kept in the session. */
+  async etsyStart({ response, session }: HttpContext) {
+    const { url, pkce } = new EtsyOAuthService().start()
+    session.put('etsy_pkce', pkce)
+    return response.redirect(url)
+  }
+
+  async etsyCallback({ auth, request, response, session }: HttpContext) {
+    const pkce = session.pull('etsy_pkce', null) as PkceState | null
+    const seller = auth.getUserOrFail()
+    const connection = await new EtsyOAuthService().finish(
+      seller,
+      request.qs() as { code?: string; state?: string; error?: string },
+      pkce
+    )
+    await this.stores.syncListings(seller, connection.id)
+    session.flash(
+      'success',
+      'Etsy shop connected. New paid orders are picked up every few minutes.'
+    )
+    return response.redirect().toPath(`/seller/stores?shop=${connection.id}`)
+  }
+
+  /** Etsy categories matching the search (for publishing). */
+  async etsyCategories({ request, response }: HttpContext) {
+    const q = String(request.input('q', '')).trim().toLocaleLowerCase('en')
+    if (q.length < 2) return response.json({ results: [] })
+    const all = await etsyCategories()
+    return response.json({
+      results: all.filter((c) => c.path.toLocaleLowerCase('en').includes(q)).slice(0, 20),
+    })
   }
 
   async connectTest({ auth, response, session }: HttpContext) {

@@ -1578,7 +1578,7 @@ export class SliceEstimateSchema extends BaseModel {
 }
 
 export class StoreConnectionSchema extends BaseModel {
-  static $columns = ['accessTokenEnc', 'apiKeyEnc', 'apiSecretEnc', 'createdAt', 'currency', 'externalShopId', 'id', 'lastSyncedAt', 'provider', 'sellerUserId', 'shopName', 'shopUrl', 'status', 'tokenExpiresAt', 'updatedAt', 'webhookSecretEnc'] as const
+  static $columns = ['accessTokenEnc', 'apiKeyEnc', 'apiSecretEnc', 'createdAt', 'currency', 'externalShopId', 'id', 'lastSyncedAt', 'ordersPolledAt', 'provider', 'refreshTokenEnc', 'sellerUserId', 'shopName', 'shopUrl', 'status', 'tokenExpiresAt', 'updatedAt', 'webhookSecretEnc'] as const
   $columns = StoreConnectionSchema.$columns
   @column()
   declare accessTokenEnc: string | null
@@ -1596,8 +1596,12 @@ export class StoreConnectionSchema extends BaseModel {
   declare id: number
   @column.dateTime()
   declare lastSyncedAt: DateTime | null
+  @column.dateTime()
+  declare ordersPolledAt: DateTime | null
   @column()
   declare provider: string
+  @column()
+  declare refreshTokenEnc: string | null
   @column()
   declare sellerUserId: number
   @column()

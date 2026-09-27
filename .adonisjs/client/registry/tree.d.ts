@@ -190,6 +190,9 @@ export interface ApiDefinition {
   sellerStore: {
     index: typeof routes['seller_store.index']
     connect: typeof routes['seller_store.connect']
+    etsyStart: typeof routes['seller_store.etsy_start']
+    etsyCallback: typeof routes['seller_store.etsy_callback']
+    etsyCategories: typeof routes['seller_store.etsy_categories']
     publish: typeof routes['seller_store.publish']
     unpublish: typeof routes['seller_store.unpublish']
     connectTest: typeof routes['seller_store.connect_test']

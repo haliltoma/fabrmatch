@@ -153,7 +153,13 @@ function MappingRow({ listing, products }: { listing: Listing; products: Product
   )
 }
 
-function ConnectForm({ shopifyScopes }: { shopifyScopes: string[] }) {
+function ConnectForm({
+  shopifyScopes,
+  etsyAvailable,
+}: {
+  shopifyScopes: string[]
+  etsyAvailable: boolean
+}) {
   const { t } = useT()
   const [provider, setProvider] = useState<'shopify' | 'woocommerce' | 'etsy'>('shopify')
   const [form, setForm] = useState({ shopUrl: '', apiKey: '', apiSecret: '', accessToken: '' })
@@ -191,11 +197,29 @@ function ConnectForm({ shopifyScopes }: { shopifyScopes: string[] }) {
       </div>
 
       {provider === 'etsy' ? (
-        <p className="rounded-md bg-paper-sunken px-4 py-3 text-sm text-ink-700">
-          {t(
-            'Etsy does not allow connecting with an API key alone: it opens with a “Connect with Etsy” button once Etsy approves our app.'
-          )}
-        </p>
+        etsyAvailable ? (
+          <div className="space-y-3">
+            <p className="text-sm text-ink-700">
+              {t(
+                'You sign in on Etsy and allow Fabrmatch to list products and read orders. New paid orders are picked up every few minutes.'
+              )}
+            </p>
+            <p className="text-sm text-ink-700">
+              {t(
+                'Your Etsy shop needs a shipping profile and a processing profile before we can publish.'
+              )}
+            </p>
+            <Button asChild>
+              <a href="/seller/stores/etsy/start">{t('Connect with Etsy')}</a>
+            </Button>
+          </div>
+        ) : (
+          <p className="rounded-md bg-paper-sunken px-4 py-3 text-sm text-ink-700">
+            {t(
+              'Etsy does not allow connecting with an API key alone: it opens with a “Connect with Etsy” button once Etsy approves our app.'
+            )}
+          </p>
+        )
       ) : (
         <>
           <ol className="list-decimal space-y-1 pl-5 text-sm text-ink-700">
@@ -342,6 +366,10 @@ function PublishForm({
   const [prices, setPrices] = useState<Record<string, number | null>>({})
   const [chosen, setChosen] = useState<Record<string, boolean>>({})
   const [busy, setBusy] = useState(false)
+  const [category, setCategory] = useState<{ id: number; path: string } | null>(null)
+  const [categoryQuery, setCategoryQuery] = useState('')
+  const [categoryResults, setCategoryResults] = useState<Array<{ id: number; path: string }>>([])
+  const needsCategory = connection.provider === 'etsy'
   const alreadyPublished = listings.some((l) => l.published && l.sellerProductId === productId)
   const currency = connection.currency ?? 'TRY'
 
@@ -372,6 +400,7 @@ function PublishForm({
           `/seller/stores/${connection.id}/publish`,
           {
             sellerProductId: product.id,
+            ...(needsCategory && category ? { categoryId: String(category.id) } : {}),
             variants: rows
               .filter((r) => isChosen(r.material))
               .map((r) => ({
@@ -398,6 +427,47 @@ function PublishForm({
           ))}
         </select>
       </div>
+      {needsCategory && !alreadyPublished && (
+        <div className="space-y-1">
+          <Label htmlFor="pub-category">{t('Etsy category')}</Label>
+          <Input
+            id="pub-category"
+            placeholder={t('Search, e.g. vase')}
+            value={category ? category.path : categoryQuery}
+            onChange={async (e) => {
+              setCategory(null)
+              setCategoryQuery(e.target.value)
+              if (e.target.value.trim().length < 2) return setCategoryResults([])
+              const res = await fetch(
+                `/seller/stores/etsy/categories?q=${encodeURIComponent(e.target.value.trim())}`,
+                { headers: { accept: 'application/json' } }
+              )
+              if (res.ok) {
+                const found = await res.json()
+                setCategoryResults(found.results)
+              }
+            }}
+          />
+          {!category && categoryResults.length > 0 && (
+            <ul className="max-h-56 overflow-y-auto rounded-md border border-line bg-paper-raised text-sm">
+              {categoryResults.map((c) => (
+                <li key={c.id}>
+                  <button
+                    type="button"
+                    className="w-full px-3 py-2 text-left hover:bg-paper-sunken focus-visible:bg-paper-sunken"
+                    onClick={() => {
+                      setCategory(c)
+                      setCategoryResults([])
+                    }}
+                  >
+                    {c.path}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
       {currency !== 'TRY' && (
         <p className="rounded-md bg-amber-soft px-4 py-3 text-sm text-amber-ink">
           {t(
@@ -455,7 +525,12 @@ function PublishForm({
       <div className="flex flex-wrap gap-2">
         <Button
           type="submit"
-          disabled={busy || !product || !rows.some((r) => isChosen(r.material))}
+          disabled={
+            busy ||
+            !product ||
+            !rows.some((r) => isChosen(r.material)) ||
+            (needsCategory && !alreadyPublished && !category)
+          }
         >
           {alreadyPublished ? t('Update in my shop') : t('Publish to my shop')}
         </Button>
@@ -487,6 +562,7 @@ function PublishForm({
 export default function SellerStores({
   testShops,
   shopifyScopes,
+  etsyAvailable,
   connections,
   currentId,
   listings,
@@ -495,6 +571,7 @@ export default function SellerStores({
 }: {
   testShops: boolean
   shopifyScopes: string[]
+  etsyAvailable: boolean
   callbackUrl: string | null
   currency: string | null
   connections: Connection[]
@@ -575,7 +652,7 @@ export default function SellerStores({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ConnectForm shopifyScopes={shopifyScopes} />
+          <ConnectForm shopifyScopes={shopifyScopes} etsyAvailable={etsyAvailable} />
         </CardContent>
       </Card>
 

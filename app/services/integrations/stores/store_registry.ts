@@ -4,6 +4,7 @@ import type { StoreProvider } from '#models/store_connection'
 import FakeStoreAdapter from '#services/integrations/stores/fake_store_adapter'
 import ShopifyAdapter from '#services/integrations/stores/shopify_adapter'
 import WooCommerceAdapter from '#services/integrations/stores/woocommerce_adapter'
+import EtsyAdapter, { etsyConfigured } from '#services/integrations/stores/etsy_adapter'
 import type { StoreAdapter } from '#services/integrations/stores/store_adapter'
 
 const overrides = new Map<StoreProvider, StoreAdapter>()
@@ -26,7 +27,8 @@ export function storeAdapter(provider: StoreProvider): StoreAdapter {
       if (!(app.inDev || app.inTest)) throw new DomainError('The test shop is not available here')
       return (fake ??= new FakeStoreAdapter())
     case 'etsy':
-      throw new DomainError('Etsy is not connected yet')
+      if (!etsyConfigured()) throw new DomainError('Etsy is not set up on Fabrmatch yet')
+      return new EtsyAdapter()
   }
 }
 

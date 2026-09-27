@@ -4,10 +4,11 @@ import { guardedLookup } from '#services/integrations/webhook_transport'
 import { isPublicAddress } from '#services/integrations/webhook_url'
 
 export interface StoreHttpRequest {
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE'
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
   url: string
   headers: Record<string, string>
-  body?: string
+  /** a Buffer for binary uploads (Etsy listing images) */
+  body?: string | Buffer
 }
 
 export interface StoreHttpResponse {

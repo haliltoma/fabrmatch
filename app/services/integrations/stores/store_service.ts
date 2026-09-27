@@ -16,6 +16,8 @@ import OrderNotifier from '#services/notifications/order_notifier'
 import PaymentService from '#services/payments/payment_service'
 import SellerProfile from '#models/seller_profile'
 import env from '#start/env'
+import drive from '@adonisjs/drive/services/main'
+import ProductImage from '#models/product_image'
 import ProductImageService from '#services/catalog/product_image_service'
 import { storeAdapter } from '#services/integrations/stores/store_registry'
 import { fabrmatchSku, type IncomingOrder } from '#services/integrations/stores/store_adapter'
@@ -163,7 +165,8 @@ export default class StoreService {
     seller: User,
     connectionId: number,
     sellerProductId: number,
-    variants: PublishVariant[]
+    variants: PublishVariant[],
+    categoryId: string | null = null
   ) {
     const connection = await this.ownConnection(seller, connectionId)
     const product = await SellerProduct.query()
@@ -204,12 +207,28 @@ export default class StoreService {
       ? (images.get(catalog.modelFileId) ?? []).slice(0, 8).map((i) => `${base}${i.url}`)
       : []
 
+    // platforms that take uploads (Etsy) get the files themselves
+    const imageFiles =
+      connection.provider === 'etsy'
+        ? await Promise.all(
+            (images.get(catalog.modelFileId) ?? []).slice(0, 10).map(async (image) => {
+              const row = await ProductImage.findOrFail(image.id)
+              return {
+                bytes: Buffer.from(await drive.use('s3').getBytes(row.storageKey)),
+                contentType: row.contentType,
+              }
+            })
+          )
+        : undefined
+
     const result = await storeAdapter(connection.provider).publishProduct(
       connection,
       {
         title: product.title,
         description: product.description ?? '',
         imageUrls,
+        images: imageFiles,
+        categoryId,
         currency: connection.currency ?? 'TRY',
         variants: chosen.map((v) => ({
           material: v.material.toUpperCase(),
@@ -670,6 +689,45 @@ export default class StoreService {
       .preload('order')
       .orderBy('id', 'desc')
       .limit(100)
+  }
+
+  /**
+   * Sweep for platforms without order webhooks (Etsy): paid orders and cancellations since the
+   * last look (with a small overlap; imports are idempotent per external id).
+   */
+  async pollOrders(): Promise<{ shops: number; events: number }> {
+    const connections = await StoreConnection.query().where('status', 'active')
+    let shops = 0
+    let events = 0
+    for (const connection of connections) {
+      let adapter
+      try {
+        adapter = storeAdapter(connection.provider)
+      } catch {
+        continue
+      }
+      if (!adapter.pollOrders) continue
+      shops++
+      const startedAt = DateTime.now()
+      const since = (connection.ordersPolledAt ?? connection.createdAt).minus({ minutes: 10 })
+      try {
+        for (const event of await adapter.pollOrders(connection, since)) {
+          events++
+          if (event.type === 'cancelled')
+            await this.shopCancelled(connection, event.externalOrderId)
+          else await this.importOrder(connection, event.order)
+        }
+        connection.ordersPolledAt = startedAt
+        await connection.save()
+      } catch (error) {
+        logger.warn({
+          msg: 'store order poll failed',
+          id: connection.id,
+          error: (error as Error).message,
+        })
+      }
+    }
+    return { shops, events }
   }
 
   /** R4-T4: the order shipped — queue the tracking for the shop. */

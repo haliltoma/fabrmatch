@@ -1,3 +1,4 @@
+import type { DateTime } from 'luxon'
 import DomainError from '#exceptions/domain_error'
 import type StoreConnection from '#models/store_connection'
 import type { ShippingAddress } from '#services/orders/order_service'
@@ -41,6 +42,10 @@ export interface PublishInput {
   imageUrls: string[]
   variants: Array<{ material: string; sku: string; priceMinor: number }>
   currency: string
+  /** Platform category (Etsy taxonomy id); ignored where the platform needs none */
+  categoryId?: string | null
+  /** Image files, for platforms that take uploads instead of URLs (Etsy) */
+  images?: Array<{ bytes: Buffer; contentType: string }>
 }
 
 export interface PublishResult {
@@ -78,6 +83,8 @@ export interface StoreAdapter {
     rawBody: string,
     headers: Record<string, string | undefined>
   ): Promise<StoreEvent | null>
+  /** Platforms without order webhooks (Etsy): paid orders and cancellations since `since`. */
+  pollOrders?(connection: StoreConnection, since: DateTime): Promise<StoreEvent[]>
   /** Marks the order shipped in the shop with our tracking; must be safe to repeat. */
   pushFulfillment(
     connection: StoreConnection,

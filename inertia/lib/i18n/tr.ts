@@ -2741,4 +2741,27 @@ export const tr: Record<string, string> = {
   'Taken off sale in your shop.': 'Mağazanızda satıştan kaldırıldı.',
   'This product is archived; make it active or draft first':
     'Bu ürün arşivde; önce etkin ya da taslak yapın',
+  'You sign in on Etsy and allow Fabrmatch to list products and read orders. New paid orders are picked up every few minutes.':
+    "Etsy'de oturum açıp Fabrmatch'e ürün listeleme ve sipariş okuma izni verirsiniz. Yeni ödenen siparişler birkaç dakikada bir alınır.",
+  'Your Etsy shop needs a shipping profile and a processing profile before we can publish.':
+    'Yayınlayabilmemiz için Etsy mağazanızda bir kargo profili ve bir hazırlık (processing) profili olmalı.',
+  'Connect with Etsy': 'Etsy ile bağlan',
+  'Etsy category': 'Etsy kategorisi',
+  'Search, e.g. vase': 'Ara, ör. vazo',
+  'Etsy shop connected. New paid orders are picked up every few minutes.':
+    'Etsy mağazası bağlandı. Yeni ödenen siparişler birkaç dakikada bir alınır.',
+  'Etsy is not set up on Fabrmatch yet': "Etsy henüz Fabrmatch'te kurulmadı",
+  'Etsy access was not granted': 'Etsy erişimi verilmedi',
+  'The Etsy connection expired; start again': 'Etsy bağlantısının süresi doldu; yeniden başlayın',
+  'This Etsy account has no shop': 'Bu Etsy hesabının mağazası yok',
+  'Choose an Etsy category for this product': 'Bu ürün için bir Etsy kategorisi seçin',
+  'Create a shipping profile in your Etsy shop first':
+    'Önce Etsy mağazanızda bir kargo profili oluşturun',
+  'Create a processing profile in your Etsy shop first':
+    'Önce Etsy mağazanızda bir hazırlık profili oluşturun',
+  'Etsy refused the connection: connect the shop again':
+    'Etsy bağlantıyı reddetti: mağazayı yeniden bağlayın',
+  'Etsy did not accept the connection: try connecting again':
+    'Etsy bağlantıyı kabul etmedi: yeniden deneyin',
+  'Etsy categories are not available right now': 'Etsy kategorileri şu an alınamıyor',
 }

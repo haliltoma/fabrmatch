@@ -4,7 +4,10 @@ import FakeStoreAdapter from '#services/integrations/stores/fake_store_adapter'
 import { storeAdapterContract } from '#tests/contracts/store_adapter_contract'
 import ShopifyAdapter from '#services/integrations/stores/shopify_adapter'
 import WooCommerceAdapter from '#services/integrations/stores/woocommerce_adapter'
-import { FakeShopify, FakeWoo } from '#tests/helpers/fake_shops'
+import { FakeEtsy, FakeShopify, FakeWoo } from '#tests/helpers/fake_shops'
+import EtsyAdapter from '#services/integrations/stores/etsy_adapter'
+import env from '#start/env'
+import { Secret } from '@adonisjs/core/helpers'
 
 storeAdapterContract('fake', async () => {
   const adapter = new FakeStoreAdapter()
@@ -81,5 +84,26 @@ storeAdapterContract('woocommerce (in-memory REST API)', async () => {
         ? order.notes.map((n) => /Tracking number: (\S+)/.exec(n)?.[1] ?? '')
         : []
     },
+  }
+})
+
+storeAdapterContract('etsy (in-memory Open API v3, polling)', async () => {
+  const shop = new FakeEtsy()
+  env.set('ETSY_KEYSTRING', shop.keystring)
+  env.set('ETSY_SHARED_SECRET', new Secret(shop.sharedSecret) as never)
+  const connection = shop.connection()
+  return {
+    adapter: new EtsyAdapter(shop.http),
+    connection,
+    placeOrder: (order) =>
+      shop.receipt(
+        Number(order.externalOrderId),
+        order.lines.map((l) => ({ productId: l.variantId, sku: l.sku, quantity: l.quantity }))
+      ),
+    cancelOrder: (id) => shop.receipt(Number(id), [], 'canceled'),
+    prepareShipment: (id) => shop.receipt(Number(id), []),
+    shippedTracking: async (id) =>
+      (shop.receipts.get(Number(id))?.shipments ?? []).map((s: any) => s.tracking_code),
+    onSale: (id) => shop.listings.get(Number(id))?.state === 'active',
   }
 })

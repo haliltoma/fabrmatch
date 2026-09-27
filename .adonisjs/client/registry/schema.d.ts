@@ -1315,6 +1315,42 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['connect']>>>
     }
   }
+  'seller_store.etsy_start': {
+    methods: ["GET","HEAD"]
+    pattern: '/seller/stores/etsy/start'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['etsyStart']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['etsyStart']>>>
+    }
+  }
+  'seller_store.etsy_callback': {
+    methods: ["GET","HEAD"]
+    pattern: '/seller/stores/etsy/callback'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['etsyCallback']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['etsyCallback']>>>
+    }
+  }
+  'seller_store.etsy_categories': {
+    methods: ["GET","HEAD"]
+    pattern: '/seller/stores/etsy/categories'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['etsyCategories']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['etsyCategories']>>>
+    }
+  }
   'seller_store.publish': {
     methods: ["POST"]
     pattern: '/seller/stores/:id/publish'

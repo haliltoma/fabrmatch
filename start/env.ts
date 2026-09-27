@@ -63,6 +63,10 @@ export default await Env.create(new URL('../', import.meta.url), {
   COMPANY_TAX_OFFICE: Env.schema.string.optional(),
   COMPANY_ADDRESS: Env.schema.string.optional(),
 
+  // Etsy Open API v3 app (developers.etsy.com): keystring + shared secret (R4-T5)
+  ETSY_KEYSTRING: Env.schema.string.optional(),
+  ETSY_SHARED_SECRET: Env.schema.secret.optional(),
+
   // iyzico (R1-T1): sandbox https://sandbox-api.iyzipay.com, live https://api.iyzipay.com
   IYZICO_BASE_URL: Env.schema.string.optional({ format: 'url', tld: false }),
   IYZICO_API_KEY: Env.schema.secret.optional(),

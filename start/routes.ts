@@ -330,6 +330,9 @@ router
         router
           .post('/connect', [controllers.SellerStore, 'connect'])
           .use(middleware.throttle({ name: 'store-connect', requests: 10, duration: '1 hour' }))
+        router.get('/etsy/start', [controllers.SellerStore, 'etsyStart'])
+        router.get('/etsy/callback', [controllers.SellerStore, 'etsyCallback'])
+        router.get('/etsy/categories', [controllers.SellerStore, 'etsyCategories'])
         router.post('/:id/publish', [controllers.SellerStore, 'publish'])
         router.post('/:id/unpublish', [controllers.SellerStore, 'unpublish'])
         router.post('/test', [controllers.SellerStore, 'connectTest'])

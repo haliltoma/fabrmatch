@@ -660,6 +660,24 @@ const routes = {
     tokens: [{"old":"/seller/stores/connect","type":0,"val":"seller","end":""},{"old":"/seller/stores/connect","type":0,"val":"stores","end":""},{"old":"/seller/stores/connect","type":0,"val":"connect","end":""}],
     types: placeholder as Registry['seller_store.connect']['types'],
   },
+  'seller_store.etsy_start': {
+    methods: ["GET","HEAD"],
+    pattern: '/seller/stores/etsy/start',
+    tokens: [{"old":"/seller/stores/etsy/start","type":0,"val":"seller","end":""},{"old":"/seller/stores/etsy/start","type":0,"val":"stores","end":""},{"old":"/seller/stores/etsy/start","type":0,"val":"etsy","end":""},{"old":"/seller/stores/etsy/start","type":0,"val":"start","end":""}],
+    types: placeholder as Registry['seller_store.etsy_start']['types'],
+  },
+  'seller_store.etsy_callback': {
+    methods: ["GET","HEAD"],
+    pattern: '/seller/stores/etsy/callback',
+    tokens: [{"old":"/seller/stores/etsy/callback","type":0,"val":"seller","end":""},{"old":"/seller/stores/etsy/callback","type":0,"val":"stores","end":""},{"old":"/seller/stores/etsy/callback","type":0,"val":"etsy","end":""},{"old":"/seller/stores/etsy/callback","type":0,"val":"callback","end":""}],
+    types: placeholder as Registry['seller_store.etsy_callback']['types'],
+  },
+  'seller_store.etsy_categories': {
+    methods: ["GET","HEAD"],
+    pattern: '/seller/stores/etsy/categories',
+    tokens: [{"old":"/seller/stores/etsy/categories","type":0,"val":"seller","end":""},{"old":"/seller/stores/etsy/categories","type":0,"val":"stores","end":""},{"old":"/seller/stores/etsy/categories","type":0,"val":"etsy","end":""},{"old":"/seller/stores/etsy/categories","type":0,"val":"categories","end":""}],
+    types: placeholder as Registry['seller_store.etsy_categories']['types'],
+  },
   'seller_store.publish': {
     methods: ["POST"],
     pattern: '/seller/stores/:id/publish',

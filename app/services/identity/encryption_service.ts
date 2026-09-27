@@ -23,6 +23,7 @@ export const ENCRYPTED_COLUMNS: Array<{ table: string; column: string }> = [
   { table: 'store_connections', column: 'access_token_enc' },
   { table: 'store_connections', column: 'api_key_enc' },
   { table: 'store_connections', column: 'api_secret_enc' },
+  { table: 'store_connections', column: 'refresh_token_enc' },
   { table: 'store_connections', column: 'webhook_secret_enc' },
   { table: 'users', column: 'two_factor_secret_enc' },
   { table: 'webhook_endpoints', column: 'secret_enc' },

@@ -210,7 +210,15 @@ Paket çıkış ölçütü: gerçek ödeme sandbox'ta uçtan uca; vergi+fatura k
   - Üretici kargoladığında dış sipariş `pending` olur; `PushStoreFulfillments` 5 dk'da bir takip numarasını mağazaya yazar (adaptör tekrarı güvenli).
   - Hata → deneme sayısı; 10 denemede `failed`, satıcı "Tekrar dene" diyebilir.
   - KALAN: gerçek Shopify/Etsy çağrıları (R4-T1/T5 🔒).
-- [ ] **R4-T5 Etsy entegrasyonu** (OAuth2 PKCE + periyodik çekme) · P2 · 🔒 Etsy yalnız API anahtarıyla bağlanmaya izin vermiyor: bizim onaylı Etsy uygulamamız (keystring) + satıcı başına OAuth gerekiyor; sipariş webhook'u yok, periyodik çekme. Adaptör sözleşmesi hazır.
+- [x] **R4-T5 Etsy entegrasyonu** (OAuth2 PKCE + periyodik çekme) · P2 · ✔ 2026-09-27 kod hazır. 🔒 Canlı için Etsy uygulama onayı (keystring + shared secret) gerekiyor.
+  - Alanlar Etsy'nin yayımladığı OpenAPI şemasından alındı.
+  - Bağlantı: "Etsy ile bağlan" (OAuth2 + PKCE; state ve verifier oturumda). 1 saatlik token, 90 günlük refresh token ile yenilenir. `x-api-key: keystring:shared_secret`.
+  - Yayınlama: draft listing (kategori seçimi Etsy taxonomy araması ile; mağazanın ilk kargo ve hazırlık profilleri kullanılır) → inventory (malzeme başına ürün, özel özellik 513) → görsel yükleme → active. Satıştan kaldırma: `inactive`.
+  - Siparişler: webhook yok. `PollStoreOrders` 5 dk'da bir ödenmiş receipt'leri ve iptalleri çeker (örtüşme penceresi, dış id ile tekilleştirme).
+  - Takip: `createReceiptShipment`.
+  - Sözleşme testi webhook'suz platformları da kapsıyor; Etsy bellek içi Open API ile geçiyor.
+  - Kurulum: `ETSY_KEYSTRING`, `ETSY_SHARED_SECRET`; Etsy'ye kaydedilecek callback URL: `<APP_URL>/seller/stores/etsy/callback`.
+
 - [x] **R4-T14 WooCommerce entegrasyonu** · P1 · ✔ 2026-09-27
   - Site URL + Consumer key/secret (Okuma/Yazma); SSRF korumalı https istemci.
   - `order.created` + `order.updated` webhook'ları kendi gizli anahtarımızla kurulur. İmza base64 HMAC-SHA256; yalnız `processing`/`completed` siparişler alınır; kurulum ping'i yok sayılır.
