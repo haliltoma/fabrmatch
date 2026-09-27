@@ -1,3 +1,4 @@
+/* eslint-disable @unicorn/no-await-expression-member -- terse assertions read better inline */
 import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
 import EligibilityService from '#services/matching/eligibility_service'
