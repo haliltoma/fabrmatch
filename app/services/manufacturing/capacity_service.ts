@@ -4,6 +4,7 @@ import CapacitySlot from '#models/capacity_slot'
 import WeeklyTemplate from '#models/weekly_template'
 import type { WeeklySchedule } from '#models/weekly_template'
 import type Printer from '#models/printer'
+import type ProductionJob from '#models/production_job'
 
 export default class CapacityService {
   async setSlot(printerId: number, date: string, maxMinutes: number): Promise<CapacitySlot> {
@@ -84,6 +85,25 @@ export default class CapacityService {
       slot.useTransaction(trx)
       await slot.save()
     })
+  }
+
+  /**
+   * Gives back the hours a job held (cancelled, reassigned or reprinted). Clears the job's hold so
+   * a second call is a no-op.
+   */
+  async releaseForJob(job: ProductionJob, trx: TransactionClientContract): Promise<void> {
+    if (!job.capacitySlotId || !job.reservedMinutes) return
+    const slot = await CapacitySlot.query({ client: trx })
+      .where('id', job.capacitySlotId)
+      .forUpdate()
+      .first()
+    if (slot) {
+      slot.reservedMinutes = Math.max(0, slot.reservedMinutes - job.reservedMinutes)
+      await slot.useTransaction(trx).save()
+    }
+    job.capacitySlotId = null
+    job.reservedMinutes = null
+    await job.useTransaction(trx).save()
   }
 
   async setWeeklyTemplate(printer: Printer, schedule: WeeklySchedule): Promise<WeeklyTemplate> {

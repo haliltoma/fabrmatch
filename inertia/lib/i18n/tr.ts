@@ -2890,4 +2890,14 @@ export const tr: Record<string, string> = {
     'Ülkeler iki harfli kodlardır, örneğin DE veya GB',
   '1 country': '1 ülke',
   'Price per gram': 'Gram fiyatı',
+  'Cancel this job and offer the order to another maker?':
+    'Bu iş iptal edilip sipariş başka bir üreticiye mi önerilsin?',
+  'Reason for moving to another maker': 'Başka üreticiye aktarma gerekçesi',
+  'e.g. no reply for 3 days after the due date': 'ör. teslim tarihinden sonra 3 gündür yanıt yok',
+  'Moving…': 'Aktarılıyor…',
+  'Move to another maker': 'Başka üreticiye aktar',
+  'The order is back in matching; the previous maker will not be offered it again.':
+    'Sipariş yeniden eşleştirmede; önceki üreticiye tekrar önerilmeyecek.',
+  'Only an order in production can be reassigned': 'Yalnız üretimdeki bir sipariş aktarılabilir',
+  'The job has already shipped; it cannot be reassigned': 'İş zaten kargolandı; aktarılamaz',
 }

@@ -356,6 +356,7 @@ export interface ApiDefinition {
   adminOrder: {
     index: typeof routes['admin_order.index']
     show: typeof routes['admin_order.show']
+    reassign: typeof routes['admin_order.reassign']
   }
   adminMessage: {
     show: typeof routes['admin_message.show']

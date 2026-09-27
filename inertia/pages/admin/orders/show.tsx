@@ -1,4 +1,8 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
+import { router } from '@inertiajs/react'
+import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
+import { Label } from '~/components/ui/label'
 import { Link } from '@adonisjs/inertia/react'
 import { ArrowLeft } from 'lucide-react'
 import { adminNav } from '~/lib/nav'
@@ -87,6 +91,41 @@ const Empty = () => {
   return <p className="text-sm text-ink-600">{t('None.')}</p>
 }
 
+/** Stuck in production: cancel the maker's job and send the order back to matching. */
+function ReassignForm({ orderId }: { orderId: number }) {
+  const { t } = useT()
+  const [reason, setReason] = useState('')
+  const [busy, setBusy] = useState(false)
+  return (
+    <form
+      className="flex flex-wrap items-end gap-2 rounded-md border border-line p-3"
+      onSubmit={(e) => {
+        e.preventDefault()
+        if (!window.confirm(t('Cancel this job and offer the order to another maker?'))) return
+        setBusy(true)
+        router.post(
+          `/admin/orders/${orderId}/reassign`,
+          { reason },
+          { preserveScroll: true, onFinish: () => setBusy(false) }
+        )
+      }}
+    >
+      <div className="min-w-0 flex-1 space-y-1">
+        <Label htmlFor="reassign-reason">{t('Reason for moving to another maker')}</Label>
+        <Input
+          id="reassign-reason"
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder={t('e.g. no reply for 3 days after the due date')}
+        />
+      </div>
+      <Button type="submit" variant="outline" disabled={busy || reason.trim().length < 3}>
+        {busy ? t('Moving…') : t('Move to another maker')}
+      </Button>
+    </form>
+  )
+}
+
 export default function AdminOrderHealth(p: Props) {
   const { t } = useT()
 
@@ -147,6 +186,7 @@ export default function AdminOrderHealth(p: Props) {
               </p>
             ))
           )}
+          {o.status === 'in_production' && <ReassignForm orderId={o.id} />}
           {o.shippingAddress && (
             <p className="text-xs text-ink-600">
               {t('Ship to {fullName}, {line1}, {postalCode} {city}, {country}', {

@@ -1362,6 +1362,12 @@ const routes = {
     tokens: [{"old":"/admin/orders/:id","type":0,"val":"admin","end":""},{"old":"/admin/orders/:id","type":0,"val":"orders","end":""},{"old":"/admin/orders/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['admin_order.show']['types'],
   },
+  'admin_order.reassign': {
+    methods: ["POST"],
+    pattern: '/admin/orders/:id/reassign',
+    tokens: [{"old":"/admin/orders/:id/reassign","type":0,"val":"admin","end":""},{"old":"/admin/orders/:id/reassign","type":0,"val":"orders","end":""},{"old":"/admin/orders/:id/reassign","type":1,"val":"id","end":""},{"old":"/admin/orders/:id/reassign","type":0,"val":"reassign","end":""}],
+    types: placeholder as Registry['admin_order.reassign']['types'],
+  },
   'admin_message.show': {
     methods: ["GET","HEAD"],
     pattern: '/admin/orders/:id/messages',

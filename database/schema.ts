@@ -1368,12 +1368,14 @@ export class ProductImageSchema extends BaseModel {
 }
 
 export class ProductionJobSchema extends BaseModel {
-  static $columns = ['acceptedAt', 'cancelReason', 'carrier', 'createdAt', 'dueAt', 'id', 'manufacturerProfileId', 'orderId', 'printerId', 'producedAt', 'rating', 'reviewComment', 'shippedAt', 'status', 'trackingNumber', 'updatedAt'] as const
+  static $columns = ['acceptedAt', 'cancelReason', 'capacitySlotId', 'carrier', 'createdAt', 'dueAt', 'id', 'manufacturerProfileId', 'orderId', 'printerId', 'producedAt', 'rating', 'reservedMinutes', 'reviewComment', 'shippedAt', 'status', 'trackingNumber', 'updatedAt'] as const
   $columns = ProductionJobSchema.$columns
   @column.dateTime()
   declare acceptedAt: DateTime
   @column()
   declare cancelReason: string | null
+  @column()
+  declare capacitySlotId: number | null
   @column()
   declare carrier: string | null
   @column.dateTime({ autoCreate: true })
@@ -1392,6 +1394,8 @@ export class ProductionJobSchema extends BaseModel {
   declare producedAt: DateTime | null
   @column()
   declare rating: number | null
+  @column()
+  declare reservedMinutes: number | null
   @column()
   declare reviewComment: string | null
   @column.dateTime()

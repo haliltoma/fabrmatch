@@ -230,6 +230,7 @@ export type ScannedRoutes = {
     'admin_matching.offer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_order.index': { paramsTuple?: []; params?: {} }
     'admin_order.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_order.reassign': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_message.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'product_image.admin_show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_user.index': { paramsTuple?: []; params?: {} }
@@ -636,6 +637,7 @@ export type ScannedRoutes = {
     'admin_queue_monitor.run_again': { paramsTuple?: []; params?: {} }
     'admin_matching.mode': { paramsTuple?: []; params?: {} }
     'admin_matching.offer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_order.reassign': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_user.suspend': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_user.unsuspend': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_pricing_region.store': { paramsTuple?: []; params?: {} }

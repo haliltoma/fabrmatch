@@ -1,4 +1,5 @@
 import DomainError from '#exceptions/domain_error'
+import CapacityService from '#services/manufacturing/capacity_service'
 import db from '@adonisjs/lucid/services/db'
 import { randomUUID } from 'node:crypto'
 import { DateTime } from 'luxon'
@@ -370,6 +371,7 @@ export default class DisputeService {
     job.status = 'cancelled'
     job.cancelReason = 'dispute_reprint'
     await job.useTransaction(trx).save()
+    await new CapacityService().releaseForJob(job, trx)
     await trx
       .from('file_access_grants')
       .where('production_job_id', job.id)

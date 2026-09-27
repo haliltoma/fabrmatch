@@ -342,6 +342,9 @@ export default class MatchingService {
           status: 'accepted',
           acceptedAt: now,
           dueAt,
+          // remembered so a cancel, reassign or reprint can give the hours back
+          capacitySlotId: slot?.id ?? null,
+          reservedMinutes: slot ? minutes : null,
         },
         { client: trx }
       )
@@ -366,6 +369,58 @@ export default class MatchingService {
 
     await this.effects.offerAccepted(job)
     return job
+  }
+
+  /**
+   * An admin takes a job away from a maker who stopped (accepted, never shipped): the job is
+   * cancelled, its file access ends, its hours are freed and the order goes back to matching.
+   * The next round skips every maker who already had an offer, so it will not return to them.
+   */
+  async reassign(orderId: number, adminId: number, reason: string): Promise<void> {
+    await db.transaction(async (trx) => {
+      const order = await Order.query({ client: trx })
+        .where('id', orderId)
+        .forUpdate()
+        .firstOrFail()
+      if (order.status !== 'in_production') {
+        throw new OfferError('Only an order in production can be reassigned')
+      }
+      const job = await ProductionJob.query({ client: trx })
+        .where('orderId', orderId)
+        .whereIn('status', ['accepted', 'printing', 'produced'])
+        .forUpdate()
+        .first()
+      if (!job) throw new OfferError('The job has already shipped; it cannot be reassigned')
+
+      job.status = 'cancelled'
+      job.cancelReason = 'admin_reassign'
+      await job.useTransaction(trx).save()
+      await trx
+        .from('file_access_grants')
+        .where('production_job_id', job.id)
+        .update({ expires_at: DateTime.now().toSQL() })
+      await this.capacity.releaseForJob(job, trx)
+      // the round counter carries on: offers are unique per (order, round)
+      await this.sm.transition(orderId, 'matching', {
+        trx,
+        actorId: adminId,
+        meta: { reassignedFromJobId: job.id },
+      })
+      await AuditLog.create(
+        {
+          actorId: adminId,
+          action: 'order.reassigned',
+          subjectType: 'order',
+          subjectId: orderId,
+          meta: {
+            productionJobId: job.id,
+            manufacturerProfileId: job.manufacturerProfileId,
+            reason: reason.trim().slice(0, 300),
+          },
+        },
+        { client: trx }
+      )
+    })
   }
 
   async declineOffer(

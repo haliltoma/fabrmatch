@@ -2719,6 +2719,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_order_controller').default['show']>>>
     }
   }
+  'admin_order.reassign': {
+    methods: ["POST"]
+    pattern: '/admin/orders/:id/reassign'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_order_controller').default['reassign']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_order_controller').default['reassign']>>>
+    }
+  }
   'admin_message.show': {
     methods: ["GET","HEAD"]
     pattern: '/admin/orders/:id/messages'

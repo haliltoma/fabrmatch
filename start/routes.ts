@@ -592,6 +592,9 @@ router
 
     router.get('/orders', [controllers.AdminOrder, 'index'])
     router.get('/orders/:id', [controllers.AdminOrder, 'show'])
+    router
+      .post('/orders/:id/reassign', [controllers.AdminOrder, 'reassign'])
+      .where('id', router.matchers.number())
     router.get('/orders/:id/messages', [controllers.AdminMessage, 'show'])
 
     router
