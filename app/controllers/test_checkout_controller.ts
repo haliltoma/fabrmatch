@@ -9,14 +9,15 @@ import { testCardValidator } from '#validators/test_checkout'
 export default class TestCheckoutController {
   async show({ params, auth, inertia, response }: HttpContext) {
     if (!TestCheckoutService.enabled()) return response.notFound()
-    const { order, payment } = await new TestCheckoutService().find(
+    const { payment, reference, returnUrl } = await new TestCheckoutService().find(
       params.ref,
       auth.getUserOrFail().id
     )
     return inertia.render('dev/checkout', {
       providerRef: payment.providerRef,
-      orderId: order.id,
-      orderCode: order.code,
+      returnUrl,
+      purpose: payment.walletUserId ? ('top_up' as const) : ('order' as const),
+      orderCode: reference,
       amount: { minor: payment.amountMinor, currency: payment.currency },
       finished: payment.status !== 'pending',
       testCard: TEST_CARD,
@@ -27,11 +28,15 @@ export default class TestCheckoutController {
     if (!TestCheckoutService.enabled()) return response.notFound()
     const card = await request.validateUsing(testCardValidator)
     const result = await new TestCheckoutService().charge(params.ref, auth.getUserOrFail().id, card)
+    const topUp = result.returnUrl === '/seller/wallet'
     if (result.status === 'succeeded') {
-      session.flash('success', 'Payment received. We are finding a maker for your order.')
+      session.flash(
+        'success',
+        topUp ? 'Balance topped up.' : 'Payment received. We are finding a maker for your order.'
+      )
     } else {
       session.flash('error', 'Card declined. Locally only the test card is accepted.')
     }
-    return response.redirect().toPath(`/orders/${result.orderId}`)
+    return response.redirect().toPath(result.returnUrl)
   }
 }

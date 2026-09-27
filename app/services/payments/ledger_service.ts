@@ -12,6 +12,8 @@ export interface LedgerLine {
   direction: LedgerDirection
   amountMinor: number
   currency?: string
+  /** Owner of a `seller_wallet` line (required there, forbidden elsewhere — DB checked) */
+  walletUserId?: number
 }
 
 interface PostOptions {
@@ -58,6 +60,7 @@ export default class LedgerService {
           amountMinor: line.amountMinor,
           currency: line.currency,
           orderId: options.orderId ?? null,
+          walletUserId: line.walletUserId ?? null,
           memo: options.memo ?? null,
         })),
         { client: trx }
@@ -72,13 +75,19 @@ export default class LedgerService {
   /** Balance on the account's normal side (debit-normal: debits − credits, else credits − debits). */
   async balance(
     account: LedgerAccount,
-    filter: { orderId?: number; currency?: string; trx?: TransactionClientContract } = {}
+    filter: {
+      orderId?: number
+      walletUserId?: number
+      currency?: string
+      trx?: TransactionClientContract
+    } = {}
   ): Promise<number> {
     const query = (filter.trx ?? db)
       .from('ledger_entries')
       .where('account', account)
       .where('currency', filter.currency ?? 'TRY')
     if (filter.orderId !== undefined) query.where('order_id', filter.orderId)
+    if (filter.walletUserId !== undefined) query.where('wallet_user_id', filter.walletUserId)
 
     const row = await query
       .select(

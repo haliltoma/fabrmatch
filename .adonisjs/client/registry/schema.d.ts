@@ -1003,6 +1003,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/order_controller').default['pay']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'order.pay_from_wallet': {
+    methods: ["POST"]
+    pattern: '/orders/:id/pay-from-wallet'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/order_controller').default['payFromWallet']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/order_controller').default['payFromWallet']>>>
+    }
+  }
   'order.simulate_payment': {
     methods: ["POST"]
     pattern: '/orders/:id/simulate-payment'
@@ -1373,6 +1385,42 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['retry']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['retry']>>>
+    }
+  }
+  'seller_wallet.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/seller/wallet'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_wallet_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_wallet_controller').default['show']>>>
+    }
+  }
+  'seller_wallet.top_up': {
+    methods: ["POST"]
+    pattern: '/seller/wallet/top-up'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_wallet_controller').default['topUp']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_wallet_controller').default['topUp']>>>
+    }
+  }
+  'seller_wallet.auto_pay': {
+    methods: ["POST"]
+    pattern: '/seller/wallet/auto-pay'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_wallet_controller').default['autoPay']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_wallet_controller').default['autoPay']>>>
     }
   }
   'seller_payout.show': {

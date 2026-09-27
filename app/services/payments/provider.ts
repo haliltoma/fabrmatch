@@ -20,7 +20,8 @@ export interface CheckoutAddress {
 }
 
 export interface CheckoutRequest {
-  orderId: number
+  /** null for a wallet top-up */
+  orderId: number | null
   orderCode: string
   amountMinor: number
   currency: string

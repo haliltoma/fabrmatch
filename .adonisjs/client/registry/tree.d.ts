@@ -139,6 +139,7 @@ export interface ApiDefinition {
     show: typeof routes['order.show']
     cancel: typeof routes['order.cancel']
     pay: typeof routes['order.pay']
+    payFromWallet: typeof routes['order.pay_from_wallet']
     simulatePayment: typeof routes['order.simulate_payment']
     delivered: typeof routes['order.delivered']
     complete: typeof routes['order.complete']
@@ -195,6 +196,11 @@ export interface ApiDefinition {
     disconnect: typeof routes['seller_store.disconnect']
     map: typeof routes['seller_store.map']
     retry: typeof routes['seller_store.retry']
+  }
+  sellerWallet: {
+    show: typeof routes['seller_wallet.show']
+    topUp: typeof routes['seller_wallet.top_up']
+    autoPay: typeof routes['seller_wallet.auto_pay']
   }
   sellerPayout: {
     show: typeof routes['seller_payout.show']

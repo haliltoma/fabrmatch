@@ -504,6 +504,12 @@ const routes = {
     tokens: [{"old":"/orders/:id/pay","type":0,"val":"orders","end":""},{"old":"/orders/:id/pay","type":1,"val":"id","end":""},{"old":"/orders/:id/pay","type":0,"val":"pay","end":""}],
     types: placeholder as Registry['order.pay']['types'],
   },
+  'order.pay_from_wallet': {
+    methods: ["POST"],
+    pattern: '/orders/:id/pay-from-wallet',
+    tokens: [{"old":"/orders/:id/pay-from-wallet","type":0,"val":"orders","end":""},{"old":"/orders/:id/pay-from-wallet","type":1,"val":"id","end":""},{"old":"/orders/:id/pay-from-wallet","type":0,"val":"pay-from-wallet","end":""}],
+    types: placeholder as Registry['order.pay_from_wallet']['types'],
+  },
   'order.simulate_payment': {
     methods: ["POST"],
     pattern: '/orders/:id/simulate-payment',
@@ -689,6 +695,24 @@ const routes = {
     pattern: '/seller/stores/orders/:id/retry',
     tokens: [{"old":"/seller/stores/orders/:id/retry","type":0,"val":"seller","end":""},{"old":"/seller/stores/orders/:id/retry","type":0,"val":"stores","end":""},{"old":"/seller/stores/orders/:id/retry","type":0,"val":"orders","end":""},{"old":"/seller/stores/orders/:id/retry","type":1,"val":"id","end":""},{"old":"/seller/stores/orders/:id/retry","type":0,"val":"retry","end":""}],
     types: placeholder as Registry['seller_store.retry']['types'],
+  },
+  'seller_wallet.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/seller/wallet',
+    tokens: [{"old":"/seller/wallet","type":0,"val":"seller","end":""},{"old":"/seller/wallet","type":0,"val":"wallet","end":""}],
+    types: placeholder as Registry['seller_wallet.show']['types'],
+  },
+  'seller_wallet.top_up': {
+    methods: ["POST"],
+    pattern: '/seller/wallet/top-up',
+    tokens: [{"old":"/seller/wallet/top-up","type":0,"val":"seller","end":""},{"old":"/seller/wallet/top-up","type":0,"val":"wallet","end":""},{"old":"/seller/wallet/top-up","type":0,"val":"top-up","end":""}],
+    types: placeholder as Registry['seller_wallet.top_up']['types'],
+  },
+  'seller_wallet.auto_pay': {
+    methods: ["POST"],
+    pattern: '/seller/wallet/auto-pay',
+    tokens: [{"old":"/seller/wallet/auto-pay","type":0,"val":"seller","end":""},{"old":"/seller/wallet/auto-pay","type":0,"val":"wallet","end":""},{"old":"/seller/wallet/auto-pay","type":0,"val":"auto-pay","end":""}],
+    types: placeholder as Registry['seller_wallet.auto_pay']['types'],
   },
   'seller_payout.show': {
     methods: ["GET","HEAD"],

@@ -621,7 +621,7 @@ export class LeadSchema extends BaseModel {
 }
 
 export class LedgerEntrySchema extends BaseModel {
-  static $columns = ['account', 'amountMinor', 'createdAt', 'currency', 'direction', 'id', 'memo', 'orderId', 'transactionId'] as const
+  static $columns = ['account', 'amountMinor', 'createdAt', 'currency', 'direction', 'id', 'memo', 'orderId', 'transactionId', 'walletUserId'] as const
   $columns = LedgerEntrySchema.$columns
   @column()
   declare account: string
@@ -641,6 +641,8 @@ export class LedgerEntrySchema extends BaseModel {
   declare orderId: number | null
   @column()
   declare transactionId: string
+  @column()
+  declare walletUserId: number | null
 }
 
 export class ManufacturerFinishingSchema extends BaseModel {
@@ -1069,7 +1071,7 @@ export class PaymentWebhookSchema extends BaseModel {
 }
 
 export class PaymentSchema extends BaseModel {
-  static $columns = ['amountMinor', 'createdAt', 'currency', 'id', 'orderId', 'provider', 'providerRef', 'refundedMinor', 'status', 'updatedAt'] as const
+  static $columns = ['amountMinor', 'createdAt', 'currency', 'id', 'orderId', 'provider', 'providerRef', 'refundedMinor', 'status', 'updatedAt', 'walletUserId'] as const
   $columns = PaymentSchema.$columns
   @column()
   declare amountMinor: number
@@ -1080,7 +1082,7 @@ export class PaymentSchema extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
   @column()
-  declare orderId: number
+  declare orderId: number | null
   @column()
   declare provider: string
   @column()
@@ -1091,6 +1093,8 @@ export class PaymentSchema extends BaseModel {
   declare status: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+  @column()
+  declare walletUserId: number | null
 }
 
 export class PayoutDocumentSchema extends BaseModel {
@@ -1457,7 +1461,7 @@ export class SellerProductSchema extends BaseModel {
 }
 
 export class SellerProfileSchema extends BaseModel {
-  static $columns = ['brandMessage', 'brandName', 'businessName', 'createdAt', 'defaultMarginBps', 'id', 'isCorporate', 'logoContentType', 'logoKey', 'status', 'taxIdEnc', 'updatedAt', 'userId'] as const
+  static $columns = ['brandMessage', 'brandName', 'businessName', 'createdAt', 'defaultMarginBps', 'id', 'isCorporate', 'logoContentType', 'logoKey', 'status', 'taxIdEnc', 'updatedAt', 'userId', 'walletAutoPay'] as const
   $columns = SellerProfileSchema.$columns
   @column()
   declare brandMessage: string | null
@@ -1485,6 +1489,8 @@ export class SellerProfileSchema extends BaseModel {
   declare updatedAt: DateTime
   @column()
   declare userId: number
+  @column()
+  declare walletAutoPay: boolean
 }
 
 export class SettingSchema extends BaseModel {

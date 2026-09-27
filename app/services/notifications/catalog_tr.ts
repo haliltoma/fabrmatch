@@ -246,7 +246,13 @@ export const TEMPLATES_TR: Record<NotificationType, Template> = {
       case 'needs_payment':
         return {
           title: `Mağazandan gelen ${shopOrder} ödeme bekliyor`,
-          body: `${c.code} için ${money(c.amountMinor, c.currency)} öde, baskıya başlayalım.`,
+          body: `${c.code} için ${money(c.amountMinor, c.currency)} öde, baskıya başlayalım. Cüzdanında yeterli bakiye olursa bu kendiliğinden olur.`,
+          link: toOrder,
+        }
+      case 'paid_from_wallet':
+        return {
+          title: `Mağazandan gelen ${shopOrder} ödendi, üreticiye gidiyor`,
+          body: `${c.code} için ${money(c.amountMinor, c.currency)} bakiyenden düşüldü.`,
           link: toOrder,
         }
       case 'needs_mapping':

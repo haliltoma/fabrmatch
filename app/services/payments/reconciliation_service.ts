@@ -57,6 +57,11 @@ export default class ReconciliationService {
                        then amount_minor else -amount_minor end) as balance
          from ledger_entries
         where order_id is not null
+          -- per-user, checked below
+          and account <> 'seller_wallet'
+          -- an order paid from the wallet got its cash at the top-up, not on the order
+          and not (account = 'provider_cash'
+                   and order_id in (select order_id from payments where provider = 'wallet'))
         group by order_id, account, currency
        having sum(case when (account in ('provider_cash', 'vat_receivable')) = (direction = 'debit')
                        then amount_minor else -amount_minor end) < 0`
@@ -74,6 +79,27 @@ export default class ReconciliationService {
       })
     }
 
+    // a seller's wallet can never go below zero
+    const wallets = await db.rawQuery(
+      `select wallet_user_id, currency,
+              sum(case when direction = 'credit' then amount_minor else -amount_minor end) as balance
+         from ledger_entries
+        where account = 'seller_wallet'
+        group by wallet_user_id, currency
+       having sum(case when direction = 'credit' then amount_minor else -amount_minor end) < 0`
+    )
+    for (const row of wallets.rows as Array<{
+      wallet_user_id: number
+      currency: string
+      balance: string
+    }>) {
+      found.push({
+        kind: 'negative_balance',
+        orderId: null,
+        detail: `seller_wallet of user ${row.wallet_user_id} is ${row.balance} ${row.currency}`,
+      })
+    }
+
     // cash the ledger says we hold at the provider vs. what payments/payouts imply
     const rows = await db.rawQuery(
       `select p.order_id,
@@ -84,6 +110,8 @@ export default class ReconciliationService {
                           from ledger_entries where order_id = p.order_id and account = 'provider_cash'), 0) as ledger_cash
          from payments p
         where p.status in ('succeeded', 'partially_refunded', 'refunded')
+          and p.order_id is not null
+          and p.provider <> 'wallet'
         group by p.order_id`
     )
     for (const row of rows.rows as Array<{

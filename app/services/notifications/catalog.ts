@@ -60,7 +60,13 @@ export interface NotificationContext {
   reason?: string | null
   payoutLink?: string
   /** store_order: what happened to an order from the seller's own shop */
-  storeStep?: 'needs_payment' | 'needs_mapping' | 'failed' | 'cancelled' | 'cancel_too_late'
+  storeStep?:
+    | 'needs_payment'
+    | 'paid_from_wallet'
+    | 'needs_mapping'
+    | 'failed'
+    | 'cancelled'
+    | 'cancel_too_late'
   shopOrder?: string | null
 }
 
@@ -311,7 +317,13 @@ const TEMPLATES: Record<NotificationType, Template> = {
       case 'needs_payment':
         return {
           title: `${shopOrder} from your shop is ready to pay`,
-          body: `Pay ${money(c.amountMinor, c.currency)} for ${c.code} and we start printing.`,
+          body: `Pay ${money(c.amountMinor, c.currency)} for ${c.code} and we start printing. With enough balance in your wallet this happens by itself.`,
+          link: toOrder,
+        }
+      case 'paid_from_wallet':
+        return {
+          title: `${shopOrder} from your shop is paid and on its way to a maker`,
+          body: `${money(c.amountMinor, c.currency)} for ${c.code} came from your balance.`,
           link: toOrder,
         }
       case 'needs_mapping':

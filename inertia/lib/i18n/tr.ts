@@ -2696,4 +2696,37 @@ export const tr: Record<string, string> = {
   'WooCommerce refused the key: it needs Read/Write permission':
     'WooCommerce anahtarı reddetti: Okuma/Yazma izni gerekiyor',
   'Etsy is not connected yet': 'Etsy henüz bağlanamıyor',
+  'Pay from balance ({amount})': 'Bakiyeden öde ({amount})',
+  'Wallet': 'Cüzdan',
+  'Add balance once; orders from your own shop are then paid from it the moment they arrive, and printing starts without waiting for you.':
+    'Bir kez bakiye yükleyin; mağazanızdan gelen siparişler geldiği anda buradan ödenir ve baskı sizi beklemeden başlar.',
+  'Balance topped up.': 'Bakiye yüklendi.',
+  'Balance': 'Bakiye',
+  'Pay orders from my shops automatically': 'Mağazalarımdan gelen siparişleri otomatik öde',
+  'The wallet is not available in the current sales model.':
+    'Cüzdan mevcut satış modelinde kullanılamıyor.',
+  'Add balance': 'Bakiye yükle',
+  'Between {min} and {max}.': '{min} ile {max} arasında.',
+  'Movements': 'Hareketler',
+  'No movements yet.': 'Henüz hareket yok.',
+  'The balance can only be spent on Fabrmatch orders. If an order paid from it is cancelled, the money comes back here.':
+    'Bakiye yalnızca Fabrmatch siparişlerinde kullanılabilir. Bakiyeden ödenen bir sipariş iptal edilirse tutar buraya geri döner.',
+  'Top-up': 'Yükleme',
+  'Order paid': 'Sipariş ödendi',
+  'Refund': 'İade',
+  'Billing address': 'Fatura adresi',
+  'Paid from your balance — looking for a maker.': 'Bakiyenizden ödendi — üretici aranıyor.',
+  'Orders from your shop are paid from your balance.':
+    'Mağazanızdan gelen siparişler bakiyenizden ödenecek.',
+  'Automatic payment turned off.': 'Otomatik ödeme kapatıldı.',
+  'Top up between 100 and 100,000 TRY': '100 ile 100.000 TRY arasında yükleme yapın',
+  'Enter your billing address': 'Fatura adresinizi girin',
+  'The balance pays TRY orders only': 'Bakiye yalnızca TRY siparişleri öder',
+  'Your balance is not enough for this order': 'Bakiyeniz bu sipariş için yeterli değil',
+  'The balance is only available when Fabrmatch sells':
+    'Bakiye yalnızca Fabrmatch satıcıyken kullanılabilir',
+  'Orders from your own shop': 'Kendi mağazanızdan gelen siparişler',
+  'Wallet top-up': 'Cüzdan yüklemesi',
+  'Back to the wallet': 'Cüzdana dön',
+  'Cancel and go back to the wallet': 'Vazgeç ve cüzdana dön',
 }

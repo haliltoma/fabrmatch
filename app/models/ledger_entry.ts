@@ -13,6 +13,8 @@ export type LedgerAccount =
   | 'vat_receivable'
   /** Income tax withheld from home producers, owed to the tax office */
   | 'withholding_payable'
+  /** Money a seller paid in advance for their own production orders (per `wallet_user_id`) */
+  | 'seller_wallet'
 
 export type LedgerDirection = 'debit' | 'credit'
 

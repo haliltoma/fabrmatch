@@ -19,9 +19,14 @@ import FakePaymentProvider from '#services/payments/fake_provider'
 import OrderService from '#services/orders/order_service'
 import { isValidTckn } from '#services/identity/tax_ids'
 import { paymentProvider } from '#services/payments/provider_registry'
-import type { PaymentProvider, WebhookEvent } from '#services/payments/provider'
+import { salesModel } from '#services/payments/sales_model'
+import type { CheckoutRequest, PaymentProvider, WebhookEvent } from '#services/payments/provider'
+import type { ShippingAddress } from '#services/orders/order_service'
 
 export class PaymentError extends DomainError {}
+
+export const MIN_TOP_UP_MINOR = 10_000
+export const MAX_TOP_UP_MINOR = 10_000_000
 
 /** Asked at the pay step for providers that need them; nothing here is stored. */
 export interface PayerDetails {
@@ -136,10 +141,148 @@ export default class PaymentService {
     return { payment, redirectUrl: checkout.redirectUrl }
   }
 
+  /**
+   * Seller wallet top-up (R4-T2): a hosted checkout like an order's, but the money becomes the
+   * seller's balance. Hosted pages that need the buyer's identity also need a billing address.
+   */
+  async startTopUp(
+    user: User,
+    amountMinor: number,
+    payer: PayerDetails = {},
+    billing: ShippingAddress | null = null
+  ) {
+    if (
+      !Number.isInteger(amountMinor) ||
+      amountMinor < MIN_TOP_UP_MINOR ||
+      amountMinor > MAX_TOP_UP_MINOR
+    ) {
+      throw new PaymentError('Top up between 100 and 100,000 TRY')
+    }
+    if (salesModel() !== 'merchant_of_record') {
+      throw new PaymentError('The balance is only available when Fabrmatch sells')
+    }
+    const needsIdentity = this.provider.needsBuyerIdentity === true
+    if (needsIdentity && !billing) throw new PaymentError('Enter your billing address')
+    const reference = `WT-${Date.now().toString(36).toUpperCase()}`
+    const checkout = await this.provider.createCheckout({
+      orderId: null,
+      orderCode: reference,
+      amountMinor,
+      currency: 'TRY',
+      buyerEmail: user.email,
+      callbackUrl: needsIdentity
+        ? `${env.get('APP_URL')}/payments/return`
+        : `${env.get('APP_URL')}/seller/wallet`,
+      ...(needsIdentity
+        ? this.hostedPageDetails(billing!, user.id, user.email, payer, [
+            { id: 'production' as const, name: 'Fabrmatch balance', priceMinor: amountMinor },
+          ])
+        : {}),
+    })
+    const payment = await Payment.create({
+      walletUserId: user.id,
+      orderId: null,
+      provider: this.provider.name,
+      providerRef: checkout.providerRef,
+      status: 'pending',
+      amountMinor,
+      refundedMinor: 0,
+      currency: 'TRY',
+    })
+    return { payment, redirectUrl: checkout.redirectUrl }
+  }
+
+  /**
+   * Pays an order of the buyer's from their wallet balance: one transaction under a per-user
+   * lock, so two orders can never spend the same money. TRY only.
+   */
+  async payFromWallet(orderId: number, buyerId: number) {
+    if (salesModel() !== 'merchant_of_record') {
+      throw new PaymentError('The balance is only available when Fabrmatch sells')
+    }
+    const paid = await db.transaction(async (trx) => {
+      await trx.rawQuery('select pg_advisory_xact_lock(hashtext(?))', [`wallet:${buyerId}`])
+      const order = await Order.query({ client: trx })
+        .where('id', orderId)
+        .where('buyerId', buyerId)
+        .forUpdate()
+        .first()
+      if (!order) throw new PaymentError('Order not found', { status: 404 })
+      if (order.currency !== 'TRY') throw new PaymentError('The balance pays TRY orders only')
+      if (!['draft', 'awaiting_payment'].includes(order.status)) {
+        throw new PaymentError('This order cannot be paid in its current state')
+      }
+      const balance = await this.ledger.balance('seller_wallet', {
+        walletUserId: buyerId,
+        currency: 'TRY',
+        trx,
+      })
+      if (balance < order.totalMinor) {
+        throw new PaymentError('Your balance is not enough for this order')
+      }
+      if (order.status === 'draft') {
+        await this.sm.transition(order.id, 'awaiting_payment', { trx, actorId: buyerId })
+      }
+      const payment = await Payment.create(
+        {
+          orderId: order.id,
+          walletUserId: null,
+          provider: 'wallet',
+          providerRef: `wallet:${order.id}:${Date.now()}`,
+          status: 'succeeded',
+          amountMinor: order.totalMinor,
+          refundedMinor: 0,
+          currency: 'TRY',
+        },
+        { client: trx }
+      )
+      await this.ledger.post(
+        [
+          {
+            account: 'seller_wallet',
+            direction: 'debit',
+            amountMinor: order.totalMinor,
+            walletUserId: buyerId,
+          },
+          { account: 'buyer_escrow', direction: 'credit', amountMinor: order.totalMinor },
+        ],
+        { orderId: order.id, currency: 'TRY', memo: `paid from wallet payment:${payment.id}`, trx }
+      )
+      await this.sm.transition(order.id, 'paid', {
+        trx,
+        actorId: buyerId,
+        meta: { provider: 'wallet', paymentId: payment.id },
+      })
+      return order.id
+    })
+    await this.afterPaid(paid)
+    return paid
+  }
+
   /** Buyer, address and payout lines for a hosted page that needs them (iyzico). */
   private buyerDetails(order: Order, buyerId: number, email: string, payer: PayerDetails) {
     const address = new OrderService().decryptShippingAddress(order)
     if (!address) throw new PaymentError('This order has no shipping address')
+    const sellerShare = order.sellerId ? order.sellerShareMinor : 0
+    return this.hostedPageDetails(address, buyerId, email, payer, [
+      {
+        id: 'production' as const,
+        name: `3D print ${order.code}`,
+        priceMinor: order.totalMinor - sellerShare,
+      },
+      ...(sellerShare > 0
+        ? [{ id: 'seller' as const, name: `Product ${order.code}`, priceMinor: sellerShare }]
+        : []),
+    ])
+  }
+
+  private hostedPageDetails(
+    address: ShippingAddress,
+    buyerId: number,
+    email: string,
+    payer: PayerDetails,
+    items: NonNullable<CheckoutRequest['items']>
+  ) {
     const phone = normalizePhone(payer.phone || address.phone || '', address.country)
     if (!phone) throw new PaymentError('Add a phone number to pay', { status: 422 })
     if (!validIdentityNumber(payer.identityNumber ?? '', address.country)) {
@@ -149,7 +292,6 @@ export default class PaymentService {
     const words = address.fullName.trim().split(/\s+/)
     const surname = words.length > 1 ? words.pop()! : words[0]
     const street = [address.line1, address.line2, address.district].filter(Boolean).join(', ')
-    const sellerShare = order.sellerId ? order.sellerShareMinor : 0
     return {
       buyer: {
         id: String(buyerId),
@@ -167,16 +309,7 @@ export default class PaymentService {
         country: address.country,
         zipCode: address.postalCode || undefined,
       },
-      items: [
-        {
-          id: 'production' as const,
-          name: `3D print ${order.code}`,
-          priceMinor: order.totalMinor - sellerShare,
-        },
-        ...(sellerShare > 0
-          ? [{ id: 'seller' as const, name: `Product ${order.code}`, priceMinor: sellerShare }]
-          : []),
-      ],
+      items,
     }
   }
 
@@ -197,6 +330,7 @@ export default class PaymentService {
     if (event) await this.process(event)
     return {
       orderId: payment.orderId,
+      walletTopUp: payment.walletUserId !== null,
       outcome: !event ? 'pending' : event.type === 'payment.succeeded' ? 'paid' : 'failed',
     } as const
   }
@@ -286,22 +420,25 @@ export default class PaymentService {
       logger.error({ msg: 'payment webhook needs manual review', reason: result.review })
     }
 
-    if (result.paidOrderId) {
-      await this.notifier.paymentReceived(result.paidOrderId)
-      await this.trackPaid(result.paidOrderId)
-      try {
-        const { hold } = await new FraudService().assess(result.paidOrderId)
-        if (hold) {
-          logger.warn({ msg: 'order held for fraud review', orderId: result.paidOrderId })
-        } else {
-          await this.startMatching(result.paidOrderId)
-        }
-      } catch (error) {
-        logger.error({ msg: 'matching failed to start', orderId: result.paidOrderId, error })
-      }
-    }
+    if (result.paidOrderId) await this.afterPaid(result.paidOrderId)
     if (result.orphanOrderId) await this.settleRefunds(result.orphanOrderId)
     return { status: 'processed', paidOrderId: result.paidOrderId }
+  }
+
+  /** After commit: tell the buyer, count it, check for fraud, then look for a maker. */
+  private async afterPaid(orderId: number) {
+    await this.notifier.paymentReceived(orderId)
+    await this.trackPaid(orderId)
+    try {
+      const { hold } = await new FraudService().assess(orderId)
+      if (hold) {
+        logger.warn({ msg: 'order held for fraud review', orderId })
+      } else {
+        await this.startMatching(orderId)
+      }
+    } catch (error) {
+      logger.error({ msg: 'matching failed to start', orderId, error })
+    }
   }
 
   /** Funnel step "order paid", credited to the buyer's first touch. Never blocks the payment. */
@@ -329,6 +466,9 @@ export default class PaymentService {
         .first()
       if (!disputed)
         return { ...none, review: `chargeback for unknown payment ${event.providerRef}` }
+      if (!disputed.orderId) {
+        return { ...none, review: `chargeback on wallet top-up ${disputed.providerRef}` }
+      }
       await Chargeback.create(
         {
           orderId: disputed.orderId,
@@ -383,16 +523,44 @@ export default class PaymentService {
 
     payment.status = 'succeeded'
     await payment.useTransaction(trx).save()
+
+    // a wallet top-up: the money becomes the seller's balance, nothing else happens
+    if (payment.walletUserId) {
+      await this.ledger.post(
+        [
+          { account: 'provider_cash', direction: 'debit', amountMinor: payment.amountMinor },
+          {
+            account: 'seller_wallet',
+            direction: 'credit',
+            amountMinor: payment.amountMinor,
+            walletUserId: payment.walletUserId,
+          },
+        ],
+        { currency: payment.currency, memo: `wallet top-up payment:${payment.id}`, trx }
+      )
+      await AuditLog.create(
+        {
+          actorId: payment.walletUserId,
+          action: 'wallet.topped_up',
+          subjectType: 'user',
+          subjectId: payment.walletUserId,
+          meta: { paymentId: payment.id, amountMinor: payment.amountMinor },
+        },
+        { client: trx }
+      )
+      return none
+    }
+
     await this.ledger.post(
       [
         { account: 'provider_cash', direction: 'debit', amountMinor: payment.amountMinor },
         { account: 'buyer_escrow', direction: 'credit', amountMinor: payment.amountMinor },
       ],
-      { orderId: payment.orderId, currency: payment.currency, memo: 'payment captured', trx }
+      { orderId: payment.orderId!, currency: payment.currency, memo: 'payment captured', trx }
     )
 
     const order = await Order.query({ client: trx })
-      .where('id', payment.orderId)
+      .where('id', payment.orderId!)
       .forUpdate()
       .firstOrFail()
     if (order.status === 'awaiting_payment') {
@@ -500,23 +668,41 @@ export default class PaymentService {
           throw new PaymentError(`Refund ${amount} exceeds what is left on ${payment.providerRef}`)
         }
 
-        await this.provider.refund({
-          providerRef: payment.providerRef,
-          amountMinor: amount,
-          currency: entry.currency,
-          idempotencyKey: key,
-        })
+        // paid from the balance: the money goes back to the balance, no provider involved
+        const toWallet = payment.provider === 'wallet'
+        if (!toWallet) {
+          await this.provider.refund({
+            providerRef: payment.providerRef,
+            amountMinor: amount,
+            currency: entry.currency,
+            idempotencyKey: key,
+          })
+        }
 
         payment.refundedMinor += amount
         payment.status =
           payment.refundedMinor >= payment.amountMinor ? 'refunded' : 'partially_refunded'
         await payment.useTransaction(trx).save()
+        const walletOwner = toWallet ? await Order.findOrFail(orderId, { client: trx }) : null
+        const buyerId = walletOwner?.buyerId ?? 0
         await this.ledger.post(
           [
             { account: 'refund', direction: 'debit', amountMinor: amount },
-            { account: 'provider_cash', direction: 'credit', amountMinor: amount },
+            toWallet
+              ? {
+                  account: 'seller_wallet',
+                  direction: 'credit',
+                  amountMinor: amount,
+                  walletUserId: buyerId,
+                }
+              : { account: 'provider_cash', direction: 'credit', amountMinor: amount },
           ],
-          { orderId, currency: entry.currency, memo: 'refund paid to buyer', trx }
+          {
+            orderId,
+            currency: entry.currency,
+            memo: toWallet ? 'refund back to wallet' : 'refund paid to buyer',
+            trx,
+          }
         )
         await AuditLog.create(
           {

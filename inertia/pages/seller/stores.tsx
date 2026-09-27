@@ -37,7 +37,7 @@ type Listing = {
 type ExternalOrder = {
   id: number
   name: string
-  status: 'needs_mapping' | 'placed' | 'ignored' | 'failed'
+  status: 'needs_mapping' | 'placed' | 'ignored' | 'failed' | 'cancelled'
   error: string | null
   lines: Array<{ title: string; sku: string | null; quantity: number }>
   order: { id: number; code: string; status: string; totalMinor: number; currency: string } | null

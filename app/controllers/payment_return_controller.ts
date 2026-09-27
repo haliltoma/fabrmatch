@@ -10,7 +10,10 @@ export default class PaymentReturnController {
    */
   async handle({ request, response }: HttpContext) {
     try {
-      const { orderId, outcome } = await new PaymentService().confirmReturn(request.all())
+      const { orderId, walletTopUp, outcome } = await new PaymentService().confirmReturn(
+        request.all()
+      )
+      if (walletTopUp) return response.redirect(`/seller/wallet?topup=${outcome}`)
       return response.redirect(`/orders/${orderId}?payment=${outcome}`)
     } catch (error) {
       logger.error({ msg: 'payment return failed', error: (error as Error).message })

@@ -27,8 +27,11 @@ export interface CardInput {
   name: string
 }
 
-export type ChargeResult =
-  { status: 'succeeded'; orderId: number } | { status: 'declined'; orderId: number }
+export interface ChargeResult {
+  status: 'succeeded' | 'declined'
+  /** Where the buyer goes back to: their order, or their wallet for a top-up */
+  returnUrl: string
+}
 
 /**
  * Local stand-in for the provider's hosted payment page (fake provider, never in production). It
@@ -48,29 +51,42 @@ export default class TestCheckoutService {
     }
   }
 
-  /** The payment behind a checkout link, for the buyer who owns it. */
+  /** The payment behind a checkout link, for the buyer who owns it (an order or a wallet top-up). */
   async find(providerRef: string, buyerId: number) {
     const payment = await Payment.query()
       .where('providerRef', providerRef)
       .where('provider', 'fake')
       .first()
-    const order = payment ? await Order.find(payment.orderId) : null
+    if (payment?.walletUserId && payment.walletUserId === buyerId) {
+      return {
+        payment,
+        reference: 'WALLET',
+        returnUrl: '/seller/wallet',
+        open: payment.status === 'pending',
+      }
+    }
+    const order = payment?.orderId ? await Order.find(payment.orderId) : null
     if (!payment || !order || order.buyerId !== buyerId) {
       throw new TestCheckoutError('Checkout not found', { status: 404 })
     }
-    return { payment, order }
+    return {
+      payment,
+      reference: order.code,
+      returnUrl: `/orders/${order.id}`,
+      open: payment.status === 'pending' && order.status === 'awaiting_payment',
+    }
   }
 
   async charge(providerRef: string, buyerId: number, card: CardInput): Promise<ChargeResult> {
-    const { payment, order } = await this.find(providerRef, buyerId)
-    if (payment.status !== 'pending' || order.status !== 'awaiting_payment') {
+    const { payment, returnUrl, open } = await this.find(providerRef, buyerId)
+    if (!open) {
       throw new TestCheckoutError('This checkout is already finished.', { status: 409 })
     }
     this.checkCard(card)
 
     const approved = card.number.replace(/\D/g, '') === TEST_CARD.number
     await this.report(payment, approved ? 'payment.succeeded' : 'payment.failed')
-    return { status: approved ? 'succeeded' : 'declined', orderId: payment.orderId }
+    return { status: approved ? 'succeeded' : 'declined', returnUrl }
   }
 
   /** Form mistakes are shown on the form; a well-formed but unknown card is a decline. */

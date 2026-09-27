@@ -27,6 +27,10 @@ export default class SellerProfile extends BaseModel {
   @column()
   declare defaultMarginBps: number
 
+  /** Orders from the seller's own shop are paid from the wallet when the balance allows (R4-T2) */
+  @column()
+  declare walletAutoPay: boolean
+
   @column()
   declare brandName: string | null
 

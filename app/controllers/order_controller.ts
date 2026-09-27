@@ -6,6 +6,7 @@ import OrderService from '#services/orders/order_service'
 import type Order from '#models/order'
 import FulfillmentService from '#services/orders/fulfillment_service'
 import PaymentService, { normalizePhone } from '#services/payments/payment_service'
+import WalletService from '#services/payments/wallet_service'
 import DisputeService from '#services/disputes/dispute_service'
 import DisputeTransformer from '#transformers/dispute_transformer'
 import OrderTransformer from '#transformers/order_transformer'
@@ -62,6 +63,11 @@ export default class OrderController {
       testPayments: TestCheckoutService.enabled(),
       // iyzico asks for the identity number (and a phone when the address has none) at the pay step
       payStep: payStep(order, service),
+      // a seller with a balance can pay their shop's orders from it
+      walletBalanceMinor:
+        ['draft', 'awaiting_payment'].includes(order.status) && order.currency === 'TRY'
+          ? await new WalletService().balance(order.buyerId)
+          : null,
       // set by the hosted page return: paid | failed | pending
       paymentReturn:
         (['paid', 'failed', 'pending'] as const).find(
@@ -85,6 +91,13 @@ export default class OrderController {
       { ...payer, ip: request.ip() }
     )
     return inertia.location(redirectUrl)
+  }
+
+  /** Pays the order from the buyer's wallet balance (sellers paying their shop's orders). */
+  async payFromWallet({ auth, params, response, session }: HttpContext) {
+    await new PaymentService().payFromWallet(Number(params.id), auth.getUserOrFail().id)
+    session.flash('success', 'Paid from your balance — looking for a maker.')
+    return response.redirect().toPath(`/orders/${params.id}`)
   }
 
   /** Dev-only: completes a fake-provider checkout through the real webhook path. */

@@ -187,7 +187,16 @@ Paket çıkış ölçütü: gerçek ödeme sandbox'ta uçtan uca; vergi+fatura k
   - Takip: `fulfillmentOrders` → `fulfillmentCreate` (trackingInfo, müşteriye bildirim).
   - Gerçek bir Shopify mağazasında henüz denenmedi (bellek içi Admin API taklidiyle test edildi).
   - OAuth uygulaması, HMAC doğrulamalı webhook (orders/create, app/uninstalled), idempotent `external_orders`.
-- [ ] **R4-T2 Satıcı cüzdanı / taban maliyet tahsilatı** · P1 · ⏸ K-E (öneri: cüzdan/kayıtlı kart)
+- [x] **R4-T2 Satıcı cüzdanı / taban maliyet tahsilatı** · P1 · ✔ 2026-09-27 K-E varsayılanıyla (cüzdan; kayıtlı kart sonraya)
+  - `/seller/wallet`: bakiye yükleme mevcut ödeme yolundan geçer (iyzico / yerel test kartı, aynı idempotent webhook/dönüş). 100–100.000 TRY.
+  - Defterde `seller_wallet` (kullanıcı bazında `wallet_user_id`, DB kısıtı).
+  - Bakiyeden ödeme: kullanıcı başına kilit, aynı para iki siparişe harcanamaz (test).
+  - Mağaza siparişleri bakiye yeterse otomatik ödenir (anahtar, varsayılan açık); sipariş sayfasında "Bakiyeden öde".
+  - Bakiyeden ödenen siparişin iadesi karta değil cüzdana döner.
+  - Mutabakat: kullanıcı bazında negatif cüzdan kontrolü; cüzdanla ödenen siparişlerde sahte nakit alarmı yok.
+  - Yalnız satış modeli B'de (pazaryerinde kapalı).
+  - ⚠ D5: bakiye yalnız Fabrmatch'in kendi hizmetinde harcanan avans olarak tasarlandı (6493 kapsamı dışı kalması için para çekme / başkasına devir yok). Avukat teyidi gerekli.
+  - KALAN: bakiyenin iadesi (hesap kapatma) admin işlemi, kayıtlı kart.
 - [x] **R4-T3 SKU eşleme ekranı** · P1 · ✔ 2026-09-27 çekirdek (`flags.externalStores` KAPALI)
   - `store_connections` (token/secret şifreli), `external_listings`; `/seller/stores`'ta mağazanın her varyantı kendi ürününe + malzeme/renk/boyuta bağlanır (sahiplik, izinli malzeme/ölçek kontrollü).
   - Sipariş webhook'u (`/webhooks/stores/:id/orders`, mağaza başına HMAC, CSRF'siz) dış sipariş id'si başına bir kez kaydedilir.

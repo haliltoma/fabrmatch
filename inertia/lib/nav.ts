@@ -58,6 +58,7 @@ export const sellerNav: NavItem[] = [
   { label: 'Quote requests', href: '/rfqs', icon: FileQuestion, feature: 'rfq' },
   { label: 'Branding', href: '/seller/branding', icon: Tag },
   { label: 'Your shops', href: '/seller/stores', icon: Store, feature: 'externalStores' },
+  { label: 'Wallet', href: '/seller/wallet', icon: Wallet, feature: 'externalStores' },
   { label: 'Payouts and invoices', href: '/seller/payout', icon: Landmark },
   { label: 'Developers', href: '/seller/developers', icon: KeyRound },
   { label: 'My orders', href: '/orders', icon: ClipboardList },

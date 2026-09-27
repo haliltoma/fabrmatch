@@ -72,6 +72,7 @@ export const controllers = {
   SellerPayout: () => import('#controllers/seller_payout_controller'),
   SellerProduct: () => import('#controllers/seller_product_controller'),
   SellerStore: () => import('#controllers/seller_store_controller'),
+  SellerWallet: () => import('#controllers/seller_wallet_controller'),
   Session: () => import('#controllers/session_controller'),
   Status: () => import('#controllers/status_controller'),
   StoreWebhook: () => import('#controllers/store_webhook_controller'),

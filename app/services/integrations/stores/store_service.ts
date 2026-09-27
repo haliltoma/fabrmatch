@@ -13,6 +13,8 @@ import User from '#models/user'
 import EncryptionService from '#services/identity/encryption_service'
 import OrderService, { type ShippingAddress } from '#services/orders/order_service'
 import OrderNotifier from '#services/notifications/order_notifier'
+import PaymentService from '#services/payments/payment_service'
+import SellerProfile from '#models/seller_profile'
 import env from '#start/env'
 import ProductImageService from '#services/catalog/product_image_service'
 import { storeAdapter } from '#services/integrations/stores/store_registry'
@@ -555,6 +557,22 @@ export default class StoreService {
       )
       order.merge({ orderId: created.id, status: 'placed', error: null })
       await order.save()
+      // Printify-style: paid from the seller's balance at once when there is enough
+      if (await this.autoPay(seller, created)) {
+        await this.notifier.storeOrder(
+          connection.sellerUserId,
+          {
+            storeStep: 'paid_from_wallet',
+            shopOrder: order.externalOrderName ?? order.externalOrderId,
+            code: created.code,
+            orderId: created.id,
+            amountMinor: created.totalMinor,
+            currency: created.currency,
+          },
+          `store:${order.id}:placed`
+        )
+        return
+      }
       await this.notifier.storeOrder(
         connection.sellerUserId,
         {
@@ -580,6 +598,23 @@ export default class StoreService {
         },
         `store:${order.id}:failed`
       )
+    }
+  }
+
+  /** True when the order was paid from the seller's balance (auto-pay on and enough money). */
+  private async autoPay(seller: User, order: { id: number; totalMinor: number; currency: string }) {
+    const profile = await SellerProfile.query().where('userId', seller.id).first()
+    if (!profile?.walletAutoPay || order.currency !== 'TRY') return false
+    try {
+      await new PaymentService().payFromWallet(order.id, seller.id)
+      return true
+    } catch (error) {
+      logger.info({
+        msg: 'auto-pay from wallet skipped',
+        orderId: order.id,
+        reason: (error as Error).message,
+      })
+      return false
     }
   }
 

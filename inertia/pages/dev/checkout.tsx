@@ -33,14 +33,16 @@ function formatExpiry(value: string) {
  */
 export default function TestCheckout({
   providerRef,
-  orderId,
+  returnUrl,
+  purpose,
   orderCode,
   amount,
   finished,
   testCard,
 }: {
   providerRef: string
-  orderId: number
+  returnUrl: string
+  purpose: 'order' | 'top_up'
   orderCode: string
   amount: { minor: number; currency: string }
   finished: boolean
@@ -106,7 +108,7 @@ export default function TestCheckout({
         <div className="layer-lines flex items-end justify-between gap-4 border-b border-line px-6 py-5">
           <div>
             <p className="font-mono text-xs uppercase tracking-[0.18em] text-ink-600">
-              {t('Order')}
+              {purpose === 'top_up' ? t('Wallet top-up') : t('Order')}
             </p>
             <OrderCode code={orderCode} className="text-lg font-semibold" />
           </div>
@@ -126,7 +128,9 @@ export default function TestCheckout({
           <div className="space-y-4 px-6 py-6">
             <p className="text-ink-700">{t('This checkout is already finished.')}</p>
             <Button asChild>
-              <Link href={`/orders/${orderId}`}>{t('Back to the order')}</Link>
+              <Link href={returnUrl}>
+                {purpose === 'top_up' ? t('Back to the wallet') : t('Back to the order')}
+              </Link>
             </Button>
           </div>
         ) : (
@@ -184,8 +188,10 @@ export default function TestCheckout({
               {t('Any other card number is declined, so you can test a failed payment too.')}
             </p>
             <p className="text-center text-sm">
-              <Link href={`/orders/${orderId}`} className="text-ink-700 underline">
-                {t('Cancel and go back to the order')}
+              <Link href={returnUrl} className="text-ink-700 underline">
+                {purpose === 'top_up'
+                  ? t('Cancel and go back to the wallet')
+                  : t('Cancel and go back to the order')}
               </Link>
             </p>
           </form>

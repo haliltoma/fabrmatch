@@ -87,6 +87,7 @@ export type ScannedRoutes = {
     'order.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'order.cancel': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'order.pay': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'order.pay_from_wallet': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'order.simulate_payment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'order.delivered': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'order.complete': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -118,6 +119,9 @@ export type ScannedRoutes = {
     'seller_store.disconnect': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_store.map': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_store.retry': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'seller_wallet.show': { paramsTuple?: []; params?: {} }
+    'seller_wallet.top_up': { paramsTuple?: []; params?: {} }
+    'seller_wallet.auto_pay': { paramsTuple?: []; params?: {} }
     'seller_payout.show': { paramsTuple?: []; params?: {} }
     'seller_payout.save': { paramsTuple?: []; params?: {} }
     'seller_payout.invoice': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -310,6 +314,7 @@ export type ScannedRoutes = {
     'seller_branding.show': { paramsTuple?: []; params?: {} }
     'seller_branding.logo': { paramsTuple?: []; params?: {} }
     'seller_store.index': { paramsTuple?: []; params?: {} }
+    'seller_wallet.show': { paramsTuple?: []; params?: {} }
     'seller_payout.show': { paramsTuple?: []; params?: {} }
     'seller_payout.voucher': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_developer.index': { paramsTuple?: []; params?: {} }
@@ -423,6 +428,7 @@ export type ScannedRoutes = {
     'seller_branding.show': { paramsTuple?: []; params?: {} }
     'seller_branding.logo': { paramsTuple?: []; params?: {} }
     'seller_store.index': { paramsTuple?: []; params?: {} }
+    'seller_wallet.show': { paramsTuple?: []; params?: {} }
     'seller_payout.show': { paramsTuple?: []; params?: {} }
     'seller_payout.voucher': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_developer.index': { paramsTuple?: []; params?: {} }
@@ -519,6 +525,7 @@ export type ScannedRoutes = {
     'order.store': { paramsTuple?: []; params?: {} }
     'order.cancel': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'order.pay': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'order.pay_from_wallet': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'order.simulate_payment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'order.delivered': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'order.complete': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -538,6 +545,8 @@ export type ScannedRoutes = {
     'seller_store.disconnect': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_store.map': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_store.retry': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'seller_wallet.top_up': { paramsTuple?: []; params?: {} }
+    'seller_wallet.auto_pay': { paramsTuple?: []; params?: {} }
     'seller_payout.save': { paramsTuple?: []; params?: {} }
     'seller_payout.invoice': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_developer.create_key': { paramsTuple?: []; params?: {} }

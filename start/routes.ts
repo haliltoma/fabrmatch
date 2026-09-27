@@ -245,6 +245,9 @@ router
       .post('/:id/pay', [controllers.Order, 'pay'])
       .use([middleware.verified(), middleware.idempotent()])
     router
+      .post('/:id/pay-from-wallet', [controllers.Order, 'payFromWallet'])
+      .use([middleware.verified(), middleware.idempotent()])
+    router
       .post('/:id/simulate-payment', [controllers.Order, 'simulatePayment'])
       .use(middleware.verified())
     router.post('/:id/delivered', [controllers.Order, 'delivered'])
@@ -337,6 +340,17 @@ router
       .prefix('/stores')
       .where('id', router.matchers.number())
       .use([middleware.feature({ name: 'externalStores' }), middleware.profile({ role: 'seller' })])
+
+    // Prepaid balance for orders from the seller's own shop (R4-T2)
+    router.get('/wallet', [controllers.SellerWallet, 'show'])
+    router
+      .post('/wallet/top-up', [controllers.SellerWallet, 'topUp'])
+      .use([
+        middleware.verified(),
+        middleware.idempotent(),
+        middleware.throttle({ name: 'wallet-top-up', requests: 10, duration: '1 hour' }),
+      ])
+    router.post('/wallet/auto-pay', [controllers.SellerWallet, 'autoPay'])
 
     // Tax and bank details, invoices to Fabrmatch (R7)
     router.get('/payout', [controllers.SellerPayout, 'show'])

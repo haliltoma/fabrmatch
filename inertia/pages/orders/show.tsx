@@ -267,6 +267,7 @@ export default function OrdersShow({
   testPayments,
   payStep,
   paymentReturn,
+  walletBalanceMinor,
 }: {
   order: OrderData
   timeline: TimelineEntry[]
@@ -277,6 +278,8 @@ export default function OrdersShow({
   /** Set when the provider needs the buyer's identity number (iyzico) */
   payStep: { phoneOnFile: boolean; country: string } | null
   paymentReturn: 'paid' | 'failed' | 'pending' | null
+  /** The buyer's wallet balance while the order can be paid (sellers only have one) */
+  walletBalanceMinor: number | null
 }) {
   const { t } = useT()
 
@@ -433,6 +436,30 @@ export default function OrdersShow({
           {canPay && !payStep && (
             <Button onClick={pay} disabled={paying}>
               {t('Pay now')}
+            </Button>
+          )}
+          {canPay && walletBalanceMinor !== null && walletBalanceMinor >= order.totalMinor && (
+            <Button
+              variant="outline"
+              disabled={paying}
+              onClick={() => {
+                setPaying(true)
+                router.post(
+                  `/orders/${order.id}/pay-from-wallet`,
+                  {},
+                  {
+                    headers: payKey.headers(),
+                    onFinish: () => {
+                      payKey.renew()
+                      setPaying(false)
+                    },
+                  }
+                )
+              }}
+            >
+              {t('Pay from balance ({amount})', {
+                amount: formatMoney(walletBalanceMinor, 'TRY'),
+              })}
             </Button>
           )}
           {canConfirmDelivery && (
