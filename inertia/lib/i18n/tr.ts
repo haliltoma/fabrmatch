@@ -2821,4 +2821,13 @@ export const tr: Record<string, string> = {
   'technology and build volume filled in; adjust if you have modified the machine.':
     'teknoloji ve tabla boyutu dolduruldu; makinenizde değişiklik varsa düzeltin.',
   'Unknown printer model': 'Bilinmeyen yazıcı modeli',
+  'My invoices': 'Faturalarım',
+  'Invoices issued to you once an order is completed, newest first. Open one to print or save it as PDF.':
+    'Siparişleriniz tamamlandığında size kesilen faturalar, en yeniden eskiye. Yazdırmak ya da PDF olarak kaydetmek için birini açın.',
+  'No invoices yet': 'Henüz fatura yok',
+  'An invoice is issued automatically when one of your orders is completed.':
+    'Siparişlerinizden biri tamamlandığında fatura otomatik olarak kesilir.',
+  'See my orders': 'Siparişlerimi gör',
+  'incl. VAT': 'KDV dahil',
+  'Voided': 'İptal edildi',
 }

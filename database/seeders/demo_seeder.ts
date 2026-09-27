@@ -29,6 +29,7 @@ import FakePaymentProvider from '#services/payments/fake_provider'
 import { paymentProvider } from '#services/payments/provider_registry'
 import { salesModel } from '#services/payments/sales_model'
 import WalletService from '#services/payments/wallet_service'
+import InvoiceService from '#services/invoicing/invoice_service'
 
 const ADDRESS = {
   fullName: 'Deniz Yılmaz',
@@ -258,7 +259,11 @@ export default class DemoSeeder extends BaseSeeder {
     await this.walletTopUp(sellerUser, 250_000)
 
     const offers = await MatchOffer.query().count('* as n').first()
-    if (Number(offers?.$extras.n) > 0) return
+    if (Number(offers?.$extras.n) > 0) {
+      // flows already seeded: still issue invoices for completed orders (idempotent)
+      await new InvoiceService().issueDue()
+      return
+    }
 
     const orders = new OrderService()
     const payments = new PaymentService()
@@ -320,6 +325,9 @@ export default class DemoSeeder extends BaseSeeder {
         'Two of the three clips arrived snapped in half.'
       )
     }
+
+    // what the hourly sweep would do: completed demo orders get their invoice (idempotent)
+    await new InvoiceService().issueDue()
   }
 
   private async approvedPayee(

@@ -7,6 +7,7 @@
 import type { InferData, InferVariants } from '@adonisjs/core/types/transformers'
 import type { InferSharedProps, InferFlashData } from '@adonisjs/inertia/types'
 import type DisputeTransformer from '#transformers/dispute_transformer'
+import type InvoiceTransformer from '#transformers/invoice_transformer'
 import type ManufacturerPublicTransformer from '#transformers/manufacturer_public_transformer'
 import type MatchOfferTransformer from '#transformers/match_offer_transformer'
 import type OrderTransformer from '#transformers/order_transformer'
@@ -23,6 +24,10 @@ export namespace Data {
   export type Dispute = InferData<DisputeTransformer>
   export namespace Dispute {
     export type Variants = InferVariants<DisputeTransformer>
+  }
+  export type Invoice = InferData<InvoiceTransformer>
+  export namespace Invoice {
+    export type Variants = InferVariants<InvoiceTransformer>
   }
   export type ManufacturerPublic = InferData<ManufacturerPublicTransformer>
   export namespace ManufacturerPublic {

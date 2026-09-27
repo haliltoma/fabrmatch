@@ -8,6 +8,7 @@ import {
   Brush,
   FileQuestion,
   FileSpreadsheet,
+  FileText,
   FlaskConical,
   Gauge,
   Landmark,
@@ -63,6 +64,7 @@ export const sellerNav: NavItem[] = [
   { label: 'Payouts and invoices', href: '/seller/payout', icon: Landmark },
   { label: 'Developers', href: '/seller/developers', icon: KeyRound },
   { label: 'My orders', href: '/orders', icon: ClipboardList },
+  { label: 'My invoices', href: '/invoices', icon: FileText },
 ]
 
 export const adminNav: NavItem[] = [

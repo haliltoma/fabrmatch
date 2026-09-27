@@ -151,6 +151,7 @@ export interface ApiDefinition {
   }
   invoice: {
     show: typeof routes['invoice.show']
+    index: typeof routes['invoice.index']
   }
   orderMessage: {
     show: typeof routes['order_message.show']

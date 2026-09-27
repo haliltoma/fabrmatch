@@ -1135,6 +1135,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/dispute_controller').default['open']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'invoice.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/invoices'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/order').pageQueryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/invoice_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/invoice_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'dispute.upload_url': {
     methods: ["POST"]
     pattern: '/disputes/:id/evidence/upload-url'

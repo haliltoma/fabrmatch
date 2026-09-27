@@ -570,6 +570,12 @@ const routes = {
     tokens: [{"old":"/orders/:id/dispute","type":0,"val":"orders","end":""},{"old":"/orders/:id/dispute","type":1,"val":"id","end":""},{"old":"/orders/:id/dispute","type":0,"val":"dispute","end":""}],
     types: placeholder as Registry['dispute.open']['types'],
   },
+  'invoice.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/invoices',
+    tokens: [{"old":"/invoices","type":0,"val":"invoices","end":""}],
+    types: placeholder as Registry['invoice.index']['types'],
+  },
   'dispute.upload_url': {
     methods: ["POST"],
     pattern: '/disputes/:id/evidence/upload-url',

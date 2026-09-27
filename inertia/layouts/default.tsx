@@ -152,6 +152,11 @@ export default function Layout({ children }: { children: ReactElement<Data.Share
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
+                    <Link href="/invoices" className="w-full cursor-pointer text-sm">
+                      {t('My invoices')}
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
                     <Link href="/account/security" className="w-full cursor-pointer text-sm">
                       {t('Account security')}
                     </Link>
@@ -210,6 +215,12 @@ export default function Layout({ children }: { children: ReactElement<Data.Share
                           <p className="text-xs text-ink-600">{user.email}</p>
                         </div>
                       </div>
+                      <Link href="/orders" className="py-2 text-sm font-medium text-ink-700">
+                        {t('My orders')}
+                      </Link>
+                      <Link href="/invoices" className="py-2 text-sm font-medium text-ink-700">
+                        {t('My invoices')}
+                      </Link>
                       <Form route="session.destroy">
                         <Button variant="outline" className="w-full" type="submit">
                           {t('Log out')}

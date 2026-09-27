@@ -271,6 +271,10 @@ router
   .where('id', router.matchers.number())
   .use([middleware.auth(), middleware.onboarding()])
 
+router
+  .get('/invoices', [controllers.Invoice, 'index'])
+  .use([middleware.auth(), middleware.onboarding()])
+
 // Dispute evidence (buyer or the producing manufacturer; checked in the service)
 router
   .group(() => {

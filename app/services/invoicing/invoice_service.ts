@@ -8,6 +8,7 @@ import User from '#models/user'
 import FakeInvoiceProvider from '#services/invoicing/fake_provider'
 import type { InvoiceProvider } from '#services/invoicing/provider'
 import { splitGross } from '#services/tax/tax'
+import { pageMeta, pageParams } from '#services/pagination'
 
 /**
  * The platform's commission invoice, issued once an order is completed (idempotent per order).
@@ -16,6 +17,18 @@ import { splitGross } from '#services/tax/tax'
  */
 export default class InvoiceService {
   constructor(private provider: InvoiceProvider = new FakeInvoiceProvider()) {}
+
+  /** The recipient's own invoices, newest first (voided ones stay listed with their status). */
+  async listForRecipient(userId: number, params: { page?: number; perPage?: number } = {}) {
+    const { page, perPage } = pageParams(params)
+    const paginator = await Invoice.query()
+      .where('recipientUserId', userId)
+      .preload('order')
+      .orderBy('issuedAt', 'desc')
+      .orderBy('id', 'desc')
+      .paginate(page, perPage)
+    return { rows: paginator.all(), meta: pageMeta(paginator.total, page, perPage) }
+  }
 
   async issueFor(orderId: number): Promise<Invoice | null> {
     const order = await Order.findOrFail(orderId)

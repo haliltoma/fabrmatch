@@ -35,6 +35,7 @@ const roles = [
     password: 'password123',
     paths: [
       '/orders',
+      '/invoices',
       '/files',
       '/cart',
       '/notifications',
