@@ -19,6 +19,7 @@ export const NOTIFICATION_TYPES = [
   'refund_issued',
   'payout_paid',
   'payout_action',
+  'store_order',
   'dispute_opened',
   'dispute_responded',
   'dispute_resolved',
@@ -58,6 +59,9 @@ export interface NotificationContext {
     | 'invoice_approved'
   reason?: string | null
   payoutLink?: string
+  /** store_order: what happened to an order from the seller's own shop */
+  storeStep?: 'needs_payment' | 'needs_mapping' | 'failed' | 'cancelled' | 'cancel_too_late'
+  shopOrder?: string | null
 }
 
 export interface Rendered {
@@ -296,6 +300,50 @@ const TEMPLATES: Record<NotificationType, Template> = {
         }
       default:
         return { title: 'Payout update', body: 'Open your payouts page for the details.', link }
+    }
+  },
+
+  store_order: (role, c) => {
+    if (role !== 'seller') return null
+    const shopOrder = c.shopOrder ?? 'An order'
+    const toOrder = c.orderId ? `/orders/${c.orderId}` : '/seller/stores'
+    switch (c.storeStep) {
+      case 'needs_payment':
+        return {
+          title: `${shopOrder} from your shop is ready to pay`,
+          body: `Pay ${money(c.amountMinor, c.currency)} for ${c.code} and we start printing.`,
+          link: toOrder,
+        }
+      case 'needs_mapping':
+        return {
+          title: `${shopOrder} needs a product link`,
+          body: 'Link the item to one of your products and the order goes through.',
+          link: '/seller/stores',
+        }
+      case 'failed':
+        return {
+          title: `${shopOrder} could not be placed`,
+          body: c.reason ?? 'Open your shops page for the details.',
+          link: '/seller/stores',
+        }
+      case 'cancelled':
+        return {
+          title: `${shopOrder} was cancelled in your shop`,
+          body: `We cancelled ${c.code ?? 'the order'} too; anything you paid is refunded.`,
+          link: toOrder,
+        }
+      case 'cancel_too_late':
+        return {
+          title: `${shopOrder} was cancelled, but printing has started`,
+          body: `${c.code ?? 'The order'} is already in production and will still ship to your customer.`,
+          link: toOrder,
+        }
+      default:
+        return {
+          title: `Update on ${shopOrder}`,
+          body: 'Open your shops page for the details.',
+          link: '/seller/stores',
+        }
     }
   },
 

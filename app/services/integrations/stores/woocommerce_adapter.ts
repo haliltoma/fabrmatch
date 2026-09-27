@@ -5,7 +5,7 @@ import {
   StoreApiError,
   StoreWebhookSignatureError,
   decimalPrice,
-  type IncomingOrder,
+  type StoreEvent,
   type PublishInput,
   type PublishResult,
   type StoreAdapter,
@@ -16,6 +16,8 @@ import { validateWebhookUrl } from '#services/integrations/webhook_url'
 
 /** Orders in these states are paid and ready to print. */
 const PAID_STATUSES = ['processing', 'completed']
+/** The shop gave the money back or called the order off. */
+const CANCELLED_STATUSES = ['cancelled', 'refunded']
 
 /** Seller's site URL → normalised https origin + path (no trailing slash), or null. */
 export function wooSiteUrl(input: string): string | null {
@@ -170,7 +172,7 @@ export default class WooCommerceAdapter implements StoreAdapter {
     connection: StoreConnection,
     rawBody: string,
     headers: Record<string, string | undefined>
-  ): Promise<IncomingOrder | null> {
+  ): Promise<StoreEvent | null> {
     const secret = connection.webhookSecretEnc
       ? this.encryption.decrypt(connection.webhookSecretEnc)
       : ''
@@ -185,27 +187,33 @@ export default class WooCommerceAdapter implements StoreAdapter {
       throw new StoreWebhookSignatureError()
     }
     const order = JSON.parse(rawBody) as WooOrder
+    if (CANCELLED_STATUSES.includes(order.status)) {
+      return { type: 'cancelled', externalOrderId: String(order.id) }
+    }
     if (!PAID_STATUSES.includes(order.status)) return null
     const ship = order.shipping?.address_1 ? order.shipping : order.billing
     if (!ship?.address_1) return null
     return {
-      externalOrderId: String(order.id),
-      name: order.number ? `#${order.number}` : null,
-      lines: (order.line_items ?? []).map((l) => ({
-        variantId: String(l.variation_id || l.product_id),
-        sku: l.sku || null,
-        title: l.name ?? '',
-        quantity: Number(l.quantity),
-      })),
-      shippingAddress: {
-        fullName: `${ship.first_name ?? ''} ${ship.last_name ?? ''}`.trim(),
-        line1: ship.address_1,
-        line2: ship.address_2 || null,
-        district: ship.state || null,
-        city: ship.city ?? '',
-        postalCode: ship.postcode ?? '',
-        country: (ship.country ?? '').toUpperCase(),
-        phone: ship.phone || order.billing?.phone || null,
+      type: 'paid',
+      order: {
+        externalOrderId: String(order.id),
+        name: order.number ? `#${order.number}` : null,
+        lines: (order.line_items ?? []).map((l) => ({
+          variantId: String(l.variation_id || l.product_id),
+          sku: l.sku || null,
+          title: l.name ?? '',
+          quantity: Number(l.quantity),
+        })),
+        shippingAddress: {
+          fullName: `${ship.first_name ?? ''} ${ship.last_name ?? ''}`.trim(),
+          line1: ship.address_1,
+          line2: ship.address_2 || null,
+          district: ship.state || null,
+          city: ship.city ?? '',
+          postalCode: ship.postcode ?? '',
+          country: (ship.country ?? '').toUpperCase(),
+          phone: ship.phone || order.billing?.phone || null,
+        },
       },
     }
   }

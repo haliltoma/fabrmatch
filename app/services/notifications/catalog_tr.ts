@@ -238,6 +238,50 @@ export const TEMPLATES_TR: Record<NotificationType, Template> = {
     }
   },
 
+  store_order: (role, c) => {
+    if (role !== 'seller') return null
+    const shopOrder = c.shopOrder ?? 'Bir sipariş'
+    const toOrder = c.orderId ? `/orders/${c.orderId}` : '/seller/stores'
+    switch (c.storeStep) {
+      case 'needs_payment':
+        return {
+          title: `Mağazandan gelen ${shopOrder} ödeme bekliyor`,
+          body: `${c.code} için ${money(c.amountMinor, c.currency)} öde, baskıya başlayalım.`,
+          link: toOrder,
+        }
+      case 'needs_mapping':
+        return {
+          title: `${shopOrder} için ürün eşlemesi gerekiyor`,
+          body: 'Ürünü kendi ürünlerinden birine bağla, sipariş kendiliğinden oluşsun.',
+          link: '/seller/stores',
+        }
+      case 'failed':
+        return {
+          title: `${shopOrder} oluşturulamadı`,
+          body: c.reason ?? 'Ayrıntılar için mağazalar sayfasını aç.',
+          link: '/seller/stores',
+        }
+      case 'cancelled':
+        return {
+          title: `${shopOrder} mağazanda iptal edildi`,
+          body: `${c.code ?? 'Siparişi'} biz de iptal ettik; ödediğin tutar iade edilir.`,
+          link: toOrder,
+        }
+      case 'cancel_too_late':
+        return {
+          title: `${shopOrder} iptal edildi ama baskı başladı`,
+          body: `${c.code ?? 'Sipariş'} üretimde; yine de müşterine gönderilecek.`,
+          link: toOrder,
+        }
+      default:
+        return {
+          title: `${shopOrder} güncellendi`,
+          body: 'Ayrıntılar için mağazalar sayfasını aç.',
+          link: '/seller/stores',
+        }
+    }
+  },
+
   dispute_opened: (role, c) =>
     role === 'maker'
       ? {

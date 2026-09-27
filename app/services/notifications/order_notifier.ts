@@ -221,6 +221,13 @@ export default class OrderNotifier {
     })
   }
 
+  /** An order from the seller's own shop needs them (payment, a product link) or changed. */
+  storeOrder(sellerUserId: number, context: NotificationContext, eventKey: string) {
+    return this.safely('store_order', async () => {
+      await this.send(sellerUserId, 'seller', 'store_order', context, eventKey)
+    })
+  }
+
   disputeOpened(disputeId: number) {
     return this.safely('dispute_opened', async () => {
       const dispute = await Dispute.findOrFail(disputeId)

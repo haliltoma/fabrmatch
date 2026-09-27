@@ -30,6 +30,10 @@ export interface IncomingOrder {
   shippingAddress: ShippingAddress
 }
 
+/** What a genuine shop delivery means for us. */
+export type StoreEvent =
+  { type: 'paid'; order: IncomingOrder } | { type: 'cancelled'; externalOrderId: string }
+
 /** A Fabrmatch product as it should appear in the seller's shop (one variant per material). */
 export interface PublishInput {
   title: string
@@ -65,13 +69,13 @@ export interface StoreAdapter {
   ): Promise<PublishResult>
   /**
    * Verifies the signature and parses an order webhook; throws StoreWebhookSignatureError.
-   * Null: a genuine delivery that is not a paid order to print (ping, other topic, unpaid).
+   * A paid order to print, a cancellation, or null for anything else (ping, unpaid, other topic).
    */
   parseOrderWebhook(
     connection: StoreConnection,
     rawBody: string,
     headers: Record<string, string | undefined>
-  ): Promise<IncomingOrder | null>
+  ): Promise<StoreEvent | null>
   /** Marks the order shipped in the shop with our tracking; must be safe to repeat. */
   pushFulfillment(
     connection: StoreConnection,

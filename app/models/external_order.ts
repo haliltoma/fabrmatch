@@ -13,7 +13,7 @@ export interface ExternalOrderLine {
 
 /** An order a seller's shop sent us, stored once per external id (R4). */
 export default class ExternalOrder extends ExternalOrderSchema {
-  declare status: 'needs_mapping' | 'placed' | 'ignored' | 'failed'
+  declare status: 'needs_mapping' | 'placed' | 'ignored' | 'failed' | 'cancelled'
   declare fulfillmentStatus: 'none' | 'pending' | 'pushed' | 'failed'
   declare lines: ExternalOrderLine[]
 

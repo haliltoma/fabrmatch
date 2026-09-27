@@ -13,6 +13,8 @@ export interface StoreHarness {
   signedOrder(order: IncomingOrder): { body: string; headers: Record<string, string> }
   /** What the shop now shows as shipped for this order, if anything. */
   shippedTracking(externalOrderId: string): Promise<string[]>
+  /** A signed delivery saying the shop cancelled this order. */
+  signedCancellation(externalOrderId: string): { body: string; headers: Record<string, string> }
   /** Puts an unfulfilled order with this id in the shop. */
   prepareShipment?(externalOrderId: string): void
 }
@@ -47,7 +49,9 @@ export function storeAdapterContract(label: string, make: () => Promise<StoreHar
     }) => {
       const { adapter, connection, signedOrder } = await make()
       const { body, headers } = signedOrder(order)
-      const parsed = await adapter.parseOrderWebhook(connection, body, headers)
+      const event = await adapter.parseOrderWebhook(connection, body, headers)
+      assert.equal(event?.type, 'paid')
+      const parsed = event?.type === 'paid' ? event.order : null
       assert.isNotNull(parsed)
       assert.equal(parsed!.externalOrderId, '9001')
       assert.equal(parsed!.lines[0].variantId, '101')
@@ -68,6 +72,13 @@ export function storeAdapterContract(label: string, make: () => Promise<StoreHar
         () => adapter.parseOrderWebhook(connection, body, {}),
         StoreWebhookSignatureError as never
       )
+    })
+
+    test('a signed cancellation is recognised as one', async ({ assert }) => {
+      const { adapter, connection, signedCancellation } = await make()
+      const { body, headers } = signedCancellation('9003')
+      const event = await adapter.parseOrderWebhook(connection, body, headers)
+      assert.deepEqual(event, { type: 'cancelled', externalOrderId: '9003' })
     })
 
     test('writing the same tracking twice leaves one shipment', async ({ assert }) => {

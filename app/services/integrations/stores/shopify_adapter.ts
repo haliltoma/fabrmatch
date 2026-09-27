@@ -6,7 +6,7 @@ import {
   StoreApiError,
   StoreWebhookSignatureError,
   decimalPrice,
-  type IncomingOrder,
+  type StoreEvent,
   type PublishInput,
   type PublishResult,
   type StoreAdapter,
@@ -61,6 +61,13 @@ export default class ShopifyAdapter implements StoreAdapter {
   }
 
   async ensureWebhooks(connection: StoreConnection, callbackUrl: string) {
+    // paid orders are printed; a cancellation stops what has not started yet
+    for (const topic of ['ORDERS_PAID', 'ORDERS_CANCELLED']) {
+      await this.subscribe(connection, callbackUrl, topic)
+    }
+  }
+
+  private async subscribe(connection: StoreConnection, callbackUrl: string, topic: string) {
     const data = await this.graphql<{
       webhookSubscriptionCreate: { userErrors: Array<{ message: string }> }
     }>(
@@ -71,8 +78,7 @@ export default class ShopifyAdapter implements StoreAdapter {
           userErrors { field message }
         }
       }`,
-      // only paid orders are printed
-      { topic: 'ORDERS_PAID', webhookSubscription: { uri: callbackUrl, format: 'JSON' } }
+      { topic, webhookSubscription: { uri: callbackUrl, format: 'JSON' } }
     )
     const errors = data.webhookSubscriptionCreate.userErrors.filter(
       (e) => !/already been taken/i.test(e.message)
@@ -166,7 +172,7 @@ export default class ShopifyAdapter implements StoreAdapter {
     connection: StoreConnection,
     rawBody: string,
     headers: Record<string, string | undefined>
-  ): Promise<IncomingOrder | null> {
+  ): Promise<StoreEvent | null> {
     const secret = connection.apiSecretEnc ? this.encryption.decrypt(connection.apiSecretEnc) : ''
     const given = Buffer.from(headers['x-shopify-hmac-sha256'] ?? '', 'utf8')
     const expected = Buffer.from(
@@ -176,31 +182,37 @@ export default class ShopifyAdapter implements StoreAdapter {
     if (!secret || given.length !== expected.length || !timingSafeEqual(given, expected)) {
       throw new StoreWebhookSignatureError()
     }
-    if (headers['x-shopify-topic'] !== 'orders/paid') return null
-
+    const topic = headers['x-shopify-topic']
     const order = JSON.parse(rawBody) as ShopifyOrder
+    if (topic === 'orders/cancelled')
+      return { type: 'cancelled', externalOrderId: String(order.id) }
+    if (topic !== 'orders/paid') return null
+
     const ship = order.shipping_address
     if (!ship) return null // nothing to ship (digital only)
     return {
-      externalOrderId: String(order.id),
-      name: order.name ?? null,
-      lines: (order.line_items ?? [])
-        .filter((l) => l.variant_id)
-        .map((l) => ({
-          variantId: String(l.variant_id),
-          sku: l.sku || null,
-          title: l.title ?? '',
-          quantity: Number(l.quantity),
-        })),
-      shippingAddress: {
-        fullName: ship.name ?? `${ship.first_name ?? ''} ${ship.last_name ?? ''}`.trim(),
-        line1: ship.address1 ?? '',
-        line2: ship.address2 ?? null,
-        district: ship.province ?? null,
-        city: ship.city ?? '',
-        postalCode: ship.zip ?? '',
-        country: (ship.country_code ?? '').toUpperCase(),
-        phone: ship.phone ?? order.phone ?? null,
+      type: 'paid',
+      order: {
+        externalOrderId: String(order.id),
+        name: order.name ?? null,
+        lines: (order.line_items ?? [])
+          .filter((l) => l.variant_id)
+          .map((l) => ({
+            variantId: String(l.variant_id),
+            sku: l.sku || null,
+            title: l.title ?? '',
+            quantity: Number(l.quantity),
+          })),
+        shippingAddress: {
+          fullName: ship.name ?? `${ship.first_name ?? ''} ${ship.last_name ?? ''}`.trim(),
+          line1: ship.address1 ?? '',
+          line2: ship.address2 ?? null,
+          district: ship.province ?? null,
+          city: ship.city ?? '',
+          postalCode: ship.zip ?? '',
+          country: (ship.country_code ?? '').toUpperCase(),
+          phone: ship.phone ?? order.phone ?? null,
+        },
       },
     }
   }

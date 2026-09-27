@@ -1,9 +1,11 @@
+/* eslint-disable @unicorn/no-await-expression-member -- terse assertions read better inline */
 import { test } from '@japa/runner'
 import { DateTime } from 'luxon'
 import testUtils from '@adonisjs/core/services/test_utils'
 import fabrmatchConfig from '#config/fabrmatch'
 import ExternalListing from '#models/external_listing'
 import ExternalOrder from '#models/external_order'
+import Notification from '#models/notification'
 import Order from '#models/order'
 import ProductionJob from '#models/production_job'
 import StoreConnection from '#models/store_connection'
@@ -257,5 +259,98 @@ test.group('External shops (R4-T3/T4 core)', (group) => {
     flags.externalStores = 0
     const hidden = await client.get('/seller/stores').loginAs(seller)
     hidden.assertStatus(404)
+  })
+})
+
+test.group('External shops: notifications and cancellations', (group) => {
+  group.each.setup(() => testUtils.db().withGlobalTransaction())
+  group.each.setup(() => {
+    flags.externalStores = 1
+    return () => {
+      flags.externalStores = 0
+      setStoreAdapter('fake', null)
+    }
+  })
+
+  async function linkedShop() {
+    const made = await shop()
+    const listing = await ExternalListing.query()
+      .where('storeConnectionId', made.connection.id)
+      .where('externalVariantId', 'v1')
+      .firstOrFail()
+    await made.stores.mapListing(made.seller, listing.id, {
+      sellerProductId: made.product.id,
+      material: 'PLA',
+      color: null,
+      scalePercent: 100,
+    })
+    return made
+  }
+
+  const inbox = async (userId: number) =>
+    (await Notification.query().where('userId', userId)).map((n) => n.title)
+
+  test('the seller is told when an order needs a link, and when it is ready to pay', async ({
+    assert,
+  }) => {
+    const { seller, stores, connection } = await shop()
+    await stores.importOrder(connection, incoming('4001'))
+    assert.isTrue((await inbox(seller.id)).some((t) => t.includes('needs a product link')))
+
+    const made = await linkedShop()
+    await made.stores.importOrder(made.connection, incoming('4002'))
+    const titles = await inbox(made.seller.id)
+    assert.isTrue(titles.some((t) => t.includes('#4002') && t.includes('ready to pay')))
+  })
+
+  test('cancelled in the shop before production: cancelled here, seller told', async ({
+    client,
+    assert,
+  }) => {
+    const { adapter, seller, stores, connection } = await linkedShop()
+    await stores.importOrder(connection, incoming('4101'))
+    const external = await ExternalOrder.findByOrFail('externalOrderId', '4101')
+
+    const { body, headers } = adapter.signedCancellation(connection, '4101')
+    const response = await client
+      .post(`/webhooks/stores/${connection.id}/orders`)
+      .headers(headers)
+      .json(JSON.parse(body))
+    response.assertBodyContains({ status: 'cancelled' })
+
+    await external.refresh()
+    assert.equal(external.status, 'cancelled')
+    assert.isNotNull(external.shopCancelledAt)
+    assert.equal((await Order.findOrFail(external.orderId!)).status, 'cancelled')
+    assert.isTrue((await inbox(seller.id)).some((t) => t.includes('was cancelled in your shop')))
+
+    // the same cancellation again changes nothing
+    await stores.shopCancelled(connection, '4101')
+    assert.lengthOf(
+      (await inbox(seller.id)).filter((t) => t.includes('was cancelled in your shop')),
+      1
+    )
+  })
+
+  test('cancelled after printing started: it still ships and the seller is told why', async ({
+    assert,
+  }) => {
+    const { seller, stores, connection } = await linkedShop()
+    await stores.importOrder(connection, incoming('4201'))
+    const external = await ExternalOrder.findByOrFail('externalOrderId', '4201')
+    await Order.query().where('id', external.orderId!).update({ status: 'in_production' })
+
+    await stores.shopCancelled(connection, '4201')
+    assert.equal((await Order.findOrFail(external.orderId!)).status, 'in_production')
+    assert.isTrue((await inbox(seller.id)).some((t) => t.includes('printing has started')))
+  })
+
+  test('cancelled before it was ever placed: it simply stops waiting', async ({ assert }) => {
+    const { stores, connection } = await shop()
+    await stores.importOrder(connection, incoming('4301'))
+    await stores.shopCancelled(connection, '4301')
+    const external = await ExternalOrder.findByOrFail('externalOrderId', '4301')
+    assert.equal(external.status, 'cancelled')
+    assert.isNull(external.orderId)
   })
 })

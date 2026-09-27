@@ -5,6 +5,7 @@ import { sameHex } from '#services/payments/iyzico/iyzico_client'
 import {
   StoreWebhookSignatureError,
   type IncomingOrder,
+  type StoreEvent,
   type PublishInput,
   type PublishResult,
   type StoreAdapter,
@@ -82,12 +83,20 @@ export default class FakeStoreAdapter implements StoreAdapter {
     connection: StoreConnection,
     rawBody: string,
     headers: Record<string, string | undefined>
-  ): Promise<IncomingOrder> {
+  ): Promise<StoreEvent | null> {
     const given = headers[FAKE_STORE_SIGNATURE_HEADER] ?? ''
     if (!given || !sameHex(given, this.sign(connection, rawBody))) {
       throw new StoreWebhookSignatureError()
     }
-    return JSON.parse(rawBody) as IncomingOrder
+    const payload = JSON.parse(rawBody) as IncomingOrder & { cancelled?: boolean }
+    if (payload.cancelled) return { type: 'cancelled', externalOrderId: payload.externalOrderId }
+    return { type: 'paid', order: payload }
+  }
+
+  /** The body and headers the shop would POST when the order is cancelled. */
+  signedCancellation(connection: StoreConnection, externalOrderId: string) {
+    const body = JSON.stringify({ externalOrderId, cancelled: true })
+    return { body, headers: { [FAKE_STORE_SIGNATURE_HEADER]: this.sign(connection, body) } }
   }
 
   async pushFulfillment(

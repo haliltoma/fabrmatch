@@ -397,7 +397,7 @@ export class ExternalListingSchema extends BaseModel {
 }
 
 export class ExternalOrderSchema extends BaseModel {
-  static $columns = ['createdAt', 'error', 'externalOrderId', 'externalOrderName', 'fulfillmentAttempts', 'fulfillmentError', 'fulfillmentPushedAt', 'fulfillmentStatus', 'id', 'lines', 'orderId', 'shippingAddressEnc', 'status', 'storeConnectionId', 'updatedAt'] as const
+  static $columns = ['createdAt', 'error', 'externalOrderId', 'externalOrderName', 'fulfillmentAttempts', 'fulfillmentError', 'fulfillmentPushedAt', 'fulfillmentStatus', 'id', 'lines', 'orderId', 'shippingAddressEnc', 'shopCancelledAt', 'status', 'storeConnectionId', 'updatedAt'] as const
   $columns = ExternalOrderSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -423,6 +423,8 @@ export class ExternalOrderSchema extends BaseModel {
   declare orderId: number | null
   @column()
   declare shippingAddressEnc: string
+  @column.dateTime()
+  declare shopCancelledAt: DateTime | null
   @column()
   declare status: string
   @column()

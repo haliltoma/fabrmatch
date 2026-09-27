@@ -102,6 +102,7 @@ test.group('Printify-style shops: connect → publish → paid order → trackin
     assert.equal(new EncryptionService().decrypt(connection.apiSecretEnc!), shopify.clientSecret)
     assert.deepEqual(shopify.webhooks, [
       { topic: 'ORDERS_PAID', uri: stores.callbackUrl(connection) },
+      { topic: 'ORDERS_CANCELLED', uri: stores.callbackUrl(connection) },
     ])
     // one token, reused while it is valid
     assert.lengthOf(shopify.tokens, 1)

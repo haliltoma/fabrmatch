@@ -183,6 +183,16 @@ export class FakeShopify {
     }
   }
 
+  /** An orders/cancelled delivery. */
+  cancelledOrder(id: number) {
+    const body = JSON.stringify({ id, name: `#${id}`, cancelled_at: new Date().toISOString() })
+    const hmac = createHmac('sha256', this.clientSecret).update(body).digest('base64')
+    return {
+      body,
+      headers: { 'x-shopify-hmac-sha256': hmac, 'x-shopify-topic': 'orders/cancelled' },
+    }
+  }
+
   connection(sellerUserId = 0) {
     const encryption = new EncryptionService()
     return new StoreConnection().merge({

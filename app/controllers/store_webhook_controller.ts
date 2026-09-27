@@ -15,7 +15,14 @@ export default class StoreWebhookController {
         request.headers() as never
       )
       return response.ok({
-        status: 'ignored' in result ? 'ignored' : result.duplicate ? 'duplicate' : 'received',
+        status:
+          'ignored' in result
+            ? 'ignored'
+            : 'cancelled' in result
+              ? 'cancelled'
+              : result.duplicate
+                ? 'duplicate'
+                : 'received',
       })
     } catch (error) {
       if (error instanceof StoreWebhookSignatureError) {

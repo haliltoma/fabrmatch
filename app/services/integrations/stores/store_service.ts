@@ -12,6 +12,7 @@ import StoreConnection from '#models/store_connection'
 import User from '#models/user'
 import EncryptionService from '#services/identity/encryption_service'
 import OrderService, { type ShippingAddress } from '#services/orders/order_service'
+import OrderNotifier from '#services/notifications/order_notifier'
 import env from '#start/env'
 import ProductImageService from '#services/catalog/product_image_service'
 import { storeAdapter } from '#services/integrations/stores/store_registry'
@@ -57,6 +58,7 @@ export interface ListingMapping {
  */
 export default class StoreService {
   private encryption = new EncryptionService()
+  private notifier = new OrderNotifier()
 
   async connections(seller: User) {
     return StoreConnection.query()
@@ -393,13 +395,60 @@ export default class StoreService {
       .where('status', 'active')
       .first()
     if (!connection) throw new StoreError('Shop not found', { status: 404 })
-    const incoming = await storeAdapter(connection.provider).parseOrderWebhook(
+    const event = await storeAdapter(connection.provider).parseOrderWebhook(
       connection,
       rawBody,
       headers
     )
-    if (!incoming) return { duplicate: false as const, ignored: true as const }
-    return this.importOrder(connection, incoming)
+    if (!event) return { duplicate: false as const, ignored: true as const }
+    if (event.type === 'cancelled') {
+      await this.shopCancelled(connection, event.externalOrderId)
+      return { duplicate: false as const, cancelled: true as const }
+    }
+    return this.importOrder(connection, event.order)
+  }
+
+  /**
+   * The shop cancelled or refunded the order. Nothing started yet → cancelled here too (money the
+   * seller paid goes back through the normal refund path). Already printing → it still ships,
+   * and the seller is told so. An order we never placed simply stops waiting.
+   */
+  async shopCancelled(connection: StoreConnection, externalOrderId: string) {
+    const external = await ExternalOrder.query()
+      .where('storeConnectionId', connection.id)
+      .where('externalOrderId', externalOrderId)
+      .preload('order')
+      .first()
+    if (!external || external.shopCancelledAt) return
+    external.shopCancelledAt = DateTime.now()
+
+    const shopOrder = external.externalOrderName ?? externalOrderId
+    const order = external.order
+    if (!order) {
+      external.merge({ status: 'cancelled', error: 'Cancelled in the shop before it was placed' })
+      await external.save()
+      return
+    }
+    const cancellable = ['draft', 'awaiting_payment', 'paid', 'matching', 'unmatched']
+    if (cancellable.includes(order.status)) {
+      await new OrderService().cancelWithRefund(order.id, { actorId: null, by: 'system' })
+      external.merge({ status: 'cancelled' })
+      await external.save()
+      await this.notifier.storeOrder(
+        connection.sellerUserId,
+        { storeStep: 'cancelled', shopOrder, code: order.code, orderId: order.id },
+        `store:${external.id}:cancelled`
+      )
+      return
+    }
+    if (order.status !== 'cancelled') {
+      await external.save()
+      await this.notifier.storeOrder(
+        connection.sellerUserId,
+        { storeStep: 'cancel_too_late', shopOrder, code: order.code, orderId: order.id },
+        `store:${external.id}:cancel-late`
+      )
+    }
   }
 
   async importOrder(connection: StoreConnection, incoming: IncomingOrder) {
@@ -487,6 +536,11 @@ export default class StoreService {
         error: `Not mapped yet: ${unmapped.map((l) => l.sku ?? l.title).join(', ')}`.slice(0, 500),
       })
       await order.save()
+      await this.notifier.storeOrder(
+        connection.sellerUserId,
+        { storeStep: 'needs_mapping', shopOrder: order.externalOrderName ?? order.externalOrderId },
+        `store:${order.id}:needs-mapping`
+      )
       return
     }
 
@@ -501,10 +555,31 @@ export default class StoreService {
       )
       order.merge({ orderId: created.id, status: 'placed', error: null })
       await order.save()
+      await this.notifier.storeOrder(
+        connection.sellerUserId,
+        {
+          storeStep: 'needs_payment',
+          shopOrder: order.externalOrderName ?? order.externalOrderId,
+          code: created.code,
+          orderId: created.id,
+          amountMinor: created.totalMinor,
+          currency: created.currency,
+        },
+        `store:${order.id}:placed`
+      )
     } catch (error) {
       order.merge({ status: 'failed', error: (error as Error).message.slice(0, 500) })
       await order.save()
       logger.warn({ msg: 'external order could not be placed', id: order.id, error })
+      await this.notifier.storeOrder(
+        connection.sellerUserId,
+        {
+          storeStep: 'failed',
+          shopOrder: order.externalOrderName ?? order.externalOrderId,
+          reason: order.error,
+        },
+        `store:${order.id}:failed`
+      )
     }
   }
 
