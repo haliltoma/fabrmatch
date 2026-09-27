@@ -138,6 +138,13 @@ test.group('DisputeService', (group) => {
     assert.lengthOf(provider.refunds, 1)
     assert.equal(provider.refunds[0].amountMinor, order.totalMinor)
     assert.equal(await orderPaymentStatus(order.id), 'refunded')
+    // nothing was earned on it: no platform-fee invoice, now or from the hourly sweep
+    const { default: InvoiceService } = await import('#services/invoicing/invoice_service')
+    const invoices = new InvoiceService()
+    assert.isNull(await invoices.issueFor(order.id))
+    await invoices.issueDue()
+    const { default: Invoice } = await import('#models/invoice')
+    assert.lengthOf(await Invoice.query().where('orderId', order.id), 0)
     assert.lengthOf(await Payout.query().where('orderId', order.id), 0)
     assert.equal(await ledger.balance('buyer_escrow', { orderId: order.id }), 0)
     assert.equal(await ledger.balance('provider_cash', { orderId: order.id }), 0)

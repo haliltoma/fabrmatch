@@ -87,4 +87,18 @@ test.group('EarningsService', (group) => {
     const other = await earnings.list('manufacturer', profile.id + 999)
     assert.lengthOf(other.rows, 0)
   })
+
+  test('payouts waiting for the payee invoice count as pending earnings', async ({ assert }) => {
+    const provider = new FakePaymentProvider()
+    const { order, profile } = await createFundedOrder(provider, { upTo: 'completed' })
+    await new PayoutService(provider).release(order.id)
+    const { default: Payout } = await import('#models/payout')
+    await Payout.query()
+      .where('orderId', order.id)
+      .where('beneficiaryType', 'manufacturer')
+      .update({ status: 'awaiting_document', paidAt: null })
+    const [totals] = await new EarningsService().summary('manufacturer', profile.id)
+    assert.isAbove(totals.pendingMinor, 0)
+    assert.equal(totals.paidMinor, 0)
+  })
 })

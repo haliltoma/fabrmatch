@@ -16,7 +16,11 @@ export default class EarningsService {
       .where('beneficiary_type', type)
       .where('beneficiary_id', beneficiaryId)
       .select('currency')
-      .select(db.raw(`coalesce(sum(amount_minor) filter (where status = 'pending'), 0) as pending`))
+      .select(
+        db.raw(
+          `coalesce(sum(amount_minor) filter (where status in ('pending', 'awaiting_document')), 0) as pending`
+        )
+      )
       .select(db.raw(`coalesce(sum(amount_minor) filter (where status = 'paid'), 0) as paid`))
       .select(
         db.raw(

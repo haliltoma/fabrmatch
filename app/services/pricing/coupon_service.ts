@@ -11,7 +11,8 @@ import type User from '#models/user'
 export class CouponError extends DomainError {}
 
 /** A draft that was never paid stops holding a coupon after this long. */
-const DRAFT_HOLD_HOURS = 24
+/** A draft keeps its coupon use this long; after that the use is given back. */
+export const DRAFT_HOLD_HOURS = 24
 
 export interface CouponInput {
   code: string

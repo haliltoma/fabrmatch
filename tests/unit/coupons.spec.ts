@@ -75,6 +75,25 @@ test.group('coupon rules', (group) => {
     assert.equal(list[0].used, 1)
   })
 
+  test('an abandoned draft cannot be paid later with the coupon it no longer holds', async ({
+    assert,
+  }) => {
+    const buyer = await createUser('buyer')
+    await coupon({ code: 'ONCE', maxRedemptions: 1 })
+    const { order: stale } = await createDraftOrder(buyer, { couponCode: 'ONCE' })
+    await db
+      .from('orders')
+      .where('id', stale.id)
+      .update({ created_at: DateTime.now().minus({ hours: 25 }).toSQL() })
+    // the use came back: a second draft takes the coupon again
+    const { order: fresh } = await createDraftOrder(buyer, { couponCode: 'ONCE' })
+    assert.isAbove(fresh.discountMinor, 0)
+
+    const payments = new PaymentService(new FakePaymentProvider(), async () => {})
+    await assert.rejects(() => payments.startCheckout(stale.id, buyer.id), /no longer up to date/)
+    await payments.startCheckout(fresh.id, buyer.id)
+  })
+
   test('a cancelled order and a long-abandoned draft give the use back', async ({ assert }) => {
     const buyer = await createUser('buyer')
     await coupon({ code: 'RETRY', maxRedemptions: 1 })

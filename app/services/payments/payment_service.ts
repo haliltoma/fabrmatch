@@ -1,4 +1,7 @@
 import GrowthService from '#services/growth/growth_service'
+import { DRAFT_HOLD_HOURS } from '#services/pricing/coupon_service'
+import fabrmatchConfig from '#config/fabrmatch'
+import { BASE_CURRENCY } from '#services/pricing/fx'
 import User from '#models/user'
 import Chargeback from '#models/chargeback'
 import FraudService from '#services/admin/fraud_service'
@@ -92,6 +95,24 @@ export default class PaymentService {
   }
 
   /**
+   * A price is only good for so long (review fix): a draft older than the coupon hold no longer
+   * holds its coupon use (someone else may have taken it), and a foreign-currency order must not
+   * be paid at a rate older than the allowed FX age. The buyer places the order again instead.
+   */
+  private async assertPriceStillValid(order: Order, trx: TransactionClientContract) {
+    const stale = () =>
+      new PaymentError('The price of this order is no longer up to date. Please place it again.')
+    const age = DateTime.now().diff(order.createdAt, 'hours').hours
+    if (order.status === 'draft' && age > DRAFT_HOLD_HOURS) {
+      const redemption = await trx.from('coupon_redemptions').where('order_id', order.id).first()
+      if (redemption) throw stale()
+    }
+    if (order.currency !== BASE_CURRENCY && age > fabrmatchConfig.pricing.fxMaxAgeHours) {
+      throw stale()
+    }
+  }
+
+  /**
    * draft → awaiting_payment and a provider checkout session for the full order total. Hosted
    * pages that need the buyer's identity (iyzico) get the identity number and phone asked at the
    * pay step; the identity number goes straight to the provider and is never stored.
@@ -107,6 +128,7 @@ export default class PaymentService {
         .first()
       if (!order) throw new PaymentError('Order not found')
 
+      await this.assertPriceStillValid(order, trx)
       if (order.status === 'draft') {
         await this.sm.transition(orderId, 'awaiting_payment', { trx, actorId: buyerId })
       } else if (order.status !== 'awaiting_payment') {
@@ -212,6 +234,7 @@ export default class PaymentService {
       if (!['draft', 'awaiting_payment'].includes(order.status)) {
         throw new PaymentError('This order cannot be paid in its current state')
       }
+      await this.assertPriceStillValid(order, trx)
       const balance = await this.ledger.balance('seller_wallet', {
         walletUserId: buyerId,
         currency: 'TRY',

@@ -6,6 +6,7 @@ import fabrmatchConfig from '#config/fabrmatch'
 import Order from '#models/order'
 import Payout from '#models/payout'
 import FakePaymentProvider from '#services/payments/fake_provider'
+import PaymentService from '#services/payments/payment_service'
 import { setPaymentProvider } from '#services/payments/provider_registry'
 import PayoutService from '#services/payments/payout_service'
 import ReconciliationService from '#services/payments/reconciliation_service'
@@ -249,5 +250,22 @@ test.group('multi-currency', (group) => {
     assert.isNull(order.fxRateId)
     assert.isNull(order.fxRateNano)
     assert.equal(order.baseTotalMinor, order.totalMinor)
+  })
+
+  test('a foreign-currency order priced at an old rate cannot be paid at it', async ({
+    assert,
+  }) => {
+    await enable('currencyUsd')
+    const { order, buyer } = await createDraftOrder(undefined, { currency: 'USD' })
+    await db
+      .from('orders')
+      .where('id', order.id)
+      .update({
+        created_at: DateTime.now()
+          .minus({ hours: fabrmatchConfig.pricing.fxMaxAgeHours + 1 })
+          .toSQL(),
+      })
+    const payments = new PaymentService(new FakePaymentProvider(), async () => {})
+    await assert.rejects(() => payments.startCheckout(order.id, buyer.id), /no longer up to date/)
   })
 })

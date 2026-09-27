@@ -34,6 +34,16 @@ export default class InvoiceService {
     const order = await Order.findOrFail(orderId)
     if (order.status !== 'completed' && order.status !== 'resolved') return null
     if (order.platformFeeMinor <= 0) return null
+    // a dispute settled with a full refund earned the platform nothing: no fee invoice
+    if (order.status === 'resolved') {
+      const last = await db
+        .from('disputes')
+        .where('order_id', orderId)
+        .orderBy('id', 'desc')
+        .select('resolution')
+        .first()
+      if (last?.resolution === 'full_refund') return null
+    }
     const existing = await Invoice.query()
       .where('orderId', orderId)
       .where('kind', 'platform_fee')
@@ -96,6 +106,9 @@ export default class InvoiceService {
     const missing = await db.rawQuery(
       `select o.id from orders o
         where o.status in ('completed', 'resolved') and o.platform_fee_minor > 0
+          and not (o.status = 'resolved' and (
+            select d.resolution from disputes d where d.order_id = o.id order by d.id desc limit 1
+          ) = 'full_refund')
           and not exists (select 1 from invoices i where i.order_id = o.id and i.kind = 'platform_fee')
         order by o.id limit 100`
     )

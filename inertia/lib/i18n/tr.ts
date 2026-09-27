@@ -2918,4 +2918,6 @@ export const tr: Record<string, string> = {
   'Please wait…': 'Lütfen bekleyin…',
   'You changed the options or the country since the price was calculated. Calculate the price again before ordering.':
     'Fiyat hesaplandıktan sonra seçenekleri veya ülkeyi değiştirdiniz. Sipariş vermeden önce fiyatı yeniden hesaplayın.',
+  'The price of this order is no longer up to date. Please place it again.':
+    'Bu siparişin fiyatı artık güncel değil. Lütfen siparişi yeniden oluşturun.',
 }
