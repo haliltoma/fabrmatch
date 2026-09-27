@@ -363,6 +363,70 @@ export class ExperimentEventSchema extends BaseModel {
   declare visitorHash: string
 }
 
+export class ExternalListingSchema extends BaseModel {
+  static $columns = ['color', 'createdAt', 'externalProductId', 'externalVariantId', 'id', 'material', 'scalePercent', 'sellerProductId', 'sku', 'storeConnectionId', 'title', 'updatedAt'] as const
+  $columns = ExternalListingSchema.$columns
+  @column()
+  declare color: string | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare externalProductId: string
+  @column()
+  declare externalVariantId: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare material: string | null
+  @column()
+  declare scalePercent: number | null
+  @column()
+  declare sellerProductId: number | null
+  @column()
+  declare sku: string | null
+  @column()
+  declare storeConnectionId: number
+  @column()
+  declare title: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
+export class ExternalOrderSchema extends BaseModel {
+  static $columns = ['createdAt', 'error', 'externalOrderId', 'externalOrderName', 'fulfillmentAttempts', 'fulfillmentError', 'fulfillmentPushedAt', 'fulfillmentStatus', 'id', 'lines', 'orderId', 'shippingAddressEnc', 'status', 'storeConnectionId', 'updatedAt'] as const
+  $columns = ExternalOrderSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare error: string | null
+  @column()
+  declare externalOrderId: string
+  @column()
+  declare externalOrderName: string | null
+  @column()
+  declare fulfillmentAttempts: number
+  @column()
+  declare fulfillmentError: string | null
+  @column.dateTime()
+  declare fulfillmentPushedAt: DateTime | null
+  @column()
+  declare fulfillmentStatus: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare lines: any
+  @column()
+  declare orderId: number | null
+  @column()
+  declare shippingAddressEnc: string
+  @column()
+  declare status: string
+  @column()
+  declare storeConnectionId: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
 export class FileAccessGrantSchema extends BaseModel {
   static $columns = ['createdAt', 'downloadCount', 'expiresAt', 'id', 'manufacturerProfileId', 'maxDownloads', 'modelFileId', 'productionJobId', 'updatedAt'] as const
   $columns = FileAccessGrantSchema.$columns
@@ -1499,6 +1563,33 @@ export class SliceEstimateSchema extends BaseModel {
   declare status: string
   @column()
   declare supportGramsCenti: number | null
+}
+
+export class StoreConnectionSchema extends BaseModel {
+  static $columns = ['accessTokenEnc', 'createdAt', 'externalShopId', 'id', 'lastSyncedAt', 'provider', 'sellerUserId', 'shopName', 'status', 'updatedAt', 'webhookSecretEnc'] as const
+  $columns = StoreConnectionSchema.$columns
+  @column()
+  declare accessTokenEnc: string | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare externalShopId: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column.dateTime()
+  declare lastSyncedAt: DateTime | null
+  @column()
+  declare provider: string
+  @column()
+  declare sellerUserId: number
+  @column()
+  declare shopName: string
+  @column()
+  declare status: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+  @column()
+  declare webhookSecretEnc: string | null
 }
 
 export class SupportRequestSchema extends BaseModel {

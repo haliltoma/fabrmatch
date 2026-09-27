@@ -847,6 +847,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/payment_webhook_controller').default['handle']>>>
     }
   }
+  'store_webhook.order': {
+    methods: ["POST"]
+    pattern: '/webhooks/stores/:id/orders'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/store_webhook_controller').default['order']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/store_webhook_controller').default['order']>>>
+    }
+  }
   'payment_return': {
     methods: ["POST"]
     pattern: '/payments/return'
@@ -1265,6 +1277,78 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_branding_controller').default['removeLogo']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_branding_controller').default['removeLogo']>>>
+    }
+  }
+  'seller_store.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/seller/stores'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['index']>>>
+    }
+  }
+  'seller_store.connect_test': {
+    methods: ["POST"]
+    pattern: '/seller/stores/test'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['connectTest']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['connectTest']>>>
+    }
+  }
+  'seller_store.sync': {
+    methods: ["POST"]
+    pattern: '/seller/stores/:id/sync'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['sync']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['sync']>>>
+    }
+  }
+  'seller_store.disconnect': {
+    methods: ["POST"]
+    pattern: '/seller/stores/:id/disconnect'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['disconnect']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['disconnect']>>>
+    }
+  }
+  'seller_store.map': {
+    methods: ["POST"]
+    pattern: '/seller/stores/listings/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['map']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['map']>>>
+    }
+  }
+  'seller_store.retry': {
+    methods: ["POST"]
+    pattern: '/seller/stores/orders/:id/retry'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['retry']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['retry']>>>
     }
   }
   'seller_payout.show': {

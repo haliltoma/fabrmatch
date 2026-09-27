@@ -104,6 +104,9 @@ export default class FulfillmentService {
       return job
     })
     await this.notifier.shipped(shipped.orderId)
+    // an order from the seller's own shop gets its tracking written back there (R4-T4)
+    const { default: StoreService } = await import('#services/integrations/stores/store_service')
+    await new StoreService().orderShipped(shipped.orderId)
     return shipped
   }
 

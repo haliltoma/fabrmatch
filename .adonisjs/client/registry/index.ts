@@ -426,6 +426,12 @@ const routes = {
     tokens: [{"old":"/webhooks/payments","type":0,"val":"webhooks","end":""},{"old":"/webhooks/payments","type":0,"val":"payments","end":""}],
     types: placeholder as Registry['payment_webhook']['types'],
   },
+  'store_webhook.order': {
+    methods: ["POST"],
+    pattern: '/webhooks/stores/:id/orders',
+    tokens: [{"old":"/webhooks/stores/:id/orders","type":0,"val":"webhooks","end":""},{"old":"/webhooks/stores/:id/orders","type":0,"val":"stores","end":""},{"old":"/webhooks/stores/:id/orders","type":1,"val":"id","end":""},{"old":"/webhooks/stores/:id/orders","type":0,"val":"orders","end":""}],
+    types: placeholder as Registry['store_webhook.order']['types'],
+  },
   'payment_return': {
     methods: ["POST"],
     pattern: '/payments/return',
@@ -635,6 +641,42 @@ const routes = {
     pattern: '/seller/branding/logo/remove',
     tokens: [{"old":"/seller/branding/logo/remove","type":0,"val":"seller","end":""},{"old":"/seller/branding/logo/remove","type":0,"val":"branding","end":""},{"old":"/seller/branding/logo/remove","type":0,"val":"logo","end":""},{"old":"/seller/branding/logo/remove","type":0,"val":"remove","end":""}],
     types: placeholder as Registry['seller_branding.remove_logo']['types'],
+  },
+  'seller_store.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/seller/stores',
+    tokens: [{"old":"/seller/stores","type":0,"val":"seller","end":""},{"old":"/seller/stores","type":0,"val":"stores","end":""}],
+    types: placeholder as Registry['seller_store.index']['types'],
+  },
+  'seller_store.connect_test': {
+    methods: ["POST"],
+    pattern: '/seller/stores/test',
+    tokens: [{"old":"/seller/stores/test","type":0,"val":"seller","end":""},{"old":"/seller/stores/test","type":0,"val":"stores","end":""},{"old":"/seller/stores/test","type":0,"val":"test","end":""}],
+    types: placeholder as Registry['seller_store.connect_test']['types'],
+  },
+  'seller_store.sync': {
+    methods: ["POST"],
+    pattern: '/seller/stores/:id/sync',
+    tokens: [{"old":"/seller/stores/:id/sync","type":0,"val":"seller","end":""},{"old":"/seller/stores/:id/sync","type":0,"val":"stores","end":""},{"old":"/seller/stores/:id/sync","type":1,"val":"id","end":""},{"old":"/seller/stores/:id/sync","type":0,"val":"sync","end":""}],
+    types: placeholder as Registry['seller_store.sync']['types'],
+  },
+  'seller_store.disconnect': {
+    methods: ["POST"],
+    pattern: '/seller/stores/:id/disconnect',
+    tokens: [{"old":"/seller/stores/:id/disconnect","type":0,"val":"seller","end":""},{"old":"/seller/stores/:id/disconnect","type":0,"val":"stores","end":""},{"old":"/seller/stores/:id/disconnect","type":1,"val":"id","end":""},{"old":"/seller/stores/:id/disconnect","type":0,"val":"disconnect","end":""}],
+    types: placeholder as Registry['seller_store.disconnect']['types'],
+  },
+  'seller_store.map': {
+    methods: ["POST"],
+    pattern: '/seller/stores/listings/:id',
+    tokens: [{"old":"/seller/stores/listings/:id","type":0,"val":"seller","end":""},{"old":"/seller/stores/listings/:id","type":0,"val":"stores","end":""},{"old":"/seller/stores/listings/:id","type":0,"val":"listings","end":""},{"old":"/seller/stores/listings/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['seller_store.map']['types'],
+  },
+  'seller_store.retry': {
+    methods: ["POST"],
+    pattern: '/seller/stores/orders/:id/retry',
+    tokens: [{"old":"/seller/stores/orders/:id/retry","type":0,"val":"seller","end":""},{"old":"/seller/stores/orders/:id/retry","type":0,"val":"stores","end":""},{"old":"/seller/stores/orders/:id/retry","type":0,"val":"orders","end":""},{"old":"/seller/stores/orders/:id/retry","type":1,"val":"id","end":""},{"old":"/seller/stores/orders/:id/retry","type":0,"val":"retry","end":""}],
+    types: placeholder as Registry['seller_store.retry']['types'],
   },
   'seller_payout.show': {
     methods: ["GET","HEAD"],

@@ -13,6 +13,7 @@ import CloseRfqs from '#jobs/close_rfqs'
 import RefreshFxRates from '#jobs/refresh_fx_rates'
 import ReconcilePayments from '#jobs/reconcile_payments'
 import SyncPendingPayments from '#jobs/sync_pending_payments'
+import PushStoreFulfillments from '#jobs/push_store_fulfillments'
 
 await AutoConfirmDelivery.schedule({}).id('auto-confirm-delivery').every('1h').run()
 await CheckProductionSla.schedule({}).id('check-production-sla').every('1h').run()
@@ -20,6 +21,7 @@ await ExpireStaleOffers.schedule({}).id('expire-stale-offers').every('5m').run()
 await ReleasePayouts.schedule({}).id('release-payouts').every('10m').run()
 await SettleRefunds.schedule({}).id('settle-refunds').every('10m').run()
 await SyncPendingPayments.schedule({}).id('sync-pending-payments').every('5m').run()
+await PushStoreFulfillments.schedule({}).id('push-store-fulfillments').every('5m').run()
 await ReconcilePayments.schedule({}).id('reconcile-payments').every('1d').run()
 await CancelStaleUnmatched.schedule({}).id('cancel-stale-unmatched').every('1h').run()
 await RecomputeTrustTiers.schedule({}).id('recompute-trust-tiers').every('1d').run()

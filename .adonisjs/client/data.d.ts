@@ -15,6 +15,7 @@ import type PayoutTransformer from '#transformers/payout_transformer'
 import type ProductionJobTransformer from '#transformers/production_job_transformer'
 import type RfqTransformer from '#transformers/rfq_transformer'
 import type SellerProductTransformer from '#transformers/seller_product_transformer'
+import type StoreTransformer from '#transformers/store_transformer'
 import type UserTransformer from '#transformers/user_transformer'
 import type InertiaMiddleware from '#middleware/inertia_middleware'
 
@@ -54,6 +55,10 @@ export namespace Data {
   export type SellerProduct = InferData<SellerProductTransformer>
   export namespace SellerProduct {
     export type Variants = InferVariants<SellerProductTransformer>
+  }
+  export type Store = InferData<StoreTransformer>
+  export namespace Store {
+    export type Variants = InferVariants<StoreTransformer>
   }
   export type User = InferData<UserTransformer>
   export namespace User {

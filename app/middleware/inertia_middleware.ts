@@ -39,6 +39,7 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
       locale: ctx.inertia.always(locale),
       cartCount: ctx.inertia.always(cartCount),
       rfqEnabled: featureEnabled('rfq'),
+      externalStoresEnabled: featureEnabled('externalStores'),
       referralsEnabled: featureEnabled('referrals'),
       siteUrl: env.get('APP_URL').replace(/\/$/, ''),
       legalAcceptanceRequired: env.get('LEGAL_ACCEPTANCE_REQUIRED', false),

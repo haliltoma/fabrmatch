@@ -119,6 +119,9 @@ export interface ApiDefinition {
   }
   carrierWebhook: typeof routes['carrier_webhook']
   paymentWebhook: typeof routes['payment_webhook']
+  storeWebhook: {
+    order: typeof routes['store_webhook.order']
+  }
   paymentReturn: typeof routes['payment_return']
   contentReport: {
     store: typeof routes['content_report.store']
@@ -182,6 +185,14 @@ export interface ApiDefinition {
     logo: typeof routes['seller_branding.logo']
     uploadLogo: typeof routes['seller_branding.upload_logo']
     removeLogo: typeof routes['seller_branding.remove_logo']
+  }
+  sellerStore: {
+    index: typeof routes['seller_store.index']
+    connectTest: typeof routes['seller_store.connect_test']
+    sync: typeof routes['seller_store.sync']
+    disconnect: typeof routes['seller_store.disconnect']
+    map: typeof routes['seller_store.map']
+    retry: typeof routes['seller_store.retry']
   }
   sellerPayout: {
     show: typeof routes['seller_payout.show']

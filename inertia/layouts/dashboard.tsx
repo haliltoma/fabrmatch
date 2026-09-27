@@ -22,7 +22,7 @@ export interface NavItem {
   icon: React.ComponentType<{ className?: string }>
   active?: boolean
   /** hidden until an admin switches the feature on */
-  feature?: 'rfq'
+  feature?: 'rfq' | 'externalStores'
 }
 
 interface DashboardLayoutProps {
@@ -80,7 +80,11 @@ export default function DashboardLayout({
   const { dark } = useTheme()
 
   const { url, flash } = usePage()
-  const navItems = allItems.filter((i) => i.feature !== 'rfq' || children.props.rfqEnabled)
+  const navItems = allItems.filter(
+    (i) =>
+      (i.feature !== 'rfq' || children.props.rfqEnabled) &&
+      (i.feature !== 'externalStores' || children.props.externalStoresEnabled)
+  )
   const user = children.props.user
   const [collapsed, setCollapsed] = useState(false)
 

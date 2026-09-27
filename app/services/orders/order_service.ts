@@ -202,6 +202,62 @@ export default class OrderService {
     })
   }
 
+  /**
+   * An order from the seller's own shop (R4): the seller already sold it there, so they are the
+   * buyer here and pay the production cost; no margin, no seller share. Ships to their customer.
+   */
+  async createExternalDraft(
+    seller: User,
+    lines: Array<{
+      sellerProductId: number
+      material: string
+      color: string | null
+      scalePercent: number | null
+      quantity: number
+    }>,
+    shippingAddress: ShippingAddress,
+    channel: 'shopify' | 'etsy'
+  ): Promise<Order> {
+    const items = []
+    for (const line of lines) {
+      const product = await SellerProduct.query()
+        .where('id', line.sellerProductId)
+        .preload('sellerProfile')
+        .preload('catalogProduct')
+        .first()
+      if (!product || product.sellerProfile.userId !== seller.id) {
+        throw new OrderInputError('Product not found')
+      }
+      const catalog = product.catalogProduct
+      if (!catalog || !catalog.isActive || !catalog.modelFileId) {
+        throw new OrderInputError(`"${product.title}" is not available`)
+      }
+      if (!catalog.allowedMaterials.map((m) => m.toUpperCase()).includes(line.material)) {
+        throw new OrderInputError(
+          `Material ${line.material} is not available for "${product.title}"`
+        )
+      }
+      const scale = line.scalePercent ?? 100
+      if (!(catalog.allowedScales ?? [100]).includes(scale)) {
+        throw new OrderInputError(`That size is not offered for "${product.title}"`)
+      }
+      const file = await ModelFile.find(catalog.modelFileId)
+      items.push({
+        material: line.material,
+        color: line.color,
+        quantity: line.quantity,
+        scalePercent: scale,
+        file,
+      })
+    }
+    return this.persistDraft(seller, items, {
+      shippingAddress,
+      channel,
+      sellerId: null,
+      sellerMarginBps: 0,
+    })
+  }
+
   /** A buyer may only be offered a currency the payment provider can actually settle. */
   private assertProviderSettles(currency: string) {
     const supported = paymentProvider().supportedCurrencies ?? ['TRY']

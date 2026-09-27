@@ -183,8 +183,17 @@ Paket çıkış ölçütü: gerçek ödeme sandbox'ta uçtan uca; vergi+fatura k
 - [ ] **R4-T1 Shopify entegrasyonu** · P1 · 🔒 ⏸ K-E · `Ref: S1`
   - OAuth uygulaması, HMAC doğrulamalı webhook (orders/create, app/uninstalled), idempotent `external_orders`.
 - [ ] **R4-T2 Satıcı cüzdanı / taban maliyet tahsilatı** · P1 · ⏸ K-E (öneri: cüzdan/kayıtlı kart)
-- [ ] **R4-T3 SKU eşleme ekranı** · P1
-- [ ] **R4-T4 Fulfillment geri yazımı** (takip no + durum) · P1
+- [x] **R4-T3 SKU eşleme ekranı** · P1 · ✔ 2026-09-27 çekirdek (`flags.externalStores` KAPALI)
+  - `store_connections` (token/secret şifreli), `external_listings`; `/seller/stores`'ta mağazanın her varyantı kendi ürününe + malzeme/renk/boyuta bağlanır (sahiplik, izinli malzeme/ölçek kontrollü).
+  - Sipariş webhook'u (`/webhooks/stores/:id/orders`, mağaza başına HMAC, CSRF'siz) dış sipariş id'si başına bir kez kaydedilir.
+    - Eşleşmemiş satır varsa `needs_mapping` ile bekler; eşleme yapılınca kendiliğinden sipariş olur.
+    - Oluşan sipariş: alıcı = satıcı, kanal shopify/etsy, marj 0, gönderim müşteriye.
+  - Satıcı üretim maliyetini sipariş başına öder. K-E (cüzdan/kayıtlı kart) gelene kadar ara çözüm.
+  - `StoreAdapter` arayüzü + `FakeStoreAdapter` (yalnız dev/test "test mağazası") + sözleşme testi. Shopify/Etsy adaptörleri R4-T1/T5'te bu sözleşmeyi geçecek.
+- [x] **R4-T4 Fulfillment geri yazımı** (takip no + durum) · P1 · ✔ 2026-09-27 çekirdek
+  - Üretici kargoladığında dış sipariş `pending` olur; `PushStoreFulfillments` 5 dk'da bir takip numarasını mağazaya yazar (adaptör tekrarı güvenli).
+  - Hata → deneme sayısı; 10 denemede `failed`, satıcı "Tekrar dene" diyebilir.
+  - KALAN: gerçek Shopify/Etsy çağrıları (R4-T1/T5 🔒).
 - [ ] **R4-T5 Etsy entegrasyonu** (OAuth2 PKCE + periyodik çekme) · P2
 - [x] **R4-T6 Mockup/render üretimi** · P1 · ✔ 2026-09-26 (sunucuda bağımlılıksız render: `model_renderer.ts` z-buffer, 8 açılı döner tabla, yan yüzlerde katman çizgisi, şeffaf PNG; analiz sonrası `RenderModelFile` işi + `node ace images:render` geri doldurma; `product_images` tablosu; `/images/:id` yalnız onaylıyı, önbellekli akıtır; vitrin kartı + ürün sayfasında sürükle/kaydırıcıyla döndürülen galeri; `og:image` + JSON-LD `image`. Üretici fotoğrafı: vitrin ürünü basılan işin QC fotoğrafı "Öner" → admin kuyruğunda "İncelenecek vitrin fotoğrafları" onayı (kimlik ele veren bir şey yoksa) → vitrinde renderlardan önce. Alıcının kendi modeli asla. 3MF/OBJ ✔ 2026-09-26: `mesh_parser.ts` [3MF zip+XML: birim, bileşen, dönüşüm; OBJ: çokgen, negatif indeks] → analiz, fiyat, render ve anonim hızlı fiyat artık üç biçimde. KALAN: malzeme rengine göre render, WebP) · `Ref: S2`
   - Model turntable render (worker), `product_images`, OG görseli; üretici gerçek foto yükleyebilir; vitrinde harf plakası yerine görsel.

@@ -189,6 +189,12 @@ router
   .post('/webhooks/payments', [controllers.PaymentWebhook, 'handle'])
   .use(middleware.throttle({ name: 'webhook', requests: 300, duration: '1 minute' }))
 
+// Orders from sellers' own shops (signature-verified per shop, R4)
+router
+  .post('/webhooks/stores/:id/orders', [controllers.StoreWebhook, 'order'])
+  .where('id', router.matchers.number())
+  .use(middleware.throttle({ name: 'store-webhook', requests: 300, duration: '1 minute' }))
+
 // Hosted payment page return (iyzico POSTs the token; outcome is read back from the provider)
 router
   .post('/payments/return', [controllers.PaymentReturn, 'handle'])
@@ -313,6 +319,20 @@ router
     router
       .post('/branding/logo/remove', [controllers.SellerBranding, 'removeLogo'])
       .use(middleware.profile({ role: 'seller' }))
+
+    // External shops: SKU mapping, imported orders, tracking write-back (R4)
+    router
+      .group(() => {
+        router.get('/', [controllers.SellerStore, 'index'])
+        router.post('/test', [controllers.SellerStore, 'connectTest'])
+        router.post('/:id/sync', [controllers.SellerStore, 'sync'])
+        router.post('/:id/disconnect', [controllers.SellerStore, 'disconnect'])
+        router.post('/listings/:id', [controllers.SellerStore, 'map'])
+        router.post('/orders/:id/retry', [controllers.SellerStore, 'retry'])
+      })
+      .prefix('/stores')
+      .where('id', router.matchers.number())
+      .use([middleware.feature({ name: 'externalStores' }), middleware.profile({ role: 'seller' })])
 
     // Tax and bank details, invoices to Fabrmatch (R7)
     router.get('/payout', [controllers.SellerPayout, 'show'])

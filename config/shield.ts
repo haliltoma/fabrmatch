@@ -54,7 +54,12 @@ const shieldConfig = defineConfig({
      */
     // Provider webhooks authenticate with a signature instead of a session/CSRF token; the
     // payment return is a cross-site POST from the hosted page, verified against the provider.
-    exceptRoutes: ['/webhooks/payments', '/webhooks/carrier', '/payments/return'],
+    exceptRoutes: [
+      '/webhooks/payments',
+      '/webhooks/carrier',
+      '/payments/return',
+      '/webhooks/stores/:id/orders',
+    ],
 
     /**
      * Expose an encrypted XSRF-TOKEN cookie for frontend HTTP clients.

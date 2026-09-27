@@ -86,6 +86,7 @@ declare module '@adonisjs/inertia/types' {
     'seller/orders/index': ExtractProps<(typeof import('../../inertia/pages/seller/orders/index.tsx'))['default']>
     'seller/payout': ExtractProps<(typeof import('../../inertia/pages/seller/payout.tsx'))['default']>
     'seller/products/index': ExtractProps<(typeof import('../../inertia/pages/seller/products/index.tsx'))['default']>
+    'seller/stores': ExtractProps<(typeof import('../../inertia/pages/seller/stores.tsx'))['default']>
     'shop/index': ExtractProps<(typeof import('../../inertia/pages/shop/index.tsx'))['default']>
     'shop/show': ExtractProps<(typeof import('../../inertia/pages/shop/show.tsx'))['default']>
     'status/changelog': ExtractProps<(typeof import('../../inertia/pages/status/changelog.tsx'))['default']>
