@@ -5,7 +5,7 @@ import Order from '#models/order'
 import PayoutDocument from '#models/payout_document'
 
 /** `awaiting_document`: Fabrmatch is the buyer of the work (R7) and the payee's invoice is not approved yet. */
-export type PayoutStatus = 'awaiting_document' | 'pending' | 'paid' | 'failed'
+export type PayoutStatus = 'awaiting_document' | 'pending' | 'paid' | 'failed' | 'cancelled'
 export type PayoutBeneficiary = 'manufacturer' | 'seller'
 
 export default class Payout extends PayoutSchema {

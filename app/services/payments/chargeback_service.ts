@@ -4,14 +4,16 @@ import { DateTime } from 'luxon'
 import AuditLog from '#models/audit_log'
 import Chargeback from '#models/chargeback'
 import Order from '#models/order'
+import Payout from '#models/payout'
 import LedgerService from '#services/payments/ledger_service'
 
 export class ChargebackError extends DomainError {}
 
 /**
  * A card chargeback pauses every payout for the order until an admin decides. "Won" releases the
- * hold. "Lost" means the bank takes the money back: whatever still sits in escrow is written off
- * as cash that left, and anything already paid out is recorded as a platform loss for follow-up.
+ * hold. "Lost" means the bank takes the money back, and the whole amount leaves cash: first from
+ * escrow, then by cancelling payouts not paid yet (the platform does not pay out money it no
+ * longer has), and whatever was already paid out is booked as `chargeback_loss`.
  */
 export default class ChargebackService {
   private ledger = new LedgerService()
@@ -73,8 +75,62 @@ export default class ChargebackService {
           }
         )
       }
+      let remaining = cb.amountMinor - fromEscrow
+
+      // payouts allocated but not paid yet: cancel them, settling what they owed against the cash
+      // the bank took. A payout larger than what is left stays; its share becomes the loss below.
+      const unpaid = await Payout.query({ client: trx })
+        .where('orderId', cb.orderId)
+        .whereIn('status', ['pending', 'awaiting_document'])
+        .where('currency', cb.currency)
+        .orderBy('amountMinor', 'desc')
+        .forUpdate()
+      const cancelled: number[] = []
+      for (const payout of unpaid) {
+        if (payout.amountMinor > remaining) continue
+        payout.status = 'cancelled'
+        await payout.useTransaction(trx).save()
+        await this.ledger.post(
+          [
+            {
+              account:
+                payout.beneficiaryType === 'manufacturer'
+                  ? 'manufacturer_payable'
+                  : 'seller_payable',
+              direction: 'debit',
+              amountMinor: payout.amountMinor,
+            },
+            { account: 'provider_cash', direction: 'credit', amountMinor: payout.amountMinor },
+          ],
+          {
+            orderId: cb.orderId,
+            currency: cb.currency,
+            memo: `chargeback ${cb.id} lost: payout ${payout.id} cancelled`,
+            trx,
+          }
+        )
+        remaining -= payout.amountMinor
+        cancelled.push(payout.id)
+      }
+
+      // already paid out: the makers and seller keep it, the platform carries the loss
+      if (remaining > 0) {
+        await this.ledger.post(
+          [
+            { account: 'chargeback_loss', direction: 'debit', amountMinor: remaining },
+            { account: 'provider_cash', direction: 'credit', amountMinor: remaining },
+          ],
+          {
+            orderId: cb.orderId,
+            currency: cb.currency,
+            memo: `chargeback ${cb.id} lost: not covered by escrow or unpaid payouts`,
+            trx,
+          }
+        )
+      }
+
       cb.status = 'lost'
-      cb.writtenOffMinor = fromEscrow
+      cb.writtenOffMinor = cb.amountMinor
       cb.note = note?.trim().slice(0, 300) || null
       cb.resolvedBy = adminId
       cb.resolvedAt = DateTime.now()
@@ -88,7 +144,8 @@ export default class ChargebackService {
           meta: {
             chargebackId: cb.id,
             fromEscrowMinor: fromEscrow,
-            uncoveredMinor: cb.amountMinor - fromEscrow,
+            cancelledPayoutIds: cancelled,
+            lossMinor: remaining,
           },
         },
         { client: trx }

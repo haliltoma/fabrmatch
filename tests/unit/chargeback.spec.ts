@@ -92,6 +92,94 @@ test.group('chargebacks (R1-T9)', (group) => {
     await assert.rejects(() => service.lost(open.id, admin.id), ChargebackError)
   })
 
+  test('losing after payouts were allocated cancels the unpaid ones; nothing pays them later', async ({
+    assert,
+  }) => {
+    const provider = new FakePaymentProvider()
+    const funded = await createFundedOrder(provider, { upTo: 'completed' })
+    const payouts = new PayoutService(provider)
+    const admin = await createUser('admin')
+    // allocated, but the transfer keeps failing: every payout stays pending
+    provider.failApprovals = true
+    await payouts.release(funded.order.id).catch(() => {})
+    const pending = await Payout.query().where('orderId', funded.order.id)
+    assert.isAbove(pending.length, 0)
+    assert.isTrue(pending.every((p) => p.status === 'pending'))
+    assert.equal(await ledger.balance('buyer_escrow', { orderId: funded.order.id }), 0)
+
+    const payment = provider.checkouts.find((c) => c.orderId === funded.order.id)!
+    const evt = provider.signedEvent({
+      type: 'chargeback.opened',
+      providerRef: payment.providerRef,
+      amountMinor: funded.order.totalMinor,
+    })
+    await new PaymentService(provider, async () => {}).handleWebhook(evt.body, evt.headers)
+    const [open] = await service.listOpen()
+    await service.lost(open.id, admin.id, 'bank ruled against us')
+
+    const after = await Payout.query().where('orderId', funded.order.id)
+    assert.isTrue(
+      after.every((p) => p.status === 'cancelled'),
+      'unpaid payouts are cancelled'
+    )
+    provider.failApprovals = false
+    const retried = await payouts.processPending(funded.order.id)
+    assert.equal(retried.paid, 0)
+    await assert.rejects(() => payouts.markPaid(admin.id, after[0].id, 'REF-1'), PayoutError)
+
+    // the bank took the whole amount: cash for the order is gone, nothing is left owed
+    assert.equal(await ledger.trialBalance({ orderId: funded.order.id }), 0)
+    assert.equal(await ledger.balance('provider_cash', { orderId: funded.order.id }), 0)
+    assert.equal(await ledger.balance('manufacturer_payable', { orderId: funded.order.id }), 0)
+    assert.equal(await ledger.balance('seller_payable', { orderId: funded.order.id }), 0)
+    const row = await Chargeback.findOrFail(open.id)
+    assert.equal(row.writtenOffMinor, funded.order.totalMinor)
+    const found = await new ReconciliationService().run()
+    assert.notInclude(
+      found.map((f) => f.orderId),
+      funded.order.id
+    )
+  })
+
+  test('what was already paid out is booked as a chargeback loss, not left unrecorded', async ({
+    assert,
+  }) => {
+    const provider = new FakePaymentProvider()
+    const funded = await createFundedOrder(provider, { upTo: 'completed' })
+    const payouts = new PayoutService(provider)
+    const admin = await createUser('admin')
+    await payouts.release(funded.order.id)
+    const paidRows = await Payout.query().where('orderId', funded.order.id).where('status', 'paid')
+    const paidOut = paidRows.reduce((a, p) => a + p.amountMinor, 0)
+    assert.isAbove(paidOut, 0)
+
+    const payment = provider.checkouts.find((c) => c.orderId === funded.order.id)!
+    const evt = provider.signedEvent({
+      type: 'chargeback.opened',
+      providerRef: payment.providerRef,
+      amountMinor: funded.order.totalMinor,
+    })
+    await new PaymentService(provider, async () => {}).handleWebhook(evt.body, evt.headers)
+    const [open] = await service.listOpen()
+    await service.lost(open.id, admin.id)
+
+    assert.equal(await ledger.trialBalance({ orderId: funded.order.id }), 0)
+    // paid-out makers and seller keep their money and escrow is empty: the platform carries the
+    // whole amount (what it paid out plus the fee it had kept) as a loss
+    assert.equal(
+      await ledger.balance('chargeback_loss', { orderId: funded.order.id }),
+      funded.order.totalMinor
+    )
+    assert.isAbove(funded.order.totalMinor, paidOut)
+    const row = await Chargeback.findOrFail(open.id)
+    assert.equal(row.writtenOffMinor, funded.order.totalMinor)
+    const found = await new ReconciliationService().run()
+    assert.notInclude(
+      found.filter((f) => f.kind === 'cash_mismatch').map((f) => f.orderId),
+      funded.order.id
+    )
+  })
+
   test('a chargeback for an unknown payment is flagged for review, not swallowed', async ({
     assert,
   }) => {

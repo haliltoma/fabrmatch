@@ -15,6 +15,8 @@ export type LedgerAccount =
   | 'withholding_payable'
   /** Money a seller paid in advance for their own production orders (per `wallet_user_id`) */
   | 'seller_wallet'
+  /** What a lost chargeback cost the platform beyond escrow and unpaid payouts (debit-normal) */
+  | 'chargeback_loss'
 
 export type LedgerDirection = 'debit' | 'credit'
 

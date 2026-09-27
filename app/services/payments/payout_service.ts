@@ -79,11 +79,15 @@ export default class PayoutService {
     const existing = await Payout.query({ client: trx }).where('orderId', orderId).first()
     if (existing) return { allocated: false, needInvoice: [], orderCode: order.code }
 
+    // open: wait for the decision; lost: the bank already took the order's money back
     const chargeback = await Chargeback.query({ client: trx })
       .where('orderId', orderId)
-      .where('status', 'open')
+      .whereIn('status', ['open', 'lost'])
       .first()
-    if (chargeback) throw new PayoutError('Payout is blocked while a chargeback is open')
+    if (chargeback?.status === 'open') {
+      throw new PayoutError('Payout is blocked while a chargeback is open')
+    }
+    if (chargeback) throw new PayoutError('Payout is blocked: the chargeback was lost')
 
     const dispute = await Dispute.query({ client: trx })
       .where('orderId', orderId)
