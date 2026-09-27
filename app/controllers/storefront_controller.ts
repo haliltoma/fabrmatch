@@ -5,6 +5,7 @@ import LegalService from '#services/legal/legal_service'
 import ReviewService from '#services/storefront/review_service'
 import OrderService from '#services/orders/order_service'
 import ContentService from '#services/content/content_service'
+import CityPageService from '#services/marketing/city_page_service'
 import MaterialPageService from '#services/marketing/material_page_service'
 import StorefrontService from '#services/storefront/storefront_service'
 import { shopOrderValidator, shopQueryValidator } from '#validators/storefront'
@@ -108,6 +109,8 @@ export default class StorefrontController {
     const [posts, terms] = await Promise.all([content.list('blog'), content.list('glossary')])
     const materialPages = await new MaterialPageService().list()
     const indexableMaterials = materialPages.filter((m) => m.indexable)
+    const allCities = await new CityPageService().list()
+    const cityPages = allCities.filter((c) => c.indexable)
     const allUseCases = await new UseCaseService().list()
     const useCases = allUseCases.filter((u) => u.indexable)
     const urls = [
@@ -123,6 +126,9 @@ export default class StorefrontController {
       // only materials with enough real maker data are listed; the rest stay noindex
       ...(indexableMaterials.length > 0 ? [`<url><loc>${base}/materials</loc></url>`] : []),
       ...indexableMaterials.map((m) => `<url><loc>${base}/materials/${m.slug}</loc></url>`),
+      // a city is listed only with enough active makers there (no page otherwise)
+      ...(cityPages.length > 0 ? [`<url><loc>${base}/cities</loc></url>`] : []),
+      ...cityPages.map((c) => `<url><loc>${base}/cities/${c.slug}</loc></url>`),
       ...(useCases.length > 0 ? [`<url><loc>${base}/use-cases</loc></url>`] : []),
       ...useCases.map((u) => `<url><loc>${base}/use-cases/${u.slug}</loc></url>`),
       ...posts.map(

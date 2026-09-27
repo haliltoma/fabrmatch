@@ -17,6 +17,9 @@ const publicPaths = [
   '/tools/quick-quote',
   '/tools/maker-income',
   '/materials',
+  '/cities',
+  // resolved at run time: the first city with enough makers (empty until makers seed there)
+  'first-city',
   '/use-cases',
   '/use-cases/prototype',
   // resolved at run time: the first product in the shop (gallery, finishing and colour pickers)
@@ -88,6 +91,12 @@ async function scan(page, label, path) {
   if (path === 'first-product') {
     await page.goto(base + '/shop', { waitUntil: 'networkidle' })
     const href = await page.locator('a[href^="/shop/"]').first().getAttribute('href')
+    if (!href) return
+    path = href
+  }
+  if (path === 'first-city') {
+    await page.goto(base + '/cities', { waitUntil: 'networkidle' })
+    const href = await page.locator('a[href^="/cities/"]').first().getAttribute('href')
     if (!href) return
     path = href
   }

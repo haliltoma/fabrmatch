@@ -36,6 +36,7 @@ export const controllers = {
   Capacity: () => import('#controllers/capacity_controller'),
   CarrierWebhook: () => import('#controllers/carrier_webhook_controller'),
   Cart: () => import('#controllers/cart_controller'),
+  CityPage: () => import('#controllers/city_page_controller'),
   Content: () => import('#controllers/content_controller'),
   ContentReport: () => import('#controllers/content_report_controller'),
   Dispute: () => import('#controllers/dispute_controller'),

@@ -17,6 +17,8 @@ export type ScannedRoutes = {
     'content.glossary_show': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
     'material_page.index': { paramsTuple?: []; params?: {} }
     'material_page.show': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
+    'city_page.index': { paramsTuple?: []; params?: {} }
+    'city_page.show': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
     'use_case_page.index': { paramsTuple?: []; params?: {} }
     'use_case_page.show': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
     'marketing.for_makers': { paramsTuple?: []; params?: {} }
@@ -275,6 +277,8 @@ export type ScannedRoutes = {
     'content.glossary_show': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
     'material_page.index': { paramsTuple?: []; params?: {} }
     'material_page.show': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
+    'city_page.index': { paramsTuple?: []; params?: {} }
+    'city_page.show': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
     'use_case_page.index': { paramsTuple?: []; params?: {} }
     'use_case_page.show': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
     'marketing.for_makers': { paramsTuple?: []; params?: {} }
@@ -393,6 +397,8 @@ export type ScannedRoutes = {
     'content.glossary_show': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
     'material_page.index': { paramsTuple?: []; params?: {} }
     'material_page.show': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
+    'city_page.index': { paramsTuple?: []; params?: {} }
+    'city_page.show': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
     'use_case_page.index': { paramsTuple?: []; params?: {} }
     'use_case_page.show': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
     'marketing.for_makers': { paramsTuple?: []; params?: {} }

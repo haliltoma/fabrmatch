@@ -2794,4 +2794,23 @@ export const tr: Record<string, string> = {
   'Model files on real object storage': 'Model dosyaları gerçek nesne depolamada',
   'Uploaded files are scanned for viruses': 'Yüklenen dosyalar virüs taramasından geçer',
   'At least 3 makers who can be paid': 'Ödeme alabilecek en az 3 üretici',
+  '3D printing near you — Fabrmatch': 'Yakınınızda 3D baskı — Fabrmatch',
+  'Cities where local makers print your parts, and how many there are.':
+    'Yerel üreticilerin parçalarınızı bastığı şehirler ve kaç üretici olduğu.',
+  '3D printing near you': 'Yakınınızda 3D baskı',
+  'A city appears here once enough makers print there.':
+    'Bir şehir, orada yeterli üretici olduğunda burada görünür.',
+  'No city has enough makers yet.': 'Henüz yeterli üreticisi olan şehir yok.',
+  'Print in your city? Join as a maker.':
+    'Şehrinizde baskı mı yapıyorsunuz? Üretici olarak katılın.',
+  '3D printing in {city}': '{city} 3D baskı',
+  '{count} makers print in {city}. Upload your model and get a delivered price.':
+    '{city} içinde {count} üretici baskı yapıyor. Modelinizi yükleyin, teslim fiyatını görün.',
+  'All cities': 'Tüm şehirler',
+  'Local makers print your part and ship it to you. You see the price before you order, and payment stays protected until delivery.':
+    'Yerel üreticiler parçanızı basıp size gönderir. Fiyatı sipariş vermeden görürsünüz; ödemeniz teslimata kadar korunur.',
+  'Makers printing in {city}': '{city} içinde baskı yapan üreticiler',
+  'Materials and maker rates here': 'Buradaki malzemeler ve üretici ücretleri',
+  'per gram': 'gram başına',
+  'Cities': 'Şehirler',
 }

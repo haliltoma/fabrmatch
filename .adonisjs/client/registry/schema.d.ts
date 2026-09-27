@@ -163,6 +163,30 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/material_page_controller').default['show']>>>
     }
   }
+  'city_page.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/cities'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/city_page_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/city_page_controller').default['index']>>>
+    }
+  }
+  'city_page.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/cities/:slug'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { slug: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/city_page_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/city_page_controller').default['show']>>>
+    }
+  }
   'use_case_page.index': {
     methods: ["GET","HEAD"]
     pattern: '/use-cases'

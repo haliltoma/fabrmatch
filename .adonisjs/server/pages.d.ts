@@ -47,6 +47,8 @@ declare module '@adonisjs/inertia/types' {
     'auth/signup': ExtractProps<(typeof import('../../inertia/pages/auth/signup.tsx'))['default']>
     'auth/two_factor': ExtractProps<(typeof import('../../inertia/pages/auth/two_factor.tsx'))['default']>
     'cart/index': ExtractProps<(typeof import('../../inertia/pages/cart/index.tsx'))['default']>
+    'cities/index': ExtractProps<(typeof import('../../inertia/pages/cities/index.tsx'))['default']>
+    'cities/show': ExtractProps<(typeof import('../../inertia/pages/cities/show.tsx'))['default']>
     'content/index': ExtractProps<(typeof import('../../inertia/pages/content/index.tsx'))['default']>
     'content/show': ExtractProps<(typeof import('../../inertia/pages/content/show.tsx'))['default']>
     'dev/checkout': ExtractProps<(typeof import('../../inertia/pages/dev/checkout.tsx'))['default']>

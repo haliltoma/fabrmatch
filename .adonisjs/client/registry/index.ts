@@ -84,6 +84,18 @@ const routes = {
     tokens: [{"old":"/materials/:slug","type":0,"val":"materials","end":""},{"old":"/materials/:slug","type":1,"val":"slug","end":""}],
     types: placeholder as Registry['material_page.show']['types'],
   },
+  'city_page.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/cities',
+    tokens: [{"old":"/cities","type":0,"val":"cities","end":""}],
+    types: placeholder as Registry['city_page.index']['types'],
+  },
+  'city_page.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/cities/:slug',
+    tokens: [{"old":"/cities/:slug","type":0,"val":"cities","end":""},{"old":"/cities/:slug","type":1,"val":"slug","end":""}],
+    types: placeholder as Registry['city_page.show']['types'],
+  },
   'use_case_page.index': {
     methods: ["GET","HEAD"],
     pattern: '/use-cases',

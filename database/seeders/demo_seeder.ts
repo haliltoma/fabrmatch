@@ -22,7 +22,7 @@ import { slugify } from '#services/storefront/storefront_service'
 import drive from '@adonisjs/drive/services/main'
 import ProductImageService from '#services/catalog/product_image_service'
 import { analyzeStl } from '#services/files/stl_analyzer'
-import { demoMeshFor } from './demo_meshes.js'
+import { demoMeshFor } from '../helpers/demo_meshes.js'
 import PayeeTaxProfile from '#models/payee_tax_profile'
 import EncryptionService from '#services/identity/encryption_service'
 import FakePaymentProvider from '#services/payments/fake_provider'
@@ -147,7 +147,48 @@ export default class DemoSeeder extends BaseSeeder {
       }
     }
 
+    // two more Istanbul makers so the /cities page has real supply to show in dev
+    for (const [email, name, rate] of [
+      ['maker2@demo.test', 'Ayşe Demir', 55],
+      ['maker3@demo.test', 'Kemal Öz', 70],
+    ] as const) {
+      const user = await make(email, name)
+      await roles.assignRole(user, 'manufacturer')
+      await user.load('manufacturerProfile')
+      const profile =
+        user.manufacturerProfile ??
+        (await onboarding.createManufacturerProfile(user, {
+          city: 'Istanbul',
+          country: 'TR',
+          isCorporate: false,
+        }))
+      profile.status = 'active'
+      await profile.save()
+      const existing = await Printer.query().where('manufacturerProfileId', profile.id).first()
+      if (!existing) {
+        const p = await Printer.create({
+          manufacturerProfileId: profile.id,
+          name: 'Bambu A1',
+          technology: 'FDM',
+          buildVolumeXMm: 256,
+          buildVolumeYMm: 256,
+          buildVolumeZMm: 256,
+          isActive: true,
+        })
+        for (const material of ['PLA', 'PETG']) {
+          await PrinterMaterial.create({
+            printerId: p.id,
+            material,
+            colors: ['black', 'white'],
+            pricePerGramMinor: rate,
+            currency: 'TRY',
+          })
+        }
+      }
+    }
+
     const products: SellerProduct[] = []
+
     for (const p of PRODUCTS) {
       const existing = await SellerProduct.query().where('title', p.title).first()
       if (existing) {

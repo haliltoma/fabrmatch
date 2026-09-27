@@ -280,6 +280,7 @@
 
 ## Log
 
+- **2026-09-27** — M2-T3 şehir sayfaları tamamlandı: `/cities` + `/cities/:slug` (`CityPageService`: şehir başına aktif üretici sayısı ≥ 3 değilse sayfa hiç yok — 404, index `noindex, follow`; TR slugsuz, yabancı şehir `-ulke` ekli; malzeme gram ücreti aralığı yalnız ≥ 3 üretici basıyorsa; kimlik yalnız sayı). Sitemap'e eklendi, footer'da bağlantı, demo seeder'a 2 Istanbul üreticisi daha (şehir sayfası dev'de gerçek veriyle görünsün; `db:seed` kırıktı — `demo_meshes.ts` helper'ı seeders dizininden `database/helpers/`'e taşındı). a11y taramasına `/cities` + ilk şehir eklendi. 878 test.
 - **2026-09-27** — `/admin/launch` lansman hazırlık paneli (R7-T8 şartları anlık, saf `evaluateLaunch` testli). Demo seeder model B'ye uyarlandı (onaylı alacaklı profilleri, satıcıya 2.500 TL test cüzdanı; aksi halde yeni DB'de ödeme serbest bırakma adımı düşerdi). 874 test.
 - **2026-09-27** — R4-T5 Etsy kodu hazır (anahtar bekliyor): OAuth2 PKCE bağlantısı, yayınlama (kategori araması, inventory, görsel, active/inactive), sipariş sorgulama işi (webhook yok), takip yazımı. Sözleşme webhook'suz platformları kapsayacak şekilde genelleştirildi. 870 test.
 - **2026-09-27** — Mağazada satıştan kaldırma: Shopify `productUpdate` (DRAFT), Woo `status: draft`; ürün arşivlenince bağlı tüm mağazalardan otomatik kaldırılır, tekrar yayınlama aynı mağaza ürününü kullanır (SKU ile bulunur; yeni ürün açma hatası düzeltildi). Adaptör sözleşmesine eklendi. 857 test.

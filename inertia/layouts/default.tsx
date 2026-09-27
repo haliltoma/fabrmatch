@@ -31,6 +31,7 @@ const FOOTER_COLUMNS: Array<{ title: string; links: Array<{ href: string; label:
       { href: '/tools/quick-quote', label: 'Instant price' },
       { href: '/shop', label: 'Shop' },
       { href: '/materials', label: 'Materials' },
+      { href: '/cities', label: 'Cities' },
       { href: '/help', label: 'Help' },
     ],
   },
