@@ -34,4 +34,19 @@ test.group('Shop listings are read to the end', () => {
       3
     )
   })
+
+  test('a WooCommerce sync makes a bounded number of calls, whatever the shop holds', async ({
+    assert,
+  }) => {
+    const shop = new FakeWoo()
+    for (let i = 0; i < 150; i++) {
+      shop.products.set(2000 + i, {
+        name: `V${i}`,
+        variations: [{ id: 9000 + i, sku: `S${i}`, regular_price: '1.00' }],
+      })
+    }
+    await new WooCommerceAdapter(shop.http).listVariants(shop.connection())
+    const lookups = shop.requests.filter((r) => /\/variations$/.test(r.path))
+    assert.isAtMost(lookups.length, 100)
+  })
 })

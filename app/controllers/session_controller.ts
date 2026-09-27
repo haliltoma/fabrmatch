@@ -18,20 +18,29 @@ export default class SessionController {
     const { request, auth, response, session } = ctx
     const { email, password } = await request.validateUsing(loginValidator)
 
-    // Rate limit: 5 attempts per IP + 10 per email per 15 min
+    // Rate limits. Per IP, and per account *from that IP*, so a stranger guessing passwords
+    // cannot lock the real owner out (review fix). A wide per-account budget still stops a
+    // password spray spread over many addresses.
     const ipThrottle = limiter.use({
       requests: 10,
       duration: '15 minutes',
       blockDuration: '15 minutes',
     })
-    const emailThrottle = limiter.use({
+    const accountFromIpThrottle = limiter.use({
       requests: 5,
       duration: '15 minutes',
       blockDuration: '30 minutes',
     })
+    const accountThrottle = limiter.use({
+      requests: 30,
+      duration: '1 hour',
+      blockDuration: '1 hour',
+    })
+    const account = email.trim().toLowerCase()
 
     await ipThrottle.consume(`login:ip:${request.ip()}`)
-    await emailThrottle.consume(`login:email:${email}`)
+    await accountFromIpThrottle.consume(`login:email-ip:${account}:${request.ip()}`)
+    await accountThrottle.consume(`login:email:${account}`)
 
     const user = await User.verifyCredentials(email, password)
     if (user.suspendedAt) {

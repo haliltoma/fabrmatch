@@ -1,4 +1,5 @@
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto'
+import logger from '@adonisjs/core/services/logger'
 import type StoreConnection from '#models/store_connection'
 import EncryptionService from '#services/identity/encryption_service'
 import {
@@ -36,6 +37,10 @@ export function wooSiteUrl(input: string): string | null {
  * seller's consumer key/secret over HTTPS basic auth. Webhooks carry X-WC-Webhook-Signature =
  * base64 HMAC-SHA256 of the body with the secret we set when creating them.
  */
+const MAX_PAGES = 20
+/** Each variable product costs one more call; beyond this the rest are left for the next sync. */
+const MAX_VARIATION_LOOKUPS = 100
+
 export default class WooCommerceAdapter implements StoreAdapter {
   readonly provider = 'woocommerce' as const
   readonly channel = 'woocommerce' as const
@@ -79,7 +84,8 @@ export default class WooCommerceAdapter implements StoreAdapter {
   }
 
   async listVariants(connection: StoreConnection): Promise<StoreVariant[]> {
-    // 100 per page (the API maximum), at most 50 pages
+    // 100 per page (the API maximum), at most MAX_PAGES pages: one sync is one web request, and a
+    // shop (whoever runs it) must not be able to keep it busy for hours
     const products: Array<{
       id: number
       name: string
@@ -87,7 +93,7 @@ export default class WooCommerceAdapter implements StoreAdapter {
       type: string
       variations: number[]
     }> = []
-    for (let page = 1; page <= 50; page++) {
+    for (let page = 1; page <= MAX_PAGES; page++) {
       const batch = await this.call<typeof products>(
         connection,
         'GET',
@@ -97,8 +103,18 @@ export default class WooCommerceAdapter implements StoreAdapter {
       if (batch.length < 100) break
     }
     const variants: StoreVariant[] = []
+    let lookups = 0
     for (const product of products) {
       if (product.type === 'variable' && product.variations.length > 0) {
+        if (lookups >= MAX_VARIATION_LOOKUPS) {
+          logger.warn({
+            msg: 'woocommerce sync: variation lookups capped',
+            connectionId: connection.id,
+            products: products.length,
+          })
+          break
+        }
+        lookups++
         const children = await this.call<
           Array<{ id: number; sku: string; attributes: Array<{ option: string }> }>
         >(connection, 'GET', `/products/${product.id}/variations?per_page=100`)

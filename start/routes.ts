@@ -63,12 +63,24 @@ router
     router.get('/security', [controllers.AccountSecurity, 'show'])
     router.post('/security/two-factor/start', [controllers.AccountSecurity, 'startTwoFactor'])
     router.post('/security/two-factor/enable', [controllers.AccountSecurity, 'enableTwoFactor'])
-    router.post('/security/two-factor/disable', [controllers.AccountSecurity, 'disableTwoFactor'])
-    router.post('/security/two-factor/backup-codes', [
-      controllers.AccountSecurity,
-      'regenerateBackupCodes',
-    ])
-    router.post('/security/password', [controllers.AccountSecurity, 'changePassword'])
+    // these check a password or a code: no guessing through a stolen session
+    const guessLimit = middleware.throttle({
+      name: 'account-secret',
+      requests: 5,
+      duration: '15 minutes',
+    })
+    router
+      .post('/security/two-factor/disable', [controllers.AccountSecurity, 'disableTwoFactor'])
+      .use(guessLimit)
+    router
+      .post('/security/two-factor/backup-codes', [
+        controllers.AccountSecurity,
+        'regenerateBackupCodes',
+      ])
+      .use(guessLimit)
+    router
+      .post('/security/password', [controllers.AccountSecurity, 'changePassword'])
+      .use(guessLimit)
     router.post('/security/sessions/revoke-others', [controllers.AccountSecurity, 'revokeOthers'])
     router.post('/security/sessions/:id/revoke', [controllers.AccountSecurity, 'revokeSession'])
   })
@@ -340,10 +352,15 @@ router
         router.get('/etsy/start', [controllers.SellerStore, 'etsyStart'])
         router.get('/etsy/callback', [controllers.SellerStore, 'etsyCallback'])
         router.get('/etsy/categories', [controllers.SellerStore, 'etsyCategories'])
-        router.post('/:id/publish', [controllers.SellerStore, 'publish'])
+        // both call the shop's API from the web request: keep them from being hammered
+        router
+          .post('/:id/publish', [controllers.SellerStore, 'publish'])
+          .use(middleware.throttle({ name: 'store-publish', requests: 30, duration: '10 minutes' }))
         router.post('/:id/unpublish', [controllers.SellerStore, 'unpublish'])
         router.post('/test', [controllers.SellerStore, 'connectTest'])
-        router.post('/:id/sync', [controllers.SellerStore, 'sync'])
+        router
+          .post('/:id/sync', [controllers.SellerStore, 'sync'])
+          .use(middleware.throttle({ name: 'store-sync', requests: 6, duration: '10 minutes' }))
         router.post('/:id/disconnect', [controllers.SellerStore, 'disconnect'])
         router.post('/listings/:id', [controllers.SellerStore, 'map'])
         router.post('/orders/:id/retry', [controllers.SellerStore, 'retry'])
