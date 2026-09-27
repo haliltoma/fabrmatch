@@ -13,7 +13,7 @@ import {
   GRAMS_PER_PRINT_HOUR,
 } from '#services/pricing/price_engine'
 import { FAQ } from '#controllers/support_controller'
-import PricingRegionService from '#services/pricing/pricing_region_service'
+import PricingRegionService, { type BrowseTerms } from '#services/pricing/pricing_region_service'
 import { visitorCountry } from '#services/pricing/visitor_country'
 import StorefrontService from '#services/storefront/storefront_service'
 
@@ -29,14 +29,13 @@ export default class HomeController {
       session.sessionId,
       request.header('user-agent') ?? ''
     )
+    const terms = await new PricingRegionService().termsFor(visitorCountry({ request }))
     const [stats, shop, materials, posts, marginSamples] = await Promise.all([
       new HomeStatsService().load(),
-      new PricingRegionService()
-        .termsFor(visitorCountry({ request }))
-        .then((terms) => new StorefrontService().list({ sort: 'newest', perPage: 8, terms })),
+      new StorefrontService().list({ sort: 'newest', perPage: 8, terms }),
       new MaterialPageService().list(),
       new ContentService().list('blog'),
-      this.marginSamples(),
+      this.marginSamples(terms),
     ])
     return inertia.render('home', {
       stats,
@@ -70,7 +69,7 @@ export default class HomeController {
   }
 
   /** Up to four active catalog designs with their real cost (seller margin 0) in their first material. */
-  private async marginSamples() {
+  private async marginSamples(terms?: BrowseTerms) {
     const products = await CatalogProduct.query()
       .where('isActive', true)
       .orderBy('id', 'asc')
@@ -79,7 +78,7 @@ export default class HomeController {
     const samples: Array<{ id: number; title: string; material: string; costMinor: number }> = []
     for (const p of products) {
       if (samples.length === 4) break
-      const [first] = await preview.preview(p.id, 0)
+      const [first] = await preview.preview(p.id, 0, terms)
       if (first)
         samples.push({
           id: p.id,

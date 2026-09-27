@@ -1,3 +1,4 @@
+import { roundUnitMinor, type BrowseTerms } from '#services/pricing/pricing_region_service'
 import { calculatePrice, estimateGrams } from '#services/pricing/price_engine'
 import { referencePriceFor } from '#services/pricing/reference_prices'
 import ShippingService from '#services/shipping/shipping_service'
@@ -61,33 +62,34 @@ export interface UseCasePage {
 }
 
 export default class UseCaseService {
-  async list(): Promise<UseCasePage[]> {
+  /** `terms`: the visitor's pricing region (P2); without it, delivery in Türkiye at base prices. */
+  async list(terms?: BrowseTerms): Promise<UseCasePage[]> {
     const [materials, shipping] = await Promise.all([
       new MaterialPageService().list(),
       new ShippingService().table(),
     ])
     return USE_CASES.map((u) => {
-      const reference = referencePriceFor(u.material)!
+      const reference = terms
+        ? terms.referenceFor(u.material)!
+        : referencePriceFor(u.material)!.pricePerGramMinor
       const grams = estimateGrams(u.example.volumeMm3, u.material)
       const prices = u.quantities.map((quantity) => {
         const breakdown = calculatePrice({
           volumeMm3: u.example.volumeMm3,
           material: u.material,
-          pricePerGramMinor: reference.pricePerGramMinor,
+          pricePerGramMinor: reference,
           quantity,
           sellerMarginBps: 0,
+          commissionBps: terms?.commissionBps,
           shippingMinor: shipping.perUnitMinor({
-            country: 'TR',
+            country: terms?.country ?? 'TR',
             gramsPerUnit: grams,
             bboxMm: u.example.bboxMm,
             quantity,
           }),
         })
-        return {
-          quantity,
-          totalMinor: breakdown.totalPriceMinor,
-          perPieceMinor: Math.round(breakdown.totalPriceMinor / quantity),
-        }
+        const perPieceMinor = roundUnitMinor(breakdown.unitPriceMinor, terms?.rounding ?? 'none')
+        return { quantity, totalMinor: perPieceMinor * quantity, perPieceMinor }
       })
       const makers = materials.find((m) => m.code === u.material)?.makers ?? null
       return {
@@ -104,8 +106,8 @@ export default class UseCaseService {
     })
   }
 
-  async find(slug: string): Promise<UseCasePage | null> {
-    const all = await this.list()
+  async find(slug: string, terms?: BrowseTerms): Promise<UseCasePage | null> {
+    const all = await this.list(terms)
     return all.find((u) => u.slug === slug) ?? null
   }
 }

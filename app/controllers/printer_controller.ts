@@ -24,7 +24,11 @@ export default class PrinterController {
       catalog.listColors({ activeOnly: true }),
     ])
 
-    const missed = await new MissedOrdersService().forPrinters(printers)
+    // the maker's own region sets the price they are measured against (P2)
+    const missed = await new MissedOrdersService().forPrinters(
+      printers,
+      user.manufacturerProfile.country
+    )
     const profileService = new PrintProfileService()
     const allProfiles = await profileService.list({ activeOnly: true })
     const offered = new Map<number, number[]>()
