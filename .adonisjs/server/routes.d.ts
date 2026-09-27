@@ -122,6 +122,7 @@ export type ScannedRoutes = {
     'seller_wallet.show': { paramsTuple?: []; params?: {} }
     'seller_wallet.top_up': { paramsTuple?: []; params?: {} }
     'seller_wallet.auto_pay': { paramsTuple?: []; params?: {} }
+    'seller_wallet.refund': { paramsTuple?: []; params?: {} }
     'seller_payout.show': { paramsTuple?: []; params?: {} }
     'seller_payout.save': { paramsTuple?: []; params?: {} }
     'seller_payout.invoice': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -547,6 +548,7 @@ export type ScannedRoutes = {
     'seller_store.retry': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_wallet.top_up': { paramsTuple?: []; params?: {} }
     'seller_wallet.auto_pay': { paramsTuple?: []; params?: {} }
+    'seller_wallet.refund': { paramsTuple?: []; params?: {} }
     'seller_payout.save': { paramsTuple?: []; params?: {} }
     'seller_payout.invoice': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_developer.create_key': { paramsTuple?: []; params?: {} }

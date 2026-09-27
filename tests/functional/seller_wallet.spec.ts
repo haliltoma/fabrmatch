@@ -120,6 +120,47 @@ test.group('Seller wallet (R4-T2)', (group) => {
     )
   })
 
+  test('the balance goes back to the cards it came from, newest top-up first', async ({
+    assert,
+  }) => {
+    const { sellerUser } = await seller()
+    const older = await topUp(sellerUser, 30_000)
+    const newer = await topUp(sellerUser, 50_000)
+    const { order } = await createDraftOrder(sellerUser, { quantity: 40 })
+    const newest = await topUp(sellerUser, order.totalMinor)
+    await payments.payFromWallet(order.id, sellerUser.id)
+    assert.equal(await wallets.balance(sellerUser.id), 80_000)
+
+    // account deletion waits for the balance
+    const { default: PrivacyService } = await import('#services/identity/privacy_service')
+    assert.include(
+      (await new PrivacyService().deletionBlockers(sellerUser)).join(' '),
+      'wallet balance'
+    )
+
+    const refunded = await payments.refundWalletBalance(sellerUser.id)
+    assert.equal(refunded, 80_000)
+    assert.equal(await wallets.balance(sellerUser.id), 0)
+    // newest top-up first, each at most what it brought in
+    const byRef = Object.fromEntries(provider.refunds.map((r) => [r.providerRef, r.amountMinor]))
+    assert.equal(byRef[newest.providerRef], Math.min(order.totalMinor, 80_000))
+    assert.equal(
+      (byRef[newest.providerRef] ?? 0) +
+        (byRef[newer.providerRef] ?? 0) +
+        (byRef[older.providerRef] ?? 0),
+      80_000
+    )
+    assert.isAtMost(byRef[newer.providerRef] ?? 0, 50_000)
+    await newest.refresh()
+    assert.include(['refunded', 'partially_refunded'], newest.status)
+    await assert.rejects(() => payments.refundWalletBalance(sellerUser.id), /no balance/)
+    assert.equal(await ledger.trialBalance(), 0)
+    assert.include(
+      (await wallets.movements(sellerUser.id)).map((m) => m.kind),
+      'withdrawal'
+    )
+  })
+
   test('two orders cannot spend the same money', async ({ assert }) => {
     const { sellerUser } = await seller()
     const first = await createDraftOrder(sellerUser, { quantity: 40 })

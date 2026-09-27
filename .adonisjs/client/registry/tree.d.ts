@@ -201,6 +201,7 @@ export interface ApiDefinition {
     show: typeof routes['seller_wallet.show']
     topUp: typeof routes['seller_wallet.top_up']
     autoPay: typeof routes['seller_wallet.auto_pay']
+    refund: typeof routes['seller_wallet.refund']
   }
   sellerPayout: {
     show: typeof routes['seller_payout.show']

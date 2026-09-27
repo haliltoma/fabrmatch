@@ -2729,4 +2729,10 @@ export const tr: Record<string, string> = {
   'Wallet top-up': 'Cüzdan yüklemesi',
   'Back to the wallet': 'Cüzdana dön',
   'Cancel and go back to the wallet': 'Vazgeç ve cüzdana dön',
+  'Back to card': 'Karta iade',
+  'Send your whole balance back to the card it came from?':
+    'Bakiyenizin tamamı geldiği karta iade edilsin mi?',
+  'Refund balance to card': 'Bakiyeyi karta iade et',
+  'There is no balance to refund': 'İade edilecek bakiye yok',
+  'Refund your wallet balance to your card first.': 'Önce cüzdan bakiyenizi kartınıza iade edin.',
 }

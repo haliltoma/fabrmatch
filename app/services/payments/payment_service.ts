@@ -259,6 +259,69 @@ export default class PaymentService {
     return paid
   }
 
+  /**
+   * Gives the seller's remaining balance back to the card(s) it came from, newest top-up first.
+   * Each chunk has an idempotency key derived from the top-up and what was already refunded on
+   * it, so a retry after a crash re-sends the same request and never refunds twice.
+   */
+  async refundWalletBalance(userId: number): Promise<number> {
+    let refunded = 0
+    await db.transaction(async (trx) => {
+      await trx.rawQuery('select pg_advisory_xact_lock(hashtext(?))', [`wallet:${userId}`])
+      let remaining = await this.ledger.balance('seller_wallet', {
+        walletUserId: userId,
+        currency: 'TRY',
+        trx,
+      })
+      if (remaining <= 0) throw new PaymentError('There is no balance to refund')
+      const topUps = await Payment.query({ client: trx })
+        .where('walletUserId', userId)
+        .whereIn('status', ['succeeded', 'partially_refunded'])
+        .orderBy('id', 'desc')
+        .forUpdate()
+      for (const payment of topUps) {
+        if (remaining <= 0) break
+        const chunk = Math.min(remaining, payment.amountMinor - payment.refundedMinor)
+        if (chunk <= 0) continue
+        await this.provider.refund({
+          providerRef: payment.providerRef,
+          amountMinor: chunk,
+          currency: payment.currency,
+          idempotencyKey: `wallet-refund:${payment.id}:${payment.refundedMinor}`,
+        })
+        payment.refundedMinor += chunk
+        payment.status =
+          payment.refundedMinor >= payment.amountMinor ? 'refunded' : 'partially_refunded'
+        await payment.useTransaction(trx).save()
+        await this.ledger.post(
+          [
+            {
+              account: 'seller_wallet',
+              direction: 'debit',
+              amountMinor: chunk,
+              walletUserId: userId,
+            },
+            { account: 'provider_cash', direction: 'credit', amountMinor: chunk },
+          ],
+          { currency: payment.currency, memo: `wallet refund payment:${payment.id}`, trx }
+        )
+        remaining -= chunk
+        refunded += chunk
+      }
+      await AuditLog.create(
+        {
+          actorId: userId,
+          action: 'wallet.refunded',
+          subjectType: 'user',
+          subjectId: userId,
+          meta: { refundedMinor: refunded, left: remaining },
+        },
+        { client: trx }
+      )
+    })
+    return refunded
+  }
+
   /** Buyer, address and payout lines for a hosted page that needs them (iyzico). */
   private buyerDetails(order: Order, buyerId: number, email: string, payer: PayerDetails) {
     const address = new OrderService().decryptShippingAddress(order)

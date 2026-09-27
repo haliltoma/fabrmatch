@@ -79,9 +79,23 @@ export default class WooCommerceAdapter implements StoreAdapter {
   }
 
   async listVariants(connection: StoreConnection): Promise<StoreVariant[]> {
-    const products = await this.call<
-      Array<{ id: number; name: string; sku: string; type: string; variations: number[] }>
-    >(connection, 'GET', '/products?per_page=100')
+    // 100 per page (the API maximum), at most 50 pages
+    const products: Array<{
+      id: number
+      name: string
+      sku: string
+      type: string
+      variations: number[]
+    }> = []
+    for (let page = 1; page <= 50; page++) {
+      const batch = await this.call<typeof products>(
+        connection,
+        'GET',
+        `/products?per_page=100&page=${page}`
+      )
+      products.push(...batch)
+      if (batch.length < 100) break
+    }
     const variants: StoreVariant[] = []
     for (const product of products) {
       if (product.type === 'variable' && product.variations.length > 0) {

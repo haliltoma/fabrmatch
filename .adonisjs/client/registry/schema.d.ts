@@ -1423,6 +1423,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_wallet_controller').default['autoPay']>>>
     }
   }
+  'seller_wallet.refund': {
+    methods: ["POST"]
+    pattern: '/seller/wallet/refund'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_wallet_controller').default['refund']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_wallet_controller').default['refund']>>>
+    }
+  }
   'seller_payout.show': {
     methods: ["GET","HEAD"]
     pattern: '/seller/payout'

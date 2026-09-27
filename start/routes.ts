@@ -351,6 +351,12 @@ router
         middleware.throttle({ name: 'wallet-top-up', requests: 10, duration: '1 hour' }),
       ])
     router.post('/wallet/auto-pay', [controllers.SellerWallet, 'autoPay'])
+    router
+      .post('/wallet/refund', [controllers.SellerWallet, 'refund'])
+      .use([
+        middleware.verified(),
+        middleware.throttle({ name: 'wallet-refund', requests: 5, duration: '1 hour' }),
+      ])
 
     // Tax and bank details, invoices to Fabrmatch (R7)
     router.get('/payout', [controllers.SellerPayout, 'show'])

@@ -196,7 +196,9 @@ Paket çıkış ölçütü: gerçek ödeme sandbox'ta uçtan uca; vergi+fatura k
   - Mutabakat: kullanıcı bazında negatif cüzdan kontrolü; cüzdanla ödenen siparişlerde sahte nakit alarmı yok.
   - Yalnız satış modeli B'de (pazaryerinde kapalı).
   - ⚠ D5: bakiye yalnız Fabrmatch'in kendi hizmetinde harcanan avans olarak tasarlandı (6493 kapsamı dışı kalması için para çekme / başkasına devir yok). Avukat teyidi gerekli.
-  - KALAN: bakiyenin iadesi (hesap kapatma) admin işlemi, kayıtlı kart.
+  - Bakiye iadesi ✔ (satıcı self-servis): kalan bakiye geldiği kartlara en yeni yüklemeden başlayarak iade edilir. Anahtar yükleme + önceki iadeden türetildiği için yeniden deneme çift iade yapmaz. Bakiye varken hesap silinemez.
+  - Mağaza ürün listesi sayfalamalı: Shopify cursor, Woo sayfa.
+  - KALAN: kayıtlı kart.
 - [x] **R4-T3 SKU eşleme ekranı** · P1 · ✔ 2026-09-27 çekirdek (`flags.externalStores` KAPALI)
   - `store_connections` (token/secret şifreli), `external_listings`; `/seller/stores`'ta mağazanın her varyantı kendi ürününe + malzeme/renk/boyuta bağlanır (sahiplik, izinli malzeme/ölçek kontrollü).
   - Sipariş webhook'u (`/webhooks/stores/:id/orders`, mağaza başına HMAC, CSRF'siz) dış sipariş id'si başına bir kez kaydedilir.

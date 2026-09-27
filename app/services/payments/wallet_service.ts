@@ -4,7 +4,7 @@ import SellerProfile from '#models/seller_profile'
 
 export interface WalletMovement {
   at: string
-  kind: 'top_up' | 'order' | 'refund'
+  kind: 'top_up' | 'order' | 'refund' | 'withdrawal'
   amountMinor: number
   orderCode: string | null
   orderId: number | null
@@ -39,7 +39,9 @@ export default class WalletService {
       at: new Date(r.created_at).toISOString(),
       kind:
         r.direction === 'debit'
-          ? 'order'
+          ? String(r.memo ?? '').startsWith('wallet refund')
+            ? 'withdrawal'
+            : 'order'
           : String(r.memo ?? '').startsWith('refund')
             ? 'refund'
             : 'top_up',

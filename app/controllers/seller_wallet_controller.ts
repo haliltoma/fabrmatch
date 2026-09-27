@@ -55,6 +55,13 @@ export default class SellerWalletController {
     return inertia.location(redirectUrl)
   }
 
+  /** Balance back to the card(s) it came from. */
+  async refund({ auth, response, session }: HttpContext) {
+    const refunded = await new PaymentService().refundWalletBalance(auth.getUserOrFail().id)
+    session.flash('success', `${(refunded / 100).toFixed(2)} TRY is on its way back to your card.`)
+    return response.redirect().toPath('/seller/wallet')
+  }
+
   async autoPay({ auth, request, response, session }: HttpContext) {
     const { on } = await request.validateUsing(autoPayValidator)
     await this.wallets.setAutoPay(auth.getUserOrFail().id, on)

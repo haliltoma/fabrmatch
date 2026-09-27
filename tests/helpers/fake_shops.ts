@@ -28,6 +28,8 @@ export class FakeShopify {
   >()
   fulfillmentOrders = new Map<string, Array<{ id: string; status: string }>>()
   fulfillments: Array<{ orderId: string; number: string; company: string }> = []
+  /** variants per GraphQL page (Shopify: 250; tests lower it to exercise the cursor) */
+  pageSize = 250
   private seq = 1000
 
   http: StoreHttp = async (req: StoreHttpRequest) => {
@@ -90,7 +92,21 @@ export class FakeShopify {
           product: { id: `gid://shopify/Product/${pid}` },
         }))
       )
-      return json(200, { data: { productVariants: { nodes } } })
+      // real pagination: `pageSize` per page, cursor = index of the next node
+      const start = variables.after ? Number(variables.after) : 0
+      const slice = nodes.slice(start, start + this.pageSize)
+      const next = start + this.pageSize
+      return json(200, {
+        data: {
+          productVariants: {
+            nodes: slice,
+            pageInfo: {
+              hasNextPage: next < nodes.length,
+              endCursor: next < nodes.length ? String(next) : null,
+            },
+          },
+        },
+      })
     }
     if (query.includes('productSet(')) {
       const input = variables.input
@@ -239,9 +255,11 @@ export class FakeWoo {
     this.requests.push({ method: req.method, path, body })
 
     if (req.method === 'GET' && path === '/products') {
+      const page = Number(url.searchParams.get('page') ?? '1')
+      const perPage = Number(url.searchParams.get('per_page') ?? '10')
       return json(
         200,
-        [...this.products.entries()].map(([id, p]) => ({
+        [...this.products.entries()].slice((page - 1) * perPage, page * perPage).map(([id, p]) => ({
           id,
           name: p.name,
           sku: '',

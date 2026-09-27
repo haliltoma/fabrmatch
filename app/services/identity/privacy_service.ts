@@ -4,6 +4,7 @@ import db from '@adonisjs/lucid/services/db'
 import hash from '@adonisjs/core/services/hash'
 import drive from '@adonisjs/drive/services/main'
 import PayeeTaxProfile from '#models/payee_tax_profile'
+import LedgerService from '#services/payments/ledger_service'
 import logger from '@adonisjs/core/services/logger'
 import { DateTime } from 'luxon'
 import AuditLog from '#models/audit_log'
@@ -210,7 +211,8 @@ export default class PrivacyService {
 
     const pending = await db
       .from('payouts')
-      .where('status', 'pending')
+      // waiting for the invoice counts too: the money is still owed (R7)
+      .whereIn('status', ['pending', 'awaiting_document'])
       .where((q) => {
         q.where((s) => s.where('beneficiary_type', 'seller').where('beneficiary_id', user.id))
         if (maker)
@@ -222,6 +224,12 @@ export default class PrivacyService {
       .first()
     if (Number(pending?.n ?? 0) > 0)
       blockers.push('You have a payout that has not been paid out yet.')
+
+    const wallet = await new LedgerService().balance('seller_wallet', {
+      walletUserId: user.id,
+      currency: 'TRY',
+    })
+    if (wallet > 0) blockers.push('Refund your wallet balance to your card first.')
     return blockers
   }
 

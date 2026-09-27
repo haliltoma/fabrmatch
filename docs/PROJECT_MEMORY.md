@@ -280,6 +280,7 @@
 
 ## Log
 
+- **2026-09-27** — Cüzdan bakiyesinin karta iadesi (en yeni yüklemeden başlayarak, anahtar yükleme + önceki iadeden türetildiği için yeniden deneme çift iade yapmaz; bakiye varken hesap silinemez; fatura bekleyen ödeme de silme engeli). Shopify/Woo ürün listesi sayfalamalı. 856 test.
 - **2026-09-27** — R4-T2 satıcı cüzdanı (K-E varsayılanı): yükleme mevcut ödeme yolundan, `seller_wallet` defter hesabı (kullanıcı bazlı), kilitli bakiyeden ödeme, mağaza siparişlerinde otomatik ödeme, iade cüzdana, mutabakat uyarlandı, yalnız model B. Yerel test ödeme sayfası yüklemeleri de destekliyor. Avans niteliği D5'te avukata sorulacak. 853 test.
 - **2026-09-27** — Dış mağaza: satıcıya bildirim (sipariş ödeme bekliyor / ürün eşlemesi gerekiyor / oluşturulamadı / mağazada iptal / iptal için geç); mağaza iptali senkronu (Shopify `ORDERS_CANCELLED`, Woo `cancelled`/`refunded`): üretim başlamadıysa bizde iptal + iade, başladıysa gönderim sürer ve satıcı bilgilendirilir. Adaptör sözleşmesine iptal eklendi. 847 test.
 - **2026-09-27** — Printify modeli (kullanıcı kararı): satıcı kendi Shopify (Dev Dashboard Client ID/Secret; 2026'dan beri admin'de token yok) veya WooCommerce (site URL + consumer key/secret) bilgileriyle bağlanır, ürününü Fabrmatch'ten mağazasında malzeme varyantları + fiyatla yayınlar; ödenen siparişler webhook ile gelir (SKU ile otomatik eşlenir), kargo takibi geri yazılır. Etsy OAuth gerektirdiği için bekliyor. Adaptör sözleşmesi fake/Shopify/Woo için yeşil. 840 test.

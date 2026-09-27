@@ -15,7 +15,7 @@ import { useT } from '~/lib/i18n'
 
 type Movement = {
   at: string
-  kind: 'top_up' | 'order' | 'refund'
+  kind: 'top_up' | 'order' | 'refund' | 'withdrawal'
   amountMinor: number
   orderCode: string | null
   orderId: number | null
@@ -25,6 +25,7 @@ const KIND: Record<Movement['kind'], string> = {
   top_up: 'Top-up',
   order: 'Order paid',
   refund: 'Refund',
+  withdrawal: 'Back to card',
 }
 
 export default function SellerWallet({
@@ -106,6 +107,19 @@ export default function SellerWallet({
             />
             {t('Pay orders from my shops automatically')}
           </label>
+          {balanceMinor > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                if (window.confirm(t('Send your whole balance back to the card it came from?'))) {
+                  router.post('/seller/wallet/refund')
+                }
+              }}
+            >
+              {t('Refund balance to card')}
+            </Button>
+          )}
         </CardContent>
       </Card>
 

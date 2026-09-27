@@ -86,26 +86,43 @@ export default class ShopifyAdapter implements StoreAdapter {
     if (errors.length > 0) throw new StoreApiError(`Shopify: ${errors[0].message}`)
   }
 
+  /** Every variant, following the cursor (250 per page, at most 40 pages). */
   async listVariants(connection: StoreConnection): Promise<StoreVariant[]> {
-    const data = await this.graphql<{
-      productVariants: {
-        nodes: Array<{
-          id: string
-          sku: string | null
-          displayName: string
-          product: { id: string }
-        }>
+    const variants: StoreVariant[] = []
+    let after: string | null = null
+    for (let page = 0; page < 40; page++) {
+      const data: {
+        productVariants: {
+          nodes: Array<{
+            id: string
+            sku: string | null
+            displayName: string
+            product: { id: string }
+          }>
+          pageInfo: { hasNextPage: boolean; endCursor: string | null }
+        }
+      } = await this.graphql(
+        connection,
+        `query variants($after: String) {
+          productVariants(first: 250, after: $after) {
+            nodes { id sku displayName product { id } }
+            pageInfo { hasNextPage endCursor }
+          }
+        }`,
+        { after }
+      )
+      for (const v of data.productVariants.nodes) {
+        variants.push({
+          productId: numericId(v.product.id),
+          variantId: numericId(v.id),
+          sku: v.sku || null,
+          title: v.displayName,
+        })
       }
-    }>(
-      connection,
-      '{ productVariants(first: 250) { nodes { id sku displayName product { id } } } }'
-    )
-    return data.productVariants.nodes.map((v) => ({
-      productId: numericId(v.product.id),
-      variantId: numericId(v.id),
-      sku: v.sku || null,
-      title: v.displayName,
-    }))
+      if (!data.productVariants.pageInfo?.hasNextPage) break
+      after = data.productVariants.pageInfo.endCursor
+    }
+    return variants
   }
 
   async publishProduct(

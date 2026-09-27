@@ -714,6 +714,12 @@ const routes = {
     tokens: [{"old":"/seller/wallet/auto-pay","type":0,"val":"seller","end":""},{"old":"/seller/wallet/auto-pay","type":0,"val":"wallet","end":""},{"old":"/seller/wallet/auto-pay","type":0,"val":"auto-pay","end":""}],
     types: placeholder as Registry['seller_wallet.auto_pay']['types'],
   },
+  'seller_wallet.refund': {
+    methods: ["POST"],
+    pattern: '/seller/wallet/refund',
+    tokens: [{"old":"/seller/wallet/refund","type":0,"val":"seller","end":""},{"old":"/seller/wallet/refund","type":0,"val":"wallet","end":""},{"old":"/seller/wallet/refund","type":0,"val":"refund","end":""}],
+    types: placeholder as Registry['seller_wallet.refund']['types'],
+  },
   'seller_payout.show': {
     methods: ["GET","HEAD"],
     pattern: '/seller/payout',
