@@ -1,17 +1,39 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import LegalService from '#services/legal/legal_service'
+import Order from '#models/order'
 import PrintProfileService from '#services/catalog/print_profile_service'
 import FinishingService from '#services/catalog/finishing_service'
 import FxService from '#services/pricing/fx_service'
+import PricingRegionService from '#services/pricing/pricing_region_service'
+import { visitorCountry } from '#services/pricing/visitor_country'
 import CartService from '#services/orders/cart_service'
 import { cartAddValidator, cartCheckoutValidator, cartQuantityValidator } from '#validators/order'
 
 export default class CartController {
   async show({ inertia, auth, request }: HttpContext) {
-    const country = String(request.input('country', 'TR')).toUpperCase().slice(0, 2)
-    const currency = String(request.input('currency', 'TRY')).toUpperCase().slice(0, 3)
-    const couponCode = String(request.input('coupon', '')).trim().slice(0, 40)
+    // defaults follow the visitor (P2): their likely country, and its region's currency when an
+    // admin has switched that currency on; an explicit choice always wins
     const fx = new FxService()
+    // where this buyer last had something delivered beats a guess from their browser
+    const lastOrder = await Order.query()
+      .where('buyerId', auth.getUserOrFail().id)
+      .whereNotNull('shipCountry')
+      .orderBy('id', 'desc')
+      .select('shipCountry')
+      .first()
+    const country = String(
+      request.input('country') ?? lastOrder?.shipCountry ?? visitorCountry({ request })
+    )
+      .toUpperCase()
+      .slice(0, 2)
+    const region = await new PricingRegionService().forCountry(country)
+    const fallbackCurrency = fx.enabledCurrencies().includes(region.currency)
+      ? region.currency
+      : 'TRY'
+    const currency = String(request.input('currency') ?? fallbackCurrency)
+      .toUpperCase()
+      .slice(0, 3)
+    const couponCode = String(request.input('coupon', '')).trim().slice(0, 40)
     const [preview, profiles] = await Promise.all([
       new CartService().preview(auth.getUserOrFail(), country, currency, couponCode || undefined),
       new PrintProfileService().list(),

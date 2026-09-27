@@ -1,6 +1,6 @@
 # Plan: Local currency display + regional pricing
 Date: 2026-09-27
-Status: P1 DONE 2026-09-27, P2 next (design approved: country→currency else USD; country groups; admin-set region pricing)
+Status: P1 + P2 DONE 2026-09-27 (design approved: country→currency else USD; country groups; admin-set region pricing)
 
 ## Goal
 Visitors see prices in their own currency, and each region (country group) is priced by its own admin-set rules instead of one global TRY price converted at the FX rate.
@@ -20,12 +20,14 @@ Visitors see prices in their own currency, and each region (country group) is pr
 Notes P1: browse surfaces only (home animation, shop, product, quick quote, file quote, materials/cities/use cases, maker income tool) show `≈` converted prices + "You pay in TRY" note; carts, orders, wallets, payouts and panels stay in the charged currency. Switch sits in the public footer and mobile menu (not in panels). Shared prop is `money` (a `currency` page prop already exists on cart/stores).
 
 ### P2 — Regional pricing
-- [ ] T5 Migration `pricing_regions` (code, name, currency, countries jsonb, platform_fee_bps, min_order_minor, rounding rule, shipping_zone_id, is_active) + `pricing_region_materials` (region, material, reference_rate_minor | multiplier_bps); seed TR/EU/UK/US/ROW; model + unit tests.
-- [ ] T6 `RegionService.forCountry(country)` + buyer-region resolution (address country > display-currency country > TR).
-- [ ] T7 Price engine takes a region: maker cost → region currency at locked FX, region fee, region shipping, region rounding; invariant tests (unit = parts, rounding never below cost, integer minor units, ledger balances). Orders store `pricing_region_id`.
-- [ ] T8 Matching/quote: region without makers (cross-border off, K-K) → "no makers in your region yet" instead of a price; tests.
-- [ ] T9 Admin `/admin/pricing-regions` CRUD (validator, transformer, audit log) + functional tests; UI per DESIGN.md.
-- [ ] T10 Docs: tasks.md X-15 + new row, PROJECT_MEMORY log, commit+push per task.
+- [x] T5 Migration `pricing_regions` (code, name, currency, countries jsonb, platform_fee_bps, min_order_minor, rounding rule, shipping_zone_id, is_active) + `pricing_region_materials` (region, material, reference_rate_minor | multiplier_bps); seed TR/EU/UK/US/ROW; model + unit tests.
+- [x] T6 `RegionService.forCountry(country)` + buyer-region resolution (address country > display-currency country > TR).
+- [x] T7 Price engine takes a region: maker cost → region currency at locked FX, region fee, region shipping, region rounding; invariant tests (unit = parts, rounding never below cost, integer minor units, ledger balances). Orders store `pricing_region_id`.
+- [x] T8 Matching/quote: region without makers (cross-border off, K-K) → "no makers in your region yet" instead of a price; tests.
+- [x] T9 Admin `/admin/pricing-regions` CRUD (validator, transformer, audit log) + functional tests; UI per DESIGN.md.
+- [x] T10 Docs: tasks.md X-15 + new row, PROJECT_MEMORY log, commit+push per task.
+
+Notes P2: region = delivery country (like shipping/VAT); seeded neutral (100%, global fee, no rounding/minimum). Order pricing, matching (maker ≤ regional reference), shop/product/home strip, instant price and file quote use it; browse country = cf-ipcountry > Accept-Language region > TR; cart default = last delivery country > visitor country, currency = region currency only if switched on. Rounding surplus → platform commission. Open: the maker-side "above platform price" hint (missed_orders_service) still uses base prices (makers are TR-only today); use-case/margin-preview marketing numbers stay TR; charging in EUR/GBP/USD still needs the provider + admin flags.
 
 ## Success Criteria
 - [ ] `node ace test`, `npm run typecheck`, lint, `i18n:check` green

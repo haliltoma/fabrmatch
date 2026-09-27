@@ -23,6 +23,7 @@ export const controllers = {
   AdminMetrics: () => import('#controllers/admin_metrics_controller'),
   AdminOrder: () => import('#controllers/admin_order_controller'),
   AdminPayout: () => import('#controllers/admin_payout_controller'),
+  AdminPricingRegion: () => import('#controllers/admin_pricing_region_controller'),
   AdminPrintProfile: () => import('#controllers/admin_print_profile_controller'),
   AdminQueue: () => import('#controllers/admin_queue_controller'),
   AdminQueueMonitor: () => import('#controllers/admin_queue_monitor_controller'),

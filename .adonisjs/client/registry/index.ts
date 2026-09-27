@@ -1398,6 +1398,30 @@ const routes = {
     tokens: [{"old":"/admin/audit","type":0,"val":"admin","end":""},{"old":"/admin/audit","type":0,"val":"audit","end":""}],
     types: placeholder as Registry['admin_audit.index']['types'],
   },
+  'admin_pricing_region.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/pricing-regions',
+    tokens: [{"old":"/admin/pricing-regions","type":0,"val":"admin","end":""},{"old":"/admin/pricing-regions","type":0,"val":"pricing-regions","end":""}],
+    types: placeholder as Registry['admin_pricing_region.index']['types'],
+  },
+  'admin_pricing_region.store': {
+    methods: ["POST"],
+    pattern: '/admin/pricing-regions',
+    tokens: [{"old":"/admin/pricing-regions","type":0,"val":"admin","end":""},{"old":"/admin/pricing-regions","type":0,"val":"pricing-regions","end":""}],
+    types: placeholder as Registry['admin_pricing_region.store']['types'],
+  },
+  'admin_pricing_region.update': {
+    methods: ["POST"],
+    pattern: '/admin/pricing-regions/:id',
+    tokens: [{"old":"/admin/pricing-regions/:id","type":0,"val":"admin","end":""},{"old":"/admin/pricing-regions/:id","type":0,"val":"pricing-regions","end":""},{"old":"/admin/pricing-regions/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['admin_pricing_region.update']['types'],
+  },
+  'admin_pricing_region.material_price': {
+    methods: ["POST"],
+    pattern: '/admin/pricing-regions/:id/materials',
+    tokens: [{"old":"/admin/pricing-regions/:id/materials","type":0,"val":"admin","end":""},{"old":"/admin/pricing-regions/:id/materials","type":0,"val":"pricing-regions","end":""},{"old":"/admin/pricing-regions/:id/materials","type":1,"val":"id","end":""},{"old":"/admin/pricing-regions/:id/materials","type":0,"val":"materials","end":""}],
+    types: placeholder as Registry['admin_pricing_region.material_price']['types'],
+  },
   'admin_finishing.index': {
     methods: ["GET","HEAD"],
     pattern: '/admin/finishing',

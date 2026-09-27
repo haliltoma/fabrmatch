@@ -25,6 +25,11 @@ export const trPatterns: Array<[RegExp, (m: RegExpMatchArray) => string]> = [
     (m) => `${m[1]} malzemesi bu ürün için mevcut değil`,
   ],
   [/^Unknown material: (.+)$/, (m) => `Bilinmeyen malzeme: ${m[1]}`],
+  [/^(.+) already belongs to the (.+) region$/, (m) => `${m[1]} zaten ${m[2]} bölgesinde`],
+  [
+    /^The minimum order for delivery here is ([\d.]+) TRY$/,
+    (m) => `Bu teslimat yeri için asgari sipariş ${m[1]} TRY`,
+  ],
   [/^Payments in (\w+) are not available$/, (m) => `${m[1]} ile ödeme mevcut değil`],
   [/^Prices in (\w+) are not available$/, (m) => `${m[1]} cinsinden fiyatlar mevcut değil`],
   [

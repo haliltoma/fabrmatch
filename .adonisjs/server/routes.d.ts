@@ -236,6 +236,10 @@ export type ScannedRoutes = {
     'admin_user.suspend': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_user.unsuspend': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_audit.index': { paramsTuple?: []; params?: {} }
+    'admin_pricing_region.index': { paramsTuple?: []; params?: {} }
+    'admin_pricing_region.store': { paramsTuple?: []; params?: {} }
+    'admin_pricing_region.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_pricing_region.material_price': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_finishing.index': { paramsTuple?: []; params?: {} }
     'admin_finishing.store': { paramsTuple?: []; params?: {} }
     'admin_finishing.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -372,6 +376,7 @@ export type ScannedRoutes = {
     'product_image.admin_show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_user.index': { paramsTuple?: []; params?: {} }
     'admin_audit.index': { paramsTuple?: []; params?: {} }
+    'admin_pricing_region.index': { paramsTuple?: []; params?: {} }
     'admin_finishing.index': { paramsTuple?: []; params?: {} }
     'admin_print_profile.index': { paramsTuple?: []; params?: {} }
     'admin_shipping.index': { paramsTuple?: []; params?: {} }
@@ -493,6 +498,7 @@ export type ScannedRoutes = {
     'product_image.admin_show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_user.index': { paramsTuple?: []; params?: {} }
     'admin_audit.index': { paramsTuple?: []; params?: {} }
+    'admin_pricing_region.index': { paramsTuple?: []; params?: {} }
     'admin_finishing.index': { paramsTuple?: []; params?: {} }
     'admin_print_profile.index': { paramsTuple?: []; params?: {} }
     'admin_shipping.index': { paramsTuple?: []; params?: {} }
@@ -632,6 +638,9 @@ export type ScannedRoutes = {
     'admin_matching.offer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_user.suspend': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_user.unsuspend': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_pricing_region.store': { paramsTuple?: []; params?: {} }
+    'admin_pricing_region.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_pricing_region.material_price': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_finishing.store': { paramsTuple?: []; params?: {} }
     'admin_finishing.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_print_profile.store': { paramsTuple?: []; params?: {} }

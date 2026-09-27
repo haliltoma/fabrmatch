@@ -2791,6 +2791,54 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_audit_controller').default['index']>>>
     }
   }
+  'admin_pricing_region.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/pricing-regions'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_pricing_region_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_pricing_region_controller').default['index']>>>
+    }
+  }
+  'admin_pricing_region.store': {
+    methods: ["POST"]
+    pattern: '/admin/pricing-regions'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/pricing_region').pricingRegionCreateValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/pricing_region').pricingRegionCreateValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_pricing_region_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_pricing_region_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin_pricing_region.update': {
+    methods: ["POST"]
+    pattern: '/admin/pricing-regions/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/pricing_region').pricingRegionUpdateValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/pricing_region').pricingRegionUpdateValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_pricing_region_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_pricing_region_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin_pricing_region.material_price': {
+    methods: ["POST"]
+    pattern: '/admin/pricing-regions/:id/materials'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/pricing_region').pricingRegionMaterialValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/pricing_region').pricingRegionMaterialValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_pricing_region_controller').default['materialPrice']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_pricing_region_controller').default['materialPrice']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'admin_finishing.index': {
     methods: ["GET","HEAD"]
     pattern: '/admin/finishing'

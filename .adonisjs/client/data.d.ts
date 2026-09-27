@@ -13,6 +13,7 @@ import type MatchOfferTransformer from '#transformers/match_offer_transformer'
 import type OrderTransformer from '#transformers/order_transformer'
 import type PayeeTaxProfileTransformer from '#transformers/payee_tax_profile_transformer'
 import type PayoutTransformer from '#transformers/payout_transformer'
+import type PricingRegionTransformer from '#transformers/pricing_region_transformer'
 import type ProductionJobTransformer from '#transformers/production_job_transformer'
 import type RfqTransformer from '#transformers/rfq_transformer'
 import type SellerProductTransformer from '#transformers/seller_product_transformer'
@@ -48,6 +49,10 @@ export namespace Data {
   export type Payout = InferData<PayoutTransformer>
   export namespace Payout {
     export type Variants = InferVariants<PayoutTransformer>
+  }
+  export type PricingRegion = InferData<PricingRegionTransformer>
+  export namespace PricingRegion {
+    export type Variants = InferVariants<PricingRegionTransformer>
   }
   export type ProductionJob = InferData<ProductionJobTransformer>
   export namespace ProductionJob {

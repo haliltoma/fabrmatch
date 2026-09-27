@@ -80,6 +80,7 @@ test.group('accessibility of the newer pages (browser)', (group) => {
       '/admin/matching',
       `/admin/matching/${order.id}`,
       '/admin/finishing',
+      '/admin/pricing-regions',
       '/admin/reports',
       '/admin/queues',
     ]) {

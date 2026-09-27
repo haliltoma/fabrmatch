@@ -1,12 +1,18 @@
 /* eslint-disable @unicorn/no-await-expression-member -- terse assertions read better inline */
 import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
+import fabrmatchConfig from '#config/fabrmatch'
 import PricingRegion from '#models/pricing_region'
+import RoleService from '#services/identity/role_service'
+import FxService from '#services/pricing/fx_service'
+import { StaticFxProvider } from '#services/pricing/fx_provider'
 import { visitorCountry } from '#services/pricing/visitor_country'
 import {
+  createDraftOrder,
   createManufacturer,
   createPrinter,
   createStorefrontProduct,
+  createUser,
   ensureReferenceCatalog,
 } from '#tests/helpers/order_fixtures'
 
@@ -69,5 +75,39 @@ test.group('regional prices while browsing (P2-T8)', (group) => {
     const page = await client.get('/tools/quick-quote').headers(visitor('de-DE'))
     page.assertStatus(200)
     assert.equal(page.body().props.delivery.country, 'DE')
+  })
+
+  test('the cart starts at the visitor country and the region currency when it can be charged', async ({
+    client,
+    assert,
+  }) => {
+    const flags = fabrmatchConfig.flags as Record<string, number>
+    const user = await createUser('buyer')
+    await new RoleService().assignRole(user, 'seller')
+    const cart = (lang: string) => client.get('/cart').headers(visitor(lang)).loginAs(user)
+
+    const german = (await cart('de-DE')).body().props
+    assert.equal(german.country, 'DE')
+    assert.equal(german.currency, 'TRY', 'EUR is not switched on')
+
+    try {
+      flags.currencyEur = 1
+      await new FxService().refresh(new StaticFxProvider())
+      assert.equal((await cart('de-DE')).body().props.currency, 'EUR')
+      assert.equal((await cart('tr-TR')).body().props.currency, 'TRY')
+      // an explicit choice still wins
+      const chosen = await client
+        .get('/cart?country=TR&currency=TRY')
+        .headers(visitor('de-DE'))
+        .loginAs(user)
+      assert.equal(chosen.body().props.country, 'TR')
+      assert.equal(chosen.body().props.currency, 'TRY')
+    } finally {
+      flags.currencyEur = 0
+    }
+
+    // once they have had something delivered, that country is the default, whatever the browser says
+    await createDraftOrder(user)
+    assert.equal((await cart('de-DE')).body().props.country, 'TR')
   })
 })

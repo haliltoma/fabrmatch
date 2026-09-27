@@ -35,6 +35,7 @@ declare module '@adonisjs/inertia/types' {
     'admin/orders/index': ExtractProps<(typeof import('../../inertia/pages/admin/orders/index.tsx'))['default']>
     'admin/orders/show': ExtractProps<(typeof import('../../inertia/pages/admin/orders/show.tsx'))['default']>
     'admin/payouts/index': ExtractProps<(typeof import('../../inertia/pages/admin/payouts/index.tsx'))['default']>
+    'admin/pricing_regions/index': ExtractProps<(typeof import('../../inertia/pages/admin/pricing_regions/index.tsx'))['default']>
     'admin/profiles/index': ExtractProps<(typeof import('../../inertia/pages/admin/profiles/index.tsx'))['default']>
     'admin/queues/index': ExtractProps<(typeof import('../../inertia/pages/admin/queues/index.tsx'))['default']>
     'admin/reports/index': ExtractProps<(typeof import('../../inertia/pages/admin/reports/index.tsx'))['default']>

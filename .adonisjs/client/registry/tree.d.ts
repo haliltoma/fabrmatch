@@ -368,6 +368,12 @@ export interface ApiDefinition {
   adminAudit: {
     index: typeof routes['admin_audit.index']
   }
+  adminPricingRegion: {
+    index: typeof routes['admin_pricing_region.index']
+    store: typeof routes['admin_pricing_region.store']
+    update: typeof routes['admin_pricing_region.update']
+    materialPrice: typeof routes['admin_pricing_region.material_price']
+  }
   adminFinishing: {
     index: typeof routes['admin_finishing.index']
     store: typeof routes['admin_finishing.store']

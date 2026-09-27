@@ -2838,4 +2838,56 @@ export const tr: Record<string, string> = {
   '{n} × {material}, delivered to {country}': '{n} × {material}, teslimat: {country}',
   '{file} · {size} mm · one piece, delivered to {country}':
     '{file} · {size} mm · tek parça, teslimat: {country}',
+  'Base': 'Taban',
+  'Here': 'Burada',
+  'price level': 'fiyat seviyesi',
+  'own price': 'özel fiyat',
+  'Own price per gram (TRY)': 'Gram başına özel fiyat (TRY)',
+  'Use the price level': 'Fiyat seviyesini kullan',
+  'Every other country': 'Diğer tüm ülkeler',
+  '{n} countries': '{n} ülke',
+  'Preferred currency': 'Tercih edilen para birimi',
+  'Countries': 'Ülkeler',
+  'Any country not listed in another region is priced here.':
+    'Başka bir bölgede listelenmeyen her ülke burada fiyatlanır.',
+  'Two-letter codes separated by commas, like DE, FR, NL.':
+    'Virgülle ayrılmış iki harfli kodlar, örneğin DE, FR, NL.',
+  'Price level (%)': 'Fiyat seviyesi (%)',
+  '100 = base prices. 120 makes every material 20% dearer here.':
+    '100 = taban fiyatlar. 120, buradaki tüm malzemeleri %20 pahalı yapar.',
+  'Platform commission (%)': 'Platform komisyonu (%)',
+  'Global: {n}%': 'Genel: %{n}',
+  'Leave empty to use the global setting.': 'Genel ayarı kullanmak için boş bırakın.',
+  'Minimum order (TRY)': 'Asgari sipariş (TRY)',
+  '0 = no minimum.': '0 = asgari yok.',
+  'Round unit prices': 'Birim fiyatları yuvarla',
+  'No rounding': 'Yuvarlama yok',
+  'Up to a whole amount (12.34 → 13.00)': 'Tam tutara yukarı (12,34 → 13,00)',
+  'Up to .99 (12.34 → 12.99)': ',99’a yukarı (12,34 → 12,99)',
+  'Save region': 'Bölgeyi kaydet',
+  'Material prices per gram': 'Gram başına malzeme fiyatları',
+  'Makers here are matched only up to this price. An own price replaces the price level for that material.':
+    'Buradaki üreticiler yalnız bu fiyata kadar eşleşir. Özel fiyat, o malzeme için fiyat seviyesinin yerine geçer.',
+  'Region pricing': 'Bölgesel fiyatlandırma',
+  'Each delivery country is priced by its region: price level, commission, minimum order and rounding. Changes apply to new prices only; placed orders keep theirs.':
+    'Her teslimat ülkesi bölgesine göre fiyatlanır: fiyat seviyesi, komisyon, asgari sipariş ve yuvarlama. Değişiklikler yalnız yeni fiyatlara uygulanır; verilmiş siparişler kendi fiyatını korur.',
+  'New region': 'Yeni bölge',
+  'A new region starts at base prices; set its rules after adding it.':
+    'Yeni bölge taban fiyatlarla başlar; kurallarını ekledikten sonra ayarlayın.',
+  'Add region': 'Bölge ekle',
+  'Region added.': 'Bölge eklendi.',
+  'A region code is 2 to 16 letters or digits': 'Bölge kodu 2–16 harf veya rakamdır',
+  'A region with this code already exists': 'Bu kodla bir bölge zaten var',
+  'The price per gram must be between 0.01 and 1,000.00':
+    'Gram fiyatı 0,01 ile 1.000,00 arasında olmalı',
+  'A region name is 2 to 80 characters': 'Bölge adı 2–80 karakterdir',
+  'The price level must be between 10% and 1000%': 'Fiyat seviyesi %10 ile %1000 arasında olmalı',
+  'The commission must be between 0% and 50%': 'Komisyon %0 ile %50 arasında olmalı',
+  'The minimum order must be between 0 and 100,000.00':
+    'Asgari sipariş 0 ile 100.000,00 arasında olmalı',
+  'Unknown rounding rule': 'Bilinmeyen yuvarlama kuralı',
+  'Countries are two-letter codes, like DE or GB':
+    'Ülkeler iki harfli kodlardır, örneğin DE veya GB',
+  '1 country': '1 ülke',
+  'Price per gram': 'Gram fiyatı',
 }

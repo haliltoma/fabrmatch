@@ -603,6 +603,15 @@ router
     router.post('/users/:id/unsuspend', [controllers.AdminUser, 'unsuspend'])
     router.get('/audit', [controllers.AdminAudit, 'index'])
 
+    router.get('/pricing-regions', [controllers.AdminPricingRegion, 'index'])
+    router.post('/pricing-regions', [controllers.AdminPricingRegion, 'store'])
+    router
+      .post('/pricing-regions/:id', [controllers.AdminPricingRegion, 'update'])
+      .where('id', router.matchers.number())
+    router
+      .post('/pricing-regions/:id/materials', [controllers.AdminPricingRegion, 'materialPrice'])
+      .where('id', router.matchers.number())
+
     router.get('/finishing', [controllers.AdminFinishing, 'index'])
     router.post('/finishing', [controllers.AdminFinishing, 'store'])
     router.post('/finishing/:id', [controllers.AdminFinishing, 'update'])
