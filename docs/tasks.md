@@ -430,6 +430,14 @@ Bunlar analizde ayrı satır değildi; işin sağlığı için ekliyorum. Onayla
 
 ---
 
+## İnceleme 2026-09-27 (graphify + 5 alan ajanı + Playwright)
+
+Kaynak: kod grafiği (graphify, 846 dosya), para / sipariş-eşleştirme / gizlilik / güvenlik / ön yüz incelemeleri, 83 sayfanın canlı taraması. Düzeltmelerin hepsi testli ve main'de.
+
+- [x] **Kritik (9)** · ✔ 2026-09-27 — yükleme imzası PUT + boyut (gerçek depoda 403 veriyordu) · kayıt yalnız verilen depolama anahtarı (başka dosyayı okuma açığı) · kayıp ters ibraz ödenmemiş ödemeleri iptal eder, zarar `chargeback_loss` · profilsiz reçine/naylon SLA/SLS · takılı işi admin başka üreticiye aktarır, kapasite geri verilir · fotoğraflarda EXIF/GPS temizliği · ürün sayfası ülke = fiyat ülkesi, `?country=` · teklif sayfasında eski fiyatla sipariş engeli · form doğrulama hataları görünür.
+- [x] **Orta/düşük** · ✔ 2026-09-27 — cüzdana para girişi bayrağa bağlı · 3 sayfada mobil taşma · giriş kilidi hesap+IP · mağaza senkron/yayın ve hesap güvenliği hız sınırları, WooCommerce çağrı üst sınırı · itiraz/yorum metinlerinde iletişim maskeleme · yeniden basımda eski üreticinin görünümü kendi işiyle sınırlı · sıfırlama/doğrulama anahtarları özetli ve tek kullanımlık · bayat kuponlu/eski kurlu taslak ödenemez · tam iadede fatura yok · belge bekleyen ödeme "bekleyen kazanç"ta · takılı eşleştirme süpürmesi (10 dk) · admin override yurt dışı/onaysız/RFQ-kaybeden üreticiye gidemez, kabulde yeniden kontrol · RFQ ödülünde ülke kontrolü ve teklif süresi · üç yarış durumu · SLA uyarısı iş başına · üretici fiyatı yalnız TRY.
+- [ ] **İnceleme kalanları** · P2 — (a) **Kural 3 elle modda**: yeni üretici kotası yalnız otomatik turlarda uygulanıyor; elle modda nasıl uygulanacağı karar ister. (b) Bölge yuvarlaması: yabancı para ile tahsilatta sipariş, yuvarlamayı tahsil para biriminde yapıyor; göz atma ≈ tahmini TRY'de yuvarlanmış tutarı çeviriyor → birkaç kuruş/cent fark (tahsilat EUR/GBP/USD açılınca düzeltilmeli). (c) Yabancı para siparişinde `baseTotalMinor` yuvarlama fazlasını içermiyor; bölge asgari tutarı kupondan sonra kontrol ediliyor. (d) Doğrulama mesajlarında teknik alan adları ("The line1 field…"). (e) `trustProxy` barındırma (D4) seçilince ayarlanmalı. (f) FakeCarrier sabit sırla production dışı her ortamda webhook kabul ediyor (staging'de kapatılmalı). (g) Admin kupon sayfasında çevrilmemiş metinler; itiraz iadesi ve RFQ teklifinde tutar float ile kuruşa çevriliyor. (h) Şehir sayfasında 3 üreticiyle fiyat aralığı tek tek fiyatları ele verebilir (eşik/yuvarlama kararı). (i) Dev ortamında model analizi işi kuyrukta işlenmedi (worker çalıştırıldı ama iş alınmadı) — ayrıca incelenmeli.
+
 ## Karar defteri (bekleyenler)
 
 | Kod    | Karar                                        | Öneri                                                                               | Durum                                   |

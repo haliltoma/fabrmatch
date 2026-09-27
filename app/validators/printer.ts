@@ -22,14 +22,18 @@ export const createMaterialValidator = vine.create({
   material: vine.string().trim().minLength(1).maxLength(50),
   colors: vine.array(vine.string().trim().minLength(1).maxLength(30)),
   pricePerGramMinor: vine.number().positive(),
-  currency: vine.string().trim().fixedLength(3).optional(),
+  // reference prices and the matching cap are in TRY: a maker price in anything else would
+  // be compared as if it were kuruş
+  currency: vine.enum(['TRY'] as const).optional(),
 })
 
 export const updateMaterialValidator = vine.create({
   material: vine.string().trim().minLength(1).maxLength(50).optional(),
   colors: vine.array(vine.string().trim().minLength(1).maxLength(30)).optional(),
   pricePerGramMinor: vine.number().positive().optional(),
-  currency: vine.string().trim().fixedLength(3).optional(),
+  // reference prices and the matching cap are in TRY: a maker price in anything else would
+  // be compared as if it were kuruş
+  currency: vine.enum(['TRY'] as const).optional(),
 })
 
 export const profilesValidator = vine.create({

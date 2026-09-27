@@ -100,4 +100,27 @@ test.group('printer model catalogue over HTTP (X-14)', (group) => {
     const machines = await Printer.query().where('manufacturerProfileId', profile.id)
     assert.lengthOf(machines, 1)
   })
+
+  test('a material price in another currency is refused (the cap is in TRY)', async ({
+    client,
+    assert,
+  }) => {
+    const { user, profile } = await maker()
+    const printer = await Printer.create({
+      manufacturerProfileId: profile.id,
+      name: 'P',
+      technology: 'FDM',
+      buildVolumeXMm: 200,
+      buildVolumeYMm: 200,
+      buildVolumeZMm: 200,
+      isActive: true,
+    })
+    const res = await client
+      .post(`/maker/printers/${printer.id}/materials`)
+      .loginAs(user)
+      .withCsrfToken()
+      .header('accept', 'application/json')
+      .json({ material: 'PLA', colors: ['Black'], pricePerGramMinor: 40, currency: 'EUR' })
+    assert.equal(res.status(), 422)
+  })
 })
