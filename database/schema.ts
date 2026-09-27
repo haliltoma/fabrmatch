@@ -918,7 +918,7 @@ export class OrderMessageSchema extends BaseModel {
 }
 
 export class OrderSchema extends BaseModel {
-  static $columns = ['baseTotalMinor', 'buyerId', 'channel', 'code', 'completedAt', 'createdAt', 'currency', 'deliveredAt', 'discountMinor', 'fxRateId', 'fxRateNano', 'id', 'matchingRound', 'platformFeeMinor', 'requiredTrustTier', 'sellerId', 'sellerShareMinor', 'shipCountry', 'shippingAddressEnc', 'shippingMinor', 'status', 'subtotalMinor', 'taxMinor', 'taxRateBps', 'totalMinor', 'updatedAt'] as const
+  static $columns = ['baseTotalMinor', 'buyerId', 'channel', 'code', 'completedAt', 'createdAt', 'currency', 'deliveredAt', 'discountMinor', 'fxRateId', 'fxRateNano', 'id', 'matchingRound', 'platformFeeMinor', 'pricingRegionId', 'requiredTrustTier', 'sellerId', 'sellerShareMinor', 'shipCountry', 'shippingAddressEnc', 'shippingMinor', 'status', 'subtotalMinor', 'taxMinor', 'taxRateBps', 'totalMinor', 'updatedAt'] as const
   $columns = OrderSchema.$columns
   @column()
   declare baseTotalMinor: number
@@ -948,6 +948,8 @@ export class OrderSchema extends BaseModel {
   declare matchingRound: number
   @column()
   declare platformFeeMinor: number
+  @column()
+  declare pricingRegionId: number | null
   @column()
   declare requiredTrustTier: number
   @column()
@@ -1171,6 +1173,52 @@ export class PayoutSchema extends BaseModel {
   declare vatMinor: number
   @column()
   declare withholdingMinor: number
+}
+
+export class PricingRegionMaterialSchema extends BaseModel {
+  static $columns = ['createdAt', 'id', 'material', 'pricePerGramMinor', 'pricingRegionId', 'updatedAt'] as const
+  $columns = PricingRegionMaterialSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare material: string
+  @column()
+  declare pricePerGramMinor: number
+  @column()
+  declare pricingRegionId: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class PricingRegionSchema extends BaseModel {
+  static $columns = ['code', 'commissionBps', 'countries', 'createdAt', 'currency', 'id', 'isFallback', 'minOrderMinor', 'name', 'referenceMultiplierBps', 'rounding', 'updatedAt'] as const
+  $columns = PricingRegionSchema.$columns
+  @column()
+  declare code: string
+  @column()
+  declare commissionBps: number | null
+  @column()
+  declare countries: any
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare currency: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare isFallback: boolean
+  @column()
+  declare minOrderMinor: number
+  @column()
+  declare name: string
+  @column()
+  declare referenceMultiplierBps: number
+  @column()
+  declare rounding: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
 }
 
 export class PrintProfileSchema extends BaseModel {

@@ -13,7 +13,8 @@ import {
 import { discountFor, type CouponRule } from '#services/pricing/coupon_math'
 import { BASE_CURRENCY, convertMinor, toBaseMinor } from '#services/pricing/fx'
 import FxService, { type LockedRate } from '#services/pricing/fx_service'
-import { referencePriceFor } from '#services/pricing/reference_prices'
+import PricingRegionService, { roundUnitMinor } from '#services/pricing/pricing_region_service'
+import type { RoundingRule } from '#services/pricing/pricing_region_defaults'
 import SliceEstimateService from '#services/slicing/slice_estimate_service'
 import { splitGross, taxRateFor } from '#services/tax/tax'
 import ShippingService from '#services/shipping/shipping_service'
@@ -94,6 +95,8 @@ export interface PricedOrder {
   baseTotalMinor: number
   /** Set for foreign-currency orders: the stored rate row and the locked rate (margin included). */
   fx: LockedRate | null
+  /** The pricing region whose rules priced the order (from the delivery country). */
+  pricingRegionId: number
 }
 
 /**
@@ -119,6 +122,23 @@ function convertItems(items: PricedItem[], rateE9: bigint): PricedItem[] {
 }
 
 /**
+ * Lifts each unit price to the region's rounding rule. The difference goes to the platform
+ * commission, so `unit = share + shipping + commission + margin` still holds and nobody is short.
+ */
+function roundItems(items: PricedItem[], rule: RoundingRule): PricedItem[] {
+  if (rule === 'none') return items
+  return items.map((i) => {
+    const unit = roundUnitMinor(i.unitCostMinor, rule)
+    const extra = unit - i.unitCostMinor
+    return {
+      ...i,
+      unitCostMinor: unit,
+      platformCommissionMinor: i.platformCommissionMinor + extra * i.quantity,
+    }
+  })
+}
+
+/**
  * Prices a whole parcel. Every rule of order creation that depends on the model, material, profile
  * or destination lives here, so a cart preview and the real order can never disagree.
  * All items of one order share a technology (one maker prints the whole order) and one parcel.
@@ -138,6 +158,10 @@ export async function priceOrder(input: {
   coupon?: CouponRule
 }): Promise<PricedOrder> {
   if (input.items.length === 0) throw new OrderInputError('The order has no items')
+
+  // region rules follow the delivery country, like shipping and VAT
+  const regions = new PricingRegionService()
+  const region = await regions.forCountry(input.country)
 
   const profiles = new PrintProfileService()
   const slices = new SliceEstimateService(null)
@@ -165,8 +189,8 @@ export async function priceOrder(input: {
     const finishingService = new FinishingService()
     const finishing = await finishingService.resolve(item.finishing, item.material)
     const finishingColour = await finishingService.resolveColour(finishing, item.finishingColour)
-    const reference = referencePriceFor(item.material)
-    if (!reference) throw new OrderInputError(`Unknown material: ${item.material}`)
+    const reference = regions.referenceFor(region, item.material)
+    if (reference === null) throw new OrderInputError(`Unknown material: ${item.material}`)
 
     const scalePercent = item.scalePercent ?? 100
     if (!Number.isInteger(scalePercent) || scalePercent < 10 || scalePercent > 300) {
@@ -227,7 +251,8 @@ export async function priceOrder(input: {
     const breakdown = calculatePrice({
       volumeMm3: p.volumeMm3,
       material: p.item.material,
-      pricePerGramMinor: p.reference.pricePerGramMinor,
+      pricePerGramMinor: p.reference,
+      commissionBps: region.commissionBps ?? undefined,
       quantity,
       sellerMarginBps: input.sellerMarginBps ?? 0,
       infill: p.infill,
@@ -265,7 +290,7 @@ export async function priceOrder(input: {
 
   const currency = (input.currency ?? BASE_CURRENCY).toUpperCase()
   const fx = currency === BASE_CURRENCY ? null : await new FxService().lock(currency)
-  const items = fx ? convertItems(tryItems, fx.rateE9) : tryItems
+  const items = roundItems(fx ? convertItems(tryItems, fx.rateE9) : tryItems, region.rounding)
   const sumOf = (list: PricedItem[], pick: (i: PricedItem) => number) =>
     list.reduce((a, i) => a + pick(i), 0)
   const sum = (pick: (i: PricedItem) => number) => sumOf(items, pick)
@@ -276,7 +301,9 @@ export async function priceOrder(input: {
   const platformFeeBefore =
     sum((i) => i.platformCommissionMinor) + (input.hasSeller ? 0 : sellerMargin)
 
-  const baseListTotal = sumOf(tryItems, (i) => i.unitCostMinor * i.quantity)
+  const baseListTotal = fx
+    ? sumOf(tryItems, (i) => i.unitCostMinor * i.quantity)
+    : sumOf(items, (i) => i.unitCostMinor * i.quantity)
   const discountMinor = input.coupon
     ? discountFor(input.coupon, {
         subtotalMinor: listTotal - shippingMinor,
@@ -288,6 +315,12 @@ export async function priceOrder(input: {
   const totalMinor = listTotal - discountMinor
   const baseTotalMinor =
     baseListTotal - (fx ? toBaseMinor(discountMinor, fx.rateE9) : discountMinor)
+
+  if (region.minOrderMinor > 0 && baseTotalMinor < region.minOrderMinor) {
+    throw new OrderInputError(
+      `The minimum order for delivery here is ${(region.minOrderMinor / 100).toFixed(2)} TRY`
+    )
+  }
 
   const taxRate = await taxRateFor(input.country)
   // VAT is due on what the buyer actually pays
@@ -308,5 +341,6 @@ export async function priceOrder(input: {
     sellerShareMinor: input.hasSeller ? sellerMargin : 0,
     baseTotalMinor,
     fx,
+    pricingRegionId: region.id,
   }
 }

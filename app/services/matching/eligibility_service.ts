@@ -4,6 +4,8 @@ import type Order from '#models/order'
 import type OrderItem from '#models/order_item'
 import db from '@adonisjs/lucid/services/db'
 import { referencePriceFor } from '#services/pricing/reference_prices'
+import PricingRegion from '#models/pricing_region'
+import PricingRegionService from '#services/pricing/pricing_region_service'
 import type { MatchCandidate } from '#services/matching/types'
 import MakerStatsService from '#services/manufacturing/maker_stats_service'
 import { productionDaysFor } from '#services/orders/production_window'
@@ -17,17 +19,49 @@ export function fitsBuildVolume(part: Dims, build: Dims): boolean {
   return p.every((d, i) => d <= v[i])
 }
 
-/** The platform pays the reference price per gram; a maker asking more is not matched (R2-T4). */
-export function makerPriceFits(makerPricePerGramMinor: number, material: string): boolean {
-  const reference = referencePriceFor(material)
-  return !reference || makerPricePerGramMinor <= reference.pricePerGramMinor
+/**
+ * The platform pays the reference price per gram; a maker asking more is not matched (R2-T4).
+ * `referenceMinor` is the order's regional reference (P2); without it the base reference applies.
+ */
+export function makerPriceFits(
+  makerPricePerGramMinor: number,
+  material: string,
+  referenceMinor?: number | null
+): boolean {
+  const reference = referenceMinor ?? referencePriceFor(material)?.pricePerGramMinor ?? null
+  return reference === null || makerPricePerGramMinor <= reference
 }
 
-function supportsItem(printer: Printer, item: OrderItem, checkPrice = true): boolean {
+/** The reference per gram for each material of an order, under its pricing region's rules. */
+export async function orderReferences(
+  order: Order,
+  materials: string[]
+): Promise<Map<string, number | null>> {
+  const regions = new PricingRegionService()
+  const region = order.pricingRegionId
+    ? await PricingRegion.query().where('id', order.pricingRegionId).preload('materials').first()
+    : null
+  const resolved = region ?? (await regions.forCountry(order.shipCountry))
+  return new Map(
+    materials.map((m) => [m.toUpperCase(), regions.referenceFor(resolved, m)] as const)
+  )
+}
+
+function supportsItem(
+  printer: Printer,
+  item: OrderItem,
+  checkPrice = true,
+  references?: Map<string, number | null>
+): boolean {
   return printer.materials.some(
     (m) =>
       m.material.toUpperCase() === item.material.toUpperCase() &&
-      (!checkPrice || makerPriceFits(m.pricePerGramMinor, item.material)) &&
+      (!checkPrice ||
+        makerPriceFits(
+          m.pricePerGramMinor,
+          item.material,
+          references?.get(item.material.toUpperCase())
+        )) &&
       (!item.color || m.colors.some((c) => c.toLowerCase() === item.color!.toLowerCase()))
   )
 }
@@ -95,6 +129,10 @@ export default class EligibilityService {
       awardedTo = awarded.maker
     }
 
+    const references = await orderReferences(
+      order,
+      items.map((i) => i.material)
+    )
     const eligible = printers.filter((printer) => {
       if (awardedTo !== null && printer.manufacturerProfileId !== awardedTo) return false
       if (printer.capacitySlots.length === 0) return false
@@ -108,7 +146,7 @@ export default class EligibilityService {
               (d) => (d * (item.scalePercent ?? 100)) / 100
             ) as Dims,
             build
-          ) && supportsItem(printer, item, order.channel !== 'rfq')
+          ) && supportsItem(printer, item, order.channel !== 'rfq', references)
         )
       })
     })

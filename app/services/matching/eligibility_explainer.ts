@@ -4,7 +4,11 @@ import ManufacturerProfile from '#models/manufacturer_profile'
 import type Order from '#models/order'
 import type OrderItem from '#models/order_item'
 import type Printer from '#models/printer'
-import { fitsBuildVolume, makerPriceFits } from '#services/matching/eligibility_service'
+import {
+  fitsBuildVolume,
+  makerPriceFits,
+  orderReferences,
+} from '#services/matching/eligibility_service'
 import { referencePriceFor } from '#services/pricing/reference_prices'
 import { productionDaysFor } from '#services/orders/production_window'
 
@@ -86,6 +90,10 @@ export default class EligibilityExplainer {
     const to = now.plus({ days }).toISODate()!
     const offered = options.offeredStatuses ?? new Map<number, string>()
     const checkPrice = order.channel !== 'rfq'
+    const references = await orderReferences(
+      order,
+      items.map((i) => i.material)
+    )
 
     const profiles = await ManufacturerProfile.query()
       .preload('user')
@@ -153,6 +161,7 @@ export default class EligibilityExplainer {
           wantedProfiles: wantedProfiles as number[],
           offeredProfiles: printerProfiles.get(printer.id),
           days,
+          references,
         }),
       }))
 
@@ -185,6 +194,7 @@ export default class EligibilityExplainer {
       wantedProfiles: number[]
       offeredProfiles: Set<number> | undefined
       days: number
+      references: Map<string, number | null>
     }
   ): Reason[] {
     const reasons: Reason[] = []
@@ -220,7 +230,7 @@ export default class EligibilityExplainer {
           reasons.push({ code: 'too_small', build, part: scaled.map((d) => Math.round(d)) })
         }
       }
-      reasons.push(...this.materialReasons(printer, item, ctx.checkPrice))
+      reasons.push(...this.materialReasons(printer, item, ctx.checkPrice, ctx.references))
     }
 
     if (!ctx.wantedProfiles.every((id) => ctx.offeredProfiles?.has(id))) {
@@ -230,7 +240,12 @@ export default class EligibilityExplainer {
   }
 
   /** Same test as `supportsItem`, split so the admin sees which part failed. */
-  private materialReasons(printer: Printer, item: OrderItem, checkPrice: boolean): Reason[] {
+  private materialReasons(
+    printer: Printer,
+    item: OrderItem,
+    checkPrice: boolean,
+    references: Map<string, number | null>
+  ): Reason[] {
     const material = item.material.toUpperCase()
     const same = printer.materials.filter((m) => m.material.toUpperCase() === material)
     if (same.length === 0) return [{ code: 'material_missing', material }]
@@ -241,13 +256,17 @@ export default class EligibilityExplainer {
       : same
     if (coloured.length === 0) return [{ code: 'colour_missing', material, colour: colour! }]
 
-    if (checkPrice && !coloured.some((m) => makerPriceFits(m.pricePerGramMinor, item.material))) {
+    const reference = references.get(material) ?? null
+    if (
+      checkPrice &&
+      !coloured.some((m) => makerPriceFits(m.pricePerGramMinor, item.material, reference))
+    ) {
       return [
         {
           code: 'price_above_reference',
           material,
           price: Math.min(...coloured.map((m) => m.pricePerGramMinor)),
-          reference: referencePriceFor(item.material)?.pricePerGramMinor ?? 0,
+          reference: reference ?? referencePriceFor(item.material)?.pricePerGramMinor ?? 0,
         },
       ]
     }

@@ -23,6 +23,7 @@ import PrintProfileService from '#services/catalog/print_profile_service'
 import { DEFAULT_FINISHINGS } from '#services/catalog/finishing_defaults'
 import { DEFAULT_PRINT_PROFILES } from '#services/catalog/print_profile_defaults'
 import { DEFAULT_PRINTER_MODELS } from '#services/manufacturing/printer_model_defaults'
+import { DEFAULT_PRICING_REGIONS } from '#services/pricing/pricing_region_defaults'
 import { DEFAULT_SHIPPING_ZONES } from '#services/shipping/shipping_defaults'
 import testUtils from '@adonisjs/core/services/test_utils'
 import OrderService from '#services/orders/order_service'
@@ -358,6 +359,13 @@ export async function ensureReferenceCatalog() {
         [upToGrams, priceMinor, zone.code]
       )
     }
+  }
+  for (const r of DEFAULT_PRICING_REGIONS) {
+    await db.rawQuery(
+      `insert into pricing_regions (code, name, currency, countries, is_fallback, created_at)
+       values (?, ?, ?, ?::jsonb, ?, now()) on conflict (code) do nothing`,
+      [r.code, r.name, r.currency, JSON.stringify(r.countries), r.isFallback]
+    )
   }
   for (const m of DEFAULT_PRINTER_MODELS) {
     await db.rawQuery(
