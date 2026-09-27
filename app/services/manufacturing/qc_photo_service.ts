@@ -25,7 +25,7 @@ export default class QcPhotoService {
     const storageKey = `qc/${jobId}/${randomUUID()}${ext}`
     const signedUrl = await drive
       .use('s3')
-      .getSignedUrl(storageKey, { expiresIn: '10m', contentType })
+      .getSignedUploadUrl(storageKey, { expiresIn: '10m', contentType })
     return { storageKey, signedUrl }
   }
 

@@ -159,7 +159,7 @@ export default class DisputeService {
     const storageKey = `disputes/${disputeId}/${randomUUID()}${ext}`
     const signedUrl = await drive
       .use('s3')
-      .getSignedUrl(storageKey, { expiresIn: '10m', contentType })
+      .getSignedUploadUrl(storageKey, { expiresIn: '10m', contentType })
     return { storageKey, signedUrl }
   }
 

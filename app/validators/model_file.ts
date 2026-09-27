@@ -3,6 +3,8 @@ import vine from '@vinejs/vine'
 export const getUploadUrlValidator = vine.create({
   originalName: vine.string().trim().minLength(1).maxLength(255),
   contentType: vine.string().trim().minLength(1).maxLength(100),
+  /** signed into the upload URL; registration must report the same size */
+  sizeBytes: vine.number().withoutDecimals().positive(),
 })
 
 export const registerFileValidator = vine.create({

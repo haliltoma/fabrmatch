@@ -42,12 +42,12 @@ export default class ModelFileController {
     const data = await request.validateUsing(getUploadUrlValidator)
     const user = auth.getUserOrFail()
 
-    // Ensure user exists (auth guarantees this)
-    void user
-
     const service = new ModelFileService()
     try {
-      const result = await service.getUploadUrl(data.originalName)
+      const result = await service.getUploadUrl(data.originalName, {
+        userId: user.id,
+        sizeBytes: data.sizeBytes,
+      })
       return response.json(result)
     } catch (error) {
       return response.badRequest({ error: (error as Error).message })
@@ -60,7 +60,7 @@ export default class ModelFileController {
 
     const service = new ModelFileService()
     try {
-      const result = await service.register(user, data, replacesFileId)
+      const result = await service.registerUpload(user, data, replacesFileId)
       if (request.accepts(['html', 'json']) === 'json') {
         return response.json({
           file: {

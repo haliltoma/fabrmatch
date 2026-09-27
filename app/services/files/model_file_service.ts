@@ -5,6 +5,7 @@ import ModelFile from '#models/model_file'
 import type { ModelFileFormat } from '#models/model_file'
 import type User from '#models/user'
 import { pageMeta, pageParams } from '#services/pagination'
+import UploadTicketService from '#services/files/upload_ticket_service'
 
 const MAX_SIZE_BYTES = 200 * 1024 * 1024 // 200 MB
 const ALLOWED_FORMATS: Record<string, ModelFileFormat> = {
@@ -26,22 +27,42 @@ export default class ModelFileService {
    * Generate a presigned upload URL for direct browser-to-R2 upload.
    * Returns the storage key and signed URL.
    */
-  async getUploadUrl(originalName: string): Promise<{ storageKey: string; signedUrl: string }> {
+  async getUploadUrl(
+    originalName: string,
+    upload?: { userId: number; sizeBytes: number }
+  ): Promise<{ storageKey: string; signedUrl: string }> {
     const ext = this.extractExtension(originalName)
     const format = ALLOWED_FORMATS[ext]
     if (!format) {
       throw new Error(`Unsupported file format: ${ext}. Allowed: STL, 3MF, OBJ`)
     }
 
+    if (upload && (upload.sizeBytes < 1 || upload.sizeBytes > MAX_SIZE_BYTES)) {
+      throw new Error(`File too large: ${upload.sizeBytes} bytes (max ${MAX_SIZE_BYTES})`)
+    }
+
     const storageKey = `models/${randomUUID()}${ext}`
     const disk = drive.use('s3')
-    const signedUrl = await disk.getSignedUrl(storageKey, {
+    // an upload (PUT) URL: the size is part of the signature, so a different body is refused
+    const signedUrl = await disk.getSignedUploadUrl(storageKey, {
       expiresIn: '15m',
       // never the browser's guess: a stored model is inert bytes, whatever it claims to be
       contentType: 'application/octet-stream',
+      ...(upload ? { ContentLength: upload.sizeBytes } : {}),
     })
+    if (upload) await new UploadTicketService().issue(storageKey, upload)
 
     return { storageKey, signedUrl }
+  }
+
+  /**
+   * Registers a browser upload: only a storage key this server presigned for this user, at the
+   * same size, and only once (review fix: arbitrary keys could expose other stored objects).
+   */
+  async registerUpload(user: User, data: RegisterFileData, replacesFileId?: number | null) {
+    const ok = await new UploadTicketService().consume(data.storageKey, user.id, data.sizeBytes)
+    if (!ok) throw new Error('Upload not found or expired. Please upload the file again.')
+    return this.register(user, data, replacesFileId)
   }
 
   /**

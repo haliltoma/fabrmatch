@@ -149,6 +149,7 @@ function UploadDialog({
           body: JSON.stringify({
             originalName: file.name,
             contentType: 'application/octet-stream',
+            sizeBytes: file.size,
           }),
         })
 

@@ -10,6 +10,17 @@ import {
 
 const inertia = { 'x-inertia': 'true', 'x-inertia-version': '1', 'accept': 'application/json' }
 
+/** A storage key the server presigned for this user (registration only accepts those). */
+async function presigned(client: any, user: any, sizeBytes: number): Promise<string> {
+  const res = await client
+    .post('/files/upload-url')
+    .loginAs(user)
+    .withCsrfToken()
+    .header('accept', 'application/json')
+    .json({ originalName: 'model.stl', contentType: 'application/octet-stream', sizeBytes })
+  return res.body().storageKey
+}
+
 test.group('model versions over HTTP', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
   group.each.setup(() => ensureReferenceCatalog())
@@ -21,6 +32,7 @@ test.group('model versions over HTTP', (group) => {
     const user = await createUser('owner')
     await new RoleService().assignRole(user, 'seller')
     const v1 = await createAnalyzedFile(user, 8000)
+    const storageKey = await presigned(client, user, 2048)
 
     const register = await client
       .post('/files/register')
@@ -31,7 +43,7 @@ test.group('model versions over HTTP', (group) => {
         originalName: 'cube-v2.stl',
         sizeBytes: 2048,
         sha256: 'ab'.repeat(32),
-        storageKey: 'models/cube-v2.stl',
+        storageKey,
         format: 'STL',
         replacesFileId: v1.id,
       })
@@ -56,6 +68,7 @@ test.group('model versions over HTTP', (group) => {
     const thief = await createUser('thief')
     await new RoleService().assignRole(thief, 'seller')
     const file = await createAnalyzedFile(owner, 8000)
+    const storageKey = await presigned(client, thief, 100)
     const attempt = await client
       .post('/files/register')
       .loginAs(thief)
@@ -65,7 +78,7 @@ test.group('model versions over HTTP', (group) => {
         originalName: 'x.stl',
         sizeBytes: 100,
         sha256: 'cd'.repeat(32),
-        storageKey: 'models/x.stl',
+        storageKey,
         format: 'STL',
         replacesFileId: file.id,
       })
