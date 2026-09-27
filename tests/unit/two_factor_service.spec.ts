@@ -5,6 +5,7 @@ import AuditLog from '#models/audit_log'
 import User from '#models/user'
 import UserSession from '#models/user_session'
 import VerificationToken from '#models/verification_token'
+import { hashToken } from '#services/identity/auth_security_service'
 import AuthSecurityService from '#services/identity/auth_security_service'
 import TotpService from '#services/identity/totp_service'
 import TwoFactorService, { TwoFactorError } from '#services/identity/two_factor_service'
@@ -152,11 +153,30 @@ test.group('UserSessionService', (group) => {
     await VerificationToken.create({
       userId: user.id,
       type: 'password_reset',
-      token: 'reset-token-1',
+      token: hashToken('reset-token-1'),
       expiresAt: DateTime.now().plus({ hours: 1 }),
     })
     assert.isTrue(await new AuthSecurityService().resetPassword('reset-token-1', 'brand-new-pass'))
     assert.isFalse(await sessions.check(id, user.id))
+  })
+
+  test('reset tokens are stored only as a hash and work exactly once', async ({ assert }) => {
+    const user = await createUser('hashed')
+    // the raw token only ever exists in the e-mailed link
+    const raw: string = await new AuthSecurityService()['createToken'](user.id, 'password_reset', 1)
+    assert.match(raw, /^[0-9a-f]{64}$/)
+
+    const row = await VerificationToken.query().where('userId', user.id).firstOrFail()
+    assert.notEqual(row.token, raw, 'the database never holds the token itself')
+    assert.equal(row.token, hashToken(raw))
+
+    const auth = new AuthSecurityService()
+    const [first, second] = await Promise.all([
+      auth.resetPassword(raw, 'new-password-1'),
+      auth.resetPassword(raw, 'new-password-2'),
+    ])
+    assert.equal([first, second].filter(Boolean).length, 1, 'two concurrent uses: one wins')
+    assert.isFalse(await auth.resetPassword(row.token, 'new-password-3'), 'the hash is no key')
   })
 
   test('device labels are readable', ({ assert }) => {

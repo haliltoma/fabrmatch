@@ -48,3 +48,9 @@ export function maskContactDetails(input: string): FilterResult {
   maskedCount += phones.maskedCount
   return { text: text.replaceAll(/[ \t]{2,}/g, ' ').trim(), maskedCount }
 }
+
+/** Masked text for the other party's view; null stays null. The stored original is untouched. */
+export function maskedText(input: string | null | undefined): string | null {
+  if (input === null || input === undefined) return null
+  return maskContactDetails(input).text
+}

@@ -102,9 +102,13 @@ export default class OrderTransformer extends BaseTransformer<Order> {
     }
   }
 
+  /**
+   * A maker's view of an order they are working on. The parcel's carrier and tracking number
+   * belong to the job (ProductionJobTransformer), never taken from "the order's current job",
+   * which after a reprint is another maker's.
+   */
   forManufacturer() {
     const address = new OrderService().decryptShippingAddress(this.resource)
-    const job = activeJob(this.resource)
     return {
       ...this.forOffer(),
       id: this.resource.id,
@@ -120,10 +124,16 @@ export default class OrderTransformer extends BaseTransformer<Order> {
             country: address.country,
           }
         : null,
-      shipment: {
-        carrier: job?.carrier ?? null,
-        trackingNumber: job?.trackingNumber ?? null,
-      },
+    }
+  }
+
+  /** A job that was taken away or reprinted: what was ordered, no longer where it goes. */
+  forManufacturerClosed() {
+    return {
+      ...this.forOffer(),
+      id: this.resource.id,
+      status: this.resource.status,
+      shipTo: null,
     }
   }
 

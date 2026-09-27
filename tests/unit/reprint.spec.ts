@@ -106,6 +106,45 @@ test.group('reprint after a dispute (R3-T6)', (group) => {
     assert.isDefined(payouts)
   })
 
+  test("after a reprint the first maker sees neither the new maker's parcel nor the buyer's address", async ({
+    assert,
+  }) => {
+    const { provider, disputes, matching } = setup()
+    const admin = await createUser('admin')
+    const { order, buyer, profile } = await createFundedOrder(provider, { upTo: 'delivered' })
+    const second = await createManufacturer()
+    await createPrinter(second.profile)
+    const dispute = await disputes.open(order.id, buyer.id, 'The part cracked at the corner')
+    await disputes.resolve(dispute.id, admin.id, { resolution: 'reproduce' })
+    const pending = await import('#models/match_offer').then((m) =>
+      m.default.query().where('orderId', order.id).where('status', 'pending').firstOrFail()
+    )
+    const job = await matching.acceptOffer(pending.id, second.profile.id)
+    await ProductionJob.query()
+      .where('id', job.id)
+      .update({ carrier: 'Aras', trackingNumber: 'SECOND-MAKER-TRACK' })
+
+    const { default: MakerWorkService } = await import('#services/manufacturing/maker_work_service')
+    const { default: ProductionJobTransformer } =
+      await import('#transformers/production_job_transformer')
+    const { default: app } = await import('@adonisjs/core/services/app')
+    const view = async (profileId: number) =>
+      JSON.stringify(
+        await ProductionJobTransformer.transform(
+          await new MakerWorkService().jobs(profileId)
+        ).resolve(app.container.createResolver(), 0)
+      )
+
+    const first = await view(profile.id)
+    assert.notInclude(first, 'SECOND-MAKER-TRACK')
+    assert.notInclude(first, 'Test Sk. No:1', 'no buyer address on a job that is gone')
+    assert.include(first, 'cracked', 'their own dispute is still shown')
+
+    const secondView = await view(second.profile.id)
+    assert.include(secondView, 'SECOND-MAKER-TRACK')
+    assert.notInclude(secondView, 'cracked', "the first maker's dispute is not theirs")
+  })
+
   test('the dispute counts against the first maker even though the job was cancelled', async ({
     assert,
   }) => {

@@ -1,4 +1,5 @@
-import { randomBytes } from 'node:crypto'
+import { createHash, randomBytes } from 'node:crypto'
+import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
 import User from '#models/user'
 import VerificationToken from '#models/verification_token'
@@ -7,7 +8,29 @@ import mail from '@adonisjs/mail/services/main'
 import env from '#start/env'
 import UserSessionService from '#services/identity/user_session_service'
 
+/**
+ * What the database stores for an e-mailed token: its SHA-256. A leaked backup or a read-only
+ * query can then not be turned into a working reset link (review fix).
+ */
+export function hashToken(token: string): string {
+  return createHash('sha256').update(token).digest('hex')
+}
+
 export default class AuthSecurityService {
+  /**
+   * Spends a live token in one statement: of two requests racing with the same link, only one
+   * gets the user id back. Returns null for unknown, used or expired tokens.
+   */
+  private async consume(token: string, type: TokenType): Promise<number | null> {
+    const result = await db.rawQuery(
+      `update verification_tokens set used_at = now()
+        where token = ? and type = ? and used_at is null and expires_at > now()
+        returning user_id`,
+      [hashToken(token), type]
+    )
+    return (result.rows[0]?.user_id as number | undefined) ?? null
+  }
+
   private async createToken(userId: number, type: TokenType, hoursValid: number): Promise<string> {
     // Invalidate existing tokens of same type
     await VerificationToken.query()
@@ -21,7 +44,7 @@ export default class AuthSecurityService {
     await VerificationToken.create({
       userId,
       type,
-      token,
+      token: hashToken(token),
       expiresAt: DateTime.now().plus({ hours: hoursValid }),
     })
 
@@ -43,19 +66,10 @@ export default class AuthSecurityService {
   }
 
   async verifyEmail(token: string): Promise<User | null> {
-    const record = await VerificationToken.query()
-      .where('token', token)
-      .where('type', 'email_verification')
-      .whereNull('usedAt')
-      .preload('user')
-      .first()
+    const userId = await this.consume(token, 'email_verification')
+    if (userId === null) return null
 
-    if (!record || !record.isValid) return null
-
-    record.usedAt = DateTime.now()
-    await record.save()
-
-    const user = record.user
+    const user = await User.findOrFail(userId)
     await user.merge({ emailVerifiedAt: DateTime.now() } as any).save()
 
     return user
@@ -79,19 +93,10 @@ export default class AuthSecurityService {
   }
 
   async resetPassword(token: string, newPassword: string): Promise<boolean> {
-    const record = await VerificationToken.query()
-      .where('token', token)
-      .where('type', 'password_reset')
-      .whereNull('usedAt')
-      .preload('user')
-      .first()
+    const userId = await this.consume(token, 'password_reset')
+    if (userId === null) return false
 
-    if (!record || !record.isValid) return false
-
-    record.usedAt = DateTime.now()
-    await record.save()
-
-    const user = record.user
+    const user = await User.findOrFail(userId)
     user.password = newPassword
     await user.save()
     // whoever knew the old password must not stay signed in

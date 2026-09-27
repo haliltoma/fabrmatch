@@ -6,8 +6,12 @@ import DisputeTransformer from '#transformers/dispute_transformer'
 /** Manufacturer-facing view of a job. File names are anonymised (PRD §10). */
 export default class ProductionJobTransformer extends BaseTransformer<ProductionJob> {
   toObject() {
-    const disputes = this.resource.order?.disputes ?? []
-    const dispute = disputes.length > 0 ? disputes[disputes.length - 1] : null
+    const job = this.resource
+    const closed = job.status === 'cancelled'
+    // only disputes opened while this maker had the job: after a reprint, the next maker does not
+    // see the first one's complaint and reply, nor the first one the next's
+    const mine = (job.order?.disputes ?? []).filter((d) => d.createdAt >= job.acceptedAt)
+    const dispute = mine.length > 0 ? mine[mine.length - 1] : null
     return {
       id: this.resource.id,
       status: this.resource.status,
@@ -19,7 +23,9 @@ export default class ProductionJobTransformer extends BaseTransformer<Production
       rating: this.resource.rating,
       qcPhotoCount: (this.resource.qcPhotos ?? []).length,
       dispute: dispute ? DisputeTransformer.transform(dispute).useVariant('forManufacturer') : null,
-      order: OrderTransformer.transform(this.resource.order).useVariant('forManufacturer'),
+      order: OrderTransformer.transform(this.resource.order).useVariant(
+        closed ? 'forManufacturerClosed' : 'forManufacturer'
+      ),
       files: (this.resource.grants ?? []).map((g, index) => ({
         grantId: g.id,
         label: `model-${this.resource.orderId}-${index + 1}`,

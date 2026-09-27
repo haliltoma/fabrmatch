@@ -1,4 +1,5 @@
 import db from '@adonisjs/lucid/services/db'
+import { maskedText } from '#services/messaging/contact_filter'
 
 export interface ProductReviews {
   count: number
@@ -40,7 +41,8 @@ export default class ReviewService {
       average: Math.round(Number(summary?.avg ?? 0) * 10) / 10,
       recent: rows.map((r) => ({
         rating: r.rating as number,
-        comment: (r.review_comment as string | null) || null,
+        // public: no phone numbers, e-mails or links in a buyer's words
+        comment: maskedText((r.review_comment as string | null) || null),
         at: new Date(r.updated_at).toISOString(),
       })),
     }
