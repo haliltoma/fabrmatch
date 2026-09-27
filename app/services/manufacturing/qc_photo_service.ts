@@ -1,4 +1,5 @@
 import DomainError from '#exceptions/domain_error'
+import { cleanStoredPhoto } from '#services/files/photo_cleaner'
 import { randomUUID } from 'node:crypto'
 import app from '@adonisjs/core/services/app'
 import drive from '@adonisjs/drive/services/main'
@@ -38,6 +39,8 @@ export default class QcPhotoService {
       throw new QcPhotoError(`At most ${MAX_PHOTOS} photos per job`)
     }
     await this.verifyObject(storageKey)
+    // no GPS or device data: QC photos become dispute evidence and shop pictures
+    await cleanStoredPhoto(storageKey)
     return JobQcPhoto.create({ productionJobId: jobId, storageKey })
   }
 

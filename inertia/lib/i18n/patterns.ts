@@ -25,6 +25,7 @@ export const trPatterns: Array<[RegExp, (m: RegExpMatchArray) => string]> = [
     (m) => `${m[1]} malzemesi bu ürün için mevcut değil`,
   ],
   [/^Unknown material: (.+)$/, (m) => `Bilinmeyen malzeme: ${m[1]}`],
+  [/^Unsupported image type: (.+)$/, (m) => `Desteklenmeyen görüntü türü: ${m[1]}`],
   [/^(.+) already belongs to the (.+) region$/, (m) => `${m[1]} zaten ${m[2]} bölgesinde`],
   [
     /^The minimum order for delivery here is ([\d.]+) TRY$/,

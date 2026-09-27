@@ -1,4 +1,5 @@
 import DomainError from '#exceptions/domain_error'
+import { cleanStoredPhoto } from '#services/files/photo_cleaner'
 import CapacityService from '#services/manufacturing/capacity_service'
 import db from '@adonisjs/lucid/services/db'
 import { randomUUID } from 'node:crypto'
@@ -234,6 +235,8 @@ export default class DisputeService {
       throw new DisputeError('Photo limit reached for this dispute')
     }
     await verifyEvidenceObject(input.storageKey)
+    // the other side sees evidence photos: no GPS or device data
+    await cleanStoredPhoto(input.storageKey)
     return DisputeEvidence.create({
       disputeId,
       uploaderId,

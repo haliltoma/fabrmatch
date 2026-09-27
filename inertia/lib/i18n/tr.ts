@@ -2900,4 +2900,14 @@ export const tr: Record<string, string> = {
     'Sipariş yeniden eşleştirmede; önceki üreticiye tekrar önerilmeyecek.',
   'Only an order in production can be reassigned': 'Yalnız üretimdeki bir sipariş aktarılabilir',
   'The job has already shipped; it cannot be reassigned': 'İş zaten kargolandı; aktarılamaz',
+  'Not a JPEG image': 'Bu bir JPEG görüntüsü değil',
+  'Malformed JPEG': 'Bozuk JPEG dosyası',
+  'The JPEG has no image data': 'JPEG dosyasında görüntü verisi yok',
+  'The JPEG has no end marker': 'JPEG dosyası eksik (bitiş işareti yok)',
+  'Not a PNG image': 'Bu bir PNG görüntüsü değil',
+  'Malformed PNG': 'Bozuk PNG dosyası',
+  'Not a WebP image': 'Bu bir WebP görüntüsü değil',
+  'Malformed WebP': 'Bozuk WebP dosyası',
+  'Upload not found or expired. Please upload the file again.':
+    'Yükleme bulunamadı ya da süresi doldu. Lütfen dosyayı yeniden yükleyin.',
 }

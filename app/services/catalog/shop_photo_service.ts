@@ -1,4 +1,5 @@
 import db from '@adonisjs/lucid/services/db'
+import { cleanStoredPhoto } from '#services/files/photo_cleaner'
 import drive from '@adonisjs/drive/services/main'
 import { DateTime } from 'luxon'
 import DomainError from '#exceptions/domain_error'
@@ -53,6 +54,8 @@ export default class ShopPhotoService {
     // a copy, so the shop picture outlives the QC photo and the order's retention
     const storageKey = `product-images/photos/${modelFileId}/${photo.id}.${ext}`
     await drive.use('s3').copy(photo.storageKey, storageKey)
+    // photos taken before metadata stripping existed are cleaned on the way to the public shop
+    await cleanStoredPhoto(storageKey)
     return ProductImage.create({
       modelFileId,
       kind: 'maker_photo',

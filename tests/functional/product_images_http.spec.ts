@@ -45,7 +45,13 @@ async function jobWithPhoto(orderId: number) {
     dueAt: DateTime.now().plus({ days: 5 }),
   })
   const storageKey = `qc/${job.id}/photo.jpg`
-  await drive.use('s3').put(storageKey, Buffer.from('jpeg bytes'))
+  // smallest well-formed JPEG: SOI, a scan, EOI
+  await drive
+    .use('s3')
+    .put(
+      storageKey,
+      Buffer.from([0xff, 0xd8, 0xff, 0xda, 0, 8, 1, 1, 0, 0, 0x3f, 0, 0xaa, 0xff, 0xd9])
+    )
   const photo = await JobQcPhoto.create({ productionJobId: job.id, storageKey })
   return { user, profile, job, photo }
 }
