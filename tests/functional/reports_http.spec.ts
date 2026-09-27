@@ -36,7 +36,14 @@ test.group('reports over HTTP', (group) => {
     page.assertStatus(200)
     assert.equal(page.body().props.rows[0].ordersCompleted, 1)
 
-    for (const kind of ['summary', 'orders', 'payouts']) {
+    for (const kind of [
+      'summary',
+      'orders',
+      'payouts',
+      'vat',
+      'purchase-invoices',
+      'withholding',
+    ]) {
       const file = await client.get(`/admin/reports/download/${kind}`).loginAs(boss)
       file.assertStatus(200)
       assert.include(file.header('content-type') ?? '', 'text/csv')

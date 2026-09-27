@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import vine from '@vinejs/vine'
 import { DateTime } from 'luxon'
 import FinancialReportService, { monthPeriod } from '#services/reports/financial_report_service'
+import TaxReportService from '#services/reports/tax_report_service'
 
 const monthValidator = vine.create({
   month: vine
@@ -23,6 +24,7 @@ export default class AdminReportController {
     return inertia.render('admin/reports/index', {
       month: period.label,
       rows: await new FinancialReportService().summary(period),
+      taxRows: await new TaxReportService().summary(period),
     })
   }
 
@@ -43,6 +45,17 @@ export default class AdminReportController {
         break
       case 'coupons':
         body = await reports.couponsCsv(period)
+        break
+      case 'vat': {
+        const tax = new TaxReportService()
+        body = tax.vatCsv(period, await tax.summary(period))
+        break
+      }
+      case 'withholding':
+        body = await new TaxReportService().withholdingCsv(period)
+        break
+      case 'purchase-invoices':
+        body = await new TaxReportService().purchaseInvoicesCsv(period)
         break
       default:
         return response.notFound()

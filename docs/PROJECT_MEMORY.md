@@ -280,6 +280,7 @@
 
 ## Log
 
+- **2026-09-27** — R7-T7 vergi raporları: `TaxReportService` (satış/alış KDV'si, onaylı faturaların KDV'si, tevkifat) + 3 CSV (KDV özeti, alış faturaları, muhtasar tevkifat listesi); rakamlar ledger ile birebir (test). 818 test yeşil.
 - **2026-09-27** — R7-T2/T3/T4 (Model B: Fabrmatch satıcı).
   - `SALES_MODEL` + deploy koruması.
   - Serbest bırakmada satış KDV'si / indirilecek KDV / tevkifat ledger hesapları; komisyon net kalır (property testi).

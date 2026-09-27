@@ -314,7 +314,11 @@ Kod işleri (T2–T4) karar ve şirketi beklemeden önerilen modelle yapılabili
   - Checkout ürün türüne göre doğru metni gösterir ve onay sürümünü kaydeder (R1-T6 mekanizması).
   - Üretici tedarik sözleşmesi (kalite, gizlilik, geri çağırma, IP) onboarding'de onaylanır.
   - Kabul: iki sipariş türünde doğru metin + onay kaydı (test).
-- [ ] **R7-T7 Vergi raporları** · P1 · kod (X-12'ye ek)
+- [x] **R7-T7 Vergi raporları** · P1 · ✔ 2026-09-27
+  - `/admin/reports` ekranında ay + para birimi bazında: satış KDV'si, alış KDV'si (kaydedilen), bu ay onaylanan faturalardaki KDV, net KDV ve kesilen gelir vergisi.
+  - CSV'ler: `vat`, `purchase-invoices` (alış faturası defteri: tedarikçi, VKN, net/KDV/brüt), `withholding` (muhtasar: gider pusulası no, ad, TCKN/VKN, brüt, oran, kesinti, ödenen).
+  - Test: örnek ayın rakamları ledger bakiyeleriyle birebir.
+  - Özgün tanım:
   - Aylık: satış KDV'si, indirilecek KDV (üretici faturaları), tevkifat listesi (muhtasar için: ad, VKN/TCKN, brüt, oran, kesinti), gider pusulası listesi.
   - CSV'ler admin raporlarında.
   - Kabul: örnek ay için rakamlar ledger ile birebir.

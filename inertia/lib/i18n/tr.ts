@@ -2579,4 +2579,13 @@ export const tr: Record<string, string> = {
   'This payout is not ready to be paid': 'Bu ödeme henüz ödenmeye hazır değil',
   'The payee’s tax and bank details are not approved':
     'Alacaklının vergi ve banka bilgileri onaylı değil',
+  'Tax': 'Vergi',
+  'VAT on sales': 'Satışlardaki KDV',
+  'VAT on purchases (booked)': 'Alışlardaki KDV (kaydedilen)',
+  'VAT on invoices approved this month': 'Bu ay onaylanan faturalardaki KDV',
+  'Net VAT': 'Net KDV',
+  'Income tax withheld (muhtasar)': 'Kesilen gelir vergisi (muhtasar)',
+  'VAT summary': 'KDV özeti',
+  'Purchase invoices': 'Alış faturaları',
+  'Withholding list (muhtasar)': 'Tevkifat listesi (muhtasar)',
 }

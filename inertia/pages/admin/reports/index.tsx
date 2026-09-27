@@ -21,7 +21,24 @@ type Row = {
   sellerPayoutsMinor: number
 }
 
-export default function AdminReports({ month, rows }: { month: string; rows: Row[] }) {
+type TaxRow = {
+  currency: string
+  outputVatMinor: number
+  inputVatMinor: number
+  inputVatOnApprovedInvoicesMinor: number
+  withheldMinor: number
+  netVatMinor: number
+}
+
+export default function AdminReports({
+  month,
+  rows,
+  taxRows,
+}: {
+  month: string
+  rows: Row[]
+  taxRows: TaxRow[]
+}) {
   const { t } = useT()
 
   const [value, setValue] = useState(month)
@@ -110,6 +127,36 @@ export default function AdminReports({ month, rows }: { month: string; rows: Row
         ))
       )}
 
+      {taxRows.map((r) => (
+        <Card key={`tax-${r.currency}`}>
+          <CardHeader>
+            <CardTitle>
+              {t('Tax')} · {month} · {r.currency}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <dl className="grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
+              {(
+                [
+                  ['VAT on sales', r.outputVatMinor],
+                  ['VAT on purchases (booked)', r.inputVatMinor],
+                  ['VAT on invoices approved this month', r.inputVatOnApprovedInvoicesMinor],
+                  ['Net VAT', r.netVatMinor],
+                  ['Income tax withheld (muhtasar)', r.withheldMinor],
+                ] as const
+              ).map(([label, minor]) => (
+                <div key={label} className="flex justify-between gap-4 border-b border-line py-1">
+                  <dt className="text-ink-600">{t(label)}</dt>
+                  <dd className="tabular text-ink-900">
+                    <Money minor={minor} currency={r.currency} />
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </CardContent>
+        </Card>
+      ))}
+
       <Card>
         <CardHeader>
           <CardTitle>{t('Downloads (CSV)')}</CardTitle>
@@ -126,6 +173,15 @@ export default function AdminReports({ month, rows }: { month: string; rows: Row
           </Button>
           <Button asChild variant="outline">
             <a href={download('coupons')}>{t('Coupon cost')}</a>
+          </Button>
+          <Button asChild variant="outline">
+            <a href={download('vat')}>{t('VAT summary')}</a>
+          </Button>
+          <Button asChild variant="outline">
+            <a href={download('purchase-invoices')}>{t('Purchase invoices')}</a>
+          </Button>
+          <Button asChild variant="outline">
+            <a href={download('withholding')}>{t('Withholding list (muhtasar)')}</a>
           </Button>
         </CardContent>
       </Card>
