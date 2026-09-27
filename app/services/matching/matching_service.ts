@@ -1,4 +1,5 @@
 import DomainError from '#exceptions/domain_error'
+import logger from '@adonisjs/core/services/logger'
 import db from '@adonisjs/lucid/services/db'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import { DateTime } from 'luxon'
@@ -17,7 +18,7 @@ import CapacitySlot from '#models/capacity_slot'
 import { rankCandidates } from '#services/matching/ranking'
 import type { Rng } from '#services/matching/types'
 import CapacityService from '#services/manufacturing/capacity_service'
-import { productionDaysFor } from '#services/orders/production_window'
+import { productionDaysForOrder } from '#services/orders/production_window'
 import FileAccessService from '#services/files/file_access_service'
 import type { MatchingEffects } from '#services/matching/matching_effects'
 import QueueMatchingEffects from '#services/matching/matching_effects'
@@ -55,6 +56,59 @@ export default class MatchingService {
       if (await this.runRound(id)) started++
     }
     return started
+  }
+
+  /**
+   * Safety net for orders whose matching stalled (review fix): a paid order whose first round
+   * failed to start, or a matching order left with no pending offer because the follow-up round
+   * after a decline or expiry failed. Orders held for fraud review and anything touched in the
+   * last few minutes are left alone. Returns how many orders were picked up again.
+   */
+  async resumeStalled(quietMinutes = 5): Promise<number> {
+    const cutoff = DateTime.now().minus({ minutes: quietMinutes }).toSQL()
+    const notHeld = (q: any) =>
+      q.whereNotExists((f: any) =>
+        f
+          .from('fraud_flags')
+          .whereRaw('fraud_flags.order_id = orders.id')
+          .where('status', 'open')
+          .where('severity', 'hold')
+      )
+    const paid = await db
+      .from('orders')
+      .where('status', 'paid')
+      .where('updated_at', '<', cutoff)
+      .where(notHeld)
+      .select('id')
+    const waiting = await db
+      .from('orders')
+      .where('status', 'matching')
+      .where('updated_at', '<', cutoff)
+      .whereNotExists((o) =>
+        o
+          .from('match_offers')
+          .whereRaw('match_offers.order_id = orders.id')
+          .where('status', 'pending')
+      )
+      .select('id')
+
+    let resumed = 0
+    for (const { id } of paid) {
+      try {
+        await this.start(id)
+        resumed++
+      } catch (error) {
+        logger.error({ msg: 'stalled matching: start failed', orderId: id, error })
+      }
+    }
+    for (const { id } of waiting) {
+      try {
+        if (await this.runRound(id)) resumed++
+      } catch (error) {
+        logger.error({ msg: 'stalled matching: round failed', orderId: id, error })
+      }
+    }
+    return resumed
   }
 
   /**
@@ -307,21 +361,37 @@ export default class MatchingService {
     actorId: number | null = null
   ): Promise<ProductionJob> {
     const job = await db.transaction(async (trx) => {
-      const offer = await this.lockOwnedOffer(offerId, manufacturerProfileId, trx)
-      if (offer.expiresAt <= DateTime.now()) throw new OfferError('Offer has expired')
-
+      // order first, then offer: the same order cancellation takes its locks in, so an accept
+      // racing a cancel waits instead of deadlocking
+      const target = await MatchOffer.query({ client: trx })
+        .where('id', offerId)
+        .select('orderId')
+        .first()
+      if (!target) throw new OfferError('Offer not found')
       const order = await Order.query({ client: trx })
-        .where('id', offer.orderId)
+        .where('id', target.orderId)
         .forUpdate()
         .firstOrFail()
+      const offer = await this.lockOwnedOffer(offerId, manufacturerProfileId, trx)
+      if (offer.expiresAt <= DateTime.now()) throw new OfferError('Offer has expired')
       if (order.status !== 'matching') throw new OfferError('Order is no longer open for matching')
       await order.load('items', (q) => q.preload('modelFile'))
 
       const minutes = order.items.reduce((sum, i) => sum + i.estPrintMinutes, 0)
       const now = DateTime.now()
-      const dueAt = now.plus({ days: await productionDaysFor(order.items) })
+      const dueAt = now.plus({ days: await productionDaysForOrder(order) })
 
       if (!offer.printerId) throw new OfferError('Offer has no printer assigned')
+      // things may have changed since the offer went out
+      const maker = await ManufacturerProfile.query({ client: trx })
+        .where('id', manufacturerProfileId)
+        .preload('user')
+        .firstOrFail()
+      if (maker.status !== 'active' || maker.user?.suspendedAt) {
+        throw new OfferError('Your account can no longer take orders')
+      }
+      const printer = await Printer.find(offer.printerId, { client: trx })
+      if (!printer?.isActive) throw new OfferError('The printer for this offer is no longer active')
       const slot = await this.capacity.reserveInWindow(
         offer.printerId,
         now.toISODate()!,

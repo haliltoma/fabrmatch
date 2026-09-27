@@ -20,6 +20,8 @@ export default class CheckProductionSla extends Job<Record<string, never>> {
         .where('subjectType', 'order')
         .where('subjectId', job.orderId)
         .where('action', action)
+        // per job: after a reprint or reassign, the new job's lateness is reported too
+        .whereRaw("(meta->>'jobId')::int = ?", [job.id])
         .first()
       if (already) continue
 

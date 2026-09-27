@@ -177,6 +177,10 @@ export default class RfqService {
         .where('status', 'active')
         .first()
       if (!bid) throw new RfqError('That offer is no longer available')
+      // makers were invited and bid for this country; an order elsewhere could never be matched
+      if (address.country.toUpperCase() !== rfq.shipCountry.toUpperCase()) {
+        throw new RfqError(`The delivery address must be in ${rfq.shipCountry.toUpperCase()}`)
+      }
 
       const file = await ModelFile.findOrFail(rfq.modelFileId, { client: trx })
       const price = await priceAwardedBid({
@@ -280,25 +284,38 @@ export default class RfqService {
   async closeDue(now: DateTime = DateTime.now()): Promise<{ closed: number; expired: number }> {
     let closed = 0
     let expired = 0
+    // each row is re-read under a lock: an award committed meanwhile must not be overwritten
     const due = await Rfq.query().where('status', 'open').where('bidsCloseAt', '<=', now.toSQL()!)
-    for (const rfq of due) {
-      const bids = await RfqBid.query().where('rfqId', rfq.id).where('status', 'active')
-      rfq.status = bids.length > 0 ? 'closed' : 'expired'
-      await rfq.save()
-      if (rfq.status === 'closed') closed++
-      else expired++
+    for (const { id } of due) {
+      const outcome = await db.transaction(async (trx) => {
+        const rfq = await Rfq.query({ client: trx }).where('id', id).forUpdate().firstOrFail()
+        if (rfq.status !== 'open') return null
+        const bids = await RfqBid.query({ client: trx })
+          .where('rfqId', rfq.id)
+          .where('status', 'active')
+        rfq.status = bids.length > 0 ? 'closed' : 'expired'
+        await rfq.useTransaction(trx).save()
+        return rfq.status
+      })
+      if (outcome === 'closed') closed++
+      else if (outcome === 'expired') expired++
     }
     const stale = await Rfq.query()
       .where('status', 'closed')
       .where('bidsCloseAt', '<=', now.minus({ days: AWARD_GRACE_DAYS }).toSQL()!)
-    for (const rfq of stale) {
-      rfq.status = 'expired'
-      await rfq.save()
-      await RfqBid.query()
-        .where('rfqId', rfq.id)
-        .where('status', 'active')
-        .update({ status: 'lost' })
-      expired++
+    for (const { id } of stale) {
+      const done = await db.transaction(async (trx) => {
+        const rfq = await Rfq.query({ client: trx }).where('id', id).forUpdate().firstOrFail()
+        if (rfq.status !== 'closed') return false
+        rfq.status = 'expired'
+        await rfq.useTransaction(trx).save()
+        await RfqBid.query({ client: trx })
+          .where('rfqId', rfq.id)
+          .where('status', 'active')
+          .update({ status: 'lost' })
+        return true
+      })
+      if (done) expired++
     }
     return { closed, expired }
   }

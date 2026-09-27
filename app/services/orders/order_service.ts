@@ -428,9 +428,23 @@ export default class OrderService {
    */
   async cancelWithRefund(
     orderId: number,
-    who: { actorId: number | null; by: 'buyer' | 'system' | 'admin' }
+    who: {
+      actorId: number | null
+      by: 'buyer' | 'system' | 'admin'
+      /** cancel only while the order is still in this status (checked under the row lock) */
+      onlyFrom?: OrderStatus
+    }
   ): Promise<Order> {
     const order = await db.transaction(async (trx) => {
+      if (who.onlyFrom) {
+        const current = await Order.query({ client: trx })
+          .where('id', orderId)
+          .forUpdate()
+          .firstOrFail()
+        if (current.status !== who.onlyFrom) {
+          throw new InvalidOrderTransitionError(current.status, 'cancelled')
+        }
+      }
       const cancelled = await this.sm.transition(orderId, 'cancelled', {
         trx,
         actorId: who.actorId,
@@ -471,7 +485,8 @@ export default class OrderService {
     let cancelled = 0
     for (const { id } of stale) {
       try {
-        await this.cancelWithRefund(id, { actorId: null, by: 'system' })
+        // an admin may have reopened it since the list was read: only cancel what still waits
+        await this.cancelWithRefund(id, { actorId: null, by: 'system', onlyFrom: 'unmatched' })
         cancelled++
       } catch (error) {
         if (!(error instanceof InvalidOrderTransitionError)) throw error

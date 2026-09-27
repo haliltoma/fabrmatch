@@ -6,7 +6,7 @@ import EligibilityService from '#services/matching/eligibility_service'
 import EligibilityExplainer from '#services/matching/eligibility_explainer'
 import { isInExplorationPool, scoreParts } from '#services/matching/ranking'
 import OrderService from '#services/orders/order_service'
-import { productionDaysFor } from '#services/orders/production_window'
+import { productionDaysForOrder } from '#services/orders/production_window'
 import MatchingService from '#services/matching/matching_service'
 
 export type QueueState = 'needs_maker' | 'offer_out' | 'unmatched'
@@ -173,7 +173,7 @@ export default class MatchSuggestionService {
         createdAt: m.createdAt.toISO(),
         respondedAt: m.respondedAt?.toISO() ?? null,
       })),
-      productionSlaDays: await productionDaysFor(order.items),
+      productionSlaDays: await productionDaysForOrder(order),
       offerTtlMinutes: fabrmatchConfig.matching.offerTtlMinutes,
     }
   }

@@ -408,6 +408,27 @@ test.group('choosing a winner', (group) => {
     assert.lengthOf(await Order.query().where('channel', 'rfq'), 1)
   })
 
+  test('the delivery address must be in the country the offers were made for', async ({
+    assert,
+  }) => {
+    const { buyer, rfq, win } = await twoBids()
+    await assert.rejects(
+      () => rfqs.award(rfq.id, buyer, win.id, { ...TR_ADDRESS, country: 'DE' }),
+      /must be in TR/
+    )
+    assert.lengthOf(await Order.query().where('channel', 'rfq'), 0)
+  })
+
+  test("an awarded order gets the winning bid's delivery time, not the platform default", async ({
+    assert,
+  }) => {
+    const { buyer, rfq, win } = await twoBids()
+    const { order } = await rfqs.award(rfq.id, buyer, win.id, TR_ADDRESS)
+    const { productionDaysForOrder } = await import('#services/orders/production_window')
+    await order.load('items')
+    assert.equal(await productionDaysForOrder(order), win.leadDays)
+  })
+
   test('a withdrawn offer cannot win, and cancelling closes every offer', async ({ assert }) => {
     const { buyer, dear, rfq, win } = await twoBids()
     await bids.withdraw(rfq.id, dear.profile.id)

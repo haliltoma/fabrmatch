@@ -2,6 +2,7 @@ import AutoConfirmDelivery from '#jobs/auto_confirm_delivery'
 import CheckProductionSla from '#jobs/check_production_sla'
 import CancelStaleUnmatched from '#jobs/cancel_stale_unmatched'
 import ExpireStaleOffers from '#jobs/expire_stale_offers'
+import ResumeStalledMatching from '#jobs/resume_stalled_matching'
 import ReleasePayouts from '#jobs/release_payouts'
 import SettleRefunds from '#jobs/settle_refunds'
 import RecomputeTrustTiers from '#jobs/recompute_trust_tiers'
@@ -19,6 +20,7 @@ import PollStoreOrders from '#jobs/poll_store_orders'
 await AutoConfirmDelivery.schedule({}).id('auto-confirm-delivery').every('1h').run()
 await CheckProductionSla.schedule({}).id('check-production-sla').every('1h').run()
 await ExpireStaleOffers.schedule({}).id('expire-stale-offers').every('5m').run()
+await ResumeStalledMatching.schedule({}).id('resume-stalled-matching').every('10m').run()
 await ReleasePayouts.schedule({}).id('release-payouts').every('10m').run()
 await SettleRefunds.schedule({}).id('settle-refunds').every('10m').run()
 await SyncPendingPayments.schedule({}).id('sync-pending-payments').every('5m').run()

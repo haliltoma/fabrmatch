@@ -10,7 +10,7 @@ import {
   orderReferences,
 } from '#services/matching/eligibility_service'
 import { referencePriceFor } from '#services/pricing/reference_prices'
-import { productionDaysFor } from '#services/orders/production_window'
+import { productionDaysForOrder } from '#services/orders/production_window'
 
 /**
  * Why a maker is not offered an order. Each code is one rule of `EligibilityService.findCandidates`,
@@ -39,9 +39,19 @@ export type Reason =
 
 /**
  * Rules even an admin cannot override in manual mode: business rule 2 (nobody makes their own
- * order), and makers who could not act on an offer at all.
+ * order), makers who could not act on an offer at all, makers who are not approved (a rejected
+ * maker is stored as not approved), makers abroad (cross-border production is off, K-K), and an
+ * RFQ order that was awarded to someone else at their bid price.
  */
-const HARD_BLOCKERS = new Set(['is_buyer', 'is_seller', 'suspended', 'no_printer'])
+const HARD_BLOCKERS = new Set([
+  'is_buyer',
+  'is_seller',
+  'suspended',
+  'no_printer',
+  'not_approved',
+  'other_country',
+  'rfq_awarded_elsewhere',
+])
 
 export function isHardBlocker(reason: Reason): boolean {
   return HARD_BLOCKERS.has(reason.code)
@@ -86,7 +96,7 @@ export default class EligibilityExplainer {
     const requiredMinutes = items.reduce((sum, i) => sum + i.estPrintMinutes, 0)
     const now = options.now ?? DateTime.now()
     const from = now.toISODate()!
-    const days = await productionDaysFor(items)
+    const days = await productionDaysForOrder({ id: order.id, channel: order.channel, items })
     const to = now.plus({ days }).toISODate()!
     const offered = options.offeredStatuses ?? new Map<number, string>()
     const checkPrice = order.channel !== 'rfq'

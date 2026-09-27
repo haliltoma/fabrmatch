@@ -269,6 +269,35 @@ test.group('admin matching (manual mode)', (group) => {
     assert.lengthOf(await MatchOffer.query().where('orderId', order.id), 0)
   })
 
+  test('an override cannot cross borders, reach an unapproved maker, or survive a suspension', async ({
+    assert,
+  }) => {
+    const order = await paidOrder()
+    const user = await admin()
+    const matching = new MatchingService(quiet)
+
+    const abroad = await createManufacturer({ country: 'DE', city: 'Berlin' })
+    await createPrinter(abroad.profile)
+    await assert.rejects(
+      () => matching.offerTo(order.id, abroad.profile.id, user.id, { allowOverride: true }),
+      /cannot take the order/
+    )
+
+    const pending = await createManufacturer()
+    await createPrinter(pending.profile)
+    await pending.profile.merge({ status: 'pending' } as any).save()
+    await assert.rejects(
+      () => matching.offerTo(order.id, pending.profile.id, user.id, { allowOverride: true }),
+      /cannot take the order/
+    )
+
+    // offered while active, suspended before accepting: the accept is refused
+    const ok = await maker()
+    const offer = await matching.offerTo(order.id, ok.id, user.id)
+    await ok.merge({ status: 'suspended' } as any).save()
+    await assert.rejects(() => matching.acceptOffer(offer!.id, ok.id), /no longer/)
+  })
+
   test('the matching pages are admin only', async ({ client }) => {
     const seller = await createUser('seller')
     await new RoleService().assignRole(seller, 'seller')

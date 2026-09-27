@@ -2920,4 +2920,6 @@ export const tr: Record<string, string> = {
     'Fiyat hesaplandıktan sonra seçenekleri veya ülkeyi değiştirdiniz. Sipariş vermeden önce fiyatı yeniden hesaplayın.',
   'The price of this order is no longer up to date. Please place it again.':
     'Bu siparişin fiyatı artık güncel değil. Lütfen siparişi yeniden oluşturun.',
+  'Your account can no longer take orders': 'Hesabınız artık sipariş alamıyor',
+  'The printer for this offer is no longer active': 'Bu teklifin yazıcısı artık aktif değil',
 }
