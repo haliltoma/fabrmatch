@@ -3055,6 +3055,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_payout_controller').default['markPaid']>>>
     }
   }
+  'admin_launch.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/launch'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_launch_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_launch_controller').default['index']>>>
+    }
+  }
   'admin_settings.index': {
     methods: ["GET","HEAD"]
     pattern: '/admin/settings'

@@ -280,6 +280,7 @@
 
 ## Log
 
+- **2026-09-27** — `/admin/launch` lansman hazırlık paneli (R7-T8 şartları anlık, saf `evaluateLaunch` testli). Demo seeder model B'ye uyarlandı (onaylı alacaklı profilleri, satıcıya 2.500 TL test cüzdanı; aksi halde yeni DB'de ödeme serbest bırakma adımı düşerdi). 874 test.
 - **2026-09-27** — R4-T5 Etsy kodu hazır (anahtar bekliyor): OAuth2 PKCE bağlantısı, yayınlama (kategori araması, inventory, görsel, active/inactive), sipariş sorgulama işi (webhook yok), takip yazımı. Sözleşme webhook'suz platformları kapsayacak şekilde genelleştirildi. 870 test.
 - **2026-09-27** — Mağazada satıştan kaldırma: Shopify `productUpdate` (DRAFT), Woo `status: draft`; ürün arşivlenince bağlı tüm mağazalardan otomatik kaldırılır, tekrar yayınlama aynı mağaza ürününü kullanır (SKU ile bulunur; yeni ürün açma hatası düzeltildi). Adaptör sözleşmesine eklendi. 857 test.
 - **2026-09-27** — Cüzdan bakiyesinin karta iadesi (en yeni yüklemeden başlayarak, anahtar yükleme + önceki iadeden türetildiği için yeniden deneme çift iade yapmaz; bakiye varken hesap silinemez; fatura bekleyen ödeme de silme engeli). Shopify/Woo ürün listesi sayfalamalı. 856 test.

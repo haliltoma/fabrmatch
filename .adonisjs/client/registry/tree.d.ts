@@ -402,6 +402,9 @@ export interface ApiDefinition {
     voucher: typeof routes['admin_payout.voucher']
     markPaid: typeof routes['admin_payout.mark_paid']
   }
+  adminLaunch: {
+    index: typeof routes['admin_launch.index']
+  }
   adminSettings: {
     index: typeof routes['admin_settings.index']
     update: typeof routes['admin_settings.update']

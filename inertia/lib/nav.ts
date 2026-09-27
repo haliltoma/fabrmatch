@@ -25,6 +25,7 @@ import {
   SlidersHorizontal,
   ScrollText,
   Settings,
+  Rocket,
   TrendingUp,
   Truck,
   Users,
@@ -85,6 +86,7 @@ export const adminNav: NavItem[] = [
   { label: 'Disputes', href: '/admin/disputes', icon: AlertTriangle },
   { label: 'Payouts', href: '/admin/payouts', icon: Landmark },
   { label: 'Audit log', href: '/admin/audit', icon: ScrollText },
+  { label: 'Launch readiness', href: '/admin/launch', icon: Rocket },
   { label: 'Settings', href: '/admin/settings', icon: Settings },
 ]
 

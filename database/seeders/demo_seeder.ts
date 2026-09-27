@@ -23,6 +23,12 @@ import drive from '@adonisjs/drive/services/main'
 import ProductImageService from '#services/catalog/product_image_service'
 import { analyzeStl } from '#services/files/stl_analyzer'
 import { demoMeshFor } from './demo_meshes.js'
+import PayeeTaxProfile from '#models/payee_tax_profile'
+import EncryptionService from '#services/identity/encryption_service'
+import FakePaymentProvider from '#services/payments/fake_provider'
+import { paymentProvider } from '#services/payments/provider_registry'
+import { salesModel } from '#services/payments/sales_model'
+import WalletService from '#services/payments/wallet_service'
 
 const ADDRESS = {
   fullName: 'Deniz Yılmaz',
@@ -191,6 +197,25 @@ export default class DemoSeeder extends BaseSeeder {
       )
     }
 
+    // sales model B pays only approved payees (R7): the demo maker invoices as a company,
+    // the demo seller as a sole proprietor
+    await this.approvedPayee(
+      'manufacturer',
+      maker.id,
+      makerUser.id,
+      'company',
+      'Mert Kaya Baskı Ltd. Şti.'
+    )
+    await this.approvedPayee(
+      'seller',
+      sellerUser.id,
+      sellerUser.id,
+      'sole_proprietor',
+      'Selin Aydın'
+    )
+    // a balance for the seller's own-shop orders (R4-T2), topped up with the test card
+    await this.walletTopUp(sellerUser, 250_000)
+
     const offers = await MatchOffer.query().count('* as n').first()
     if (Number(offers?.$extras.n) > 0) return
 
@@ -254,6 +279,52 @@ export default class DemoSeeder extends BaseSeeder {
         'Two of the three clips arrived snapped in half.'
       )
     }
+  }
+
+  private async approvedPayee(
+    type: 'manufacturer' | 'seller',
+    beneficiaryId: number,
+    userId: number,
+    taxStatus: 'company' | 'sole_proprietor',
+    legalName: string
+  ) {
+    const existing = await PayeeTaxProfile.query()
+      .where('beneficiaryType', type)
+      .where('beneficiaryId', beneficiaryId)
+      .first()
+    if (existing) return
+    const encryption = new EncryptionService()
+    await PayeeTaxProfile.create({
+      beneficiaryType: type,
+      beneficiaryId,
+      userId,
+      taxStatus,
+      legalName,
+      // check-digit valid demo numbers, not real people or companies
+      taxNumberEnc: encryption.encrypt(taxStatus === 'company' ? '1234567890' : '10000000146'),
+      taxOffice: 'Kadıköy',
+      addressEnc: encryption.encrypt('Moda Cd. 10, Kadıköy, İstanbul'),
+      ibanEnc: encryption.encrypt('TR330006100519786457841326'),
+      status: 'approved',
+      submittedAt: DateTime.now(),
+      reviewedAt: DateTime.now(),
+    })
+  }
+
+  /** Through the real payment path with the fake provider (skipped for any other provider). */
+  private async walletTopUp(user: User, amountMinor: number) {
+    if (salesModel() !== 'merchant_of_record') return
+    if ((await new WalletService().balance(user.id)) > 0) return
+    const provider = paymentProvider()
+    if (!(provider instanceof FakePaymentProvider)) return
+    const payments = new PaymentService(provider, async () => {})
+    const { payment } = await payments.startTopUp(user, amountMinor)
+    const { body, headers } = provider.signedEvent({
+      type: 'payment.succeeded',
+      providerRef: payment.providerRef,
+      amountMinor,
+    })
+    await payments.handleWebhook(body, headers)
   }
 
   /** Puts the demo mesh behind a model file row and renders its shop images. */

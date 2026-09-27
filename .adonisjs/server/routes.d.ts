@@ -258,6 +258,7 @@ export type ScannedRoutes = {
     'admin_payout.invoice_file': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_payout.voucher': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_payout.mark_paid': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_launch.index': { paramsTuple?: []; params?: {} }
     'admin_settings.index': { paramsTuple?: []; params?: {} }
     'admin_settings.update': { paramsTuple?: []; params?: {} }
     'admin_settings.reset': { paramsTuple?: []; params?: {} }
@@ -377,6 +378,7 @@ export type ScannedRoutes = {
     'admin_payout.profile_document': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_payout.invoice_file': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_payout.voucher': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_launch.index': { paramsTuple?: []; params?: {} }
     'admin_settings.index': { paramsTuple?: []; params?: {} }
   }
   HEAD: {
@@ -494,6 +496,7 @@ export type ScannedRoutes = {
     'admin_payout.profile_document': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_payout.invoice_file': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_payout.voucher': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_launch.index': { paramsTuple?: []; params?: {} }
     'admin_settings.index': { paramsTuple?: []; params?: {} }
   }
   POST: {

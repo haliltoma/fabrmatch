@@ -635,6 +635,7 @@ router
       .prefix('/payouts')
       .where('id', router.matchers.number())
 
+    router.get('/launch', [controllers.AdminLaunch, 'index'])
     router.get('/settings', [controllers.AdminSettings, 'index'])
     router.post('/settings', [controllers.AdminSettings, 'update'])
     router.post('/settings/reset', [controllers.AdminSettings, 'reset'])

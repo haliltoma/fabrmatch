@@ -25,6 +25,7 @@ declare module '@adonisjs/inertia/types' {
     'admin/finishing/index': ExtractProps<(typeof import('../../inertia/pages/admin/finishing/index.tsx'))['default']>
     'admin/growth/index': ExtractProps<(typeof import('../../inertia/pages/admin/growth/index.tsx'))['default']>
     'admin/jobs/index': ExtractProps<(typeof import('../../inertia/pages/admin/jobs/index.tsx'))['default']>
+    'admin/launch/index': ExtractProps<(typeof import('../../inertia/pages/admin/launch/index.tsx'))['default']>
     'admin/makers/index': ExtractProps<(typeof import('../../inertia/pages/admin/makers/index.tsx'))['default']>
     'admin/matching/index': ExtractProps<(typeof import('../../inertia/pages/admin/matching/index.tsx'))['default']>
     'admin/matching/show': ExtractProps<(typeof import('../../inertia/pages/admin/matching/show.tsx'))['default']>

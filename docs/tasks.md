@@ -361,7 +361,10 @@ Kod işleri (T2–T4) karar ve şirketi beklemeden önerilen modelle yapılabili
   - Aylık: satış KDV'si, indirilecek KDV (üretici faturaları), tevkifat listesi (muhtasar için: ad, VKN/TCKN, brüt, oran, kesinti), gider pusulası listesi.
   - CSV'ler admin raporlarında.
   - Kabul: örnek ay için rakamlar ledger ile birebir.
-- [ ] **R7-T8 Lansman kapısı kontrol listesi** · P0
+- [ ] **R7-T8 Lansman kapısı kontrol listesi** · P0 · araç ✔ 2026-09-27: `/admin/launch` her şartı yapılandırma ve veritabanından anlık kontrol eder.
+  - Zorunlu: satış modeli B; şirket bilgileri (geçerli VKN); canlı iyzico (sandbox değil); gerçek e-arşiv; avukat onaylı metinler + checkout onayı; https; admin 2FA; gerçek SMTP ve depolama; ödeme alabilecek ≥ 3 üretici.
+  - Önerilen: virüs tarama, canlı kur, yarım anahtar değişimi yok.
+  - Kapı açıldığında (tümü yeşil) bu görev işaretlenir.
   - R7-T0..T6 ✔, canlı iyzico şirket hesabıyla bir gerçek ödeme + iade.
   - Bir gerçek e-arşiv faturası; bir üretici faturası akışı uçtan uca; metinler avukat onaylı.
   - Ancak bundan sonra `PAYMENT_PROVIDER=iyzico` üretimde açılır.

@@ -2764,4 +2764,34 @@ export const tr: Record<string, string> = {
   'Etsy did not accept the connection: try connecting again':
     'Etsy bağlantıyı kabul etmedi: yeniden deneyin',
   'Etsy categories are not available right now': 'Etsy kategorileri şu an alınamıyor',
+  'Launch readiness': 'Lansman hazırlığı',
+  'Everything that must be true before real payments are switched on. Checked live from the configuration and the database.':
+    'Gerçek ödemeler açılmadan önce sağlanması gereken her şey. Yapılandırma ve veritabanından anlık kontrol edilir.',
+  'All required checks pass.': 'Zorunlu kontrollerin hepsi geçiyor.',
+  '{count} required checks still open.': '{count} zorunlu kontrol hâlâ açık.',
+  'Payments and invoices': 'Ödemeler ve faturalar',
+  'Legal texts': 'Hukuki metinler',
+  'Security': 'Güvenlik',
+  'Operations': 'Operasyon',
+  'passes': 'geçiyor',
+  'required, open': 'zorunlu, açık',
+  'recommended, open': 'önerilen, açık',
+  'recommended': 'önerilen',
+  'Fabrmatch sells to the buyer (sales model B)': 'Alıcıya Fabrmatch satar (satış modeli B)',
+  'Company details for invoices and expense vouchers':
+    'Faturalar ve gider pusulaları için şirket bilgileri',
+  'Live payment provider': 'Canlı ödeme kuruluşu',
+  'E-archive integrator issues the buyer invoice (R7-T5)':
+    'Alıcı faturasını e-arşiv entegratörü keser (R7-T5)',
+  'Live exchange rates': 'Canlı döviz kurları',
+  'Terms, privacy, distance sales and refund texts approved by a lawyer (R7-T6)':
+    'Kullanım, gizlilik, mesafeli satış ve iade metinleri avukat onaylı (R7-T6)',
+  'Buyers accept the texts at checkout': 'Alıcılar ödeme adımında metinleri onaylar',
+  'Site on https': 'Site https üzerinde',
+  'Admins need two-factor sign-in': 'Yöneticiler iki adımlı girişle girer',
+  'No key rotation half-finished': 'Yarım kalmış anahtar değişimi yok',
+  'Real e-mail delivery': 'Gerçek e-posta gönderimi',
+  'Model files on real object storage': 'Model dosyaları gerçek nesne depolamada',
+  'Uploaded files are scanned for viruses': 'Yüklenen dosyalar virüs taramasından geçer',
+  'At least 3 makers who can be paid': 'Ödeme alabilecek en az 3 üretici',
 }

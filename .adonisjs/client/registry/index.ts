@@ -1530,6 +1530,12 @@ const routes = {
     tokens: [{"old":"/admin/payouts/:id/paid","type":0,"val":"admin","end":""},{"old":"/admin/payouts/:id/paid","type":0,"val":"payouts","end":""},{"old":"/admin/payouts/:id/paid","type":1,"val":"id","end":""},{"old":"/admin/payouts/:id/paid","type":0,"val":"paid","end":""}],
     types: placeholder as Registry['admin_payout.mark_paid']['types'],
   },
+  'admin_launch.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/launch',
+    tokens: [{"old":"/admin/launch","type":0,"val":"admin","end":""},{"old":"/admin/launch","type":0,"val":"launch","end":""}],
+    types: placeholder as Registry['admin_launch.index']['types'],
+  },
   'admin_settings.index': {
     methods: ["GET","HEAD"],
     pattern: '/admin/settings',
