@@ -31,19 +31,57 @@ type PrinterData = {
   buildVolumeZMm: number
   isActive: boolean
   offeredProfileIds: number[]
+  printerModel: string | null
   materials: Material[]
 }
 
-function AddPrinterForm({ onClose }: { onClose: () => void }) {
+type PrinterModelOption = {
+  id: number
+  brand: string
+  model: string
+  technology: 'FDM' | 'SLA' | 'SLS'
+  buildVolumeXMm: number
+  buildVolumeYMm: number
+  buildVolumeZMm: number
+  enclosed: boolean
+}
+
+function AddPrinterForm({
+  models,
+  onClose,
+}: {
+  models: PrinterModelOption[]
+  onClose: () => void
+}) {
   const { t } = useT()
 
   const form = useForm({
     name: '',
+    printerModelId: null as number | null,
     technology: 'FDM' as 'FDM' | 'SLA' | 'SLS',
     buildVolumeXMm: 220,
     buildVolumeYMm: 220,
     buildVolumeZMm: 250,
   })
+
+  const brands = [...new Set(models.map((m) => m.brand))]
+  const selected = models.find((m) => m.id === form.data.printerModelId) ?? null
+  const [namedByHand, setNamedByHand] = useState(false)
+
+  function pick(id: string) {
+    const modelId = id === '' ? null : Number(id)
+    const model = models.find((m) => m.id === modelId) ?? null
+    form.setData((data) => ({
+      ...data,
+      printerModelId: modelId,
+      technology: model?.technology ?? data.technology,
+      buildVolumeXMm: model?.buildVolumeXMm ?? data.buildVolumeXMm,
+      buildVolumeYMm: model?.buildVolumeYMm ?? data.buildVolumeYMm,
+      buildVolumeZMm: model?.buildVolumeZMm ?? data.buildVolumeZMm,
+      // nickname the machine automatically unless the maker typed their own
+      name: namedByHand ? data.name : model ? `${model.brand} ${model.model}` : '',
+    }))
+  }
 
   function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -53,11 +91,44 @@ function AddPrinterForm({ onClose }: { onClose: () => void }) {
   return (
     <form onSubmit={submit} className="space-y-4">
       <div>
+        <Label htmlFor="printerModel">{t('Printer model')}</Label>
+        <select
+          id="printerModel"
+          className="flex h-10 w-full rounded-md border border-line bg-paper-raised px-3 py-2 text-sm"
+          value={form.data.printerModelId ?? ''}
+          onChange={(e) => pick(e.target.value)}
+        >
+          <option value="">{t('Not listed — enter specs by hand')}</option>
+          {brands.map((brand) => (
+            <optgroup key={brand} label={brand}>
+              {models
+                .filter((m) => m.brand === brand)
+                .map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.brand} {m.model} — {m.buildVolumeXMm}×{m.buildVolumeYMm}×{m.buildVolumeZMm}{' '}
+                    mm
+                    {m.enclosed ? ` · ${t('enclosed')}` : ''}
+                  </option>
+                ))}
+            </optgroup>
+          ))}
+        </select>
+        {selected && (
+          <p className="mt-1 text-xs text-ink-600">
+            {selected.enclosed ? t('Enclosed frame') : t('Open frame')} ·{' '}
+            {t('technology and build volume filled in; adjust if you have modified the machine.')}
+          </p>
+        )}
+      </div>
+      <div>
         <Label htmlFor="name">{t('Printer Name')}</Label>
         <Input
           id="name"
           value={form.data.name}
-          onChange={(e) => form.setData('name', e.target.value)}
+          onChange={(e) => {
+            setNamedByHand(true)
+            form.setData('name', e.target.value)
+          }}
         />
       </div>
       <div>
@@ -255,10 +326,12 @@ export default function PrintersIndex({
   printers,
   catalog,
   profiles,
+  printerModels,
 }: {
   printers: PrinterData[]
   catalog: Catalog
   profiles: ProfileOption[]
+  printerModels: PrinterModelOption[]
 }) {
   const { t } = useT()
 
@@ -286,13 +359,18 @@ export default function PrintersIndex({
         />
       )}
 
-      <div className="grid gap-4">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4">
         {printers.map((printer) => (
           <Card key={printer.id}>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
               <div>
                 <CardTitle className="text-lg">{printer.name}</CardTitle>
                 <p className="text-sm text-ink-600">
+                  {printer.printerModel && (
+                    <>
+                      <span className="font-mono text-xs">{printer.printerModel}</span> ·{' '}
+                    </>
+                  )}
                   {t('{technology} · {buildVolumeXMm}×{buildVolumeYMm}× {buildVolumeZMm} mm', {
                     technology: printer.technology,
                     buildVolumeXMm: printer.buildVolumeXMm,
@@ -328,11 +406,11 @@ export default function PrintersIndex({
                 {printer.materials.length === 0 ? (
                   <p className="text-sm text-ink-600">{t('No materials configured.')}</p>
                 ) : (
-                  <div className="grid gap-2 sm:grid-cols-2">
+                  <div className="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-2">
                     {printer.materials.map((mat) => (
                       <div
                         key={mat.id}
-                        className="flex items-center justify-between rounded-md border border-line p-3"
+                        className="flex items-center justify-between gap-2 rounded-md border border-line p-3"
                       >
                         <div>
                           <span className="font-medium">{mat.material}</span>
@@ -361,7 +439,7 @@ export default function PrintersIndex({
                                 : '.'}
                             </p>
                           )}
-                          <div className="mt-1 flex gap-1">
+                          <div className="mt-1 flex flex-wrap gap-1">
                             {mat.colors.map((c) => (
                               <Badge key={c} variant="outline" className="text-xs">
                                 {c}
@@ -395,7 +473,7 @@ export default function PrintersIndex({
           <DialogHeader>
             <DialogTitle>{t('Add Printer')}</DialogTitle>
           </DialogHeader>
-          <AddPrinterForm onClose={() => setShowAddPrinter(false)} />
+          <AddPrinterForm models={printerModels} onClose={() => setShowAddPrinter(false)} />
         </DialogContent>
       </Dialog>
 

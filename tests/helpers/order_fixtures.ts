@@ -22,6 +22,7 @@ import { DEFAULT_COLORS, DEFAULT_MATERIALS } from '#services/catalog/reference_d
 import PrintProfileService from '#services/catalog/print_profile_service'
 import { DEFAULT_FINISHINGS } from '#services/catalog/finishing_defaults'
 import { DEFAULT_PRINT_PROFILES } from '#services/catalog/print_profile_defaults'
+import { DEFAULT_PRINTER_MODELS } from '#services/manufacturing/printer_model_defaults'
 import { DEFAULT_SHIPPING_ZONES } from '#services/shipping/shipping_defaults'
 import testUtils from '@adonisjs/core/services/test_utils'
 import OrderService from '#services/orders/order_service'
@@ -357,6 +358,13 @@ export async function ensureReferenceCatalog() {
         [upToGrams, priceMinor, zone.code]
       )
     }
+  }
+  for (const m of DEFAULT_PRINTER_MODELS) {
+    await db.rawQuery(
+      `insert into printer_models (brand, model, technology, build_volume_x_mm, build_volume_y_mm, build_volume_z_mm, enclosed, created_at)
+       values (?, ?, ?, ?, ?, ?, ?, now()) on conflict (brand, model) do nothing`,
+      [m.brand, m.model, m.technology, m.build[0], m.build[1], m.build[2], m.enclosed]
+    )
   }
 }
 

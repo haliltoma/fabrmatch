@@ -2813,4 +2813,12 @@ export const tr: Record<string, string> = {
   'Materials and maker rates here': 'Buradaki malzemeler ve üretici ücretleri',
   'per gram': 'gram başına',
   'Cities': 'Şehirler',
+  'Printer model': 'Yazıcı modeli',
+  'Not listed — enter specs by hand': 'Listede yok — özellikleri elle girin',
+  'enclosed': 'kapalı kasa',
+  'Enclosed frame': 'Kapalı kasa',
+  'Open frame': 'Açık kasa',
+  'technology and build volume filled in; adjust if you have modified the machine.':
+    'teknoloji ve tabla boyutu dolduruldu; makinenizde değişiklik varsa düzeltin.',
+  'Unknown printer model': 'Bilinmeyen yazıcı modeli',
 }

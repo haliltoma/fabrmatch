@@ -1221,6 +1221,31 @@ export class PrinterMaterialSchema extends BaseModel {
   declare updatedAt: DateTime
 }
 
+export class PrinterModelSchema extends BaseModel {
+  static $columns = ['brand', 'buildVolumeXMm', 'buildVolumeYMm', 'buildVolumeZMm', 'createdAt', 'enclosed', 'id', 'model', 'technology', 'updatedAt'] as const
+  $columns = PrinterModelSchema.$columns
+  @column()
+  declare brand: string
+  @column()
+  declare buildVolumeXMm: number
+  @column()
+  declare buildVolumeYMm: number
+  @column()
+  declare buildVolumeZMm: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare enclosed: boolean
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare model: string
+  @column()
+  declare technology: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class PrinterPrintProfileSchema extends BaseModel {
   static $columns = ['printProfileId', 'printerId'] as const
   $columns = PrinterPrintProfileSchema.$columns
@@ -1231,7 +1256,7 @@ export class PrinterPrintProfileSchema extends BaseModel {
 }
 
 export class PrinterSchema extends BaseModel {
-  static $columns = ['buildVolumeXMm', 'buildVolumeYMm', 'buildVolumeZMm', 'createdAt', 'id', 'isActive', 'manufacturerProfileId', 'name', 'technology', 'updatedAt'] as const
+  static $columns = ['buildVolumeXMm', 'buildVolumeYMm', 'buildVolumeZMm', 'createdAt', 'id', 'isActive', 'manufacturerProfileId', 'name', 'printerModelId', 'technology', 'updatedAt'] as const
   $columns = PrinterSchema.$columns
   @column()
   declare buildVolumeXMm: number
@@ -1249,6 +1274,8 @@ export class PrinterSchema extends BaseModel {
   declare manufacturerProfileId: number
   @column()
   declare name: string
+  @column()
+  declare printerModelId: number | null
   @column()
   declare technology: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })

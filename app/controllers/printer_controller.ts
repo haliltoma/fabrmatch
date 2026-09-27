@@ -29,9 +29,20 @@ export default class PrinterController {
     const allProfiles = await profileService.list({ activeOnly: true })
     const offered = new Map<number, number[]>()
     for (const p of printers) offered.set(p.id, await profileService.offeredIds(p.id))
+    const printerModels = await service.listModels()
 
     return inertia.render('maker/printers/index', {
       profiles: allProfiles.map((p) => ({ id: p.id, name: p.name, technology: p.technology })),
+      printerModels: printerModels.map((m) => ({
+        id: m.id,
+        brand: m.brand,
+        model: m.model,
+        technology: m.technology,
+        buildVolumeXMm: m.buildVolumeXMm,
+        buildVolumeYMm: m.buildVolumeYMm,
+        buildVolumeZMm: m.buildVolumeZMm,
+        enclosed: m.enclosed,
+      })),
       catalog: {
         materials: materialOptions.map((m) => ({
           code: m.code,
@@ -49,6 +60,7 @@ export default class PrinterController {
         buildVolumeZMm: p.buildVolumeZMm,
         isActive: p.isActive,
         offeredProfileIds: offered.get(p.id) ?? [],
+        printerModel: p.printerModel ? `${p.printerModel.brand} ${p.printerModel.model}` : null,
         materials: p.materials.map((m) => ({
           id: m.id,
           material: m.material,

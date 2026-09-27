@@ -3,6 +3,7 @@ import type { BelongsTo, HasMany, HasOne } from '@adonisjs/lucid/types/relations
 import { DateTime } from 'luxon'
 import ManufacturerProfile from '#models/manufacturer_profile'
 import PrinterMaterial from '#models/printer_material'
+import PrinterModel from '#models/printer_model'
 import CapacitySlot from '#models/capacity_slot'
 import WeeklyTemplate from '#models/weekly_template'
 
@@ -17,6 +18,9 @@ export default class Printer extends BaseModel {
 
   @column()
   declare name: string
+
+  @column()
+  declare printerModelId: number | null
 
   @column()
   declare technology: PrinterTechnology
@@ -41,6 +45,9 @@ export default class Printer extends BaseModel {
 
   @belongsTo(() => ManufacturerProfile)
   declare manufacturerProfile: BelongsTo<typeof ManufacturerProfile>
+
+  @belongsTo(() => PrinterModel)
+  declare printerModel: BelongsTo<typeof PrinterModel>
 
   @hasMany(() => PrinterMaterial)
   declare materials: HasMany<typeof PrinterMaterial>

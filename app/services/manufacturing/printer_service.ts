@@ -1,11 +1,14 @@
 import Printer from '#models/printer'
 import PrinterMaterial from '#models/printer_material'
+import PrinterModel from '#models/printer_model'
+import DomainError from '#exceptions/domain_error'
 import PrintProfileService from '#services/catalog/print_profile_service'
 import ReferenceCatalogService from '#services/catalog/reference_catalog_service'
 import type ManufacturerProfile from '#models/manufacturer_profile'
 
 interface CreatePrinterData {
   name: string
+  printerModelId?: number | null
   technology: 'FDM' | 'SLA' | 'SLS'
   buildVolumeXMm: number
   buildVolumeYMm: number
@@ -23,6 +26,7 @@ export default class PrinterService {
   private catalog = new ReferenceCatalogService()
 
   async create(profile: ManufacturerProfile, data: CreatePrinterData): Promise<Printer> {
+    if (data.printerModelId) await this.assertModelExists(data.printerModelId)
     const printer = await Printer.create({
       manufacturerProfileId: profile.id,
       ...data,
@@ -32,9 +36,20 @@ export default class PrinterService {
   }
 
   async update(printer: Printer, data: Partial<CreatePrinterData>): Promise<Printer> {
+    if (data.printerModelId) await this.assertModelExists(data.printerModelId)
     printer.merge(data)
     await printer.save()
     return printer
+  }
+
+  /** Catalogue machines for the add-printer picker, grouped client-side by brand. */
+  async listModels(): Promise<PrinterModel[]> {
+    return PrinterModel.query().orderBy('brand', 'asc').orderBy('model', 'asc')
+  }
+
+  private async assertModelExists(id: number): Promise<void> {
+    const model = await PrinterModel.find(id)
+    if (!model) throw new DomainError('Unknown printer model')
   }
 
   async deactivate(printer: Printer): Promise<void> {
@@ -51,6 +66,7 @@ export default class PrinterService {
     return Printer.query()
       .where('manufacturerProfileId', profile.id)
       .preload('materials')
+      .preload('printerModel')
       .orderBy('createdAt', 'desc')
   }
 
