@@ -2,6 +2,9 @@ import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 import UserTransformer from '#transformers/user_transformer'
 import { LOCALE_COOKIE, pickLocale } from '#services/i18n/locale'
+import { BASE_CURRENCY } from '#services/pricing/fx'
+import FxService from '#services/pricing/fx_service'
+import { CURRENCY_COOKIE, pickDisplayCurrency } from '#services/pricing/display_currency'
 import { translateValidationErrors } from '#services/i18n/validation_messages'
 import env from '#start/env'
 import { featureEnabled } from '#services/settings/feature_flags'
@@ -35,8 +38,19 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
       ctx.request.header('accept-language')
     )
 
+    // browse prices are shown in the visitor's currency; charges stay in TRY (P1)
+    const rates = await new FxService().displayRates()
+    const display = pickDisplayCurrency({
+      available: [BASE_CURRENCY, ...Object.keys(rates)],
+      locale,
+      cookie: ctx.request.plainCookie(CURRENCY_COOKIE),
+      edgeCountry: ctx.request.header('cf-ipcountry'),
+      acceptLanguage: ctx.request.header('accept-language'),
+    })
+
     return {
       locale: ctx.inertia.always(locale),
+      money: ctx.inertia.always({ display, charge: BASE_CURRENCY, rates }),
       cartCount: ctx.inertia.always(cartCount),
       rfqEnabled: featureEnabled('rfq'),
       externalStoresEnabled: featureEnabled('externalStores'),

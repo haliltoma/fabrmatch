@@ -13,6 +13,7 @@ import router from '@adonisjs/core/services/router'
 
 router.get('/', [controllers.Home, 'show']).as('home')
 router.post('/language', [controllers.Language, 'update'])
+router.post('/currency', [controllers.Currency, 'update'])
 router.get('/status', [controllers.Status, 'status'])
 router.get('/changelog', [controllers.Status, 'changelog'])
 router.get('/help', [controllers.Support, 'help'])

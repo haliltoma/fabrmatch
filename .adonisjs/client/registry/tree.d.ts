@@ -6,6 +6,9 @@ export interface ApiDefinition {
   language: {
     update: typeof routes['language.update']
   }
+  currency: {
+    update: typeof routes['currency.update']
+  }
   status: {
     status: typeof routes['status.status']
     changelog: typeof routes['status.changelog']

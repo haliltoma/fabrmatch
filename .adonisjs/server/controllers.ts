@@ -39,6 +39,7 @@ export const controllers = {
   CityPage: () => import('#controllers/city_page_controller'),
   Content: () => import('#controllers/content_controller'),
   ContentReport: () => import('#controllers/content_report_controller'),
+  Currency: () => import('#controllers/currency_controller'),
   Dispute: () => import('#controllers/dispute_controller'),
   Health: () => import('#controllers/health_controller'),
   Home: () => import('#controllers/home_controller'),

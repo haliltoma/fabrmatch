@@ -31,6 +31,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/language_controller').default['update']>>>
     }
   }
+  'currency.update': {
+    methods: ["POST"]
+    pattern: '/currency'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/currency_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/currency_controller').default['update']>>>
+    }
+  }
   'status.status': {
     methods: ["GET","HEAD"]
     pattern: '/status'

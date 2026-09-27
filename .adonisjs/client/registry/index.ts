@@ -18,6 +18,12 @@ const routes = {
     tokens: [{"old":"/language","type":0,"val":"language","end":""}],
     types: placeholder as Registry['language.update']['types'],
   },
+  'currency.update': {
+    methods: ["POST"],
+    pattern: '/currency',
+    tokens: [{"old":"/currency","type":0,"val":"currency","end":""}],
+    types: placeholder as Registry['currency.update']['types'],
+  },
   'status.status': {
     methods: ["GET","HEAD"],
     pattern: '/status',

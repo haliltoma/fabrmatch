@@ -71,6 +71,28 @@ export default class FxService {
     }
   }
 
+  /**
+   * Mid rates (foreign per 1 TRY, ×1e9, as strings) for showing browse prices in the visitor's
+   * currency. No FX buffer: nothing is charged at these. A rate older than a week is dropped,
+   * so a dead feed falls back to TRY instead of showing an outdated conversion.
+   */
+  async displayRates(): Promise<Record<string, string>> {
+    const since = DateTime.now().minus({ days: 7 }).toSQL()
+    const rows = await db
+      .from('fx_rates')
+      .distinctOn('currency')
+      .select('currency', 'rate_nano')
+      .where('created_at', '>=', since)
+      .orderBy('currency')
+      .orderBy('as_of', 'desc')
+      .orderBy('id', 'desc')
+    const rates: Record<string, string> = {}
+    for (const row of rows) {
+      if (isForeignCurrency(row.currency)) rates[row.currency] = String(row.rate_nano)
+    }
+    return rates
+  }
+
   async store(snapshot: Awaited<ReturnType<FxProvider['fetch']>>): Promise<number> {
     let stored = 0
     for (const [currency, rate] of Object.entries(snapshot.rates)) {

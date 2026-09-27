@@ -6,6 +6,7 @@ export type ScannedRoutes = {
   ALL: {
     'home': { paramsTuple?: []; params?: {} }
     'language.update': { paramsTuple?: []; params?: {} }
+    'currency.update': { paramsTuple?: []; params?: {} }
     'status.status': { paramsTuple?: []; params?: {} }
     'status.changelog': { paramsTuple?: []; params?: {} }
     'support.help': { paramsTuple?: []; params?: {} }
@@ -510,6 +511,7 @@ export type ScannedRoutes = {
   }
   POST: {
     'language.update': { paramsTuple?: []; params?: {} }
+    'currency.update': { paramsTuple?: []; params?: {} }
     'support.submit': { paramsTuple?: []; params?: {} }
     'tool.quick_quote': { paramsTuple?: []; params?: {} }
     'marketing.join': { paramsTuple?: []; params?: {} }
