@@ -283,3 +283,10 @@ Neden: ilk sürüm (yazıcı + adımlar + 2 CTA) hero'nun anlattığını tekrar
 - Yan yana 3 kart (sekme yok → hiçbir içerik gizli değil; 3 seçenek = Hick yasası). Her kart copywriting "rahatsızlık → vizyon → yol" kalıbı: tırnak içinde kısa dert, kalın "artık şunu yapabilirsin" cümlesi, **"Gerek kalmayacak"** listesi (üzeri görünür olunca çizilir; hepsi üründe gerçekten zorunlu: kayıtsız fiyat, emanet, üretici gönderir, fiyat motoru), tek buton + aynı sayfada ilgili bölüme çapa (`#after-you-pay`, `#seller-margin`, `#maker-income`, `scroll-mt-20`).
 - Birincil buton yalnız alıcı kartında `accent`; diğerleri `outline` (sayfada tek birincil eylem).
 
+## 23. Sipariş sayfası "Sırada" kartı (2026-10-01)
+
+- **Neden:** denetimde alıcının sipariş sayfası tek satır gri durum cümlesiydi; zaman çizelgesi yalnız geçmişi gösteriyordu; tamamlanan sipariş "Teşekkürler!" diye bitiyordu (çıkmaz sokak). Satıcı/üretici panellerinde kurulum kontrol listesi zaten vardı.
+- **`lib/order_next_step.ts`** (saf, `tests/unit/order_next_step.spec.ts`): her durum için aşama (Öde · Üretici · Baskı · Yolda · Kontrol · Bitti — ana sayfadaki "Ödemeden sonra" ile aynı yol), kimin sırası (sen / Fabrmatch / üretici / kargo), para durumu, başlık + açıklama, kısa satır, bitmiş siparişte öneriler. Testler `ORDER_TRANSITIONS`'a karşı: her durumun adımı var; bitmiş sipariş hep bir yere yönlendirir, canlı olan yönlendirmez; "tam iade ile iptal" yalnız durum makinesi `cancelled`'a izin verirken yazılır; para ödemeden tamamlanana kadar "bekliyor"; sıra alıcıda yalnız öderken ve kontrol ederken. Kontrol son günü = teslim + `autoConfirmDays`.
+- **`components/order_next_step.tsx`:** üstte 6 parçalı ilerleme (bitti = ink, şimdi = heat, mobilde "Adım 3/6: Baskı"), "Sıra sende" (`lime`) ya da "Beklenen: …" çipi, para çipi, başlık, açıklama; sayfanın ödeme/onay/iptal düğmeleri kartın içinde (children). Bitmiş/iptal: "Sırada ne var?" → Başka bir model fiyatla · Mağazaya göz at.
+- **Sipariş listesi:** her satırda kısa durum; alıcının sırasıysa `lime` rozet ("Sıra sende: öde"), gözden kaçmasın. Tamamlanmış ve yorumsuz siparişte işe yaramayan "yalnız teslimde yorum" kartı gizlendi.
+

@@ -9,6 +9,25 @@ import { PageHeader } from '~/components/page_header'
 import { StatusBadge } from '~/components/status_badge'
 import { Pagination, type PageMeta } from '~/components/pagination'
 import { useT } from '~/lib/i18n'
+import { orderNextStep } from '~/lib/order_next_step'
+
+/** What this order is waiting for; the buyer's own turn stands out so it is not missed. */
+function NextLine({ status }: { status: string }) {
+  const { t } = useT()
+  const step = orderNextStep(status, { confirmDays: 0, deliveredAt: null })
+  return (
+    <p
+      className={`inline-flex items-center gap-1.5 text-xs font-semibold ${
+        step.yourTurn
+          ? 'rounded-full border border-ink-900 bg-lime px-2 py-0.5 text-ink-900'
+          : 'text-ink-600'
+      }`}
+    >
+      {!step.yourTurn && <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-ink-400" />}
+      {t(step.short)}
+    </p>
+  )
+}
 
 type OrderItem = {
   id: number
@@ -78,6 +97,7 @@ export default function OrdersIndex({ orders, meta }: { orders: OrderData[]; met
                       .map((i) => `${i.material}${i.color ? ` · ${i.color}` : ''} × ${i.quantity}`)
                       .join(', ')}
                   </p>
+                  <NextLine status={order.status} />
                 </div>
                 <div className="flex items-center gap-5">
                   <div className="text-right">

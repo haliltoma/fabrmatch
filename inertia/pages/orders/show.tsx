@@ -14,6 +14,7 @@ import { Badge } from '~/components/ui/badge'
 import { LayerStepper } from '~/components/layer_stepper'
 import { OrderCode } from '~/components/order_code'
 import { StatusBadge } from '~/components/status_badge'
+import { OrderNextStep } from '~/components/order_next_step'
 import { useT } from '~/lib/i18n'
 import { useIdempotencyKey } from '~/lib/idempotency'
 
@@ -60,21 +61,6 @@ type DisputeData = {
 } | null
 
 type ReviewData = { rating: number; comment: string | null } | null
-
-const STATUS_HINTS: Record<string, string> = {
-  draft: 'Complete the payment to start matching.',
-  awaiting_payment: 'Waiting for payment confirmation.',
-  paid: 'Payment received — matching will start shortly.',
-  matching: 'We are looking for the best manufacturer for your order.',
-  unmatched: 'No manufacturer could take this order yet. Our team is on it.',
-  in_production: 'Your order is being produced.',
-  shipped: 'Your order is on its way.',
-  delivered: 'Please review your order and confirm everything is fine.',
-  completed: 'Order completed. Thank you!',
-  disputed: 'A dispute is open on this order.',
-  resolved: 'The dispute has been resolved.',
-  cancelled: 'This order was cancelled.',
-}
 
 function DisputeSection({
   order,
@@ -269,6 +255,7 @@ export default function OrdersShow({
   payStep,
   paymentReturn,
   walletBalanceMinor,
+  confirmDays,
 }: {
   order: OrderData
   timeline: TimelineEntry[]
@@ -281,6 +268,8 @@ export default function OrdersShow({
   paymentReturn: 'paid' | 'failed' | 'pending' | null
   /** The buyer's wallet balance while the order can be paid (sellers only have one) */
   walletBalanceMinor: number | null
+  /** Days after delivery to check the part or open a dispute (orders.autoConfirmDays) */
+  confirmDays: number
 }) {
   const { t } = useT()
 
@@ -313,7 +302,8 @@ export default function OrdersShow({
   }
   const canConfirmDelivery = order.status === 'shipped'
   const canComplete = order.status === 'delivered'
-  const canReview = ['delivered', 'completed'].includes(order.status)
+  const canReview =
+    order.status === 'delivered' || (order.status === 'completed' && review !== null)
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -354,12 +344,6 @@ export default function OrdersShow({
         </div>
       </div>
 
-      {STATUS_HINTS[order.status] && (
-        <p className="rounded-md bg-paper-sunken px-4 py-3 text-sm text-ink-700">
-          {t(STATUS_HINTS[order.status])}
-        </p>
-      )}
-
       {paymentReturn === 'paid' && (
         <p
           role="status"
@@ -379,131 +363,139 @@ export default function OrdersShow({
         </p>
       )}
 
-      {canPay && payStep && (
-        <form
-          className="space-y-3 rounded-md border border-line bg-paper-raised p-4"
-          onSubmit={(e) => {
-            e.preventDefault()
-            pay()
-          }}
-        >
-          <p className="text-sm text-ink-700">
-            {t(
-              'The payment provider needs your identity number to take a card payment. We pass it on and do not store it.'
-            )}
-          </p>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <Label htmlFor="pay-identity">
-                {payStep.country === 'TR' ? t('T.C. identity number') : t('ID or passport number')}
-              </Label>
-              <Input
-                id="pay-identity"
-                required
-                inputMode={payStep.country === 'TR' ? 'numeric' : undefined}
-                maxLength={payStep.country === 'TR' ? 11 : 20}
-                autoComplete="off"
-                value={payer.identityNumber}
-                onChange={(e) => setPayer({ ...payer, identityNumber: e.target.value })}
-              />
-            </div>
-            {!payStep.phoneOnFile && (
+      <OrderNextStep
+        status={order.status}
+        confirmDays={confirmDays}
+        deliveredAt={order.deliveredAt}
+      >
+        {canPay && payStep && (
+          <form
+            className="space-y-3 rounded-md border border-line bg-paper-raised p-4"
+            onSubmit={(e) => {
+              e.preventDefault()
+              pay()
+            }}
+          >
+            <p className="text-sm text-ink-700">
+              {t(
+                'The payment provider needs your identity number to take a card payment. We pass it on and do not store it.'
+              )}
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <Label htmlFor="pay-phone">{t('Mobile phone')}</Label>
+                <Label htmlFor="pay-identity">
+                  {payStep.country === 'TR'
+                    ? t('T.C. identity number')
+                    : t('ID or passport number')}
+                </Label>
                 <Input
-                  id="pay-phone"
-                  type="tel"
+                  id="pay-identity"
                   required
-                  autoComplete="tel"
-                  placeholder="05xx xxx xx xx"
-                  value={payer.phone}
-                  onChange={(e) => setPayer({ ...payer, phone: e.target.value })}
+                  inputMode={payStep.country === 'TR' ? 'numeric' : undefined}
+                  maxLength={payStep.country === 'TR' ? 11 : 20}
+                  autoComplete="off"
+                  value={payer.identityNumber}
+                  onChange={(e) => setPayer({ ...payer, identityNumber: e.target.value })}
                 />
               </div>
-            )}
-          </div>
-          <FormErrors />
-          <Button type="submit" disabled={paying}>
-            {t('Pay now')}
-          </Button>
-        </form>
-      )}
-
-      {canPay && testPayments && (
-        <p className="rounded-md border border-line bg-amber-soft px-4 py-3 text-sm text-amber-ink">
-          <strong>{t('Test mode')}</strong> ·{' '}
-          {t('No real money moves. Pay with the test card on the next page:')}{' '}
-          <span className="font-mono tabular">4242 4242 4242 4242</span>
-        </p>
-      )}
-
-      {(canCancel || canCancelAndRefund || canPay || canConfirmDelivery || canComplete) && (
-        <div className="flex flex-wrap gap-2">
-          {canPay && !payStep && (
-            <Button onClick={pay} disabled={paying}>
+              {!payStep.phoneOnFile && (
+                <div>
+                  <Label htmlFor="pay-phone">{t('Mobile phone')}</Label>
+                  <Input
+                    id="pay-phone"
+                    type="tel"
+                    required
+                    autoComplete="tel"
+                    placeholder="05xx xxx xx xx"
+                    value={payer.phone}
+                    onChange={(e) => setPayer({ ...payer, phone: e.target.value })}
+                  />
+                </div>
+              )}
+            </div>
+            <FormErrors />
+            <Button type="submit" disabled={paying}>
               {t('Pay now')}
             </Button>
-          )}
-          {canPay && walletBalanceMinor !== null && walletBalanceMinor >= order.totalMinor && (
-            <Button
-              variant="outline"
-              disabled={paying}
-              onClick={() => {
-                setPaying(true)
-                router.post(
-                  `/orders/${order.id}/pay-from-wallet`,
-                  {},
-                  {
-                    headers: payKey.headers(),
-                    onFinish: () => {
-                      payKey.renew()
-                      setPaying(false)
-                    },
+          </form>
+        )}
+
+        {canPay && testPayments && (
+          <p className="rounded-md border border-line bg-amber-soft px-4 py-3 text-sm text-amber-ink">
+            <strong>{t('Test mode')}</strong> ·{' '}
+            {t('No real money moves. Pay with the test card on the next page:')}{' '}
+            <span className="font-mono tabular">4242 4242 4242 4242</span>
+          </p>
+        )}
+
+        {(canCancel || canCancelAndRefund || canPay || canConfirmDelivery || canComplete) && (
+          <div className="flex flex-wrap gap-2">
+            {canPay && !payStep && (
+              <Button onClick={pay} disabled={paying}>
+                {t('Pay now')}
+              </Button>
+            )}
+            {canPay && walletBalanceMinor !== null && walletBalanceMinor >= order.totalMinor && (
+              <Button
+                variant="outline"
+                disabled={paying}
+                onClick={() => {
+                  setPaying(true)
+                  router.post(
+                    `/orders/${order.id}/pay-from-wallet`,
+                    {},
+                    {
+                      headers: payKey.headers(),
+                      onFinish: () => {
+                        payKey.renew()
+                        setPaying(false)
+                      },
+                    }
+                  )
+                }}
+              >
+                {t('Pay from balance ({amount})', {
+                  amount: formatMoney(walletBalanceMinor, 'TRY'),
+                })}
+              </Button>
+            )}
+            {canConfirmDelivery && (
+              <Button disabled={acting} onClick={() => act(`/orders/${order.id}/delivered`)}>
+                {t('Confirm delivery')}
+              </Button>
+            )}
+            {canComplete && (
+              <Button disabled={acting} onClick={() => act(`/orders/${order.id}/complete`)}>
+                {t('Complete order')}
+              </Button>
+            )}
+            {canCancelAndRefund && (
+              <Button
+                variant="outline"
+                disabled={acting}
+                onClick={() => {
+                  if (
+                    window.confirm(t('Cancel this order? Your payment will be refunded in full.'))
+                  ) {
+                    act(`/orders/${order.id}/cancel`)
                   }
-                )
-              }}
-            >
-              {t('Pay from balance ({amount})', {
-                amount: formatMoney(walletBalanceMinor, 'TRY'),
-              })}
-            </Button>
-          )}
-          {canConfirmDelivery && (
-            <Button disabled={acting} onClick={() => act(`/orders/${order.id}/delivered`)}>
-              {t('Confirm delivery')}
-            </Button>
-          )}
-          {canComplete && (
-            <Button disabled={acting} onClick={() => act(`/orders/${order.id}/complete`)}>
-              {t('Complete order')}
-            </Button>
-          )}
-          {canCancelAndRefund && (
-            <Button
-              variant="outline"
-              disabled={acting}
-              onClick={() => {
-                if (
-                  window.confirm(t('Cancel this order? Your payment will be refunded in full.'))
-                ) {
-                  act(`/orders/${order.id}/cancel`)
-                }
-              }}
-            >
-              {t('Cancel and refund')}
-            </Button>
-          )}
-          {canCancel && (
-            <Button
-              variant="outline"
-              disabled={acting}
-              onClick={() => act(`/orders/${order.id}/cancel`)}
-            >
-              {t('Cancel order')}
-            </Button>
-          )}
-        </div>
-      )}
+                }}
+              >
+                {t('Cancel and refund')}
+              </Button>
+            )}
+            {canCancel && (
+              <Button
+                variant="outline"
+                disabled={acting}
+                onClick={() => act(`/orders/${order.id}/cancel`)}
+              >
+                {t('Cancel order')}
+              </Button>
+            )}
+          </div>
+        )}
+      </OrderNextStep>
 
       <Card>
         <CardHeader>
@@ -606,12 +598,8 @@ export default function OrdersShow({
                 <p className="font-medium text-amber-ink">{'★'.repeat(review.rating)}</p>
                 {review.comment && <p>{review.comment}</p>}
               </div>
-            ) : order.status === 'delivered' ? (
-              <ReviewForm orderId={order.id} />
             ) : (
-              <p className="text-sm text-ink-600">
-                {t('You can leave a review while the order is delivered.')}
-              </p>
+              <ReviewForm orderId={order.id} />
             )}
           </CardContent>
         </Card>

@@ -3022,4 +3022,57 @@ export const tr: Record<string, string> = {
   'Chasing payment': 'Ödeme peşinde koşmak',
   'Haggling over price': 'Fiyat pazarlığı',
   'Estimate your income': 'Gelirini tahmin et',
+  // orders: what happens next
+  'On the way': 'Yolda',
+  'Check': 'Kontrol',
+  'Done': 'Bitti',
+  'You': 'Sen',
+  'The maker': 'Üretici',
+  'The carrier': 'Kargo firması',
+  'Not paid yet': 'Henüz ödenmedi',
+  'Money held by Fabrmatch': 'Para Fabrmatch’te bekliyor',
+  'Paid to the maker': 'Üreticiye ödendi',
+  'Settled by the decision': 'Karara göre kapandı',
+  'Order progress': 'Sipariş ilerlemesi',
+  'Step {n} of {total}: {label}': 'Adım {n}/{total}: {label}',
+  'Your turn': 'Sıra sende',
+  'Waiting on: {who}': 'Beklenen: {who}',
+  'What next?': 'Sırada ne var?',
+  'Pay to start your order': 'Siparişini başlatmak için öde',
+  'Nothing is printed before payment. Your money is then held by Fabrmatch, not sent to the maker.':
+    'Ödemeden önce hiçbir şey basılmaz. Ödemen sonra Fabrmatch’te bekler, üreticiye gönderilmez.',
+  'Your turn: pay': 'Sıra sende: öde',
+  'Finding a maker': 'Üretici aranıyor',
+  'We are offering the job to verified makers whose printer and material fit. Until one accepts, you can cancel for a full refund.':
+    'İşi yazıcısı ve malzemesi uyan doğrulanmış üreticilere sunuyoruz. Biri kabul edene kadar iptal edip paranın tamamını geri alabilirsin.',
+  'No maker has taken it yet': 'Henüz hiçbir üretici almadı',
+  'Our team is now looking for one by hand. If you would rather not wait, cancel for a full refund.':
+    'Ekibimiz şimdi elle üretici arıyor. Beklemek istemezsen iptal edip paranın tamamını geri al.',
+  'Looking for a maker by hand': 'Elle üretici aranıyor',
+  'Your part is being printed': 'Parçan basılıyor',
+  'The maker prints, checks and packs it. We e-mail you with the tracking number when it ships.':
+    'Üretici basar, kontrol eder ve paketler. Kargoya verilince takip numarasıyla sana e-posta göndeririz.',
+  'Being printed': 'Basılıyor',
+  'Follow it with the tracking number below. When it arrives, press "Confirm delivery"; then you have {days} days to check it.':
+    'Aşağıdaki takip numarasıyla izle. Gelince "Teslimi onayla"ya bas; sonra kontrol etmek için {days} günün var.',
+  'Check your part': 'Parçanı kontrol et',
+  'All good? Complete the order. Something wrong? Open a dispute with photos by {date}. If you do nothing, the order completes then and the maker is paid.':
+    'Her şey yolunda mı? Siparişi tamamla. Bir sorun mu var? {date} tarihine kadar fotoğraflarla itiraz aç. Bir şey yapmazsan sipariş o gün tamamlanır ve üreticiye ödeme yapılır.',
+  'All good? Complete the order. Something wrong? Open a dispute with photos within {days} days. If you do nothing, the order completes then and the maker is paid.':
+    'Her şey yolunda mı? Siparişi tamamla. Bir sorun mu var? {days} gün içinde fotoğraflarla itiraz aç. Bir şey yapmazsan sipariş o zaman tamamlanır ve üreticiye ödeme yapılır.',
+  'Your turn: check your part': 'Sıra sende: parçanı kontrol et',
+  'Your dispute is being reviewed': 'İtirazın inceleniyor',
+  'Payment stays on hold until an admin decides: a refund, a partial refund or a reprint. You can add more photos below.':
+    'Bir yönetici karar verene kadar ödeme bekletilir: iade, kısmi iade ya da yeniden baskı. Aşağıya daha fazla fotoğraf ekleyebilirsin.',
+  'Dispute under review': 'İtiraz inceleniyor',
+  'Done. The maker has been paid.': 'Bitti. Üreticiye ödeme yapıldı.',
+  'Thank you for ordering. Got another part in mind?':
+    'Sipariş için teşekkürler. Aklında başka bir parça var mı?',
+  'The dispute is closed': 'İtiraz kapandı',
+  'The decision and any refund are shown below.': 'Karar ve varsa iade aşağıda.',
+  'Dispute closed': 'İtiraz kapandı',
+  'This order was cancelled': 'Bu sipariş iptal edildi',
+  'Nothing was printed. If you had paid, the full amount was refunded.':
+    'Hiçbir şey basılmadı. Ödeme yaptıysan tutarın tamamı iade edildi.',
+  'Price another model': 'Başka bir model fiyatla',
 }

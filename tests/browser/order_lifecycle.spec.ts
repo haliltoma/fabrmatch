@@ -125,7 +125,7 @@ test.group('order lifecycle (browser)', (group) => {
       .getByPlaceholder('Describe the problem (at least 10 characters)')
       .fill('The part arrived cracked along one side.')
     await page.getByRole('button', { name: 'Open dispute' }).click()
-    await page.getByText('Something wrong?').waitFor({ state: 'detached' })
+    await page.getByText('Something wrong?', { exact: true }).waitFor({ state: 'detached' })
     assert.equal(await status(order.id), 'disputed')
     const dispute = await Dispute.query().where('orderId', order.id).firstOrFail()
 

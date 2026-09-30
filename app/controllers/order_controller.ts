@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import fabrmatchConfig from '#config/fabrmatch'
 import TestCheckoutService from '#services/payments/test_checkout_service'
 import app from '@adonisjs/core/services/app'
 import LegalService from '#services/legal/legal_service'
@@ -68,6 +69,7 @@ export default class OrderController {
         ['draft', 'awaiting_payment'].includes(order.status) && order.currency === 'TRY'
           ? await new WalletService().balance(order.buyerId)
           : null,
+      confirmDays: fabrmatchConfig.orders.autoConfirmDays,
       // set by the hosted page return: paid | failed | pending
       paymentReturn:
         (['paid', 'failed', 'pending'] as const).find(

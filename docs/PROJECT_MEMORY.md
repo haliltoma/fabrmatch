@@ -280,6 +280,8 @@
 
 ## Log
 
+- **2026-10-01** — Alıcı sipariş yolculuğu: "Sırada" kartı (`order_next_step.tsx` + saf `lib/order_next_step.ts`, durum makinesine karşı unit test): 6 aşama, kimin sırası, para durumu, eylemler kartta, bitmiş siparişte sonraki iş önerisi; sipariş listesinde "Sıra sende" rozeti. Browser testi seçici düzeltmesi (exact). a11y 0 ihlal, 960 test.
+
 - **2026-10-01** — Ana sayfa kitle sekmeleri → "Hangisisin?" 3 yol kartı (`audience_paths.tsx`): dert → vaat → "Gerek kalmayacak" listesi → buton + sayfa içi çapa (`#after-you-pay`, `#seller-margin`, `#maker-income`). Süreç tekrarı kalktı. a11y 0 ihlal, 954 test.
 
 - **2026-09-30** — Ana sayfa 2. bölüm yeniden: yazıcı vitrini hero'yu tekrarlıyordu → "Etrafına bak" SVG odası (`printed_around.tsx`, 10 basılabilir nesne, sorun→çözüm kartı, tek sonraki adım, mobilde çip satırı). Emanet bandı → "Ödemeden sonra" zaman çizelgesi (`after_you_pay.tsx`: 6 adım, para durumu, state machine'e dayalı güvenlik ağları); sipariş boş durumundan `/#after-you-pay` bağlantısı. a11y 0 ihlal, 954 test.
