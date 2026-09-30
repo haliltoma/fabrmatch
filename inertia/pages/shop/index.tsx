@@ -10,6 +10,8 @@ import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
+import { SkeletonGrid } from '~/components/ui/skeleton'
+import { useSamePageLoading } from '~/lib/use_navigation'
 
 type ProductCard = {
   id: number
@@ -55,6 +57,7 @@ export default function ShopIndex({
   canonicalUrl: string
 }) {
   const { t } = useT()
+  const loading = useSamePageLoading()
   const [q, setQ] = useState(filters.q)
   const pages = Math.max(1, Math.ceil(total / perPage))
 
@@ -185,7 +188,13 @@ export default function ShopIndex({
           </ul>
         )}
 
-        {items.length === 0 ? (
+        {loading ? (
+          <SkeletonGrid
+            count={Math.max(4, Math.min(items.length, 8))}
+            className="gap-4"
+            label={t('Loading products…')}
+          />
+        ) : items.length === 0 ? (
           <Card>
             <CardContent className="py-16 text-center text-ink-600">
               {t('No products match your search.')}

@@ -4,8 +4,8 @@ import { Canvas, useLoader } from '@react-three/fiber'
 import { OrbitControls, Center, PerspectiveCamera, Bounds } from '@react-three/drei'
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js'
 import type * as THREE from 'three'
-import { Loader2 } from 'lucide-react'
 import { useT } from '~/lib/i18n'
+import { SkeletonModel } from '~/components/ui/skeleton'
 
 function StlModel({ url }: { url: string }) {
   const geometry = useLoader(STLLoader, url)
@@ -75,13 +75,7 @@ export default function StlViewer({ url, className = '' }: StlViewerProps) {
       <div
         className={`relative overflow-hidden rounded-lg border border-line bg-paper-sunken ${className}`}
       >
-        <Suspense
-          fallback={
-            <div className="flex h-full items-center justify-center">
-              <Loader2 className="h-6 w-6 animate-spin text-ink-600" />
-            </div>
-          }
-        >
+        <Suspense fallback={<SkeletonModel className="h-full" />}>
           <Canvas onError={() => setError(t('Failed to render'))}>
             <PerspectiveCamera makeDefault position={[90, 70, 120]} fov={40} />
             <ambientLight intensity={0.5} />

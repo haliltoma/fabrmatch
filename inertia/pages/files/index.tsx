@@ -12,6 +12,7 @@ import { EmptyState } from '~/components/empty_state'
 import { useT } from '~/lib/i18n'
 import { usePollWhile } from '~/lib/poll'
 import { formatDate, formatNumber } from '~/lib/format'
+import { SkeletonModel } from '~/components/ui/skeleton'
 
 const StlViewer = lazy(() => import('~/components/stl_viewer'))
 
@@ -89,13 +90,7 @@ function PreviewButton({ fileId, format }: { fileId: number; format: string }) {
   if (previewUrl) {
     return (
       <div className="mt-3">
-        <Suspense
-          fallback={
-            <div className="flex h-64 items-center justify-center rounded-lg border border-line bg-paper-sunken">
-              <Loader2 className="h-6 w-6 animate-spin text-ink-600" />
-            </div>
-          }
-        >
+        <Suspense fallback={<SkeletonModel className="h-64" />}>
           <StlViewer url={previewUrl} className="h-64" />
         </Suspense>
         <Button variant="ghost" size="sm" className="mt-1" onClick={() => setPreviewUrl(null)}>

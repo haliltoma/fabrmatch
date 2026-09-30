@@ -11,6 +11,8 @@ import { PageHeader } from '~/components/page_header'
 import { Pagination, type PageMeta } from '~/components/pagination'
 import { StatusBadge } from '~/components/status_badge'
 import { useT } from '~/lib/i18n'
+import { SkeletonList } from '~/components/ui/skeleton'
+import { useSamePageLoading } from '~/lib/use_navigation'
 
 type Row = {
   id: number
@@ -50,6 +52,7 @@ export default function AdminOrders({
   statusCounts: Record<string, number>
 }) {
   const { t } = useT()
+  const loading = useSamePageLoading()
   const total = Object.values(statusCounts).reduce((a, b) => a + b, 0)
   const chips = STATUS_ORDER.filter((s) => (statusCounts[s] ?? 0) > 0)
   const pick = (status: string) =>
@@ -109,28 +112,32 @@ export default function AdminOrders({
           </button>
         ))}
       </div>
-      <ul className="divide-y divide-line rounded-lg border border-line bg-paper-raised">
-        {rows.map((o) => (
-          <li key={o.id}>
-            <Link
-              href={`/admin/orders/${o.id}`}
-              className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 hover:bg-paper-sunken"
-            >
-              <div>
-                <OrderCode code={o.code} />
-                <p className="text-xs text-ink-600">
-                  {formatDateTime(o.createdAt)} · {o.channel}
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <Money minor={o.totalMinor} currency={o.currency} className="text-sm" />
-                <StatusBadge status={o.status} />
-              </div>
-            </Link>
-          </li>
-        ))}
-        {rows.length === 0 && <li className="p-6 text-ink-600">{t('No orders match.')}</li>}
-      </ul>
+      {loading ? (
+        <SkeletonList rows={Math.max(3, Math.min(rows.length, 10))} label={t('Loading orders…')} />
+      ) : (
+        <ul className="divide-y divide-line rounded-lg border border-line bg-paper-raised">
+          {rows.map((o) => (
+            <li key={o.id}>
+              <Link
+                href={`/admin/orders/${o.id}`}
+                className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 hover:bg-paper-sunken"
+              >
+                <div>
+                  <OrderCode code={o.code} />
+                  <p className="text-xs text-ink-600">
+                    {formatDateTime(o.createdAt)} · {o.channel}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Money minor={o.totalMinor} currency={o.currency} className="text-sm" />
+                  <StatusBadge status={o.status} />
+                </div>
+              </Link>
+            </li>
+          ))}
+          {rows.length === 0 && <li className="p-6 text-ink-600">{t('No orders match.')}</li>}
+        </ul>
+      )}
       <Pagination meta={meta} />
     </div>
   )

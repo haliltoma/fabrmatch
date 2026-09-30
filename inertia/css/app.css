@@ -250,6 +250,46 @@
   );
 }
 
+/* Skeleton: a placeholder that "prints" itself: layer lines on a sunken surface, with a lighter
+   band travelling up the part like the nozzle laying the next layers. Static under reduced motion. */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--color-paper-sunken);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--layer-line) 0,
+    var(--layer-line) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  border-radius: 6px;
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    transparent 0%,
+    color-mix(in oklab, var(--color-paper-raised) 70%, transparent) 50%,
+    transparent 100%
+  );
+  transform: translateY(100%);
+  animation: skeleton-layer 1.6s ease-in-out infinite;
+}
+@keyframes skeleton-layer {
+  to {
+    transform: translateY(-100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
 .tabular {
   font-variant-numeric: tabular-nums;
 }

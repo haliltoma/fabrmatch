@@ -22,6 +22,7 @@ import { ScanPanel, type ScanCheck } from '~/components/scan_panel'
 import { formatPrice } from '~/lib/format'
 import { useT } from '~/lib/i18n'
 import { Seo } from '~/components/seo'
+import { Skeleton, SkeletonModel, SkeletonRegion } from '~/components/ui/skeleton'
 
 const StlViewer = lazy(() => import('~/components/stl_viewer'))
 
@@ -200,13 +201,7 @@ function QuickQuote({
             </h2>
             {previewUrl && file ? (
               <div className="overflow-hidden rounded-[12px] border-2 border-ink-900 bg-paper-raised">
-                <Suspense
-                  fallback={
-                    <div className="flex h-64 items-center justify-center">
-                      <Loader2 className="h-6 w-6 animate-spin text-ink-600" aria-hidden />
-                    </div>
-                  }
-                >
+                <Suspense fallback={<SkeletonModel className="h-64" />}>
                   {/\.stl$/i.test(file.name) ? (
                     <StlViewer url={previewUrl} className="h-64" />
                   ) : (
@@ -523,19 +518,37 @@ function QuickQuote({
                 </p>
               </div>
             </div>
+          ) : busy ? (
+            // the price panel's own shape, printing itself while the file is scanned and measured
+            <SkeletonRegion
+              label={t('Scanning and measuring your model…')}
+              className="space-y-5 rounded-[14px] border-2 border-ink-900 bg-paper-raised p-6"
+            >
+              <p className="font-display text-lg font-semibold text-ink-900">
+                {t('Scanning and measuring your model…')}
+              </p>
+              <Skeleton className="h-12 w-2/3" />
+              <Skeleton className="h-4 w-1/3" />
+              <Skeleton className="h-3 w-full rounded-full" />
+              <div className="grid grid-cols-2 gap-3">
+                {[0, 1, 2, 3].map((i) => (
+                  <div key={i} className="space-y-2">
+                    <Skeleton className="h-3 w-16" />
+                    <Skeleton className="h-4 w-24" />
+                  </div>
+                ))}
+              </div>
+              <Skeleton className="h-11 w-full" />
+            </SkeletonRegion>
           ) : (
             <div className="rounded-[14px] border-2 border-dashed border-ink-900/30 bg-paper-raised p-8">
               <div className="flex items-center gap-4">
                 <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg border-2 border-ink-900 bg-sun">
-                  {busy ? (
-                    <Loader2 className="h-8 w-8 animate-spin text-ink-900" aria-hidden />
-                  ) : (
-                    <PrintArt kind="vase" color="#f0501e" printing className="h-16 w-16" />
-                  )}
+                  <PrintArt kind="vase" color="#f0501e" printing className="h-16 w-16" />
                 </span>
                 <div>
                   <p className="font-display text-2xl font-semibold text-ink-900">
-                    {busy ? t('Scanning and measuring your model…') : t('Your price appears here')}
+                    {t('Your price appears here')}
                   </p>
                   <p className="mt-1 text-sm text-ink-700">
                     {t('Four materials, up to ten pieces, delivery included.')}

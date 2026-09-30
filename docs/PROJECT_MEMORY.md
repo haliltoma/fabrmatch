@@ -280,6 +280,8 @@
 
 ## Log
 
+- **2026-10-01** — U9 iskeletler: `.skeleton` + `ui/skeleton.tsx` ailesi, `useSamePageLoading`; 3D önizleme, hızlı fiyat paneli, mağaza ızgarası, admin sipariş/kullanıcı listeleri. 977 test, a11y 0, ssr:check 55/55.
+
 - **2026-10-01** — U8: sayfa geçişi/form gönderimi yükleme göstergesi (müşteri: katman çubuğu + limon çip; admin: ince çizgi + köşe çipi; 200 ms eşik; kısmi yenilemeler hariç). 977 test.
 
 - **2026-10-01** — U5 admin (1. tur): 5 gruplu menü + bekleyen iş rozetleri (`AttentionService`), "Bugün" panosu (öncelikli yapılacaklar), kuyruklarda boşlar tek satır, sipariş durum çipleri, ⌘K komut paleti. 976 test. U5b açıldı.

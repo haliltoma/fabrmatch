@@ -48,3 +48,34 @@ export function useNavigationPhase(showAfterMs = 200, slowAfterMs = 1200) {
 
   return phase
 }
+
+/**
+ * True while this same page is being reloaded with new filters, sort or page number (a GET to the
+ * current path). Lists use it to swap their rows for skeletons instead of showing stale results.
+ */
+export function useSamePageLoading(showAfterMs = 150) {
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const offStart = router.on('start', (event) => {
+      const visit = event.detail.visit as Visit & { url: URL; method: string }
+      if (!isForegroundVisit(visit) || visit.method !== 'get') return
+      if (visit.url.pathname !== window.location.pathname) return
+      clearTimeout(timer)
+      timer = setTimeout(() => setLoading(true), showAfterMs)
+    })
+    const offFinish = router.on('finish', (event) => {
+      if (!isForegroundVisit(event.detail.visit)) return
+      clearTimeout(timer)
+      setLoading(false)
+    })
+    return () => {
+      offStart()
+      offFinish()
+      clearTimeout(timer)
+    }
+  }, [showAfterMs])
+
+  return loading
+}

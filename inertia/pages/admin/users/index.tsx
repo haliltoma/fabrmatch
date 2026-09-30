@@ -10,6 +10,8 @@ import { EmptyState } from '~/components/empty_state'
 import { PageHeader } from '~/components/page_header'
 import { Pagination, type PageMeta } from '~/components/pagination'
 import { useT } from '~/lib/i18n'
+import { SkeletonList } from '~/components/ui/skeleton'
+import { useSamePageLoading } from '~/lib/use_navigation'
 
 type Row = {
   id: number
@@ -84,6 +86,7 @@ export default function AdminUsers({
   filters: Filters
 }) {
   const { t } = useT()
+  const loading = useSamePageLoading()
 
   const [f, setF] = useState(filters)
   const search = (next: Filters) =>
@@ -139,7 +142,9 @@ export default function AdminUsers({
         <Button type="submit">{t('Search')}</Button>
       </form>
 
-      {rows.length === 0 ? (
+      {loading ? (
+        <SkeletonList rows={Math.max(3, Math.min(rows.length, 10))} label={t('Loading people…')} />
+      ) : rows.length === 0 ? (
         <EmptyState
           icon={Users}
           title={t('No users match')}

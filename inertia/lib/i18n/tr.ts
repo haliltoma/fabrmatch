@@ -3208,4 +3208,9 @@ export const tr: Record<string, string> = {
   'Loading the page': 'Sayfa yükleniyor',
   'Loading page…': 'Sayfa yükleniyor…',
   'Loading…': 'Yükleniyor…',
+  // skeletons
+  'Loading the 3D preview…': '3D önizleme yükleniyor…',
+  'Loading products…': 'Ürünler yükleniyor…',
+  'Loading orders…': 'Siparişler yükleniyor…',
+  'Loading people…': 'Kişiler yükleniyor…',
 }
