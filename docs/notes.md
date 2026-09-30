@@ -2,7 +2,10 @@
 - Üretici hesabında iken yazıcılar kısmında  ekle dediğimde tüm piyazsadaki dünyadaki yazıcı marka modelleri select olarak sıralanacak tabla boyutu kapalı kasa açık kasa olarak işimize yarayacak özellikleri ekleyecek o şekilde kayıt olucak 
 - Faturalama kısmını göremedim geçmiş fatularım gibi detaylı fatura kısmı olucak sistemin fonksiyonlarına göre
 - Faturalama kısmı olduğunda ödeme yapılacak kişilerin fatura yazacağımızdan dolayı şirket hesabı bilgileri istenecek onlar onayladıktan sonra ödeme bilgileri açılacak
-- En büyük problemlerden biri ise bu istemi mobilede yönetebilen bir şey olması gerekiyor bildirimler sürekli gelecek ve o bildirimlerden siparişlerin geldiği anlaşılacak 
+- En büyük problemlerden biri ise bu istemi mobilede yönetebilen bir şey olması gerekiyor bildirimler sürekli gelecek ve o bildirimlerden siparişlerin geldiği anlaşılacak
+- **surekli /files e istek atio ard arda stl dosya yüklemelerinde**
+- uuid oalrak sistemi kullandırmak lazım normal id sıralılar tahmin edilebiliyor
+-
 
 
 

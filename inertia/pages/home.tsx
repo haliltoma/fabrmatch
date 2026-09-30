@@ -4,7 +4,6 @@ import { BadgeCheck, FileUp, ShieldCheck } from 'lucide-react'
 import { useT } from '~/lib/i18n'
 import { AudiencePaths } from '~/components/audience_paths'
 import type { HomeStats } from '~/lib/home_stats'
-import { WhyStrip } from '~/components/why_strip'
 import { HomeFaq } from '~/components/home_faq'
 import { HeroQuickStart } from '~/components/hero_quick_start'
 import { HeroCube } from '~/components/hero_cube'
@@ -12,6 +11,7 @@ import { ClosingBand } from '~/components/closing_band'
 import { LearnBand, type HomeGuide } from '~/components/learn_band'
 import { PrintedAround } from '~/components/printed_around'
 import { AfterYouPay } from '~/components/after_you_pay'
+import { TrustBand } from '~/components/trust_band'
 import { NearbyBand } from '~/components/nearby_band'
 import { MarginBand, type MarginSample } from '~/components/margin_band'
 import { IncomeBand } from '~/components/income_band'
@@ -138,8 +138,6 @@ export default function Home({
 
       <PrintedAround />
 
-      <WhyStrip />
-
       <AudiencePaths />
 
       <Discover products={products} materials={materials} />
@@ -149,6 +147,8 @@ export default function Home({
       <IncomeBand rules={incomeRules} />
 
       <AfterYouPay confirmDays={stats.confirmDays} />
+
+      <TrustBand />
 
       <NearbyBand makers={stats.makers} />
 

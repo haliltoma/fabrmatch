@@ -290,3 +290,9 @@ Neden: ilk sürüm (yazıcı + adımlar + 2 CTA) hero'nun anlattığını tekrar
 - **`components/order_next_step.tsx`:** üstte 6 parçalı ilerleme (bitti = ink, şimdi = heat, mobilde "Adım 3/6: Baskı"), "Sıra sende" (`lime`) ya da "Beklenen: …" çipi, para çipi, başlık, açıklama; sayfanın ödeme/onay/iptal düğmeleri kartın içinde (children). Bitmiş/iptal: "Sırada ne var?" → Başka bir model fiyatla · Mağazaya göz at.
 - **Sipariş listesi:** her satırda kısa durum; alıcının sırasıysa `lime` rozet ("Sıra sende: öde"), gözden kaçmasın. Tamamlanmış ve yorumsuz siparişte işe yaramayan "yalnız teslimde yorum" kartı gizlendi.
 
+## 24. Güven bandı "Modelin senin kalır" (2026-10-01)
+
+- **`components/trust_band.tsx`**, "Ödemeden sonra"nın hemen altında (koyu `ink-900` + `palette-light`). Para orada anlatıldığı için burada yalnız geri bağlantı var; bant **dosya ve kişi** güvenliğini anlatır: 4 durak (Yüklenince taranır → Gözden uzak → Tek üretici, tek anahtar → Gönderilmeden fotoğraflanır), ekrandayken vurgu duraklar arasında gezer (2,4 sn), ilk durakta 5 kontrol sırayla işaretlenir. Altında 3 kişi gizliliği maddesi.
+- Her cümle koda bağlı: `file_scanner.ts` (antivirüs **iddia edilmez**, üretimde CLAMAV açık iş), render-only vitrin (kural 4), `file_access_service` (yeni üretici 24 sa · 2 indirme), `fulfillment_service` (fotoğrafsız kargo yok), `contact_filter` (telefon/link/e-posta maskelenir), `photo_cleaner` (EXIF/GPS), üretici onayı (`maker_setup_service`), kural 1 (üretici yalnız kargo alanları).
+- **`WhyStrip` kaldırıldı:** dört maddesinin her biri artık kendi bölümünde (para → Ödemeden sonra, yakınlık → Yakınlık bandı, kayıtsız fiyat → hero, anonimlik → güven bandı).
+

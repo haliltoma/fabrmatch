@@ -3075,4 +3075,37 @@ export const tr: Record<string, string> = {
   'Nothing was printed. If you had paid, the full amount was refunded.':
     'Hiçbir şey basılmadı. Ödeme yaptıysan tutarın tamamı iade edildi.',
   'Price another model': 'Başka bir model fiyatla',
+  // home: trust band
+  'Behind every order': 'Her siparişin arkasında',
+  'Your model stays yours. Nobody sees more than they need.':
+    'Modelin senin kalır. Kimse gerekenden fazlasını görmez.',
+  'What happens to your file on its way to a stranger’s printer.':
+    'Dosyana, tanımadığın birinin yazıcısına giderken ne olduğu.',
+  'Your file’s path': 'Dosyanın yolu',
+  'Scanned on upload': 'Yüklenince taranır',
+  'Before anyone opens it, the file is checked for:':
+    'Kimse açmadan önce dosya şunlar için kontrol edilir:',
+  'Kept out of sight': 'Gözden uzak tutulur',
+  'Stored privately. The shop only ever shows a rendered picture, never the file.':
+    'Gizli saklanır. Mağaza yalnızca bir render görseli gösterir, dosyayı asla.',
+  'One maker, one key': 'Tek üretici, tek anahtar',
+  'Only the maker who accepted the job gets a download link, and it expires.':
+    'İndirme bağlantısını yalnızca işi kabul eden üretici alır ve bağlantının süresi dolar.',
+  'Photographed before it ships': 'Gönderilmeden önce fotoğraflanır',
+  'The maker has to photograph the finished part. The photos are kept as evidence if you open a dispute.':
+    'Üretici bitmiş parçayı fotoğraflamak zorundadır. İtiraz açarsan fotoğraflar kanıt olarak saklanır.',
+  'Program files and known malware signatures':
+    'Program dosyaları ve bilinen zararlı yazılım imzaları',
+  'Hidden scripts inside the model': 'Modelin içine gizlenmiş betikler',
+  'Broken or oversized geometry': 'Bozuk ya da aşırı büyük geometri',
+  'Zip bombs in 3MF archives': '3MF arşivlerinde zip bombaları',
+  'Anything changed after upload': 'Yüklemeden sonra değiştirilen her şey',
+  'New maker: 24 h · 2 downloads': 'Yeni üretici: 24 sa · 2 indirme',
+  'Every maker is checked once by our team before their first offer.':
+    'Her üretici ilk teklifinden önce ekibimiz tarafından bir kez kontrol edilir.',
+  'You never learn who printed your part, and the maker sees only what goes on the shipping label.':
+    'Parçanı kimin bastığını öğrenmezsin; üretici de yalnızca kargo etiketindekileri görür.',
+  'Phone numbers, links and e-mail addresses are hidden in messages; photos lose their location data.':
+    'Mesajlarda telefon numaraları, bağlantılar ve e-posta adresleri gizlenir; fotoğraflardan konum bilgisi silinir.',
+  'How your money is protected': 'Paran nasıl korunur',
 }

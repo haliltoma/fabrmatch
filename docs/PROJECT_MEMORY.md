@@ -280,6 +280,8 @@
 
 ## Log
 
+- **2026-10-01** — Ana sayfa güven bandı (`trust_band.tsx`): dosyanın yolu 4 durak + kişi gizliliği, her iddia koda bağlı; tekrar eden `WhyStrip` kaldırıldı. a11y 0 ihlal, 960 test.
+
 - **2026-10-01** — Alıcı sipariş yolculuğu: "Sırada" kartı (`order_next_step.tsx` + saf `lib/order_next_step.ts`, durum makinesine karşı unit test): 6 aşama, kimin sırası, para durumu, eylemler kartta, bitmiş siparişte sonraki iş önerisi; sipariş listesinde "Sıra sende" rozeti. Browser testi seçici düzeltmesi (exact). a11y 0 ihlal, 960 test.
 
 - **2026-10-01** — Ana sayfa kitle sekmeleri → "Hangisisin?" 3 yol kartı (`audience_paths.tsx`): dert → vaat → "Gerek kalmayacak" listesi → buton + sayfa içi çapa (`#after-you-pay`, `#seller-margin`, `#maker-income`). Süreç tekrarı kalktı. a11y 0 ihlal, 954 test.
