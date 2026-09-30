@@ -20,7 +20,10 @@ export function MarginBand({ samples }: { samples: MarginSample[] }) {
   const { earnsMinor, buyerPriceMinor } = marginSplit(sample.costMinor, margin)
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+    <section
+      id="seller-margin"
+      className="scroll-mt-20 mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8"
+    >
       <div className="grid gap-10 rounded-[14px] border-2 border-ink-900 bg-blush/40 p-6 sm:p-10 lg:grid-cols-[1fr_1.1fr]">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-ink-900">

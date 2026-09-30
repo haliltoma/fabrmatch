@@ -83,7 +83,11 @@ export function AfterYouPay({ confirmDays }: { confirmDays: number }) {
   const stepDelay = (i: number) => (reduce ? 0 : 0.2 + i * 0.35)
 
   return (
-    <section id="after-you-pay" aria-labelledby="after-you-pay-title" className="bg-paper">
+    <section
+      id="after-you-pay"
+      aria-labelledby="after-you-pay-title"
+      className="scroll-mt-20 bg-paper"
+    >
       <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-3">
           <div>

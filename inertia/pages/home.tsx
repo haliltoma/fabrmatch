@@ -2,8 +2,7 @@ import { Head, usePage } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { BadgeCheck, FileUp, ShieldCheck } from 'lucide-react'
 import { useT } from '~/lib/i18n'
-import { Reveal } from '~/components/reveal'
-import { AudienceTabs } from '~/components/audience_tabs'
+import { AudiencePaths } from '~/components/audience_paths'
 import type { HomeStats } from '~/lib/home_stats'
 import { WhyStrip } from '~/components/why_strip'
 import { HomeFaq } from '~/components/home_faq'
@@ -141,12 +140,7 @@ export default function Home({
 
       <WhyStrip />
 
-      {/* How it works, per audience */}
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <Reveal>
-          <AudienceTabs />
-        </Reveal>
-      </section>
+      <AudiencePaths />
 
       <Discover products={products} materials={materials} />
 

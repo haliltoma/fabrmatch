@@ -54,7 +54,10 @@ export function IncomeBand({ rules }: { rules: IncomeRules }) {
   )
 
   return (
-    <section className="palette-light layer-lines-light bg-ink-900 text-paper">
+    <section
+      id="maker-income"
+      className="scroll-mt-20 palette-light layer-lines-light bg-ink-900 text-paper"
+    >
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:px-8">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-heat-400">

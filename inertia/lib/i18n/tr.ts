@@ -2992,4 +2992,34 @@ export const tr: Record<string, string> = {
   'Only after you confirm, or the {days} days pass without a problem.':
     'Yalnızca sen onaylayınca ya da {days} gün sorunsuz geçince.',
   'What happens after you pay': 'Ödemeden sonra ne olur',
+  // home: which one are you (audience paths)
+  'Which one are you?': 'Hangisisin?',
+  'Three ways to use Fabrmatch. Pick yours and skip what you do not need.':
+    "Fabrmatch'i kullanmanın üç yolu. Seninkini seç, ihtiyacın olmayanı atla.",
+  'You won’t need': 'Gerek kalmayacak',
+  'I need a part printed': 'Bir parça bastırmam gerek',
+  'No printer, and no idea what it should cost.': 'Yazıcı yok, ne tutacağı hakkında da fikir yok.',
+  'See the delivered price in seconds. The part comes to your door.':
+    'Kapıya teslim fiyatını saniyeler içinde gör. Parça kapına gelir.',
+  'Owning a printer': 'Yazıcı sahibi olmak',
+  'An account just to see a price': 'Sırf fiyat görmek için hesap',
+  'Sending money to a stranger': 'Tanımadığın birine para göndermek',
+  'I want to sell 3D products': '3D ürün satmak istiyorum',
+  'Stock ties up money, and packing eats your evenings.':
+    'Stok parayı bağlar, paketleme akşamlarını yer.',
+  'List ready designs with your margin. Each order is printed and shipped for you.':
+    'Hazır tasarımları kendi marjınla listele. Her sipariş senin yerine basılır ve gönderilir.',
+  'Buying stock': 'Stok almak',
+  'A printer of your own': 'Kendi yazıcın',
+  'Packing and shipping': 'Paketleme ve kargo',
+  'Work out your margin': 'Marjını hesapla',
+  'I have a 3D printer': '3D yazıcım var',
+  'It sits idle most of the week, and finding buyers is a job of its own.':
+    'Haftanın çoğu boş duruyor, alıcı bulmak da ayrı bir iş.',
+  'Get paid jobs that fit your printers, materials and free hours.':
+    'Yazıcılarına, malzemelerine ve boş saatlerine uyan ücretli işler al.',
+  'Finding customers': 'Müşteri bulmak',
+  'Chasing payment': 'Ödeme peşinde koşmak',
+  'Haggling over price': 'Fiyat pazarlığı',
+  'Estimate your income': 'Gelirini tahmin et',
 }
