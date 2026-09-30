@@ -74,4 +74,29 @@ test.group('product reviews (M3-T3)', (group) => {
     assert.equal(r.recent.find((x) => x.rating === 5)?.comment, 'Perfect fit')
     assert.deepEqual(Object.keys(r.recent[0]).sort(), ['at', 'comment', 'rating'])
   })
+
+  test('sold count: paid orders of that listing, not drafts, unpaid or cancelled ones', async ({
+    assert,
+  }) => {
+    const { product } = await createStorefrontProduct()
+    const other = await createStorefrontProduct()
+    await finishedSale(product.id, null, null)
+    await finishedSale(product.id, 5, null)
+    await finishedSale(other.product.id, null, null)
+    const buyer = await createUser('buyer')
+    const draft = await new OrderService().createStorefrontDraft(buyer, product.id, {
+      material: 'PLA',
+      quantity: 1,
+      shippingAddress: TR_ADDRESS,
+    })
+    const cancelled = await new OrderService().createStorefrontDraft(buyer, product.id, {
+      material: 'PLA',
+      quantity: 1,
+      shippingAddress: TR_ADDRESS,
+    })
+    await new OrderStateMachine().transition(cancelled.id, 'cancelled')
+
+    assert.equal(await reviews.soldCount(product.id), 2)
+    assert.isOk(draft)
+  })
 })

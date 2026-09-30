@@ -3176,4 +3176,7 @@ export const tr: Record<string, string> = {
   'Fabrmatch is a made-to-order 3D printing marketplace: upload a model, see the delivered price, and a verified maker nearby prints and ships it while the payment is held until delivery.':
     'Fabrmatch siparişe özel bir 3D baskı pazar yeridir: modelini yükle, kapıya teslim fiyatını gör; yakınındaki doğrulanmış bir üretici basıp gönderir, ödeme teslimata kadar bekletilir.',
   'Instant 3D print price': 'Anında 3D baskı fiyatı',
+  // shop: rating + sold
+  'Ordered {count} times': '{count} kez sipariş edildi',
+  'Rated {value} out of 5': '5 üzerinden {value} puan',
 }

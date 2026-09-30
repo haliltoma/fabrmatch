@@ -47,4 +47,24 @@ export default class ReviewService {
       })),
     }
   }
+
+  /**
+   * How many times this listing was bought and paid for (cancelled and unpaid orders excluded).
+   * Shown on the product page as social proof once it reaches SOLD_COUNT_MIN.
+   */
+  async soldCount(sellerProductId: number): Promise<number> {
+    const row = await db
+      .from('orders as o')
+      .join('order_items as oi', 'oi.order_id', 'o.id')
+      .join('catalog_products as cp', 'cp.model_file_id', 'oi.model_file_id')
+      .join('seller_products as sp', 'sp.catalog_product_id', 'cp.id')
+      .join('seller_profiles as spf', 'spf.id', 'sp.seller_profile_id')
+      .where('sp.id', sellerProductId)
+      .whereRaw('spf.user_id = o.seller_id')
+      .where('o.channel', 'storefront')
+      .whereNotIn('o.status', ['draft', 'awaiting_payment', 'cancelled'])
+      .countDistinct('o.id as n')
+      .first()
+    return Number(row?.n ?? 0)
+  }
 }

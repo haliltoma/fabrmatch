@@ -5,7 +5,7 @@ import { ChargeNote } from '~/components/money'
 import { router, usePage } from '@inertiajs/react'
 import { Seo } from '~/components/seo'
 import { Link } from '@adonisjs/inertia/react'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, PackageCheck, Star } from 'lucide-react'
 import { TermsCheckbox, useLegalAcceptance } from '~/components/terms_checkbox'
 import { useIdempotencyKey } from '~/lib/idempotency'
 import { formatPrice } from '~/lib/format'
@@ -92,14 +92,49 @@ function ReportListing({ productId }: { productId: number }) {
   )
 }
 
+/** Five stars filled to the average (e.g. 4.3 → four and a third); the number next to it is the label. */
+function Stars({ value }: { value: number }) {
+  const { t } = useT()
+  const row = (filled: boolean) => (
+    <span className="flex w-max">
+      {[0, 1, 2, 3, 4].map((i) => (
+        <Star
+          key={i}
+          className={`h-4 w-4 shrink-0 ${filled ? 'fill-amber-ink text-amber-ink' : 'text-ink-300'}`}
+          strokeWidth={1.75}
+          aria-hidden
+        />
+      ))}
+    </span>
+  )
+  return (
+    <span
+      className="relative inline-flex"
+      role="img"
+      aria-label={t('Rated {value} out of 5', { value: value.toFixed(1) })}
+    >
+      {row(false)}
+      <span
+        className="absolute inset-y-0 left-0 overflow-hidden"
+        style={{ width: `${(value / 5) * 100}%` }}
+      >
+        {row(true)}
+      </span>
+    </span>
+  )
+}
+
 export default function ShopShow({
   product,
   canonicalUrl,
   jsonLd,
   reviews,
   delivery,
+  soldCount,
 }: {
   product: Product
+  /** paid orders of this listing, only sent once there are enough to be worth saying */
+  soldCount: number | null
   canonicalUrl: string
   jsonLd: string
   delivery?: Delivery
@@ -204,6 +239,34 @@ export default function ShopShow({
             <ProductGallery images={product.images} title={product.title} bboxMm={product.bboxMm} />
             <div>
               <h1 className="font-display text-3xl font-semibold text-ink-900">{product.title}</h1>
+              {(reviews.count > 0 || soldCount !== null) && (
+                <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-700">
+                  {reviews.count > 0 && reviews.average !== null && (
+                    <a
+                      href="#reviews-h"
+                      className="inline-flex items-center gap-1.5 hover:underline"
+                    >
+                      <Stars value={reviews.average} />
+                      <span className="font-semibold text-ink-900">
+                        {reviews.average.toFixed(1)}
+                      </span>
+                      <span>
+                        (
+                        {reviews.count === 1
+                          ? t('{count} review', { count: reviews.count })
+                          : t('{count} reviews', { count: reviews.count })}
+                        )
+                      </span>
+                    </a>
+                  )}
+                  {soldCount !== null && (
+                    <span className="inline-flex items-center gap-1.5">
+                      <PackageCheck className="h-4 w-4 text-fil-600" aria-hidden />
+                      {t('Ordered {count} times', { count: soldCount })}
+                    </span>
+                  )}
+                </p>
+              )}
               {product.description && (
                 <p className="mt-2 whitespace-pre-wrap text-ink-700">{product.description}</p>
               )}

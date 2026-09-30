@@ -2,6 +2,9 @@ import type { HttpContext } from '@adonisjs/core/http'
 import env from '#start/env'
 import LegalService from '#services/legal/legal_service'
 import ReviewService from '#services/storefront/review_service'
+import ShippingService from '#services/shipping/shipping_service'
+import { productJsonLd, SOLD_COUNT_MIN } from '#services/storefront/product_schema'
+import { DateTime } from 'luxon'
 import OrderService from '#services/orders/order_service'
 import StorefrontService from '#services/storefront/storefront_service'
 import { shopOrderValidator, shopQueryValidator } from '#validators/storefront'
@@ -57,43 +60,30 @@ export default class StorefrontController {
     if (params.slug !== product.slug) return response.redirect(canonicalPath, false, 301)
 
     const canonicalUrl = `${siteUrl()}${canonicalPath}`
-    // the listed range is the plain part; finishing is an extra the buyer adds
-    const prices = product.options.filter((o) => o.finishing === null).map((o) => o.unitPriceMinor)
-    const reviews = await new ReviewService().forListing(product.id)
-    const jsonLd = {
-      '@context': 'https://schema.org',
-      '@type': 'Product',
-      'name': product.title,
-      'description': product.description ?? product.title,
-      'url': canonicalUrl,
-      ...(product.images.length > 0
-        ? { image: product.images.slice(0, 4).map((i) => `${siteUrl()}${i.url}`) }
-        : {}),
-      'offers': {
-        '@type': 'AggregateOffer',
-        'priceCurrency': product.currency,
-        'lowPrice': (Math.min(...prices) / 100).toFixed(2),
-        'highPrice': (Math.max(...prices) / 100).toFixed(2),
-        'offerCount': prices.length,
-        'availability': 'https://schema.org/InStock',
-      },
-      // only real ratings: nothing is emitted until a completed order was reviewed
-      ...(reviews.count > 0
-        ? {
-            aggregateRating: {
-              '@type': 'AggregateRating',
-              'ratingValue': reviews.average,
-              'reviewCount': reviews.count,
-            },
-          }
-        : {}),
-    }
+    const reviewService = new ReviewService()
+    const [reviews, sold, served, shipping] = await Promise.all([
+      reviewService.forListing(product.id),
+      reviewService.soldCount(product.id),
+      new CoverageService().servesCountry(country),
+      new ShippingService().table(),
+    ])
+    const zone = shipping.zoneFor(country)
+    const jsonLd = productJsonLd({
+      product,
+      reviews,
+      url: canonicalUrl,
+      siteUrl: siteUrl(),
+      delivery: { country, served },
+      transitDays: { min: zone.transitDaysMin, max: zone.transitDaysMax },
+      priceValidUntil: DateTime.now().plus({ days: 30 }).toISODate()!,
+    })
     return inertia.render('shop/show', {
       product,
       reviews,
       canonicalUrl,
       // prices follow the visitor's likely country; say so when nobody prints there yet (K-K)
-      delivery: { country, served: await new CoverageService().servesCountry(country) },
+      delivery: { country, served },
+      soldCount: sold >= SOLD_COUNT_MIN ? sold : null,
       jsonLd: JSON.stringify(jsonLd).replaceAll('<', '\\u003c'),
     })
   }
