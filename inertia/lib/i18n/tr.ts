@@ -3108,4 +3108,8 @@ export const tr: Record<string, string> = {
   'Phone numbers, links and e-mail addresses are hidden in messages; photos lose their location data.':
     'Mesajlarda telefon numaraları, bağlantılar ve e-posta adresleri gizlenir; fotoğraflardan konum bilgisi silinir.',
   'How your money is protected': 'Paran nasıl korunur',
+  // files: slow scan
+  'The check is taking longer than usual. You can leave this page; the result will be here.':
+    'Kontrol beklenenden uzun sürüyor. Bu sayfadan ayrılabilirsin; sonuç burada olacak.',
+  'Check again': 'Tekrar kontrol et',
 }

@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon'
 import { randomUUID } from 'node:crypto'
 import drive from '@adonisjs/drive/services/main'
 import logger from '@adonisjs/core/services/logger'
@@ -21,6 +22,11 @@ interface RegisterFileData {
   storageKey: string
   format: ModelFileFormat
 }
+
+/** A scan that has not moved for this long is handed to the queue again. */
+const STALLED_AFTER_MINUTES = 15
+/** A scan still unfinished this long after upload is marked failed. */
+const GIVE_UP_AFTER_HOURS = 2
 
 export default class ModelFileService {
   /**
@@ -170,6 +176,43 @@ export default class ModelFileService {
       current = next
     }
     return current
+  }
+
+  /**
+   * Files whose scan never finished (worker down, job lost): hand them to the queue again once they
+   * have waited 15 minutes (the job is idempotent), and after 2 hours give up with a clear message
+   * so the owner is not left on "scanning" forever. Run by the scheduler (RecoverStalledAnalyses).
+   */
+  async recoverStalled(
+    options: { now?: DateTime; dispatch?: (id: number) => Promise<void> } = {}
+  ): Promise<{ requeued: number; failed: number }> {
+    const now = options.now ?? DateTime.now()
+    const dispatch = options.dispatch ?? ((id: number) => this.dispatchAnalysis(id))
+    const stale = await ModelFile.query()
+      .whereIn('analysisStatus', ['pending', 'processing'])
+      .where('updatedAt', '<', now.minus({ minutes: STALLED_AFTER_MINUTES }).toJSDate())
+      .orderBy('id', 'asc')
+      .limit(200)
+    let requeued = 0
+    let failed = 0
+    for (const file of stale) {
+      if (file.createdAt < now.minus({ hours: GIVE_UP_AFTER_HOURS })) {
+        file.analysisStatus = 'failed'
+        file.isPrintable = false
+        file.analysisError = 'The check did not finish in time. Please upload the file again.'
+        await file.save()
+        failed += 1
+        continue
+      }
+      file.analysisStatus = 'pending'
+      file.updatedAt = now
+      await file.save()
+      await dispatch(file.id).catch((error) =>
+        logger.warn({ msg: 'Failed to re-dispatch analysis job', modelFileId: file.id, error })
+      )
+      requeued += 1
+    }
+    return { requeued, failed }
   }
 
   private async dispatchAnalysis(modelFileId: number): Promise<void> {

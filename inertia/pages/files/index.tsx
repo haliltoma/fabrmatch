@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, lazy, Suspense } from 'react'
+import { useState, useCallback, lazy, Suspense } from 'react'
 import { router } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { Button } from '~/components/ui/button'
@@ -10,6 +10,7 @@ import { PageHeader } from '~/components/page_header'
 import { Pagination, type PageMeta } from '~/components/pagination'
 import { EmptyState } from '~/components/empty_state'
 import { useT } from '~/lib/i18n'
+import { usePollWhile } from '~/lib/poll'
 
 const StlViewer = lazy(() => import('~/components/stl_viewer'))
 
@@ -286,12 +287,9 @@ function FilesIndex({ files, meta }: { files: FileData[]; meta: PageMeta }) {
     (f) => f.analysisStatus === 'pending' || f.analysisStatus === 'processing'
   )
 
-  // the scan runs in the background: refresh the list until every file has a verdict
-  useEffect(() => {
-    if (!scanning) return
-    const timer = setInterval(() => router.reload({ only: ['files'] }), 3000)
-    return () => clearInterval(timer)
-  }, [scanning])
+  // the scan runs in the background: refresh the list until every file has a verdict, slowing
+  // down and then stopping, so a stuck scan does not turn into a request every few seconds forever
+  const poll = usePollWhile(scanning, () => router.reload({ only: ['files'] }))
   const [replaces, setReplaces] = useState<{ id: number; name: string } | null>(null)
 
   return (
@@ -324,6 +322,22 @@ function FilesIndex({ files, meta }: { files: FileData[]; meta: PageMeta }) {
           }}
         />
       </Dialog>
+
+      {poll.gaveUp && (
+        <div
+          role="status"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-md bg-amber-soft px-4 py-3 text-sm text-amber-ink"
+        >
+          <span>
+            {t(
+              'The check is taking longer than usual. You can leave this page; the result will be here.'
+            )}
+          </span>
+          <Button size="sm" variant="outline" onClick={poll.retry}>
+            {t('Check again')}
+          </Button>
+        </div>
+      )}
 
       {files.length === 0 ? (
         <EmptyState

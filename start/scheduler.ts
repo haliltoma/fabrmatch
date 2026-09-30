@@ -16,6 +16,7 @@ import ReconcilePayments from '#jobs/reconcile_payments'
 import SyncPendingPayments from '#jobs/sync_pending_payments'
 import PushStoreFulfillments from '#jobs/push_store_fulfillments'
 import PollStoreOrders from '#jobs/poll_store_orders'
+import RecoverStalledAnalyses from '#jobs/recover_stalled_analyses'
 
 await AutoConfirmDelivery.schedule({}).id('auto-confirm-delivery').every('1h').run()
 await CheckProductionSla.schedule({}).id('check-production-sla').every('1h').run()
@@ -35,3 +36,4 @@ await RunLifecycle.schedule({}).id('run-lifecycle').every('1h').run()
 await DeliverWebhooks.schedule({}).id('deliver-webhooks').every('1m').run()
 await RefreshFxRates.schedule({}).id('refresh-fx-rates').every('6h').run()
 await CloseRfqs.schedule({}).id('close-rfqs').every('10m').run()
+await RecoverStalledAnalyses.schedule({}).id('recover-stalled-analyses').every('10m').run()

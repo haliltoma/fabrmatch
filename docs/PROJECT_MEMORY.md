@@ -280,6 +280,8 @@
 
 ## Log
 
+- **2026-10-01** — U1: Dosyalarım sayfasının sonsuz 3 sn yoklaması düzeldi (artan aralık + 3 dk sonra dur + gizli sekmede dur) ve takılı taramalar sunucuda kurtarılıyor (`RecoverStalledAnalyses`). Yerelde taramalar için `node ace queue:work` çalışmalı. Kullanıcı istekleri Paket U (U1–U9) olarak tasks.md'de; K-U: tüm anahtarlar UUID (kullanıcı kararı). 963 test.
+
 - **2026-10-01** — Ana sayfa güven bandı (`trust_band.tsx`): dosyanın yolu 4 durak + kişi gizliliği, her iddia koda bağlı; tekrar eden `WhyStrip` kaldırıldı. a11y 0 ihlal, 960 test.
 
 - **2026-10-01** — Alıcı sipariş yolculuğu: "Sırada" kartı (`order_next_step.tsx` + saf `lib/order_next_step.ts`, durum makinesine karşı unit test): 6 aşama, kimin sırası, para durumu, eylemler kartta, bitmiş siparişte sonraki iş önerisi; sipariş listesinde "Sıra sende" rozeti. Browser testi seçici düzeltmesi (exact). a11y 0 ihlal, 960 test.
