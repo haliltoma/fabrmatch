@@ -4,8 +4,10 @@ import env from '#start/env'
 const fabrmatchConfig = {
   security: {
     requireAdminTwoFactor: env.get('ADMIN_2FA_REQUIRED', true),
-    // local dev can skip e-mail verification; production always requires it
-    requireEmailVerification: app.inProduction || env.get('EMAIL_VERIFICATION_REQUIRED', true),
+    // local dev and a test server can skip e-mail verification; live production always requires it
+    requireEmailVerification:
+      (app.inProduction && !env.get('STAGING', false)) ||
+      env.get('EMAIL_VERIFICATION_REQUIRED', true),
   },
   orders: {
     autoConfirmDays: 7,

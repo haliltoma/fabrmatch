@@ -22,6 +22,26 @@ test.group('assertPaymentConfigured (R0-T8 deploy guard)', () => {
     )
   })
 
+  test('a staging server may run the fake provider or the iyzico sandbox', ({ assert }) => {
+    assert.doesNotThrow(() => assertPaymentConfigured({ ...base, staging: true }))
+    assert.doesNotThrow(() =>
+      assertPaymentConfigured({
+        nodeEnv: 'production',
+        staging: true,
+        provider: 'iyzico',
+        webhookSecret: undefined,
+        iyzico: {
+          baseUrl: 'https://sandbox-api.iyzipay.com',
+          apiKey: 'k',
+          secretKey: 's',
+          marketplace: false,
+          platformSubMerchantKey: undefined,
+        },
+      })
+    )
+    assert.throws(() => assertPaymentConfigured({ ...base, staging: false }), /not allowed/)
+  })
+
   test('development without a webhook secret is refused', ({ assert }) => {
     assert.throws(
       () => assertPaymentConfigured({ ...base, nodeEnv: 'development', webhookSecret: undefined }),

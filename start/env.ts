@@ -32,6 +32,9 @@ export default await Env.create(new URL('../', import.meta.url), {
   // checkout asks for explicit acceptance of the legal documents; switch on once the texts are approved (D5)
   LEGAL_ACCEPTANCE_REQUIRED: Env.schema.boolean.optional(),
   APP_URL: Env.schema.string({ format: 'url', tld: false }),
+  // a public test server: production hardening stays on, but fake payments/carrier and the iyzico
+  // sandbox are allowed and e-mail verification may be skipped (docs/DEPLOY.md). Never on live.
+  STAGING: Env.schema.boolean.optional(),
 
   // Session
   SESSION_DRIVER: Env.schema.enum(['cookie', 'memory', 'database'] as const),

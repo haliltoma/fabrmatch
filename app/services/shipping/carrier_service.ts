@@ -2,6 +2,7 @@ import { randomBytes } from 'node:crypto'
 import app from '@adonisjs/core/services/app'
 import db from '@adonisjs/lucid/services/db'
 import logger from '@adonisjs/core/services/logger'
+import env from '#start/env'
 import ManufacturerProfile from '#models/manufacturer_profile'
 import ProductionJob from '#models/production_job'
 import FulfillmentService from '#services/orders/fulfillment_service'
@@ -19,7 +20,7 @@ export type CarrierOutcome = 'delivered' | 'in_transit' | 'ignored' | 'duplicate
  * tests keep the fixed default they sign with.
  */
 function defaultCarrier(): CarrierProvider {
-  if (app.inProduction) {
+  if (app.inProduction && !env.get('STAGING', false)) {
     throw new Error('No carrier integration is configured for production (decision D3)')
   }
   const secret = env.get('FAKE_CARRIER_SECRET')?.release()

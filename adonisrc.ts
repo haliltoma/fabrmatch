@@ -91,6 +91,19 @@ export default defineConfig({
       pattern: 'public/**',
       reloadServer: false,
     },
+    // markdown read at runtime (blog/materials pages, legal texts, changelog); without these the build 500s
+    {
+      pattern: 'resources/content/**',
+      reloadServer: false,
+    },
+    {
+      pattern: 'resources/legal/**',
+      reloadServer: false,
+    },
+    {
+      pattern: 'resources/*.md',
+      reloadServer: false,
+    },
   ],
 
   hooks: {

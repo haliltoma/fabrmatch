@@ -1,0 +1,83 @@
+# Production data services for a single-server install (docs/DEPLOY.md).
+# Bound to 127.0.0.1 only: the app is the sole client, the internet reaches nothing but the tunnel.
+name: fabrmatch-prod
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:5432:5432'
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER}']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes', '--requirepass', '${REDIS_PASSWORD}']
+    ports:
+      - '127.0.0.1:6380:6379'
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ['CMD-SHELL', 'redis-cli -a "$$REDIS_PASSWORD" --no-auth-warning ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+
+  # --- test server only (`--profile staging`): local stand-ins for R2 and a real SMTP ---
+  # S3-compatible store (MinIO no longer publishes images); console at 127.0.0.1:9003
+  s3:
+    image: rustfs/rustfs:latest
+    profiles: ['staging']
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:9002:9000'
+      - '127.0.0.1:9003:9001'
+    environment:
+      RUSTFS_ACCESS_KEY: ${S3_KEY}
+      RUSTFS_SECRET_KEY: ${S3_SECRET}
+      RUSTFS_CONSOLE_ENABLE: 'true'
+    volumes:
+      - s3data:/data
+
+  # creates S3_BUCKET once the store answers (uploads fail without it)
+  s3-init:
+    image: amazon/aws-cli:latest
+    profiles: ['staging']
+    depends_on:
+      - s3
+    restart: 'no'
+    environment:
+      AWS_ACCESS_KEY_ID: ${S3_KEY}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET}
+      AWS_DEFAULT_REGION: ${S3_REGION}
+      S3_BUCKET: ${S3_BUCKET}
+    entrypoint: >
+      /bin/sh -c "until aws --endpoint-url http://s3:9000 s3api head-bucket --bucket $$S3_BUCKET 2>/dev/null
+      || aws --endpoint-url http://s3:9000 s3 mb s3://$$S3_BUCKET; do sleep 2; done"
+
+  # catches every outgoing mail; inbox at http://127.0.0.1:8026 (ssh -L 8026:127.0.0.1:8026)
+  mailpit:
+    image: axllent/mailpit
+    profiles: ['staging']
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:1026:1025'
+      - '127.0.0.1:8026:8025'
+
+volumes:
+  pgdata:
+  redisdata:
+  s3data:

@@ -1,0 +1,13 @@
+[Unit]
+Description=Fabrmatch queue worker
+After=network-online.target
+
+[Service]
+WorkingDirectory=%h/my-projects/fabrmatch/build
+EnvironmentFile=%h/.config/fabrmatch/app.env
+ExecStart=%h/.nvm/versions/node/v24.21.0/bin/node ace queue:work
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target

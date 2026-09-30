@@ -19,6 +19,8 @@ export interface IyzicoRuntime {
 
 export interface PaymentRuntime {
   nodeEnv: 'development' | 'production' | 'test'
+  /** STAGING=true: a public test server that may take test money only */
+  staging?: boolean
   provider: string
   webhookSecret: string | undefined
   iyzico?: IyzicoRuntime
@@ -33,9 +35,9 @@ export interface PaymentRuntime {
  * without sub-merchants the platform itself would be holding the buyers' money (PRD §11).
  */
 export function assertPaymentConfigured(runtime: PaymentRuntime): void {
-  const { nodeEnv, provider, webhookSecret } = runtime
+  const { nodeEnv, provider, webhookSecret, staging } = runtime
   if (provider === 'fake') {
-    if (nodeEnv !== 'development' && nodeEnv !== 'test') {
+    if (nodeEnv !== 'development' && nodeEnv !== 'test' && !staging) {
       throw new PaymentNotConfiguredError(
         `PAYMENT_PROVIDER=fake is not allowed when NODE_ENV=${nodeEnv}. Set a real provider.`
       )
@@ -66,7 +68,7 @@ export function assertPaymentConfigured(runtime: PaymentRuntime): void {
       throw new PaymentNotConfiguredError('IYZICO_MARKETPLACE is only for SALES_MODEL=marketplace')
     }
     if (nodeEnv === 'production') {
-      if (iyzico.baseUrl.includes('sandbox')) {
+      if (iyzico.baseUrl.includes('sandbox') && !staging) {
         throw new PaymentNotConfiguredError('The iyzico sandbox is not allowed in production')
       }
       // the maker as seller: the money must sit with iyzico, never with us (6493)
@@ -84,6 +86,7 @@ export function assertPaymentConfigured(runtime: PaymentRuntime): void {
 export function currentPaymentRuntime(): PaymentRuntime {
   return {
     nodeEnv: env.get('NODE_ENV'),
+    staging: env.get('STAGING', false),
     provider: env.get('PAYMENT_PROVIDER', 'fake'),
     webhookSecret: env.get('PAYMENT_WEBHOOK_SECRET')?.release(),
     salesModel: salesModel(),
