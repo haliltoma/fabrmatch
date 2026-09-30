@@ -280,6 +280,8 @@
 
 ## Log
 
+- **2026-09-30** — Ana sayfa 2. bölüm yeniden: yazıcı vitrini hero'yu tekrarlıyordu → "Etrafına bak" SVG odası (`printed_around.tsx`, 10 basılabilir nesne, sorun→çözüm kartı, tek sonraki adım, mobilde çip satırı). Emanet bandı → "Ödemeden sonra" zaman çizelgesi (`after_you_pay.tsx`: 6 adım, para durumu, state machine'e dayalı güvenlik ağları); sipariş boş durumundan `/#after-you-pay` bağlantısı. a11y 0 ihlal, 954 test.
+
 - **2026-09-30** — Ana sayfa: hero altındaki malzeme şeridi yerine "Neler bastırabilirsin" vitrini (`components/print_showcase.tsx`): SVG yazıcı 10 kategoriden parçayı katman katman basar (motion, 5,4 sn döngü, ekrandayken ilerler), altta tıklanabilir kategori şeridi; kısa 3 adım + 2 CTA (hızlı fiyat, mağaza), kategori başına sonraki adım bağlantısı (use-case sayfası ya da hızlı fiyat). Zamanlama saf fonksiyon `lib/showcase_timeline.ts` + unit test. Reduced-motion: bitmiş parça, seçim yine çalışır. 957 test.
 
 - **2026-09-27** — Kapsamlı inceleme (graphify + 5 alan ajanı + Playwright canlı tarama) ve düzeltmeler: 9 kritik + ~25 orta/düşük bulgu testli olarak kapatıldı (yükleme imzası/anahtar, ters ibraz zararı, teknoloji, işi aktarma + kapasite, EXIF temizliği, ödeme akışı tutarlılığı, form hataları, hız sınırları, maskeleme, özetli anahtarlar, bayat fiyat, eşleştirme süpürmesi, override sınırları, RFQ, yarışlar). Kalanlar tasks.md 'İnceleme 2026-09-27'. 953 test.

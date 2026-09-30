@@ -54,6 +54,12 @@ export default function OrdersIndex({ orders, meta }: { orders: OrderData[]; met
               <Button variant="outline" asChild>
                 <Link href="/files">{t('Upload a model')}</Link>
               </Button>
+              <Link
+                href="/#after-you-pay"
+                className="basis-full text-sm font-semibold text-ink-900 underline underline-offset-4"
+              >
+                {t('What happens after you pay')}
+              </Link>
             </div>
           }
         />

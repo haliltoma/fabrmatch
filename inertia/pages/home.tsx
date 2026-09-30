@@ -11,7 +11,8 @@ import { HeroQuickStart } from '~/components/hero_quick_start'
 import { HeroCube } from '~/components/hero_cube'
 import { ClosingBand } from '~/components/closing_band'
 import { LearnBand, type HomeGuide } from '~/components/learn_band'
-import { PrintShowcase } from '~/components/print_showcase'
+import { PrintedAround } from '~/components/printed_around'
+import { AfterYouPay } from '~/components/after_you_pay'
 import { NearbyBand } from '~/components/nearby_band'
 import { MarginBand, type MarginSample } from '~/components/margin_band'
 import { IncomeBand } from '~/components/income_band'
@@ -136,7 +137,7 @@ export default function Home({
         </div>
       </section>
 
-      <PrintShowcase />
+      <PrintedAround />
 
       <WhyStrip />
 
@@ -153,27 +154,7 @@ export default function Home({
 
       <IncomeBand rules={incomeRules} />
 
-      {/* Escrow band */}
-      <section className="palette-light layer-lines-light bg-ink-900 text-paper">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-[1fr_1.2fr] lg:px-8">
-          <h2 className="font-display text-4xl font-semibold leading-tight">
-            {t("Your payment waits until you say it's fine.")}
-          </h2>
-          <div className="space-y-4 text-ink-200">
-            <p>
-              {t(
-                'The money is held while your part is made. You have {days} days after delivery to confirm or report a problem; if you say nothing, it is released to the maker.',
-                { days: stats.confirmDays }
-              )}
-            </p>
-            <p>
-              {t(
-                'If a part arrives wrong, open a dispute and attach photos. Payment stays on hold until an admin decides: full refund, partial refund, or release.'
-              )}
-            </p>
-          </div>
-        </div>
-      </section>
+      <AfterYouPay confirmDays={stats.confirmDays} />
 
       <NearbyBand makers={stats.makers} />
 

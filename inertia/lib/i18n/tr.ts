@@ -2922,39 +2922,74 @@ export const tr: Record<string, string> = {
     'Bu siparişin fiyatı artık güncel değil. Lütfen siparişi yeniden oluşturun.',
   'Your account can no longer take orders': 'Hesabınız artık sipariş alamıyor',
   'The printer for this offer is no longer active': 'Bu teklifin yazıcısı artık aktif değil',
-  // home: what you can print (showcase)
+  // home: what you can print (room) and after you pay (timeline)
   'What you can print': 'Neler bastırabilirsin',
-  'If it fits on a print bed, a maker near you can print it.':
-    'Baskı tablasına sığıyorsa, yakınındaki bir üretici basabilir.',
-  'A missing part, a gift, a prototype or a hundred of your own product. Send a 3D model, or pick a ready design from the shop.':
-    'Kayıp bir parça, bir hediye, bir prototip ya da kendi ürününden yüz adet. 3D modelini gönder ya da mağazadan hazır bir tasarım seç.',
-  'Bring a model or pick a design': 'Model getir ya da tasarım seç',
-  'See the price straight away': 'Fiyatı hemen gör',
-  'A verified maker prints and ships it': 'Doğrulanmış bir üretici basar ve gönderir',
-  'See a price for your model': 'Modelinin fiyatını gör',
-  'Browse ready designs': 'Hazır tasarımlara göz at',
-  'Now printing': 'Şimdi basılıyor',
-  'Printed': 'Basıldı',
-  'See example prices for this': 'Bunun için örnek fiyatları gör',
   'Price your own model': 'Kendi modelini fiyatla',
-  'Things people print': 'İnsanların bastırdıkları',
-  'Print {name}': '{name} bas',
   'Home & decor': 'Ev ve dekor',
-  'Vases, bowls, wall art': 'Vazolar, kâseler, duvar süsleri',
-  'Gears, knobs, brackets, clips': 'Dişliler, düğmeler, braketler, klipsler',
   'Plant pots': 'Saksılar',
-  'Planters, self-watering pots': 'Saksılar, kendi kendini sulayan saksılar',
-  'Enclosures, fit checks, jigs': 'Kutular, uyum denemeleri, aparatlar',
   'Tabletop games': 'Masa oyunları',
-  'Miniatures, chess sets, dice towers': 'Minyatürler, satranç takımları, zar kuleleri',
   'Desk & storage': 'Masa ve düzen',
-  'Pen cups, drawer dividers': 'Kalemlikler, çekmece bölücüleri',
   'Toys & gifts': 'Oyuncak ve hediye',
-  'Gifts, puzzles, name tags': 'Hediyeler, bulmacalar, isimlikler',
   'Cable management': 'Kablo düzeni',
-  'Clips and hooks, by the hundred': 'Yüzlerce klips ve askı',
   'Lighting': 'Aydınlatma',
-  'Lamp shades, diffusers': 'Abajurlar, ışık dağıtıcılar',
   'Gadget stands': 'Cihaz standları',
-  'Phone, tablet and headphone stands': 'Telefon, tablet ve kulaklık standları',
+  'Look around. Much of it could be printed.': 'Etrafına bak. Çoğu basılabilir.',
+  'Tap an object in the room to see the everyday job it does.':
+    'Odadaki bir nesneye dokun, hangi günlük işi gördüğünü gör.',
+  'Things you can print': 'Bastırabileceğin şeyler',
+  'Find ready designs': 'Hazır tasarımları bul',
+  'See example prices': 'Örnek fiyatları gör',
+  'A gear in the blender stripped and nobody sells it on its own. It is printed again, in tougher PETG.':
+    'Blenderdaki dişli aşındı ve kimse onu tek başına satmıyor. Daha dayanıklı PETG ile yeniden basılır.',
+  'Cables everywhere behind the desk. A hundred clips come in one small batch.':
+    'Masanın arkası kablo dolu. Yüz klips tek bir küçük seride gelir.',
+  'Your circuit needs a case before you show it to anyone. One print to hold in your hand.':
+    'Devren kimseye göstermeden önce bir kutuya ihtiyaç duyuyor. Eline alabileceğin tek bir baskı.',
+  'A pot that fits the gap by the window to the millimetre, in the colour you want.':
+    'Pencere kenarındaki boşluğa milimetresine kadar uyan, istediğin renkte bir saksı.',
+  'The chess piece the dog chewed, or a whole set of miniatures for game night.':
+    'Köpeğin çiğnediği satranç taşı ya da oyun gecesi için bütün bir minyatür seti.',
+  'Drawer dividers and pen cups sized to your desk, not to a catalogue.':
+    'Kataloğa göre değil, masana göre ölçülmüş çekmece bölücüleri ve kalemlikler.',
+  'A gift with their name on it that nobody else has.':
+    'Üzerinde onun adı olan, başka kimsede olmayan bir hediye.',
+  'A lamp shade that throws a pattern on the wall when it is on.':
+    'Yanınca duvara desen düşüren bir abajur.',
+  'A vase in the exact colour of your room, not the one the store happened to have.':
+    'Mağazada ne varsa o değil, tam odanın renginde bir vazo.',
+  'A phone stand at the angle you actually read at.':
+    'Gerçekten okuduğun açıda bir telefon standı.',
+  'After you pay': 'Ödemeden sonra',
+  'Your money waits. You see every step.': 'Paran bekler. Her adımı görürsün.',
+  'What happens to your order, and to your money, from payment to your door.':
+    'Ödemeden kapına kadar siparişine ve paraya ne olduğu.',
+  'Order steps': 'Sipariş adımları',
+  'Money held': 'Para bekletiliyor',
+  'Money released': 'Para serbest',
+  'Questions about payment and delivery': 'Ödeme ve teslimat hakkında sorular',
+  'You pay': 'Ödersin',
+  'Fabrmatch holds the money. The maker does not get it yet.':
+    'Parayı Fabrmatch tutar. Üretici henüz almaz.',
+  'A maker takes the job': 'Bir üretici işi alır',
+  'A verified maker with the right printer, material and free time accepts it.':
+    'Uygun yazıcısı, malzemesi ve boş zamanı olan doğrulanmış bir üretici kabul eder.',
+  'No maker free?': 'Boş üretici yok mu?',
+  'We tell you, and you can cancel for a full refund.':
+    'Sana haber veririz; iptal edip paranın tamamını geri alabilirsin.',
+  'It is printed': 'Basılır',
+  'We e-mail you when printing starts.': 'Baskı başlayınca sana e-posta göndeririz.',
+  'Maker drops out?': 'Üretici vazgeçerse?',
+  'The job goes to another maker.': 'İş başka bir üreticiye geçer.',
+  'It ships': 'Kargolanır',
+  'The tracking number appears on your order page.': 'Takip numarası sipariş sayfanda görünür.',
+  'You check it': 'Kontrol edersin',
+  'You have {days} days after delivery to look it over.':
+    'Teslimattan sonra incelemek için {days} günün var.',
+  'Wrong or broken?': 'Yanlış ya da kırık mı?',
+  'Open a dispute with photos. An admin decides: refund, partial refund or a reprint.':
+    'Fotoğraflarla itiraz aç. Bir yönetici karar verir: iade, kısmi iade ya da yeniden baskı.',
+  'The maker is paid': 'Üretici ödemesini alır',
+  'Only after you confirm, or the {days} days pass without a problem.':
+    'Yalnızca sen onaylayınca ya da {days} gün sorunsuz geçince.',
+  'What happens after you pay': 'Ödemeden sonra ne olur',
 }
