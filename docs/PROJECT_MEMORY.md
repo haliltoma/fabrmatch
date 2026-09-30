@@ -280,6 +280,8 @@
 
 ## Log
 
+- **2026-09-30** — Ana sayfa: hero altındaki malzeme şeridi yerine "Neler bastırabilirsin" vitrini (`components/print_showcase.tsx`): SVG yazıcı 10 kategoriden parçayı katman katman basar (motion, 5,4 sn döngü, ekrandayken ilerler), altta tıklanabilir kategori şeridi; kısa 3 adım + 2 CTA (hızlı fiyat, mağaza), kategori başına sonraki adım bağlantısı (use-case sayfası ya da hızlı fiyat). Zamanlama saf fonksiyon `lib/showcase_timeline.ts` + unit test. Reduced-motion: bitmiş parça, seçim yine çalışır. 957 test.
+
 - **2026-09-27** — Kapsamlı inceleme (graphify + 5 alan ajanı + Playwright canlı tarama) ve düzeltmeler: 9 kritik + ~25 orta/düşük bulgu testli olarak kapatıldı (yükleme imzası/anahtar, ters ibraz zararı, teknoloji, işi aktarma + kapasite, EXIF temizliği, ödeme akışı tutarlılığı, form hataları, hız sınırları, maskeleme, özetli anahtarlar, bayat fiyat, eşleştirme süpürmesi, override sınırları, RFQ, yarışlar). Kalanlar tasks.md 'İnceleme 2026-09-27'. 953 test.
 - **2026-09-27** — X-17 kalanları: üretici fiyat uyarısı bölgesel (`MissedOrdersService.forPrinters(printers, country)` — referans üreticinin bölgesinden, sayım yalnız o ülkeye teslim edilen siparişler), `UseCaseService.list(terms)` ve `MarginPreviewService.preview(id, bps, terms)` ziyaretçi bölgesiyle, EUR tahsilli AB siparişi testi. 916 test.
 - **2026-09-27** — X-17 bölgesel fiyatlandırma (P2, `.plans/regional-pricing.md` T5–T10): bölge tabloları + admin ekranı, `priceOrder`/eşleştirme/göz atma fiyatları bölgeyle, ziyaretçi ülkesi yardımcısı, üretici olmayan ülke uyarısı, bölgeye göre sepet varsayılanları. Tohum nötr: mevcut fiyatlar değişmedi. Not: knex ham SQL'de `?|` parametre sanılır → `jsonb_exists_any`. 913 test.

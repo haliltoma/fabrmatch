@@ -11,7 +11,7 @@ import { HeroQuickStart } from '~/components/hero_quick_start'
 import { HeroCube } from '~/components/hero_cube'
 import { ClosingBand } from '~/components/closing_band'
 import { LearnBand, type HomeGuide } from '~/components/learn_band'
-import { MaterialMarquee } from '~/components/material_marquee'
+import { PrintShowcase } from '~/components/print_showcase'
 import { NearbyBand } from '~/components/nearby_band'
 import { MarginBand, type MarginSample } from '~/components/margin_band'
 import { IncomeBand } from '~/components/income_band'
@@ -136,7 +136,7 @@ export default function Home({
         </div>
       </section>
 
-      <MaterialMarquee materials={materials} />
+      <PrintShowcase />
 
       <WhyStrip />
 

@@ -268,3 +268,10 @@ Hero: `paper` zemin + katman çizgisi, sağda 4 pop kutucuk (sun/lime/sky/blush)
 - **Kart (`ProductThumb`):** `.layer-lines` plaka üstünde render (`object-contain`) ya da fotoğraf (`object-cover`); ölçü çipi sağ altta. Görsel yoksa eski harf plakası.
 - **Ürün sayfası (`ProductGallery`):** tek akılda kalan öğe **döner tabla** — sürükleyerek (40 px = 1 kare) ya da altındaki kaydırıcıyla (8 açı işaretli, klavye oklarıyla) çevrilir; tüm kareler önceden yüklü. "Çevirmek için sürükle" ipucu ilk dönüşte kaybolur. Onaylı gerçek fotoğraflar küçük resim olarak; dürüst altyazı: "Modelin bilgisayar render'ı… rengi seçtiğin malzemeye göre olur".
 - **Üretici fotoğrafı:** yalnız admin onayından sonra, renderlardan önce gösterilir; admin kuyruğunda "üreticiyi ele veren hiçbir şey yoksa onayla" notu.
+
+## 21. "Neler bastırabilirsin" vitrini (2026-09-30)
+
+- **Ne:** hero'nun hemen altında `lime` bant (`components/print_showcase.tsx`); eski malzeme marquee'sinin yerini aldı (malzemeler Keşif bölümünde kalır). Solda başlık + 3 adım + 2 CTA (hızlı fiyat birincil, mağaza ikincil); sağda kart içinde SVG yazıcı, 10 kategori parçasını (vazo, dişli, saksı, kutu, at, düzenleyici, roket, klips, abajur, stand) katman çizgili basar; altta sağdan sola akan kategori şeridi — tıklanan kategori sıradaki baskı olur (`aria-pressed`).
+- **Yönlendirme:** her kategori kartında tek "sonraki adım": use-case sayfası varsa (yedek parça, prototip, küçük seri) örnek fiyatlar, yoksa hızlı fiyat.
+- **Hareket:** zamanlama `lib/showcase_timeline.ts` (test: `tests/unit/showcase_timeline.spec.ts`); ilk baskı bölüm görünür olunca başlar, ekran dışında döngü ilerlemez; reduced-motion ve SSR'de bitmiş parça. Şerit hover/odakta durur. Renkler spool paleti (tek turuncu parça: roket).
+

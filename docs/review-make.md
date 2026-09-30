@@ -1,0 +1,1 @@
+- surekli /files e istek atio ard arda stl dosya yüklemelerinde
