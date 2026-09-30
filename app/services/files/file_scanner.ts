@@ -17,6 +17,8 @@ export interface ScanVerdict {
 export type ModelFormat = 'STL' | '3MF' | 'OBJ'
 
 export const MAX_MODEL_BYTES = 200 * 1024 * 1024
+/** Largest file the account-free instant price accepts. */
+export const MAX_QUICK_BYTES = 15 * 1024 * 1024
 const MAX_TRIANGLES = 10_000_000
 const MAX_ZIP_ENTRIES = 2000
 const MAX_ZIP_UNPACKED = 1024 * 1024 * 1024

@@ -4,7 +4,7 @@ import { BadgeCheck, FileUp, ShieldCheck } from 'lucide-react'
 import { useT } from '~/lib/i18n'
 import { AudiencePaths } from '~/components/audience_paths'
 import type { HomeStats } from '~/lib/home_stats'
-import { HomeFaq } from '~/components/home_faq'
+import { HomeFaq, faqJsonLd, type FaqItem, type FaqParams } from '~/components/home_faq'
 import { HeroQuickStart } from '~/components/hero_quick_start'
 import { HeroCube } from '~/components/hero_cube'
 import { ClosingBand } from '~/components/closing_band'
@@ -28,6 +28,7 @@ export default function Home({
   stats,
   ctaVariant,
   faq,
+  faqParams,
   marginSamples,
   incomeRules,
   guides,
@@ -36,7 +37,8 @@ export default function Home({
 }: {
   stats: HomeStats
   ctaVariant: string
-  faq: Array<{ q: string; a: string }>
+  faq: FaqItem[]
+  faqParams: FaqParams
   marginSamples: MarginSample[]
   incomeRules: IncomeRules
   guides: HomeGuide[]
@@ -63,6 +65,7 @@ export default function Home({
         'query-input': 'required name=search_term_string',
       },
     },
+    faqJsonLd(faq, faqParams, t),
   ]).replaceAll('<', '\\u003c')
   return (
     <>
@@ -154,7 +157,7 @@ export default function Home({
 
       <LearnBand guides={guides} />
 
-      <HomeFaq faq={faq} />
+      <HomeFaq faq={faq} params={faqParams} />
 
       <ClosingBand />
     </>

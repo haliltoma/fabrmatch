@@ -12,7 +12,7 @@ import {
   DEFAULT_MANUFACTURER_PROFIT_BPS,
   GRAMS_PER_PRINT_HOUR,
 } from '#services/pricing/price_engine'
-import { FAQ } from '#controllers/support_controller'
+import { FAQ, faqParams } from '#services/support/faq'
 import PricingRegionService, { type BrowseTerms } from '#services/pricing/pricing_region_service'
 import { visitorCountry } from '#services/pricing/visitor_country'
 import StorefrontService from '#services/storefront/storefront_service'
@@ -41,7 +41,8 @@ export default class HomeController {
       stats,
       ctaVariant,
       marginSamples,
-      faq: FAQ.slice(0, 5),
+      faq: FAQ,
+      faqParams: faqParams(),
       guides: posts
         .slice(0, 3)
         .map((p) => ({ slug: p.slug, title: p.title, description: p.description, date: p.date })),

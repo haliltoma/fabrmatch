@@ -4,13 +4,22 @@ import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { useT } from '~/lib/i18n'
+import {
+  FAQ_CATEGORIES,
+  FaqEntry,
+  faqJsonLd,
+  type FaqItem,
+  type FaqParams,
+} from '~/components/home_faq'
 
 function Help({
   faq,
+  faqParams,
   topics,
   email: initialEmail,
 }: {
-  faq: Array<{ q: string; a: string }>
+  faq: FaqItem[]
+  faqParams: FaqParams
   topics: string[]
   email: string
 }) {
@@ -34,6 +43,12 @@ function Help({
             'Answers about payments, cancellations, disputes and makers, and a way to reach the Fabrmatch team.'
           )}
         />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(faqJsonLd(faq, faqParams, t)).replaceAll('<', '\\u003c'),
+          }}
+        />
       </Head>
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <h1 className="font-display text-4xl font-semibold text-ink-900">
@@ -45,15 +60,23 @@ function Help({
             <h2 id="faq-h" className="font-display text-2xl font-semibold text-ink-900">
               {t('Common questions')}
             </h2>
-            <div className="mt-4 divide-y divide-line rounded-[10px] border border-line bg-paper-raised">
-              {faq.map((item) => (
-                <details key={item.q} className="group px-5 py-4">
-                  <summary className="cursor-pointer list-none font-medium text-ink-900 marker:hidden">
-                    {t(item.q)}
-                  </summary>
-                  <p className="mt-2 text-ink-700">{t(item.a)}</p>
-                </details>
-              ))}
+            <div className="mt-4 space-y-6">
+              {FAQ_CATEGORIES.map((c) => {
+                const items = faq.filter((f) => f.category === c.id)
+                if (items.length === 0) return null
+                return (
+                  <div key={c.id}>
+                    <h3 className="font-mono text-xs font-semibold tracking-widest text-ink-600 uppercase">
+                      {t(c.label)}
+                    </h3>
+                    <div className="mt-2 divide-y divide-line rounded-[10px] border border-line bg-paper-raised">
+                      {items.map((item) => (
+                        <FaqEntry key={item.q} item={item} params={faqParams} />
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </section>
 

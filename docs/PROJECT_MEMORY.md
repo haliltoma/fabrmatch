@@ -280,6 +280,8 @@
 
 ## Log
 
+- **2026-10-01** — U2: SSS genişledi (18 soru/6 konu, config'ten sayılar, FAQPage JSON-LD, ana sayfa + /help). Bulgu: Inertia SSR hiç açılmamış → U3'ün ilk işi.
+
 - **2026-10-01** — U1: Dosyalarım sayfasının sonsuz 3 sn yoklaması düzeldi (artan aralık + 3 dk sonra dur + gizli sekmede dur) ve takılı taramalar sunucuda kurtarılıyor (`RecoverStalledAnalyses`). Yerelde taramalar için `node ace queue:work` çalışmalı. Kullanıcı istekleri Paket U (U1–U9) olarak tasks.md'de; K-U: tüm anahtarlar UUID (kullanıcı kararı). 963 test.
 
 - **2026-10-01** — Ana sayfa güven bandı (`trust_band.tsx`): dosyanın yolu 4 durak + kişi gizliliği, her iddia koda bağlı; tekrar eden `WhyStrip` kaldırıldı. a11y 0 ihlal, 960 test.

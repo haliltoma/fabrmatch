@@ -1,5 +1,6 @@
 import ExperimentService from '#services/growth/experiment_service'
 import type { HttpContext } from '@adonisjs/core/http'
+import { MAX_QUICK_BYTES } from '#services/files/file_scanner'
 import vine from '@vinejs/vine'
 import { parseMoneyToMinor } from '#services/pricing/money_input'
 import { estimateMakerIncome } from '#services/pricing/maker_income'
@@ -22,8 +23,6 @@ const validator = vine.create({
 })
 
 const DEFAULTS = { printers: 2, hours: 10, busy: 40, price: '0.50' }
-
-const MAX_QUICK_BYTES = 15 * 1024 * 1024
 
 export default class ToolController {
   async quickQuotePage({ inertia, session, request }: HttpContext) {

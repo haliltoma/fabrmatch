@@ -3112,4 +3112,62 @@ export const tr: Record<string, string> = {
   'The check is taking longer than usual. You can leave this page; the result will be here.':
     'Kontrol beklenenden uzun sürüyor. Bu sayfadan ayrılabilirsin; sonuç burada olacak.',
   'Check again': 'Tekrar kontrol et',
+  // FAQ (home + help)
+  'Questions, answered': 'Sorular ve cevapları',
+  'What people ask before their first order, and the plain answer.':
+    'İnsanların ilk siparişten önce sorduğu sorular ve açık cevapları.',
+  'Topics': 'Konular',
+  'Ordering': 'Sipariş',
+  'Payment': 'Ödeme',
+  'If something goes wrong': 'Bir şey ters giderse',
+  'Files and privacy': 'Dosyalar ve gizlilik',
+  'Selling': 'Satış',
+  'Printing for Fabrmatch': 'Fabrmatch için baskı',
+  'Still wondering?': 'Hâlâ merak ettiğin bir şey mi var?',
+  'Write to us and a person answers by e-mail.': 'Bize yaz, bir kişi e-postayla cevap versin.',
+  'Ask a question': 'Soru sor',
+  'Do I need an account to see a price?': 'Fiyat görmek için hesap gerekir mi?',
+  'No. Drop an STL, 3MF or OBJ file on the instant price page and you see the delivered price straight away. You only sign up when you order.':
+    'Hayır. Anında fiyat sayfasına bir STL, 3MF ya da OBJ dosyası bırak, kapıya teslim fiyatını hemen gör. Yalnızca sipariş verirken kayıt olursun.',
+  'Which files can I upload?': 'Hangi dosyaları yükleyebilirim?',
+  'STL, 3MF and OBJ. The instant price takes files up to {quickMb} MB without an account; once signed in you can upload models up to {maxMb} MB.':
+    'STL, 3MF ve OBJ. Anında fiyat hesapsız {quickMb} MB’a kadar dosya alır; giriş yaptıktan sonra {maxMb} MB’a kadar model yükleyebilirsin.',
+  'How long does it take?': 'Ne kadar sürer?',
+  'When a maker has free time for your job, the quote shows a delivery window: when printing can start, the production time and the carrier’s transit time. If no maker has room yet, the date is confirmed once one accepts.':
+    'Bir üreticinin işin için boş zamanı varsa teklif bir teslim aralığı gösterir: baskının ne zaman başlayabileceği, üretim süresi ve kargonun yolda geçen süresi. Henüz yer yoksa tarih bir üretici kabul edince kesinleşir.',
+  'Which materials can I choose?': 'Hangi malzemeleri seçebilirim?',
+  'The materials that verified makers print today, such as PLA and PETG. The materials page explains what each one is good for.':
+    'Doğrulanmış üreticilerin bugün bastığı malzemeler, örneğin PLA ve PETG. Malzemeler sayfası her birinin neye uygun olduğunu anlatır.',
+  'Only after you have the part. Your payment is held while the part is made and delivered; after delivery you have {days} days to confirm or open a dispute. If you do nothing the order completes and the maker is paid. While a dispute is open nothing is paid out.':
+    'Yalnızca parça eline geçtikten sonra. Ödemen parça üretilip teslim edilirken bekletilir; teslimattan sonra onaylamak ya da itiraz açmak için {days} günün var. Bir şey yapmazsan sipariş tamamlanır ve üreticiye ödeme yapılır. Açık bir itiraz varken hiçbir ödeme yapılmaz.',
+  'Yes, with a full refund, until a maker accepts the job. Once production has started, open a dispute if there is a problem with the part.':
+    'Evet, bir üretici işi kabul edene kadar paranın tamamı iade edilerek. Üretim başladıktan sonra parçada sorun olursa itiraz aç.',
+  'Open a dispute from the order page within {days} days of delivery and add photos. We review both sides; the outcome can be a refund, a partial refund, a reprint by another maker, or release of the payment.':
+    'Teslimattan sonraki {days} gün içinde sipariş sayfasından itiraz aç ve fotoğraf ekle. İki tarafı da inceleriz; sonuç iade, kısmi iade, başka bir üreticinin yeniden basması ya da ödemenin serbest bırakılması olabilir.',
+  'What if no maker takes my order?': 'Siparişimi hiçbir üretici almazsa?',
+  'Our team looks for one by hand, and you can cancel for a full refund at any time. If nobody has accepted it after {unmatchedDays} days, the order is cancelled and refunded automatically.':
+    'Ekibimiz elle üretici arar; istediğin zaman iptal edip paranın tamamını geri alabilirsin. {unmatchedDays} gün sonra hâlâ kimse kabul etmediyse sipariş otomatik olarak iptal edilir ve iade edilir.',
+  'What if the maker cannot finish my part?': 'Üretici parçamı bitiremezse?',
+  'The job goes to another maker. Your payment stays on hold the whole time.':
+    'İş başka bir üreticiye geçer. Ödemen bu süre boyunca bekletilir.',
+  'Only with the maker of your job, through a download link that expires. It is never shown publicly; the shop only shows a rendered picture.':
+    'Yalnızca işini basan üreticiyle, süresi dolan bir indirme bağlantısıyla. Asla herkese açık gösterilmez; mağaza yalnızca bir render görseli gösterir.',
+  'Are uploaded files checked for viruses?': 'Yüklenen dosyalar virüse karşı kontrol edilir mi?',
+  'Every upload is scanned before anyone opens it: program files and known malware signatures, scripts hidden inside the model, broken geometry and zip bombs. A file that fails is blocked and can never be downloaded.':
+    'Her yükleme kimse açmadan önce taranır: program dosyaları ve bilinen zararlı yazılım imzaları, modelin içine gizlenmiş betikler, bozuk geometri ve zip bombaları. Kontrolden geçemeyen dosya engellenir ve asla indirilemez.',
+  'Can I sell 3D printed products without a printer or stock?':
+    'Yazıcım ve stoğum olmadan 3D baskı ürün satabilir miyim?',
+  'Yes. Pick ready designs from the catalogue, set your margin and list them. Each order is printed and shipped by a verified maker after it is paid.':
+    'Evet. Katalogdan hazır tasarımları seç, marjını belirle ve listele. Her sipariş ödendikten sonra doğrulanmış bir üretici tarafından basılır ve gönderilir.',
+  'When do sellers get their margin?': 'Satıcılar marjlarını ne zaman alır?',
+  'After the buyer confirms delivery, or when the {days}-day check window passes without a problem. Your buyers never see who printed the part.':
+    'Alıcı teslimatı onaylayınca ya da {days} günlük kontrol süresi sorunsuz geçince. Alıcıların parçayı kimin bastığını asla görmez.',
+  'Join the maker list on the For makers page. We open city by city and approve every maker once before they receive offers.':
+    'Üreticiler için sayfasındaki listeye katıl. Şehir şehir açılıyoruz ve her üreticiyi teklif almadan önce bir kez onaylıyoruz.',
+  'How are jobs shared between makers?': 'İşler üreticiler arasında nasıl paylaştırılır?',
+  'Offers go to makers whose printer, material and free hours fit the job. Matching also sets aside a share of offers for new makers, so a new printer is not left waiting behind the busiest ones.':
+    'Teklifler yazıcısı, malzemesi ve boş saatleri işe uyan üreticilere gider. Eşleştirme ayrıca tekliflerin bir kısmını yeni üreticilere ayırır; böylece yeni bir yazıcı en yoğun olanların arkasında beklemez.',
+  'When are makers paid?': 'Üreticiler ne zaman ödeme alır?',
+  'The buyer’s money is held from the start and released to you once delivery is confirmed or the check window passes without a dispute.':
+    'Alıcının parası baştan bekletilir; teslimat onaylanınca ya da kontrol süresi itirazsız geçince sana aktarılır.',
 }
