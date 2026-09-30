@@ -301,3 +301,10 @@ Neden: ilk sürüm (yazıcı + adımlar + 2 CTA) hero'nun anlattığını tekrar
 - Her genel sayfa `<Head>` yerine **`<Seo>`** (`components/seo.tsx`) kullanır: title, description, canonical, hreflang (EN varsayılan URL, TR `?lang=tr`), OG/Twitter, paylaşım görseli (yoksa `public/og/fabrmatch-{en,tr}.png`), `breadcrumbs`, `jsonLd`. Tek dilli içerik (blog, sözlük) `bilingual={false}`. Yeni genel sayfa = `<Seo>` + sitemap'e ekle (`SeoService.sitemapUrls`).
 - Sayfalar sunucuda render edilir: tarayıcıya özgü değerleri (şu an, `localStorage`, `Math.random`, yerel saat dilimi) ilk render'da kullanma; `useHydrated()` ya da `formatDate/formatDateTime/formatNumber` kullan. Kontrol: `npm run ssr:check`.
 
+## 26. Admin paneli düzeni (2026-10-01)
+
+- **Menü grupları** (`lib/nav.ts adminNav`, `group` alanı): Bugün (Bugün, İş kuyrukları, Eşleştirme, İtirazlar, Ödemeler) · Pazar yeri · Fiyat ve tedarik · İçgörüler · Sistem. Yeni admin sayfası bir gruba girer; grup başlığı `<details>` (ilk ikisi hep açık).
+- **Rozet** (`badge` alanı): bekleyen iş sayısı `heat-500` yüz + ink rakam; tek kaynak `AttentionService` (paylaşılan `adminAttention`). Yeni kuyruk oraya da eklenir (dizi sırası = triage sırası).
+- **Bugün sayfası**: en üstte "Şimdi seni bekleyenler" (sayı çipi + etiket + ok), altında göz kulak sayılar; boşsa yeşil onay cümlesi.
+- **⌘K** (`components/admin_command.tsx`): her admin ekranında; sayfa adı, FO- kodu, e-posta/ad.
+- Liste filtresi = sayılı çipler (serbest metin değil).

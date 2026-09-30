@@ -280,6 +280,8 @@
 
 ## Log
 
+- **2026-10-01** — U5 admin (1. tur): 5 gruplu menü + bekleyen iş rozetleri (`AttentionService`), "Bugün" panosu (öncelikli yapılacaklar), kuyruklarda boşlar tek satır, sipariş durum çipleri, ⌘K komut paleti. 976 test. U5b açıldı.
+
 - **2026-10-01** — U4 ürün zengin sonuçları: Product şeması (teslimat, stok, gerçek yıldızlar) saf fonksiyonda; ürün sayfasında yıldız + "N kez sipariş edildi" (≥3). 974 test.
 
 - **2026-10-01** — U3 SEO/AEO: SSR açık (+ `npm run ssr:check`), `Seo` bileşeni tüm genel sayfalarda (canonical, hreflang `?lang=`, OG görseli, JSON-LD), hreflang'li sitemap, yeni robots.txt, `/llms.txt`. Tarayıcı testleri `INERTIA_SSR=false` ile koşar. 969 test.
