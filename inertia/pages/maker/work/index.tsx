@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useHydrated } from '~/lib/use_hydrated'
 import { router } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { toast } from 'sonner'
@@ -113,8 +114,9 @@ function useCountdown(expiresAt: string) {
 function Countdown({ expiresAt }: { expiresAt: string }) {
   const { t } = useT()
 
+  const hydrated = useHydrated()
   const remaining = useCountdown(expiresAt)
-  const expired = remaining <= 0
+  const expired = hydrated && remaining <= 0
 
   // The server expires the offer and opens the next round — refresh to see it.
   useEffect(() => {
@@ -127,11 +129,15 @@ function Countdown({ expiresAt }: { expiresAt: string }) {
   return (
     <span
       className={`inline-flex items-center gap-1 text-sm font-medium ${
-        expired ? 'text-ink-600' : minutes < 5 ? 'text-danger' : 'text-ink-700'
+        expired ? 'text-ink-600' : hydrated && minutes < 5 ? 'text-danger' : 'text-ink-700'
       }`}
     >
       <Clock className="h-3.5 w-3.5" />
-      {expired ? t('Expired') : `${minutes}:${String(seconds).padStart(2, '0')}`}
+      {!hydrated
+        ? '–:––'
+        : expired
+          ? t('Expired')
+          : `${minutes}:${String(seconds).padStart(2, '0')}`}
     </span>
   )
 }

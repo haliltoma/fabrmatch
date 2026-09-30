@@ -11,7 +11,7 @@ import { ArrowLeft, Calculator, Loader2, Package } from 'lucide-react'
 import { postJson } from '~/lib/api'
 import { TermsCheckbox, useLegalAcceptance } from '~/components/terms_checkbox'
 import { useIdempotencyKey } from '~/lib/idempotency'
-import { formatDate, formatMoney, formatPrice } from '~/lib/format'
+import { formatDate, formatMoney, formatNumber, formatPrice } from '~/lib/format'
 import { useT } from '~/lib/i18n'
 import { PaintColourField, type PaintColour } from '~/components/paint_colour'
 
@@ -258,7 +258,7 @@ function QuotePage({
             {file.triangleCount !== null && (
               <div>
                 <span className="text-ink-600">{t('Triangles:')}</span>{' '}
-                <span className="font-medium">{file.triangleCount.toLocaleString()}</span>
+                <span className="font-medium">{formatNumber(file.triangleCount)}</span>
               </div>
             )}
             <div>

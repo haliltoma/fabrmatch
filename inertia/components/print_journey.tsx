@@ -8,6 +8,7 @@ import {
   STILL_TIME,
   VASE_SCALE,
   armJoints,
+  fix,
   sceneAt,
   type Pose,
   type Step,
@@ -172,7 +173,13 @@ function Joint({ r = 14 }: { r?: number }) {
       />
       <circle r={r - 6} fill={SUN} stroke={INK} strokeWidth={2} />
       {bolts.map((a) => (
-        <circle key={a} cx={Math.cos(a) * (r - 3)} cy={Math.sin(a) * (r - 3)} r={1.4} fill={INK} />
+        <circle
+          key={a}
+          cx={fix(Math.cos(a) * (r - 3))}
+          cy={fix(Math.sin(a) * (r - 3))}
+          r={1.4}
+          fill={INK}
+        />
       ))}
       <circle r={3} fill={INK} />
     </g>

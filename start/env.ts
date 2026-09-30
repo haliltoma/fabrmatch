@@ -17,6 +17,8 @@ export default await Env.create(new URL('../', import.meta.url), {
   EMAIL_VERIFICATION_REQUIRED: Env.schema.boolean.optional(),
   // default for automatic matching (admin can flip it in /admin/matching); off = an admin picks the maker
   MATCHING_AUTO_OFFER: Env.schema.boolean.optional(),
+  // server-side rendering of Inertia pages (on unless set to false, e.g. for the browser tests)
+  INERTIA_SSR: Env.schema.boolean.optional(),
   // slicer worker: `none` keeps the heuristic estimate, `orca` runs the CLI at SLICER_BIN
   // antivirus: clamd host for INSTREAM scans of model uploads; unset = signature checks only
   CLAMAV_HOST: Env.schema.string.optional(),

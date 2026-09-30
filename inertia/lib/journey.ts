@@ -38,6 +38,11 @@ const ease = (k: number) => {
 const span = (t: number, start: number, end: number) => ease((t - start) / (end - start))
 const deg = (r: number) => (r * 180) / Math.PI
 const rad = (d: number) => (d * Math.PI) / 180
+/**
+ * Rounds a drawn value. Node (server render) and the browser can disagree in the last digits of
+ * Math.sin/cos/atan2; rounding keeps the server SVG and the hydrated one identical.
+ */
+export const fix = (n: number, places = 2) => Math.round(n * 10 ** places) / 10 ** places
 
 /**
  * Inverse kinematics for a nozzle tip that always points straight down. The last link's absolute
@@ -59,10 +64,10 @@ export function solveArm(tip: { x: number; y: number }): Pose {
   const elbowY = l1 * Math.sin(a1)
   const a2 = Math.atan2(ey - elbowY, ex - elbowX)
   return {
-    shoulder: deg(a1),
-    elbow: deg(a2 - a1),
-    wrist: phi3 - deg(a2),
-    head: 90 - phi3,
+    shoulder: fix(deg(a1), 3),
+    elbow: fix(deg(a2 - a1), 3),
+    wrist: fix(phi3 - deg(a2), 3),
+    head: fix(90 - phi3, 3),
   }
 }
 
@@ -75,8 +80,8 @@ export function armJoints(pose: Pose) {
     angle += turn
     const p = pts[pts.length - 1]
     pts.push({
-      x: p.x + lengths[i] * Math.cos(rad(angle)),
-      y: p.y + lengths[i] * Math.sin(rad(angle)),
+      x: fix(p.x + lengths[i] * Math.cos(rad(angle))),
+      y: fix(p.y + lengths[i] * Math.sin(rad(angle))),
     })
   })
   const w = pts[pts.length - 1]
@@ -84,8 +89,8 @@ export function armJoints(pose: Pose) {
   return {
     joints: pts,
     tip: {
-      x: w.x + headLength * Math.cos(rad(heading)),
-      y: w.y + headLength * Math.sin(rad(heading)),
+      x: fix(w.x + headLength * Math.cos(rad(heading))),
+      y: fix(w.y + headLength * Math.sin(rad(heading))),
     },
   }
 }

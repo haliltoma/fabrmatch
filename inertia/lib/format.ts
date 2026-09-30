@@ -3,6 +3,18 @@ import { convertPrice } from '~/lib/display_money'
 
 const intlLocale = () => (currentLocale() === 'tr' ? 'tr-TR' : 'en')
 
+/**
+ * Dates are shown in one fixed zone. Pages are rendered on the server (TZ=UTC) and then in the
+ * browser; formatting in the visitor's own zone would make the two disagree and break hydration.
+ * Türkiye is the first market, so its zone is the shared one.
+ */
+export const DISPLAY_TIME_ZONE = 'Europe/Istanbul'
+
+/** A count with thousands separators in the page language (same output on server and client). */
+export function formatNumber(n: number): string {
+  return new Intl.NumberFormat(intlLocale()).format(n)
+}
+
 export function formatMoney(minor: number, currency: string = 'TRY'): string {
   if (currentLocale() === 'tr') {
     const amount = new Intl.NumberFormat('tr-TR', {
@@ -28,6 +40,7 @@ export function formatDateTime(iso: string | null): string {
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    timeZone: DISPLAY_TIME_ZONE,
   })
 }
 
@@ -37,5 +50,6 @@ export function formatDate(iso: string | null): string {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
+    timeZone: DISPLAY_TIME_ZONE,
   })
 }

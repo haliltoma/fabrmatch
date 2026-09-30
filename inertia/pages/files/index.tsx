@@ -11,6 +11,7 @@ import { Pagination, type PageMeta } from '~/components/pagination'
 import { EmptyState } from '~/components/empty_state'
 import { useT } from '~/lib/i18n'
 import { usePollWhile } from '~/lib/poll'
+import { formatDate, formatNumber } from '~/lib/format'
 
 const StlViewer = lazy(() => import('~/components/stl_viewer'))
 
@@ -397,9 +398,9 @@ function FilesIndex({ files, meta }: { files: FileData[]; meta: PageMeta }) {
                     </span>
                   )}
                   {f.triangleCount !== null && (
-                    <span>{t('{v1} triangles', { v1: f.triangleCount.toLocaleString() })}</span>
+                    <span>{t('{v1} triangles', { v1: formatNumber(f.triangleCount) })}</span>
                   )}
-                  <span>{new Date(f.createdAt).toLocaleDateString()}</span>
+                  <span>{formatDate(f.createdAt)}</span>
                 </div>
                 <div className="mt-2 flex gap-2">
                   <PreviewButton fileId={f.id} format={f.format} />
@@ -436,9 +437,7 @@ function FilesIndex({ files, meta }: { files: FileData[]; meta: PageMeta }) {
                           <Link href={`/files/${v.id}/quote`} className="underline">
                             {t('Version {revision}', { revision: v.revision })}
                           </Link>{' '}
-                          <span className="text-ink-600">
-                            · {new Date(v.createdAt).toLocaleDateString()}
-                          </span>
+                          <span className="text-ink-600">· {formatDate(v.createdAt)}</span>
                         </li>
                       ))}
                     </ul>
