@@ -68,30 +68,63 @@ export const sellerNav: NavItem[] = [
   { label: 'My invoices', href: '/invoices', icon: FileText },
 ]
 
+/**
+ * Admin menu in five groups, in the order an admin works: what needs a decision today, the
+ * marketplace itself, what things cost, how it is going, and the machinery. Badges count what is
+ * waiting behind a link (shared `adminAttention` prop).
+ */
 export const adminNav: NavItem[] = [
-  { label: 'Dashboard', href: '/admin', icon: BarChart3 },
-  { label: 'Queues', href: '/admin/queues', icon: ListChecks },
-  { label: 'Background jobs', href: '/admin/jobs', icon: Activity },
-  { label: 'Metrics', href: '/admin/metrics', icon: LineChart },
-  { label: 'Reports', href: '/admin/reports', icon: FileSpreadsheet },
-  { label: 'Growth', href: '/admin/growth', icon: Megaphone },
-  { label: 'Message tests', href: '/admin/experiments', icon: FlaskConical },
-  { label: 'Matching', href: '/admin/matching', icon: Handshake },
-  { label: 'Orders', href: '/admin/orders', icon: ReceiptText },
-  { label: 'Users', href: '/admin/users', icon: Users },
-  { label: 'Makers', href: '/admin/makers', icon: Factory },
-  { label: 'Catalog', href: '/admin/catalog', icon: Package },
-  { label: 'Materials', href: '/admin/materials', icon: Layers },
-  { label: 'Print profiles', href: '/admin/profiles', icon: SlidersHorizontal },
-  { label: 'Finishing', href: '/admin/finishing', icon: Brush },
-  { label: 'Shipping', href: '/admin/shipping', icon: Truck },
-  { label: 'Region pricing', href: '/admin/pricing-regions', icon: Globe },
-  { label: 'Coupons', href: '/admin/coupons', icon: Ticket },
-  { label: 'Disputes', href: '/admin/disputes', icon: AlertTriangle },
-  { label: 'Payouts', href: '/admin/payouts', icon: Landmark },
-  { label: 'Audit log', href: '/admin/audit', icon: ScrollText },
-  { label: 'Launch readiness', href: '/admin/launch', icon: Rocket },
-  { label: 'Settings', href: '/admin/settings', icon: Settings },
+  { label: 'Today', href: '/admin', icon: BarChart3, group: 'Today' },
+  {
+    label: 'Work queues',
+    href: '/admin/queues',
+    icon: ListChecks,
+    group: 'Today',
+    badge: 'queues',
+  },
+  {
+    label: 'Matching',
+    href: '/admin/matching',
+    icon: Handshake,
+    group: 'Today',
+    badge: 'matching',
+  },
+  {
+    label: 'Disputes',
+    href: '/admin/disputes',
+    icon: AlertTriangle,
+    group: 'Today',
+    badge: 'disputes',
+  },
+  { label: 'Payouts', href: '/admin/payouts', icon: Landmark, group: 'Today', badge: 'payouts' },
+  { label: 'Orders', href: '/admin/orders', icon: ReceiptText, group: 'Marketplace' },
+  { label: 'Users', href: '/admin/users', icon: Users, group: 'Marketplace' },
+  { label: 'Makers', href: '/admin/makers', icon: Factory, group: 'Marketplace' },
+  { label: 'Catalog', href: '/admin/catalog', icon: Package, group: 'Marketplace' },
+  { label: 'Materials', href: '/admin/materials', icon: Layers, group: 'Pricing and supply' },
+  {
+    label: 'Print profiles',
+    href: '/admin/profiles',
+    icon: SlidersHorizontal,
+    group: 'Pricing and supply',
+  },
+  { label: 'Finishing', href: '/admin/finishing', icon: Brush, group: 'Pricing and supply' },
+  { label: 'Shipping', href: '/admin/shipping', icon: Truck, group: 'Pricing and supply' },
+  {
+    label: 'Region pricing',
+    href: '/admin/pricing-regions',
+    icon: Globe,
+    group: 'Pricing and supply',
+  },
+  { label: 'Coupons', href: '/admin/coupons', icon: Ticket, group: 'Pricing and supply' },
+  { label: 'Metrics', href: '/admin/metrics', icon: LineChart, group: 'Insights' },
+  { label: 'Reports', href: '/admin/reports', icon: FileSpreadsheet, group: 'Insights' },
+  { label: 'Growth', href: '/admin/growth', icon: Megaphone, group: 'Insights' },
+  { label: 'Message tests', href: '/admin/experiments', icon: FlaskConical, group: 'Insights' },
+  { label: 'Background jobs', href: '/admin/jobs', icon: Activity, group: 'System' },
+  { label: 'Audit log', href: '/admin/audit', icon: ScrollText, group: 'System' },
+  { label: 'Launch readiness', href: '/admin/launch', icon: Rocket, group: 'System' },
+  { label: 'Settings', href: '/admin/settings', icon: Settings, group: 'System' },
 ]
 
 /** Best-matching panel nav for a user's roles (used on shared pages like /orders). */

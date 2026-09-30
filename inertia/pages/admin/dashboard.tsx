@@ -1,4 +1,6 @@
 import { Link } from '@adonisjs/inertia/react'
+import { usePage } from '@inertiajs/react'
+import { ArrowRight, CheckCircle2 } from 'lucide-react'
 import { adminNav } from '~/lib/nav'
 import { formatDate } from '~/lib/format'
 import { Button } from '~/components/ui/button'
@@ -48,13 +50,19 @@ function AdminDashboard({
   recentUsers: RecentUser[]
 }) {
   const { t } = useT()
+  const attention = usePage<{
+    adminAttention: {
+      items: Array<{ key: string; count: number; label: string; href: string }>
+    } | null
+  }>().props.adminAttention
+  const todo = attention?.items ?? []
 
   const waiting = Object.values(queues).reduce((sum, n) => sum + n, 0)
   return (
     <div className="space-y-8">
       <PageHeader
-        title={t('Platform overview')}
-        description={t('What needs a decision, and how the marketplace is moving.')}
+        title={t('Today')}
+        description={t('What needs a decision first, then how the marketplace is moving.')}
         action={
           openDisputes > 0 ? (
             <Button variant="accent" asChild>
@@ -67,6 +75,48 @@ function AdminDashboard({
           ) : undefined
         }
       />
+
+      <section
+        aria-labelledby="todo-h"
+        className="rounded-[10px] border-2 border-ink-900 bg-paper-raised"
+      >
+        <div className="flex items-center justify-between border-b-2 border-ink-900 px-5 py-3">
+          <h2 id="todo-h" className="font-display text-lg font-semibold text-ink-900">
+            {t('Needs you now')}
+          </h2>
+          {todo.length > 0 && (
+            <span className="font-mono text-xs text-ink-600 tabular-nums">
+              {t('{count} kinds of work waiting', { count: todo.length })}
+            </span>
+          )}
+        </div>
+        {todo.length === 0 ? (
+          <p className="flex items-center gap-2 px-5 py-4 text-ink-700">
+            <CheckCircle2 className="h-5 w-5 text-fil-600" aria-hidden />
+            {t('Nothing is waiting for a person. Everything below is for keeping an eye on.')}
+          </p>
+        ) : (
+          <ol className="divide-y divide-line">
+            {todo.map((item, i) => (
+              <li key={item.key}>
+                <Link
+                  href={item.href}
+                  className="flex items-center gap-4 px-5 py-3 transition-colors hover:bg-paper-sunken focus-visible:bg-paper-sunken"
+                >
+                  <span className="w-6 font-mono text-xs text-ink-500 tabular-nums">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span className="min-w-10 rounded-full bg-heat-100 px-2 text-center font-mono text-sm font-semibold text-heat-700 tabular-nums">
+                    {item.count}
+                  </span>
+                  <span className="flex-1 font-medium text-ink-900">{t(item.label)}</span>
+                  <ArrowRight className="h-4 w-4 text-ink-500" aria-hidden />
+                </Link>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <StatTile label={t('Users')} value={usersTotal} hint={t('All accounts')} />

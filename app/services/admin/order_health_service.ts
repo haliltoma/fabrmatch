@@ -24,7 +24,16 @@ export default class OrderHealthService {
         createdAt: o.createdAt.toISO(),
       })),
       meta: pageMeta(paginator.total, page, perPage),
+      statusCounts: await this.statusCounts(q),
     }
+  }
+
+  /** How many orders sit in each status (for the filter chips), within the code search if any. */
+  async statusCounts(q?: string): Promise<Record<string, number>> {
+    const query = db.from('orders').select('status').count('* as n').groupBy('status')
+    if (q) query.whereILike('code', `%${q.replaceAll(/[\\%_]/g, (c) => `\\${c}`)}%`)
+    const rows = await query
+    return Object.fromEntries(rows.map((r) => [r.status as string, Number(r.n)]))
   }
 
   async show(orderId: number) {

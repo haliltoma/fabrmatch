@@ -15,6 +15,7 @@ import { useT } from '~/lib/i18n'
 import { ThemeSwitch } from '~/components/theme_switch'
 import { useTheme } from '~/lib/theme'
 import { LanguageSwitch } from '~/components/language_switch'
+import { AdminCommand } from '~/components/admin_command'
 
 export interface NavItem {
   label: string
@@ -23,6 +24,10 @@ export interface NavItem {
   active?: boolean
   /** hidden until an admin switches the feature on */
   feature?: 'rfq' | 'externalStores'
+  /** heading this link sits under (admin menu); ungrouped menus stay a flat list */
+  group?: string
+  /** key into the shared `adminAttention.badges`: a count of what waits behind the link */
+  badge?: 'queues' | 'matching' | 'disputes' | 'payouts'
 }
 
 interface DashboardLayoutProps {
@@ -31,40 +36,127 @@ interface DashboardLayoutProps {
   title: string
 }
 
+type Badges = Partial<Record<NonNullable<NavItem['badge']>, number>>
+
+/** Groups that stay open by default; the rest open when they hold the current page. */
+const OPEN_GROUPS = ['Today', 'Marketplace']
+
+function SidebarLink({
+  item,
+  url,
+  collapsed,
+  mobile,
+  badges,
+}: {
+  item: NavItem
+  url: string
+  collapsed: boolean
+  mobile: boolean
+  badges: Badges
+}) {
+  const { t } = useT()
+  const path = url.split('?')[0]
+  const isRoot = item.href.split('/').filter(Boolean).length === 1
+  const isActive =
+    item.active ?? (path === item.href || (!isRoot && path.startsWith(`${item.href}/`)))
+  const count = item.badge ? (badges[item.badge] ?? 0) : 0
+  return (
+    <Link
+      href={item.href}
+      aria-current={isActive ? 'page' : undefined}
+      title={collapsed && !mobile ? t(item.label) : undefined}
+      className={cn(
+        'relative flex items-center gap-3 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+        isActive
+          ? 'border-l-[3px] border-sidebar-active bg-paper/10 pl-[9px] text-sidebar-fg'
+          : 'border-l-[3px] border-transparent pl-[9px] text-sidebar-muted hover:bg-paper/5 hover:text-sidebar-fg',
+        mobile && 'py-2 text-base'
+      )}
+    >
+      <item.icon className="h-4 w-4 shrink-0" />
+      {(!collapsed || mobile) && <span className="flex-1">{t(item.label)}</span>}
+      {count > 0 && (
+        <span
+          className={cn(
+            'rounded-full bg-heat-500 px-1.5 font-mono text-[11px] leading-5 font-semibold text-ink-900 tabular-nums',
+            collapsed && !mobile && 'absolute top-0 right-0.5 px-1 text-[10px] leading-4'
+          )}
+        >
+          {count > 99 ? '99+' : count}
+          <span className="sr-only"> {t('waiting')}</span>
+        </span>
+      )}
+    </Link>
+  )
+}
+
 function SidebarNavItems({
   items,
   url,
   collapsed,
   mobile = false,
+  badges = {},
 }: {
   items: NavItem[]
   url: string
   collapsed: boolean
   mobile?: boolean
+  badges?: Badges
 }) {
   const { t } = useT()
+  const link = (item: NavItem) => (
+    <SidebarLink
+      key={item.href}
+      item={item}
+      url={url}
+      collapsed={collapsed}
+      mobile={mobile}
+      badges={badges}
+    />
+  )
+
+  // plain panels (maker, seller) keep one flat list
+  if (!items.some((i) => i.group)) {
+    return (
+      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-4">{items.map(link)}</nav>
+    )
+  }
+
+  const path = url.split('?')[0]
+  const groups = [...new Set(items.map((i) => i.group ?? ''))]
   return (
-    <nav className="flex flex-1 flex-col gap-1 px-3 py-4">
-      {items.map((item) => {
-        const path = url.split('?')[0]
-        const isRoot = item.href.split('/').filter(Boolean).length === 1
-        const isActive =
-          item.active ?? (path === item.href || (!isRoot && path.startsWith(`${item.href}/`)))
+    <nav className="flex flex-1 flex-col gap-3 overflow-y-auto px-3 py-4">
+      {groups.map((group) => {
+        const members = items.filter((i) => (i.group ?? '') === group)
+        const holdsCurrent = members.some(
+          (i) => path === i.href || (i.href !== '/admin' && path.startsWith(`${i.href}/`))
+        )
+        const waiting = members.reduce((n, i) => n + (i.badge ? (badges[i.badge] ?? 0) : 0), 0)
+        if (collapsed && !mobile) {
+          return (
+            <div
+              key={group}
+              className="flex flex-col gap-1 border-t border-sidebar-border pt-3 first:border-t-0 first:pt-0"
+            >
+              {members.map(link)}
+            </div>
+          )
+        }
         return (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={cn(
-              'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
-              isActive
-                ? 'border-l-[3px] border-sidebar-active bg-paper/10 pl-[9px] text-sidebar-fg'
-                : 'border-l-[3px] border-transparent pl-[9px] text-sidebar-muted hover:bg-paper/5 hover:text-sidebar-fg',
-              mobile && 'text-base'
-            )}
+          <details
+            key={group}
+            open={OPEN_GROUPS.includes(group) || holdsCurrent || waiting > 0}
+            className="group/nav"
           >
-            <item.icon className="h-4 w-4 shrink-0" />
-            {(!collapsed || mobile) && <span>{t(item.label)}</span>}
-          </Link>
+            <summary className="flex cursor-pointer list-none items-center justify-between rounded px-3 py-1 font-mono text-[11px] font-semibold tracking-[0.14em] text-sidebar-muted uppercase marker:hidden hover:text-sidebar-fg">
+              {t(group)}
+              <ChevronLeft
+                className="h-3.5 w-3.5 -rotate-90 transition-transform group-open/nav:rotate-90"
+                aria-hidden
+              />
+            </summary>
+            <div className="mt-1 flex flex-col gap-0.5">{members.map(link)}</div>
+          </details>
         )
       })}
     </nav>
@@ -86,6 +178,8 @@ export default function DashboardLayout({
       (i.feature !== 'externalStores' || children.props.externalStoresEnabled)
   )
   const user = children.props.user
+  const badges =
+    (children.props as { adminAttention?: { badges: Badges } | null }).adminAttention?.badges ?? {}
   const [collapsed, setCollapsed] = useState(false)
 
   useEffect(() => {
@@ -109,7 +203,7 @@ export default function DashboardLayout({
       <aside
         className={cn(
           'palette-light',
-          'hidden flex-col border-r border-sidebar-border bg-sidebar-bg text-sidebar-fg transition-all duration-200 md:flex',
+          'hidden flex-col border-r border-sidebar-border bg-sidebar-bg text-sidebar-fg transition-all duration-200 md:sticky md:top-0 md:flex md:h-screen',
           collapsed ? 'w-16' : 'w-64'
         )}
       >
@@ -136,7 +230,12 @@ export default function DashboardLayout({
           </Button>
         </div>
 
-        <SidebarNavItems items={navItems} url={url} collapsed={collapsed} />
+        {navItems.some((i) => i.group) && (
+          <div className="px-3 pt-4">
+            <AdminCommand items={navItems} compact={collapsed} />
+          </div>
+        )}
+        <SidebarNavItems items={navItems} url={url} collapsed={collapsed} badges={badges} />
 
         <div className="border-t border-sidebar-border p-3">
           {!collapsed && (
@@ -205,7 +304,13 @@ export default function DashboardLayout({
                 <SheetHeader className="border-b border-sidebar-border px-4 py-4">
                   <SheetTitle className="text-sidebar-fg">{t(title)}</SheetTitle>
                 </SheetHeader>
-                <SidebarNavItems items={navItems} url={url} collapsed={false} mobile />
+                <SidebarNavItems
+                  items={navItems}
+                  url={url}
+                  collapsed={false}
+                  mobile
+                  badges={badges}
+                />
                 <div className="border-t border-sidebar-border px-4 py-3">
                   <div className="flex items-center justify-between gap-2">
                     <LanguageSwitch tone="paper" />

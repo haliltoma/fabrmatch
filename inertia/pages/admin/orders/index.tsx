@@ -22,16 +22,41 @@ type Row = {
   createdAt: string | null
 }
 
+/** Status chips in the order an admin cares about: stuck and disputed first, finished last. */
+const STATUS_ORDER = [
+  'disputed',
+  'unmatched',
+  'matching',
+  'paid',
+  'in_production',
+  'shipped',
+  'delivered',
+  'awaiting_payment',
+  'completed',
+  'resolved',
+  'cancelled',
+  'draft',
+]
+
 export default function AdminOrders({
   rows,
   meta,
   filters,
+  statusCounts,
 }: {
   rows: Row[]
   meta: PageMeta
   filters: { q: string; status: string }
+  statusCounts: Record<string, number>
 }) {
   const { t } = useT()
+  const total = Object.values(statusCounts).reduce((a, b) => a + b, 0)
+  const chips = STATUS_ORDER.filter((s) => (statusCounts[s] ?? 0) > 0)
+  const pick = (status: string) =>
+    router.get('/admin/orders', {
+      ...(filters.q ? { q: filters.q } : {}),
+      ...(status ? { status } : {}),
+    })
 
   const [f, setF] = useState(filters)
   return (
@@ -57,15 +82,33 @@ export default function AdminOrders({
           value={f.q}
           onChange={(e) => setF({ ...f, q: e.target.value })}
         />
-        <Input
-          aria-label={t('Status')}
-          placeholder={t('Status (e.g. disputed)')}
-          className="w-48"
-          value={f.status}
-          onChange={(e) => setF({ ...f, status: e.target.value })}
-        />
         <Button type="submit">{t('Search')}</Button>
       </form>
+      <div className="flex flex-wrap gap-2" role="group" aria-label={t('Filter by status')}>
+        {[
+          { key: '', label: t('All'), count: total },
+          ...chips.map((c) => ({
+            key: c,
+            label: t(c.replaceAll('_', ' ')),
+            count: statusCounts[c],
+          })),
+        ].map((chip) => (
+          <button
+            key={chip.key || 'all'}
+            type="button"
+            aria-pressed={filters.status === chip.key}
+            onClick={() => pick(chip.key)}
+            className={`inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-full border-2 px-3 text-sm font-semibold capitalize focus-visible:ring-2 focus-visible:ring-heat-500 focus-visible:ring-offset-2 focus-visible:outline-none ${
+              filters.status === chip.key
+                ? 'border-ink-900 bg-ink-900 text-paper'
+                : 'border-line bg-paper-raised text-ink-800 hover:border-ink-900'
+            }`}
+          >
+            {chip.label}
+            <span className="font-mono text-xs tabular-nums opacity-70">{chip.count}</span>
+          </button>
+        ))}
+      </div>
       <ul className="divide-y divide-line rounded-lg border border-line bg-paper-raised">
         {rows.map((o) => (
           <li key={o.id}>

@@ -84,32 +84,28 @@ type PendingMaker = {
   createdAt: string | null
 }
 
+/** A queue with work in it; an empty queue is not drawn here but listed as clear at the bottom. */
 function Section({
+  id,
   title,
   count,
   children,
 }: {
+  id: string
   title: string
   count: number
   children: ReactNode
 }) {
-  const { t } = useT()
-
+  if (count === 0) return null
   return (
-    <section className="space-y-3">
+    <section id={id} className="scroll-mt-6 space-y-3">
       <h2 className="flex items-center gap-2 font-display text-xl font-semibold text-ink-900">
         {title}
-        {count > 0 && <Badge variant="destructive">{count}</Badge>}
+        <Badge variant="destructive">{count}</Badge>
       </h2>
-      {count === 0 ? (
-        <p className="flex items-center gap-2 rounded-lg border border-line bg-paper-raised px-5 py-3 text-sm text-ink-600">
-          <CheckCircle2 className="h-4 w-4 text-success" aria-hidden /> {t('Nothing waiting.')}
-        </p>
-      ) : (
-        <ul className="divide-y divide-line rounded-lg border border-line bg-paper-raised">
-          {children}
-        </ul>
-      )}
+      <ul className="divide-y divide-line rounded-lg border border-line bg-paper-raised">
+        {children}
+      </ul>
     </section>
   )
 }
@@ -154,6 +150,19 @@ export default function AdminQueues({
     support.length +
     shopPhotos.length
 
+  const clear = [
+    { title: 'Makers waiting for approval', count: pendingMakers.length },
+    { title: 'Orders flagged for fraud review', count: fraud.length },
+    { title: 'Support requests', count: support.length },
+    { title: 'Card chargebacks', count: chargebacks.length },
+    { title: 'Shop photos to review', count: shopPhotos.length },
+    { title: 'Reported listings', count: reports.length },
+    { title: 'Unmatched orders', count: unmatched.length },
+    { title: 'Production past deadline', count: overdue.length },
+    { title: 'Payments needing review', count: paymentReviews.length },
+    { title: 'Ledger reconciliation', count: reconcile.length },
+  ].filter((q) => q.count === 0)
+
   return (
     <div className="space-y-8">
       <PageHeader
@@ -169,7 +178,7 @@ export default function AdminQueues({
         />
       )}
 
-      <Section title={t('Makers waiting for approval')} count={pendingMakers.length}>
+      <Section id="makers" title={t('Makers waiting for approval')} count={pendingMakers.length}>
         {pendingMakers.map((m) => (
           <li key={m.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
             <div>
@@ -200,7 +209,7 @@ export default function AdminQueues({
         ))}
       </Section>
 
-      <Section title={t('Orders flagged for fraud review')} count={fraud.length}>
+      <Section id="fraud" title={t('Orders flagged for fraud review')} count={fraud.length}>
         {fraud.map((f) => (
           <li
             key={f.orderId}
@@ -243,7 +252,7 @@ export default function AdminQueues({
         ))}
       </Section>
 
-      <Section title={t('Support requests')} count={support.length}>
+      <Section id="support" title={t('Support requests')} count={support.length}>
         {support.map((r) => (
           <li key={r.id} className="space-y-1 px-5 py-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -265,7 +274,7 @@ export default function AdminQueues({
         ))}
       </Section>
 
-      <Section title={t('Card chargebacks')} count={chargebacks.length}>
+      <Section id="chargebacks" title={t('Card chargebacks')} count={chargebacks.length}>
         {chargebacks.map((c) => (
           <li key={c.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
             <div>
@@ -302,7 +311,7 @@ export default function AdminQueues({
         ))}
       </Section>
 
-      <Section title={t('Shop photos to review')} count={shopPhotos.length}>
+      <Section id="shop-photos" title={t('Shop photos to review')} count={shopPhotos.length}>
         {shopPhotos.map((p) => (
           <li key={p.id} className="flex flex-wrap items-center justify-between gap-4 px-5 py-3">
             <div className="flex items-center gap-4">
@@ -342,7 +351,7 @@ export default function AdminQueues({
         ))}
       </Section>
 
-      <Section title={t('Reported listings')} count={reports.length}>
+      <Section id="reports" title={t('Reported listings')} count={reports.length}>
         {reports.map((r) => (
           <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
             <div>
@@ -379,7 +388,7 @@ export default function AdminQueues({
         ))}
       </Section>
 
-      <Section title={t('Unmatched orders')} count={unmatched.length}>
+      <Section id="unmatched" title={t('Unmatched orders')} count={unmatched.length}>
         {unmatched.map((o) => (
           <li key={o.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
             <div>
@@ -405,7 +414,7 @@ export default function AdminQueues({
         ))}
       </Section>
 
-      <Section title={t('Production past deadline')} count={overdue.length}>
+      <Section id="overdue" title={t('Production past deadline')} count={overdue.length}>
         {overdue.map((j) => (
           <li key={j.jobId} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
             <div>
@@ -423,7 +432,11 @@ export default function AdminQueues({
         ))}
       </Section>
 
-      <Section title={t('Payments needing review')} count={paymentReviews.length}>
+      <Section
+        id="payment-reviews"
+        title={t('Payments needing review')}
+        count={paymentReviews.length}
+      >
         {paymentReviews.map((p) => (
           <li key={p.ref} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
             <div>
@@ -447,7 +460,7 @@ export default function AdminQueues({
         ))}
       </Section>
 
-      <Section title={t('Ledger reconciliation')} count={reconcile.length}>
+      <Section id="reconcile" title={t('Ledger reconciliation')} count={reconcile.length}>
         {reconcile.map((f) => (
           <li key={f.ref} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
             <div>
@@ -463,6 +476,13 @@ export default function AdminQueues({
           </li>
         ))}
       </Section>
+      {total > 0 && clear.length > 0 && (
+        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-line bg-paper-raised px-5 py-3 text-sm text-ink-600">
+          <CheckCircle2 className="h-4 w-4 text-success" aria-hidden />
+          <span className="font-medium text-ink-800">{t('Clear:')}</span>
+          {clear.map((q) => t(q.title)).join(' · ')}
+        </p>
+      )}
     </div>
   )
 }

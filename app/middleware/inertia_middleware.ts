@@ -11,6 +11,7 @@ import { featureEnabled } from '#services/settings/feature_flags'
 import CartService from '#services/orders/cart_service'
 import NotificationService from '#services/notifications/notification_service'
 import SellerProfile from '#models/seller_profile'
+import AttentionService from '#services/admin/attention_service'
 import BaseInertiaMiddleware from '@adonisjs/inertia/inertia_middleware'
 
 export default class InertiaMiddleware extends BaseInertiaMiddleware {
@@ -32,6 +33,12 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
       !!auth?.user &&
       auth.user.roleNames.includes('seller') &&
       !!(await SellerProfile.query().where('userId', auth.user.id).select('id').first())
+
+    // admin menu badges and the dashboard to-do list; only admins on admin pages pay for it
+    const adminAttention =
+      auth?.user?.roleNames.includes('admin') && ctx.request.url().startsWith('/admin')
+        ? await new AttentionService().summary()
+        : null
 
     const locale = requestLocale(ctx)
 
@@ -58,6 +65,7 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
       user: ctx.inertia.always(userData),
       hasShop: ctx.inertia.always(hasShop),
       unreadNotifications: ctx.inertia.always(unread),
+      adminAttention: ctx.inertia.always(adminAttention),
     }
   }
 

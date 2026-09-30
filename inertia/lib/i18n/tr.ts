@@ -3179,4 +3179,29 @@ export const tr: Record<string, string> = {
   // shop: rating + sold
   'Ordered {count} times': '{count} kez sipariş edildi',
   'Rated {value} out of 5': '5 üzerinden {value} puan',
+  // admin: grouped menu, today, command palette
+  'Page': 'Sayfa',
+  'Open order {code}': '{code} siparişini aç',
+  'Find people matching “{q}”': '“{q}” ile eşleşen kişileri bul',
+  'Search or jump to…': 'Ara ya da git…',
+  'Search the admin panel': 'Yönetim panelinde ara',
+  'Type a page name, an order code or a person’s e-mail.':
+    'Bir sayfa adı, sipariş kodu ya da bir kişinin e-postasını yaz.',
+  'Page, order code (FO-…) or e-mail': 'Sayfa, sipariş kodu (FO-…) ya da e-posta',
+  'Nothing matches. Try an order code or an e-mail.':
+    'Eşleşen yok. Bir sipariş kodu ya da e-posta dene.',
+  'Today': 'Bugün',
+  'What needs a decision first, then how the marketplace is moving.':
+    'Önce karar bekleyenler, sonra pazar yerinin gidişi.',
+  'Needs you now': 'Şimdi seni bekleyenler',
+  '{count} kinds of work waiting': '{count} tür iş bekliyor',
+  'Nothing is waiting for a person. Everything below is for keeping an eye on.':
+    'Bir kişiyi bekleyen iş yok. Aşağıdakiler yalnızca göz kulak olmak için.',
+  'Clear:': 'Temiz:',
+  'Marketplace': 'Pazar yeri',
+  'Pricing and supply': 'Fiyat ve tedarik',
+  'Insights': 'İçgörüler',
+  'System': 'Sistem',
+  'Orders without a maker': 'Üreticisi olmayan siparişler',
+  'Payouts waiting for approval': 'Onay bekleyen ödemeler',
 }
