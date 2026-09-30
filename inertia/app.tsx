@@ -28,7 +28,6 @@ createInertiaApp({
     if (el.hasChildNodes()) hydrateRoot(el, app)
     else createRoot(el).render(app)
   },
-  progress: {
-    color: '#f0501e',
-  },
+  // our own loader (components/navigation_progress.tsx) replaces the default bar
+  progress: false,
 })

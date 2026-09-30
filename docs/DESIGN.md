@@ -308,3 +308,8 @@ Neden: ilk sürüm (yazıcı + adımlar + 2 CTA) hero'nun anlattığını tekrar
 - **Bugün sayfası**: en üstte "Şimdi seni bekleyenler" (sayı çipi + etiket + ok), altında göz kulak sayılar; boşsa yeşil onay cümlesi.
 - **⌘K** (`components/admin_command.tsx`): her admin ekranında; sayfa adı, FO- kodu, e-posta/ad.
 - Liste filtresi = sayılı çipler (serbest metin değil).
+
+## 27. Yükleme göstergeleri (2026-10-01)
+
+- **Sayfa geçişi** (`NavigationProgress`, her yerleşimde bir kez): 200 ms eşik; müşteri tarafında turuncu katman + mürekkep alt katman ve 1,2 sn sonra limon "Yükleniyor…" çipi; admin'de ince mürekkep çizgi + köşe çipi. Kendi yükleyicini ekleme; router olaylarını `useNavigationPhase` dinler.
+- **Kısmi yenileme** (`router.reload({ only })`, lazy bileşen, fetch ile gelen panel) sayfa çubuğunu tetiklemez; bileşen kendi iskeletini gösterir (U9).

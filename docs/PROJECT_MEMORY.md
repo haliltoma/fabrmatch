@@ -280,6 +280,8 @@
 
 ## Log
 
+- **2026-10-01** — U8: sayfa geçişi/form gönderimi yükleme göstergesi (müşteri: katman çubuğu + limon çip; admin: ince çizgi + köşe çipi; 200 ms eşik; kısmi yenilemeler hariç). 977 test.
+
 - **2026-10-01** — U5 admin (1. tur): 5 gruplu menü + bekleyen iş rozetleri (`AttentionService`), "Bugün" panosu (öncelikli yapılacaklar), kuyruklarda boşlar tek satır, sipariş durum çipleri, ⌘K komut paleti. 976 test. U5b açıldı.
 
 - **2026-10-01** — U4 ürün zengin sonuçları: Product şeması (teslimat, stok, gerçek yıldızlar) saf fonksiyonda; ürün sayfasında yıldız + "N kez sipariş edildi" (≥3). 974 test.

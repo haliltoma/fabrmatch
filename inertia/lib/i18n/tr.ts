@@ -3204,4 +3204,8 @@ export const tr: Record<string, string> = {
   'System': 'Sistem',
   'Orders without a maker': 'Üreticisi olmayan siparişler',
   'Payouts waiting for approval': 'Onay bekleyen ödemeler',
+  // navigation progress
+  'Loading the page': 'Sayfa yükleniyor',
+  'Loading page…': 'Sayfa yükleniyor…',
+  'Loading…': 'Yükleniyor…',
 }

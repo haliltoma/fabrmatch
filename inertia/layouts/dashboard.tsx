@@ -16,6 +16,7 @@ import { ThemeSwitch } from '~/components/theme_switch'
 import { useTheme } from '~/lib/theme'
 import { LanguageSwitch } from '~/components/language_switch'
 import { AdminCommand } from '~/components/admin_command'
+import { NavigationProgress } from '~/components/navigation_progress'
 
 export interface NavItem {
   label: string
@@ -193,6 +194,7 @@ export default function DashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-paper">
+      <NavigationProgress variant={navItems.some((i) => i.group) ? 'admin' : 'site'} />
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-ink-900 focus:px-4 focus:py-2 focus:text-paper"

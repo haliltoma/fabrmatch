@@ -8,6 +8,7 @@ import { useT } from '~/lib/i18n'
 import { ThemeSwitch } from '~/components/theme_switch'
 import { useTheme } from '~/lib/theme'
 import { LanguageSwitch } from '~/components/language_switch'
+import { NavigationProgress } from '~/components/navigation_progress'
 
 export default function AuthLayout({ children }: { children: ReactElement<Data.SharedProps> }) {
   const { t } = useT()
@@ -26,6 +27,7 @@ export default function AuthLayout({ children }: { children: ReactElement<Data.S
 
   return (
     <div className="grid min-h-screen grid-rows-1 lg:grid-cols-2">
+      <NavigationProgress />
       {/* Left: brand panel */}
       <div className="palette-light layer-lines-light hidden flex-col justify-between bg-ink-900 p-10 text-paper lg:flex">
         <Link route="home" aria-label={t('Fabrmatch home')}>
