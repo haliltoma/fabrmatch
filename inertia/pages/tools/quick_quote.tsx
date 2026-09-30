@@ -1,7 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { DeliveryNotice, countryName, type Delivery } from '~/components/delivery_notice'
 import { ChargeNote } from '~/components/money'
-import { Head } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import {
   ArrowRight,
@@ -22,6 +21,7 @@ import { PrintArt } from '~/components/print_art'
 import { ScanPanel, type ScanCheck } from '~/components/scan_panel'
 import { formatPrice } from '~/lib/format'
 import { useT } from '~/lib/i18n'
+import { Seo } from '~/components/seo'
 
 const StlViewer = lazy(() => import('~/components/stl_viewer'))
 
@@ -152,14 +152,21 @@ function QuickQuote({
 
   return (
     <>
-      <Head title={t('Instant 3D print price — upload an STL, no account')}>
-        <meta
-          name="description"
-          content={t(
-            'Upload an STL and see an estimated price for a 3D print delivered in Türkiye. No account. Your file is not stored.'
-          )}
-        />
-      </Head>
+      <Seo
+        title={t('Instant 3D print price — upload an STL, no account')}
+        description={t(
+          'Upload an STL and see an estimated price for a 3D print delivered in Türkiye. No account. Your file is not stored.'
+        )}
+        breadcrumbs={[{ name: t('Instant price') }]}
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'WebApplication',
+          'name': t('Instant 3D print price'),
+          'applicationCategory': 'BusinessApplication',
+          'operatingSystem': 'Any',
+          'offers': { '@type': 'Offer', 'price': '0', 'priceCurrency': 'TRY' },
+        }}
+      />
 
       <section className="layer-lines border-b border-line">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">

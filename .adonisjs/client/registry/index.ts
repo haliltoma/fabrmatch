@@ -384,17 +384,23 @@ const routes = {
     tokens: [{"old":"/images/:id","type":0,"val":"images","end":""},{"old":"/images/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['product_image.show']['types'],
   },
-  'storefront.sitemap': {
+  'seo.sitemap': {
     methods: ["GET","HEAD"],
     pattern: '/sitemap.xml',
     tokens: [{"old":"/sitemap.xml","type":0,"val":"sitemap.xml","end":""}],
-    types: placeholder as Registry['storefront.sitemap']['types'],
+    types: placeholder as Registry['seo.sitemap']['types'],
   },
-  'storefront.robots': {
+  'seo.robots': {
     methods: ["GET","HEAD"],
     pattern: '/robots.txt',
     tokens: [{"old":"/robots.txt","type":0,"val":"robots.txt","end":""}],
-    types: placeholder as Registry['storefront.robots']['types'],
+    types: placeholder as Registry['seo.robots']['types'],
+  },
+  'seo.llms': {
+    methods: ["GET","HEAD"],
+    pattern: '/llms.txt',
+    tokens: [{"old":"/llms.txt","type":0,"val":"llms.txt","end":""}],
+    types: placeholder as Registry['seo.llms']['types'],
   },
   'notification.index': {
     methods: ["GET","HEAD"],

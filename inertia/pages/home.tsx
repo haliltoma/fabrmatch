@@ -1,4 +1,5 @@
-import { Head, usePage } from '@inertiajs/react'
+import { usePage } from '@inertiajs/react'
+import { Seo } from '~/components/seo'
 import { Link } from '@adonisjs/inertia/react'
 import { BadgeCheck, FileUp, ShieldCheck } from 'lucide-react'
 import { useT } from '~/lib/i18n'
@@ -47,18 +48,24 @@ export default function Home({
 }) {
   const { t } = useT()
   const { siteUrl } = usePage<{ siteUrl: string }>().props
-  const jsonLd = JSON.stringify([
+  const jsonLd = [
     {
       '@context': 'https://schema.org',
       '@type': 'Organization',
       'name': 'Fabrmatch',
       'url': siteUrl,
+      'logo': `${siteUrl}/og/fabrmatch-en.png`,
+      'description': t(
+        'Fabrmatch is a made-to-order 3D printing marketplace: upload a model, see the delivered price, and a verified maker nearby prints and ships it while the payment is held until delivery.'
+      ),
+      'areaServed': 'TR',
     },
     {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       'name': 'Fabrmatch',
       'url': siteUrl,
+      'inLanguage': ['en', 'tr'],
       'potentialAction': {
         '@type': 'SearchAction',
         'target': `${siteUrl}/shop?q={search_term_string}`,
@@ -66,19 +73,17 @@ export default function Home({
       },
     },
     faqJsonLd(faq, faqParams, t),
-  ]).replaceAll('<', '\\u003c')
+  ]
   return (
     <>
-      <Head title={t('Custom 3D printing, made to order')}>
-        <meta
-          name="description"
-          content={t(
-            'Upload a 3D model, get a price, and have a verified nearby maker print it. Your payment is held until the part arrives.'
-          )}
-        />
-        <link rel="canonical" href={`${siteUrl}/`} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
-      </Head>
+      <Seo
+        title={t('Custom 3D printing, made to order')}
+        description={t(
+          'Upload a 3D model, get a price, and have a verified nearby maker print it. Your payment is held until the part arrives.'
+        )}
+        canonical={`${siteUrl}/`}
+        jsonLd={jsonLd}
+      />
 
       {/* Hero */}
       <section className="layer-lines border-b border-line">

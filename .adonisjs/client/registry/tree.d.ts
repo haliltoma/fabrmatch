@@ -107,12 +107,15 @@ export interface ApiDefinition {
     index: typeof routes['storefront.index']
     show: typeof routes['storefront.show']
     order: typeof routes['storefront.order']
-    sitemap: typeof routes['storefront.sitemap']
-    robots: typeof routes['storefront.robots']
   }
   productImage: {
     show: typeof routes['product_image.show']
     adminShow: typeof routes['product_image.admin_show']
+  }
+  seo: {
+    sitemap: typeof routes['seo.sitemap']
+    robots: typeof routes['seo.robots']
+    llms: typeof routes['seo.llms']
   }
   notification: {
     index: typeof routes['notification.index']

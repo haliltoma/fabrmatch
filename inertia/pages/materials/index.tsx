@@ -1,6 +1,6 @@
-import { Head } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { useT } from '~/lib/i18n'
+import { Seo } from '~/components/seo'
 
 type Material = { slug: string; name: string; technology: string; makers: number | null }
 
@@ -16,14 +16,13 @@ export default function Materials({
   const { t } = useT()
   return (
     <>
-      <Head title={t('3D printing materials — Fabrmatch')}>
-        <meta
-          name="description"
-          content={t('What each 3D printing material is good for, and how many makers print it.')}
-        />
-        <link rel="canonical" href={canonicalUrl} />
-        {!indexable && <meta name="robots" content="noindex, follow" />}
-      </Head>
+      <Seo
+        title={t('3D printing materials — Fabrmatch')}
+        description={t('What each 3D printing material is good for, and how many makers print it.')}
+        canonical={canonicalUrl}
+        noindex={!indexable}
+        breadcrumbs={[{ name: t('Materials') }]}
+      />
       <div className="mx-auto max-w-3xl px-4 py-12">
         <h1 className="font-display text-4xl font-semibold text-ink-900">
           {t('3D printing materials')}

@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Head, router } from '@inertiajs/react'
+import { router } from '@inertiajs/react'
+import { Seo } from '~/components/seo'
 import { Link } from '@adonisjs/inertia/react'
 import { Search } from 'lucide-react'
 import { useT } from '~/lib/i18n'
@@ -77,16 +78,23 @@ export default function ShopIndex({
 
   return (
     <>
-      <Head title={t('Shop')}>
-        <meta
-          name="description"
-          content={t('3D printed products made on demand by verified local manufacturers.')}
-        />
-        <link rel="canonical" href={canonicalUrl} />
-        <meta property="og:title" content={t('Fabrmatch Shop')} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={canonicalUrl} />
-      </Head>
+      <Seo
+        title={t('Shop')}
+        description={t('3D printed products made on demand by verified local manufacturers.')}
+        canonical={canonicalUrl}
+        breadcrumbs={[{ name: t('Shop') }]}
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'ItemList',
+          'name': t('Fabrmatch Shop'),
+          'itemListElement': items.map((p, i) => ({
+            '@type': 'ListItem',
+            'position': (page - 1) * perPage + i + 1,
+            'url': `${canonicalUrl}/${p.id}/${p.slug}`,
+            'name': p.title,
+          })),
+        }}
+      />
 
       <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
         <div>

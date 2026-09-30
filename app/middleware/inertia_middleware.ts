@@ -1,7 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 import UserTransformer from '#transformers/user_transformer'
-import { LOCALE_COOKIE, pickLocale } from '#services/i18n/locale'
+import { requestLocale } from '#services/i18n/request_locale'
 import { BASE_CURRENCY } from '#services/pricing/fx'
 import FxService from '#services/pricing/fx_service'
 import { CURRENCY_COOKIE, pickDisplayCurrency } from '#services/pricing/display_currency'
@@ -33,10 +33,7 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
       auth.user.roleNames.includes('seller') &&
       !!(await SellerProfile.query().where('userId', auth.user.id).select('id').first())
 
-    const locale = pickLocale(
-      ctx.request.plainCookie(LOCALE_COOKIE),
-      ctx.request.header('accept-language')
-    )
+    const locale = requestLocale(ctx)
 
     // browse prices are shown in the visitor's currency; charges stay in TRY (P1)
     const rates = await new FxService().displayRates()

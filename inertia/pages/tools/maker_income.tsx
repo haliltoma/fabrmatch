@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { Head, router } from '@inertiajs/react'
+import { router } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { Price } from '~/components/money'
 import { useT } from '~/lib/i18n'
+import { Seo } from '~/components/seo'
 
 type Estimate = {
   printHoursPerMonth: number
@@ -39,14 +40,21 @@ function MakerIncome({
 
   return (
     <>
-      <Head title={t('What could my 3D printers earn? — maker income calculator')}>
-        <meta
-          name="description"
-          content={t(
-            'Estimate what your 3D printers could earn on Fabrmatch from machine hours, how busy they are and your price per gram. The formula is shown, not hidden.'
-          )}
-        />
-      </Head>
+      <Seo
+        title={t('What could my 3D printers earn? — maker income calculator')}
+        description={t(
+          'Estimate what your 3D printers could earn on Fabrmatch from machine hours, how busy they are and your price per gram. The formula is shown, not hidden.'
+        )}
+        breadcrumbs={[{ name: t('Maker income calculator') }]}
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'WebApplication',
+          'name': t('Maker income calculator'),
+          'applicationCategory': 'BusinessApplication',
+          'operatingSystem': 'Any',
+          'offers': { '@type': 'Offer', 'price': '0', 'priceCurrency': 'TRY' },
+        }}
+      />
 
       <section className="layer-lines border-b border-line">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">

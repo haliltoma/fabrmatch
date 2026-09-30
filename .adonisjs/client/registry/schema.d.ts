@@ -763,7 +763,7 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/product_image_controller').default['show']>>>
     }
   }
-  'storefront.sitemap': {
+  'seo.sitemap': {
     methods: ["GET","HEAD"]
     pattern: '/sitemap.xml'
     types: {
@@ -771,11 +771,11 @@ export interface Registry {
       paramsTuple: []
       params: {}
       query: {}
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/storefront_controller').default['sitemap']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/storefront_controller').default['sitemap']>>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seo_controller').default['sitemap']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seo_controller').default['sitemap']>>>
     }
   }
-  'storefront.robots': {
+  'seo.robots': {
     methods: ["GET","HEAD"]
     pattern: '/robots.txt'
     types: {
@@ -783,8 +783,20 @@ export interface Registry {
       paramsTuple: []
       params: {}
       query: {}
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/storefront_controller').default['robots']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/storefront_controller').default['robots']>>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seo_controller').default['robots']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seo_controller').default['robots']>>>
+    }
+  }
+  'seo.llms': {
+    methods: ["GET","HEAD"]
+    pattern: '/llms.txt'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seo_controller').default['llms']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seo_controller').default['llms']>>>
     }
   }
   'notification.index': {

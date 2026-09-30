@@ -1,6 +1,6 @@
-import { Head } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { useT } from '~/lib/i18n'
+import { Seo } from '~/components/seo'
 
 type Entry = {
   slug: string
@@ -25,14 +25,15 @@ export default function ContentShow({
   const isBlog = entry.kind === 'blog'
   return (
     <>
-      <Head title={`${entry.title} — Fabrmatch`}>
-        <meta name="description" content={entry.description} />
-        <link rel="canonical" href={canonicalUrl} />
-        <meta property="og:title" content={entry.title} />
-        <meta property="og:description" content={entry.description} />
-        <meta property="og:url" content={canonicalUrl} />
+      <Seo
+        title={`${entry.title} — Fabrmatch`}
+        description={entry.description}
+        canonical={canonicalUrl}
+        type="article"
+        bilingual={false}
+      >
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
-      </Head>
+      </Seo>
       <article className="mx-auto max-w-2xl px-4 py-12">
         <Link
           href={isBlog ? '/blog' : '/glossary'}

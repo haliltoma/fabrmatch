@@ -1,7 +1,7 @@
-import { Head } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { formatPrice } from '~/lib/format'
 import { useT } from '~/lib/i18n'
+import { Seo } from '~/components/seo'
 
 type Props = {
   city: {
@@ -20,19 +20,23 @@ export default function CityShow({ city, canonicalUrl }: Props) {
   const title = t('3D printing in {city}', { city: city.name })
   return (
     <>
-      <Head title={`${title} — Fabrmatch`}>
-        <meta
-          name="description"
-          content={t(
-            '{count} makers print in {city}. Upload your model and get a delivered price.',
-            {
-              count: city.makers,
-              city: city.name,
-            }
-          )}
-        />
-        <link rel="canonical" href={canonicalUrl} />
-      </Head>
+      <Seo
+        title={`${title} — Fabrmatch`}
+        description={t(
+          '{count} makers print in {city}. Upload your model and get a delivered price.',
+          { count: city.makers, city: city.name }
+        )}
+        canonical={canonicalUrl}
+        breadcrumbs={[{ name: t('Cities'), path: '/cities' }, { name: city.name }]}
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'Service',
+          'name': title,
+          'serviceType': '3D printing',
+          'areaServed': { '@type': 'City', 'name': city.name },
+          'provider': { '@type': 'Organization', 'name': 'Fabrmatch' },
+        }}
+      />
       <article className="mx-auto max-w-2xl px-4 py-12">
         <Link href="/cities" className="text-sm text-ink-700 hover:underline">
           ← {t('All cities')}

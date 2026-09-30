@@ -1,6 +1,6 @@
-import { Head } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { useT } from '~/lib/i18n'
+import { Seo } from '~/components/seo'
 
 type City = { slug: string; city: string; country: string; makers: number | null }
 
@@ -16,14 +16,13 @@ export default function Cities({
   const { t } = useT()
   return (
     <>
-      <Head title={t('3D printing near you — Fabrmatch')}>
-        <meta
-          name="description"
-          content={t('Cities where local makers print your parts, and how many there are.')}
-        />
-        <link rel="canonical" href={canonicalUrl} />
-        {!indexable && <meta name="robots" content="noindex, follow" />}
-      </Head>
+      <Seo
+        title={t('3D printing near you — Fabrmatch')}
+        description={t('Cities where local makers print your parts, and how many there are.')}
+        canonical={canonicalUrl}
+        noindex={!indexable}
+        breadcrumbs={[{ name: t('Cities') }]}
+      />
       <div className="mx-auto max-w-3xl px-4 py-12">
         <h1 className="font-display text-4xl font-semibold text-ink-900">
           {t('3D printing near you')}

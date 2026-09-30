@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Head, router } from '@inertiajs/react'
+import { router } from '@inertiajs/react'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -11,6 +11,7 @@ import {
   type FaqItem,
   type FaqParams,
 } from '~/components/home_faq'
+import { Seo } from '~/components/seo'
 
 function Help({
   faq,
@@ -36,20 +37,14 @@ function Help({
 
   return (
     <>
-      <Head title={t('Help and contact — Fabrmatch')}>
-        <meta
-          name="description"
-          content={t(
-            'Answers about payments, cancellations, disputes and makers, and a way to reach the Fabrmatch team.'
-          )}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(faqJsonLd(faq, faqParams, t)).replaceAll('<', '\\u003c'),
-          }}
-        />
-      </Head>
+      <Seo
+        title={t('Help and contact — Fabrmatch')}
+        description={t(
+          'Answers about payments, cancellations, disputes and makers, and a way to reach the Fabrmatch team.'
+        )}
+        breadcrumbs={[{ name: t('Help') }]}
+        jsonLd={faqJsonLd(faq, faqParams, t)}
+      />
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <h1 className="font-display text-4xl font-semibold text-ink-900">
           {t('How can we help?')}

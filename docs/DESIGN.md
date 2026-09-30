@@ -296,3 +296,8 @@ Neden: ilk sürüm (yazıcı + adımlar + 2 CTA) hero'nun anlattığını tekrar
 - Her cümle koda bağlı: `file_scanner.ts` (antivirüs **iddia edilmez**, üretimde CLAMAV açık iş), render-only vitrin (kural 4), `file_access_service` (yeni üretici 24 sa · 2 indirme), `fulfillment_service` (fotoğrafsız kargo yok), `contact_filter` (telefon/link/e-posta maskelenir), `photo_cleaner` (EXIF/GPS), üretici onayı (`maker_setup_service`), kural 1 (üretici yalnız kargo alanları).
 - **`WhyStrip` kaldırıldı:** dört maddesinin her biri artık kendi bölümünde (para → Ödemeden sonra, yakınlık → Yakınlık bandı, kayıtsız fiyat → hero, anonimlik → güven bandı).
 
+## 25. SEO altyapısı (2026-10-01)
+
+- Her genel sayfa `<Head>` yerine **`<Seo>`** (`components/seo.tsx`) kullanır: title, description, canonical, hreflang (EN varsayılan URL, TR `?lang=tr`), OG/Twitter, paylaşım görseli (yoksa `public/og/fabrmatch-{en,tr}.png`), `breadcrumbs`, `jsonLd`. Tek dilli içerik (blog, sözlük) `bilingual={false}`. Yeni genel sayfa = `<Seo>` + sitemap'e ekle (`SeoService.sitemapUrls`).
+- Sayfalar sunucuda render edilir: tarayıcıya özgü değerleri (şu an, `localStorage`, `Math.random`, yerel saat dilimi) ilk render'da kullanma; `useHydrated()` ya da `formatDate/formatDateTime/formatNumber` kullan. Kontrol: `npm run ssr:check`.
+

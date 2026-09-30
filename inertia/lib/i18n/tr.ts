@@ -3170,4 +3170,10 @@ export const tr: Record<string, string> = {
   'When are makers paid?': 'Üreticiler ne zaman ödeme alır?',
   'The buyer’s money is held from the start and released to you once delivery is confirmed or the check window passes without a dispute.':
     'Alıcının parası baştan bekletilir; teslimat onaylanınca ya da kontrol süresi itirazsız geçince sana aktarılır.',
+  // SEO
+  'Fabrmatch: custom 3D printing, made to order': 'Fabrmatch: siparişe özel 3D baskı',
+  'Home': 'Ana sayfa',
+  'Fabrmatch is a made-to-order 3D printing marketplace: upload a model, see the delivered price, and a verified maker nearby prints and ships it while the payment is held until delivery.':
+    'Fabrmatch siparişe özel bir 3D baskı pazar yeridir: modelini yükle, kapıya teslim fiyatını gör; yakınındaki doğrulanmış bir üretici basıp gönderir, ödeme teslimata kadar bekletilir.',
+  'Instant 3D print price': 'Anında 3D baskı fiyatı',
 }

@@ -19,6 +19,10 @@ export default class LanguageController {
       user.locale = lang
       await user.save()
     }
-    return response.redirect().back()
+    // back to the same page, minus a ?lang= that would otherwise override the new choice
+    const back = new URL(request.header('referer') ?? '/', request.completeUrl())
+    if (back.host !== new URL(request.completeUrl()).host) return response.redirect('/')
+    back.searchParams.delete('lang')
+    return response.redirect(`${back.pathname}${back.search}`)
   }
 }

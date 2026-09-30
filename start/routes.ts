@@ -176,8 +176,9 @@ router
   ])
 // Shop pictures (renders, approved maker photos), streamed from private storage
 router.get('/images/:id', [controllers.ProductImage, 'show']).where('id', router.matchers.number())
-router.get('/sitemap.xml', [controllers.Storefront, 'sitemap'])
-router.get('/robots.txt', [controllers.Storefront, 'robots'])
+router.get('/sitemap.xml', [controllers.Seo, 'sitemap'])
+router.get('/robots.txt', [controllers.Seo, 'robots'])
+router.get('/llms.txt', [controllers.Seo, 'llms'])
 
 // Notifications (any signed-in user)
 router

@@ -280,6 +280,8 @@
 
 ## Log
 
+- **2026-10-01** — U3 SEO/AEO: SSR açık (+ `npm run ssr:check`), `Seo` bileşeni tüm genel sayfalarda (canonical, hreflang `?lang=`, OG görseli, JSON-LD), hreflang'li sitemap, yeni robots.txt, `/llms.txt`. Tarayıcı testleri `INERTIA_SSR=false` ile koşar. 969 test.
+
 - **2026-10-01** — U2: SSS genişledi (18 soru/6 konu, config'ten sayılar, FAQPage JSON-LD, ana sayfa + /help). Bulgu: Inertia SSR hiç açılmamış → U3'ün ilk işi.
 
 - **2026-10-01** — U1: Dosyalarım sayfasının sonsuz 3 sn yoklaması düzeldi (artan aralık + 3 dk sonra dur + gizli sekmede dur) ve takılı taramalar sunucuda kurtarılıyor (`RecoverStalledAnalyses`). Yerelde taramalar için `node ace queue:work` çalışmalı. Kullanıcı istekleri Paket U (U1–U9) olarak tasks.md'de; K-U: tüm anahtarlar UUID (kullanıcı kararı). 963 test.

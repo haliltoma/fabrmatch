@@ -1,7 +1,7 @@
-import { Head } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { formatPrice } from '~/lib/format'
 import { useT } from '~/lib/i18n'
+import { Seo } from '~/components/seo'
 
 type Props = {
   useCase: {
@@ -31,13 +31,13 @@ export default function UseCaseShow({
   const title = t(useCase.title)
   return (
     <>
-      <Head title={`${title} — Fabrmatch`}>
-        <meta name="description" content={description} />
-        <link rel="canonical" href={canonicalUrl} />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={description} />
-        {!indexable && <meta name="robots" content="noindex, follow" />}
-      </Head>
+      <Seo
+        title={`${title} — Fabrmatch`}
+        description={description}
+        canonical={canonicalUrl}
+        noindex={!indexable}
+        breadcrumbs={[{ name: t('Use cases'), path: '/use-cases' }, { name: title }]}
+      />
       <article className="mx-auto max-w-2xl px-4 py-12">
         <Link href="/use-cases" className="text-sm text-ink-700 hover:underline">
           ← {t('All use cases')}

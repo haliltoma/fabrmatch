@@ -1,7 +1,7 @@
-import { Head } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { formatPrice } from '~/lib/format'
 import { useT } from '~/lib/i18n'
+import { Seo } from '~/components/seo'
 
 type Props = {
   useCases: Array<{
@@ -19,16 +19,15 @@ export default function UseCaseIndex({ useCases, indexable, canonicalUrl }: Prop
   const { t } = useT()
   return (
     <>
-      <Head title={t('What people print with Fabrmatch')}>
-        <meta
-          name="description"
-          content={t(
-            'Prototypes, spare parts and small batches: how each works, and what it costs today.'
-          )}
-        />
-        <link rel="canonical" href={canonicalUrl} />
-        {!indexable && <meta name="robots" content="noindex, follow" />}
-      </Head>
+      <Seo
+        title={t('What people print with Fabrmatch')}
+        description={t(
+          'Prototypes, spare parts and small batches: how each works, and what it costs today.'
+        )}
+        canonical={canonicalUrl}
+        noindex={!indexable}
+        breadcrumbs={[{ name: t('Use cases') }]}
+      />
       <div className="mx-auto max-w-3xl px-4 py-12">
         <h1 className="font-display text-4xl font-semibold text-ink-900">
           {t('What people print with Fabrmatch')}

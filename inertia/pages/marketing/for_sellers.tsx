@@ -1,9 +1,9 @@
-import { Head } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { Button } from '~/components/ui/button'
 import { WaitlistForm } from '~/components/waitlist_form'
 import { Reveal } from '~/components/reveal'
 import { useT } from '~/lib/i18n'
+import { Seo } from '~/components/seo'
 
 const POINTS = [
   {
@@ -39,14 +39,13 @@ export default function ForSellers({
 
   return (
     <>
-      <Head title={t('Sell 3D-printed products without owning a printer — for sellers')}>
-        <meta
-          name="description"
-          content={t(
-            'List 3D-printed products, set your margin and let Fabrmatch makers print and ship each order. No stock, no printers.'
-          )}
-        />
-      </Head>
+      <Seo
+        title={t('Sell 3D-printed products without owning a printer — for sellers')}
+        description={t(
+          'List 3D-printed products, set your margin and let Fabrmatch makers print and ship each order. No stock, no printers.'
+        )}
+        breadcrumbs={[{ name: t('For sellers') }]}
+      />
 
       <section className="layer-lines border-b border-line">
         <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1.2fr_1fr] lg:px-8">

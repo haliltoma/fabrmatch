@@ -1,7 +1,7 @@
-import { Head } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { formatPrice } from '~/lib/format'
 import { useT } from '~/lib/i18n'
+import { Seo } from '~/components/seo'
 
 type Props = {
   material: {
@@ -27,11 +27,13 @@ export default function MaterialShow({
   const { t } = useT()
   return (
     <>
-      <Head title={`${material.name} — Fabrmatch`}>
-        <meta name="description" content={description} />
-        <link rel="canonical" href={canonicalUrl} />
-        {!indexable && <meta name="robots" content="noindex, follow" />}
-      </Head>
+      <Seo
+        title={`${material.name} — Fabrmatch`}
+        description={description}
+        canonical={canonicalUrl}
+        noindex={!indexable}
+        breadcrumbs={[{ name: t('Materials'), path: '/materials' }, { name: material.name }]}
+      />
       <article className="mx-auto max-w-2xl px-4 py-12">
         <Link href="/materials" className="text-sm text-ink-700 hover:underline">
           ← {t('All materials')}

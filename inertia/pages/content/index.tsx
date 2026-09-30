@@ -1,5 +1,5 @@
-import { Head } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
+import { Seo } from '~/components/seo'
 
 type Entry = {
   slug: string
@@ -35,10 +35,13 @@ export default function ContentIndex({
   const copy = COPY[kind]
   return (
     <>
-      <Head title={copy.title}>
-        <meta name="description" content={copy.intro} />
-        <link rel="canonical" href={canonicalUrl} />
-      </Head>
+      <Seo
+        title={copy.title}
+        description={copy.intro}
+        canonical={canonicalUrl}
+        bilingual={false}
+        breadcrumbs={[{ name: copy.title }]}
+      />
       <div className="mx-auto max-w-3xl px-4 py-12">
         <h1 className="font-display text-4xl font-semibold text-ink-900">{copy.heading}</h1>
         <p className="mt-2 text-ink-700">{copy.intro}</p>

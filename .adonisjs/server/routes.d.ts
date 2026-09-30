@@ -67,8 +67,9 @@ export type ScannedRoutes = {
     'storefront.show': { paramsTuple: [ParamValue,ParamValue?]; params: {'id': ParamValue,'slug'?: ParamValue} }
     'storefront.order': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'product_image.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'storefront.sitemap': { paramsTuple?: []; params?: {} }
-    'storefront.robots': { paramsTuple?: []; params?: {} }
+    'seo.sitemap': { paramsTuple?: []; params?: {} }
+    'seo.robots': { paramsTuple?: []; params?: {} }
+    'seo.llms': { paramsTuple?: []; params?: {} }
     'notification.index': { paramsTuple?: []; params?: {} }
     'notification.preferences': { paramsTuple?: []; params?: {} }
     'notification.update_preference': { paramsTuple?: []; params?: {} }
@@ -310,8 +311,9 @@ export type ScannedRoutes = {
     'storefront.index': { paramsTuple?: []; params?: {} }
     'storefront.show': { paramsTuple: [ParamValue,ParamValue?]; params: {'id': ParamValue,'slug'?: ParamValue} }
     'product_image.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'storefront.sitemap': { paramsTuple?: []; params?: {} }
-    'storefront.robots': { paramsTuple?: []; params?: {} }
+    'seo.sitemap': { paramsTuple?: []; params?: {} }
+    'seo.robots': { paramsTuple?: []; params?: {} }
+    'seo.llms': { paramsTuple?: []; params?: {} }
     'notification.index': { paramsTuple?: []; params?: {} }
     'notification.preferences': { paramsTuple?: []; params?: {} }
     'notification.open': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -432,8 +434,9 @@ export type ScannedRoutes = {
     'storefront.index': { paramsTuple?: []; params?: {} }
     'storefront.show': { paramsTuple: [ParamValue,ParamValue?]; params: {'id': ParamValue,'slug'?: ParamValue} }
     'product_image.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'storefront.sitemap': { paramsTuple?: []; params?: {} }
-    'storefront.robots': { paramsTuple?: []; params?: {} }
+    'seo.sitemap': { paramsTuple?: []; params?: {} }
+    'seo.robots': { paramsTuple?: []; params?: {} }
+    'seo.llms': { paramsTuple?: []; params?: {} }
     'notification.index': { paramsTuple?: []; params?: {} }
     'notification.preferences': { paramsTuple?: []; params?: {} }
     'notification.open': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

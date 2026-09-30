@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { FieldError, FormErrors } from '~/components/field_error'
 import { DeliveryNotice, type Delivery } from '~/components/delivery_notice'
 import { ChargeNote } from '~/components/money'
-import { Head, router, usePage } from '@inertiajs/react'
+import { router, usePage } from '@inertiajs/react'
+import { Seo } from '~/components/seo'
 import { Link } from '@adonisjs/inertia/react'
 import { ArrowLeft } from 'lucide-react'
 import { TermsCheckbox, useLegalAcceptance } from '~/components/terms_checkbox'
@@ -179,20 +180,16 @@ export default function ShopShow({
 
   return (
     <>
-      <Head title={product.title}>
-        <meta name="description" content={description.slice(0, 160)} />
-        <link rel="canonical" href={canonicalUrl} />
-        <meta property="og:title" content={product.title} />
-        <meta property="og:description" content={description.slice(0, 160)} />
-        <meta property="og:type" content="product" />
-        <meta property="og:url" content={canonicalUrl} />
-        {ogImage && <meta property="og:image" content={ogImage.url} />}
-        {ogImage?.width && <meta property="og:image:width" content={String(ogImage.width)} />}
-        {ogImage?.height && <meta property="og:image:height" content={String(ogImage.height)} />}
-        {ogImage && <meta property="og:image:alt" content={product.title} />}
-        <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+      <Seo
+        title={product.title}
+        description={description.slice(0, 160)}
+        canonical={canonicalUrl}
+        type="product"
+        image={ogImage ? { ...ogImage, alt: product.title } : undefined}
+        breadcrumbs={[{ name: t('Shop'), path: '/shop' }, { name: product.title }]}
+      >
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
-      </Head>
+      </Seo>
 
       <div className="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
         <Link
