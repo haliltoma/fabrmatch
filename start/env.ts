@@ -23,6 +23,8 @@ export default await Env.create(new URL('../', import.meta.url), {
   // antivirus: clamd host for INSTREAM scans of model uploads; unset = signature checks only
   CLAMAV_HOST: Env.schema.string.optional(),
   CLAMAV_PORT: Env.schema.number.optional(),
+  // signs the fake carrier's webhooks outside tests (no real carrier yet, D3); unset = a random one per process
+  FAKE_CARRIER_SECRET: Env.schema.secret.optional(),
 
   SLICER_DRIVER: Env.schema.enum.optional(['none', 'orca'] as const),
   SLICER_BIN: Env.schema.string.optional(),

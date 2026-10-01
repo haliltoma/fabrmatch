@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto'
 import app from '@adonisjs/core/services/app'
 import db from '@adonisjs/lucid/services/db'
 import logger from '@adonisjs/core/services/logger'
@@ -7,15 +8,23 @@ import FulfillmentService from '#services/orders/fulfillment_service'
 import OrderService from '#services/orders/order_service'
 import type { CarrierProvider, Label } from '#services/shipping/carrier_provider'
 import FakeCarrier from '#services/shipping/fake_carrier'
+import env from '#start/env'
 
 export type CarrierOutcome = 'delivered' | 'in_transit' | 'ignored' | 'duplicate' | 'unknown_parcel'
 
-/** The fake carrier signs with a public constant, so it must never face the internet in production. */
+/**
+ * Until a real carrier is chosen (decision D3) the fake one stands in, never in production. Its
+ * webhook secret comes from FAKE_CARRIER_SECRET; without it a staging or dev server makes up a
+ * random one per process, so nobody can forge a "delivered" event with a known constant. Only
+ * tests keep the fixed default they sign with.
+ */
 function defaultCarrier(): CarrierProvider {
   if (app.inProduction) {
     throw new Error('No carrier integration is configured for production (decision D3)')
   }
-  return new FakeCarrier()
+  const secret = env.get('FAKE_CARRIER_SECRET')?.release()
+  if (secret) return new FakeCarrier(secret)
+  return app.inTest ? new FakeCarrier() : new FakeCarrier(randomBytes(32).toString('hex'))
 }
 
 export default class CarrierService {

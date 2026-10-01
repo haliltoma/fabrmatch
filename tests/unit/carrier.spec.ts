@@ -7,6 +7,8 @@ import CarrierService from '#services/shipping/carrier_service'
 import FakeCarrier from '#services/shipping/fake_carrier'
 import FakePaymentProvider from '#services/payments/fake_provider'
 import { createFundedOrder, orderStatus } from '#tests/helpers/order_fixtures'
+import env from '#start/env'
+import { Secret } from '@adonisjs/core/helpers'
 
 async function shippedOrder() {
   const funded = await createFundedOrder(new FakePaymentProvider(), { upTo: 'shipped' })
@@ -69,6 +71,28 @@ test.group('carrier integration (R2-T8, fake)', (group) => {
     )
     await assert.rejects(() => service.handleWebhook(forged.body, {}), InvalidCarrierSignatureError)
     assert.lengthOf(await db.from('carrier_events'), 0)
+  })
+
+  test('with FAKE_CARRIER_SECRET set, the public test constant no longer signs', async ({
+    assert,
+    cleanup,
+  }) => {
+    env.set('FAKE_CARRIER_SECRET', new Secret('staging-only-secret') as never)
+    cleanup(() => {
+      // env.set(key, undefined) would leave the string "undefined" in process.env
+      env.set('FAKE_CARRIER_SECRET', undefined as never)
+      delete process.env.FAKE_CARRIER_SECRET
+    })
+    await shippedOrder()
+    const service = new CarrierService()
+    const event = { trackingNumber: 'TRK123456', status: 'delivered' as const }
+    const forged = new FakeCarrier().signedEvent(event)
+    await assert.rejects(
+      () => service.handleWebhook(forged.body, forged.headers),
+      InvalidCarrierSignatureError
+    )
+    const genuine = new FakeCarrier('staging-only-secret').signedEvent(event)
+    assert.equal(await service.handleWebhook(genuine.body, genuine.headers), 'delivered')
   })
 
   test('the label’s sender never names the maker, only the public alias', async ({ assert }) => {
