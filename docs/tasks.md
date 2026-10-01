@@ -464,12 +464,28 @@ Yöntem: knip (kullanılmayan dosya/export/paket) + `mattpocock/skills@code-revi
 - [x] **U1 istek sayısı testi** · ✔ 2026-10-01 — `tests/browser/files_polling.spec.ts` (Playwright sahte saat, ~4 sn): takılı taramada ~3,5 dk'da en çok 12 yenileme, sonra "beklenenden uzun" + 5 dk'da 0 istek, "Tekrar kontrol et" yeni tur; gizli sekmede 0 istek, görünür olunca sürer. Eski 3 sn'lik zamanlayıcıyla aynı test 71 istek sayıp düşer (doğrulandı). Ana sayfa bant sayısı: kullanıcı "şimdilik böyle kalsın" dedi.
 - [ ] **Bilinçli açık** — Kapsam dışı ama yapılanlar (⌘K, toplu işlem, `AppToaster`, `RecoverStalledAnalyses`, OG görseli) kullanıcıya raporlandı. Ana sayfa bant sayısı (11) — sadeleştirme kararı kullanıcıda.
 
+## Paket V — Dış mağaza kataloğu, yerel fiyat/kur, üretici maliyeti + kâr (2026-10-01, tartışmada)
+
+Tartışma, araştırma, örnek hesap ve açık sorular: **`docs/PAKET_V_TARTISMA.md`**. Kararlar K-V1..K-V6 (aşağıda karar defterinde). Sıra: önce fiyatın temeli (V0 → V1 → V2), sonra para (V4), sonra mesafe (V5), en son mağazalar (V6 → V7–V10). Her görev ayrı commit. Skill: `pricing`, `marketing-psychology`, `cross-border-ecommerce`, `woocommerce-backend-dev`, `building-storefronts`, `test-driven-development`.
+
+- [ ] **V0 · Açık soruların kararı** · P0 · ⏸ kullanıcı — `PAKET_V_TARTISMA.md §6`: sabitleme yüzdeliği ve az üretici bandı; maliyet girmeyen üretici; karşı teklifi kim onaylar + süre; bölge kur varsayılanları; Trendyol/Hepsiburada bağlantı yolu; %15 → %25 geçişinde komisyon/alıcı fiyatı; dış mağaza fiyat senkronu. Bitti: her soru tarihli kararla doc'ta.
+- [ ] **V1 · Üretici maliyet profili** · P0 · K-V2 — Yazıcı/malzeme başına: filament kg fiyatı, makine saat ücreti, kurulum/işçilik, son işlem, hata oranı; kâr = admin asgarisi (varsayılan %25, ayar) ile %30 arası üretici seçimi. `taban = (malzeme×1,10 + makine + işçilik + son işlem) ÷ (1 − hata) × (1 + kâr)` saf fonksiyon (`app/services/pricing/maker_cost.ts`), tamsayı kuruş. "Bu işten kazancım" önizlemesi (test model). Eski `pricePerGramMinor` tavanı bu tabana taşınır (`makerPriceFits`). Bitti: birim testi — taban her girdide ≥ maliyet × (1 + asgari kâr); üretici panelinde profil + önizleme; migration ile mevcut gram fiyatlarından başlangıç profili.
+- [ ] **V2 · Hızlı fiyat aralığı + sabit fiyat + üretici payı** · P0 · K-V1, K-V3 · V0/V1'e bağlı — Hızlı fiyat ve sipariş fiyatı: uygun üreticilerin tabanlarından (+ komisyon + kargo + yuvarlama) "X – Y" aralığı; az üretici varsa bölge referansı bandı. Ödemede tek fiyat sabitlenir (V0'daki yüzdelik). Teklif yalnız tabanı sığan üreticiye; teklifte **üreticiye ödenecek sabit tutar** görünür; ödeme = o tutar (`payout_service`), fark `platform_spread` defter kaydı. `QuoteController`'daki sabit `sellerMarginBps: 2000` temizlenir. Bitti: fiyat motoru testleri (sabit fiyat ≥ seçilen taban; üretici + komisyon + fark + kargo = toplam; kural 1: aralıkta üretici kimliği yok); tarayıcıda aralık ekran görüntüsü.
+- [ ] **V3 · Karşı teklif** · P1 · K-V1 · V2'ye bağlı — Tabanı sığmayan üretici teklif yerine kendi tabanını önerir; V0 kararına göre alıcı/admin onaylar, süre dolarsa sıradaki üretici. Bitti: durum makinesi + denetim kaydı + test.
+- [ ] **V4 · Bölge para modu + kur geliri** · P1 · K-V4 — `pricing_regions.currency_mode`: `local` (bölge parasında fiyat tablosu) | `converted` (TRY + bölge tamponu + yukarı yuvarlama). Fark `fx_gain` defter hesabına (komisyona karışmaz); admin bölge ayarlarında tampon + yuvarlama, raporlarda kur geliri. Bugünkü `fxMarginBps` dağıtımı ve `İnceleme kalanları (b)(c)` yuvarlama farkları burada kapanır. Bitti: defter dengesi testi (her çevrimli sipariş: toplam = kalemler + `fx_gain`), admin raporu.
+- [ ] **V5 · Mesafe ek ücreti** · P2 · K-V5 — Üretici kademeleri: aynı şehir / şehir dışı / ülke geneli / yurt dışı (yüzde, varsayılan 0). Tabanına eklenir; eşleştirme `sameCity` yerine kademe kullanır (yurt dışı K-K kapalıyken yalnız ayar). Bitti: taban + kademe testi; aralık ve sabit fiyat kademeyi içerir.
+- [ ] **V6 · Dış mağaza fiyatı ve senkron** · P1 · V2/V4'e bağlı — Mağaza para biriminde öneri fiyatı (V4 çevrimi); maliyet/kur değişince satıcıya uyarı ya da otomatik güncelleme (V0 kararı); Fabrmatch'ten mağazaya iptal/iade geri yazımı; ölçek/renk varyantları; üretici onayı gecikince satıcıya ve (destekleyen platformda) mağazaya not. Bitti: adaptör sözleşme testine yeni yöntemler + fake mağazalarla uçtan uca test.
+- [ ] **V7 · Trendyol + Hepsiburada adaptörleri** · P1 · K-V6 · ⏸ V0 (bağlantı yolu) + satıcı test hesabı — Satıcı API anahtarıyla bağlantı, ürün yayını (kategori/özellik eşleme), sipariş yoklaması, kargo bildirimi. Bitti: `StoreAdapter` sözleşme testi; gerçek test hesabında bir sipariş.
+- [ ] **V8 · Wix adaptörü** · P2 · K-V6 · ⏸ Wix uygulama kaydı/onayı — OAuth uygulaması, Stores ürün API'si, Orders webhook'u (webhook'lar uygulama panelinde elle tanımlanır), kargo geri yazımı; 200 istek/dk sınırı. Bitti: sözleşme testi + fake Wix ile uçtan uca.
+- [ ] **V9 · Amazon (SP-API)** · P3 · K-V6 · ⏸ geliştirici kaydı + kargo SLA kararı.
+- [ ] **V10 · eBay** · P3 · K-V6 · ⏸ geliştirici hesabı.
+
 ## Karar defteri (bekleyenler)
 
 | Kod    | Karar                                        | Öneri                                                                               | Durum                                   |
 | ------ | -------------------------------------------- | ----------------------------------------------------------------------------------- | --------------------------------------- |
 | K-A    | KDV dahil gösterim, ilk pazar                | TR KDV dahil; sonra AB                                                              | ⏸                                       |
-| K-B    | Üretici fiyatı: platform listesi + min fiyat | v1 min fiyat                                                                        | ⏸                                       |
+| K-B    | Üretici fiyatı: platform listesi + min fiyat | v1 min fiyat → **yerini K-V1/K-V2 aldı** (üretici maliyet profili + sabit fiyat)   | ✔ 2026-10-01 (K-V)                      |
 | K-C    | Fatura entegratörü                           | Yerel e-arşiv entegratörü; model B'de alıcıya tam fatura (R7-T5)                    | ⏸                                       |
 | K-L    | Satış modeli (kim satıcı, kim fatura keser)  | **B: Fabrmatch satıcı**, üretici tedarikçi (`docs/legal/satis-ve-fatura-modeli.md`) | ✔ B (2026-09-27), uzman teyidi bekliyor |
 | K-D/D3 | Kargo                                        | v1 tablo + manuel takip; v2 API                                                     | ⏸                                       |
@@ -481,6 +497,12 @@ Yöntem: knip (kullanılmayan dosya/export/paket) + `mattpocock/skills@code-revi
 | D1     | Stripe tüzel kişilik                         | –                                                                                   | ⏸ (R6)                                  |
 | D5     | Hukuki görüş (KVKK, mesafeli satış)          | Uzman metni                                                                         | ⏸                                       |
 | K-U    | UUID kapsamı (U7)                            | Öneri public_id idi; **kullanıcı seçimi: tüm birincil+yabancı anahtarlar UUID** | ✔ 2026-10-01                            |
+| K-V1   | Fiyat modeli (Paket V)                       | **Sabit fiyat + kabul**: aralık gösterilir, ödemede tek fiyat; teklif tabanı sığana | ✔ 2026-10-01                            |
+| K-V2   | Üretici kârı                                 | Admin asgari %25, üretici %30'a kadar artırır                                       | ✔ 2026-10-01                            |
+| K-V3   | Sabit fiyat ile taban farkı                  | Üretici payı sabit (kendi tabanı), fark platform geliri                             | ✔ 2026-10-01                            |
+| K-V4   | Para birimi                                  | Bölge seçer: yerel para tablosu ya da TRY + kur tamponu + yukarı yuvarlama (`fx_gain`) | ✔ 2026-10-01                         |
+| K-V5   | Yakınlık                                     | Üreticinin mesafe kademesine göre ek ücreti                                         | ✔ 2026-10-01                            |
+| K-V6   | Yeni platform sırası                         | Trendyol/Hepsiburada → Wix → Amazon → eBay                                          | ✔ 2026-10-01                            |
 
 ---
 
