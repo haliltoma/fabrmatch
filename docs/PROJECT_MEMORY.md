@@ -280,6 +280,8 @@
 
 ## Log
 
+- **2026-10-01** — U1 tarayıcı testi: dosya taraması yoklaması sahte saatle sayılıyor (≤12 istek, sonra durur; gizli sekmede 0). Ana sayfa olduğu gibi kalıyor (kullanıcı kararı).
+
 - **2026-10-01** — Genel inceleme (knip + code-review iki eksen): ölü kod/paket temizliği; UUID kalıntısı 3 bozuk form, Etsy SKU uzunluğu, UUIDv7 milisaniye altı sıralama düzeltildi; ürün sayfası servise; tembel attention prop; tüm sayfalamalı listelerde iskelet. 981 test, ssr 60/60, a11y 0.
 
 - **2026-10-01** — U7 UUID: tüm PK/FK UUIDv7 (`uuid_generate_v7()` SQL fonksiyonu, varsayılan değer), migration'lar yerinde çevrildi, yerel DB yeniden kuruldu + demo seed; rotalarda genel UUID eşleyici; testlerde `uid(n)`; dış mağaza id'leri sayı kaldı; `AppToaster` (bildirim kontrastı). 980 test, a11y 0, ssr 60/60.
