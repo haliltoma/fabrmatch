@@ -280,6 +280,8 @@
 
 ## Log
 
+- **2026-10-01** — İnceleme kalanları (d, f, g, i): kuyruk işçisi hiçbir işi tanımıyordu (`locations` eksikti) → düzeldi, testler ayrı Redis db'si (`REDIS_DB=1`); FakeCarrier sırrı env'den / rastgele; doğrulama mesajlarında okunur alan adları + eksik Türkçe kurallar; tutarlar `moneyMinor()`. 987 test. Kalan a, b, c, e, h karar/D4 bekliyor.
+
 - **2026-10-01** — U1 tarayıcı testi: dosya taraması yoklaması sahte saatle sayılıyor (≤12 istek, sonra durur; gizli sekmede 0). Ana sayfa olduğu gibi kalıyor (kullanıcı kararı).
 
 - **2026-10-01** — Genel inceleme (knip + code-review iki eksen): ölü kod/paket temizliği; UUID kalıntısı 3 bozuk form, Etsy SKU uzunluğu, UUIDv7 milisaniye altı sıralama düzeltildi; ürün sayfası servise; tembel attention prop; tüm sayfalamalı listelerde iskelet. 981 test, ssr 60/60, a11y 0.
