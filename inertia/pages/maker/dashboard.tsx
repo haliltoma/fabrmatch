@@ -11,6 +11,8 @@ import { PageHeader } from '~/components/page_header'
 import { StatTile } from '~/components/stat_tile'
 import { StatusBadge } from '~/components/status_badge'
 import { useT } from '~/lib/i18n'
+import { usePage } from '@inertiajs/react'
+import { NextUp, type NextUpItem } from '~/components/next_up'
 
 type RecentJob = { id: number; code: string; status: string; dueAt: string | null }
 
@@ -34,6 +36,7 @@ function MakerDashboard({
   recentJobs: RecentJob[]
 }) {
   const { t } = useT()
+  const next = usePage<{ makerAttention: { items: NextUpItem[] } | null }>().props.makerAttention
 
   return (
     <div className="space-y-8">
@@ -43,9 +46,11 @@ function MakerDashboard({
         action={
           <Button variant={pendingOffers > 0 ? 'accent' : 'default'} asChild>
             <Link href="/maker/work">
-              {pendingOffers > 0
-                ? `Review ${pendingOffers} offer${pendingOffers > 1 ? 's' : ''}`
-                : t('Open Work')}
+              {pendingOffers === 0
+                ? t('Open Work')
+                : pendingOffers === 1
+                  ? t('Review 1 offer')
+                  : t('Review {count} offers', { count: pendingOffers })}
             </Link>
           </Button>
         }
@@ -53,7 +58,15 @@ function MakerDashboard({
 
       <MakerSetup setup={setup} />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {setup.complete && (
+        <NextUp
+          title={t('Next up')}
+          items={next?.items ?? []}
+          empty={t('Nothing waits for you right now. New offers appear here and on Work.')}
+        />
+      )}
+
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatTile
           label={t('Open offers')}
           value={pendingOffers}

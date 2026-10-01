@@ -85,4 +85,4 @@ export default function MakerFinishing({
 }
 
 MakerFinishing.layout = 'dashboard'
-MakerFinishing.dashboardProps = { navItems: makerNav, title: 'Maker Panel' }
+MakerFinishing.dashboardProps = { navItems: makerNav, title: 'Maker' }

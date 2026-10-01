@@ -83,4 +83,4 @@ export default function RfqIndex({ rfqs }: { rfqs: Rfq[] }) {
 }
 
 RfqIndex.layout = 'dashboard'
-RfqIndex.dashboardProps = { navItems: sellerNav, title: 'Seller Panel' }
+RfqIndex.dashboardProps = { navItems: sellerNav, title: 'Seller' }

@@ -27,8 +27,10 @@ export interface NavItem {
   feature?: 'rfq' | 'externalStores'
   /** heading this link sits under (admin menu); ungrouped menus stay a flat list */
   group?: string
-  /** key into the shared `adminAttention.badges`: a count of what waits behind the link */
-  badge?: 'queues' | 'matching' | 'disputes' | 'payouts'
+  /** key into the shared attention badges (admin or maker): a count of what waits behind the link */
+  badge?: 'queues' | 'matching' | 'disputes' | 'payouts' | 'work'
+  /** one of the four links in the phone's bottom tab bar */
+  mobileTab?: boolean
 }
 
 interface DashboardLayoutProps {
@@ -40,7 +42,17 @@ interface DashboardLayoutProps {
 type Badges = Partial<Record<NonNullable<NavItem['badge']>, number>>
 
 /** Groups that stay open by default; the rest open when they hold the current page. */
-const OPEN_GROUPS = ['Today', 'Marketplace']
+// short panel menus (maker, seller) stay fully open; the admin's long tail folds away
+const OPEN_GROUPS = [
+  'Today',
+  'Marketplace',
+  'Work',
+  'Machines',
+  'Money',
+  'Sell',
+  'Your shop',
+  'Buying',
+]
 
 function SidebarLink({
   item,
@@ -164,6 +176,40 @@ function SidebarNavItems({
   )
 }
 
+/** The full panel menu in a side sheet (phone), opened from the top bar or the tab bar's More. */
+function MobileMenu({
+  title,
+  items,
+  url,
+  badges,
+  trigger,
+}: {
+  title: string
+  items: NavItem[]
+  url: string
+  badges: Badges
+  trigger: ReactElement
+}) {
+  const { t } = useT()
+  return (
+    <Sheet>
+      <SheetTrigger asChild>{trigger}</SheetTrigger>
+      <SheetContent side="left" className="palette-light w-72 bg-sidebar-bg p-0 text-sidebar-fg">
+        <SheetHeader className="border-b border-sidebar-border px-4 py-4">
+          <SheetTitle className="text-sidebar-fg">{t(title)}</SheetTitle>
+        </SheetHeader>
+        <SidebarNavItems items={items} url={url} collapsed={false} mobile badges={badges} />
+        <div className="border-t border-sidebar-border px-4 py-3">
+          <div className="flex items-center justify-between gap-2">
+            <LanguageSwitch tone="paper" />
+            <ThemeSwitch tone="paper" />
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  )
+}
+
 export default function DashboardLayout({
   children,
   navItems: allItems,
@@ -179,8 +225,18 @@ export default function DashboardLayout({
       (i.feature !== 'externalStores' || children.props.externalStoresEnabled)
   )
   const user = children.props.user
-  const badges =
-    (children.props as { adminAttention?: { badges: Badges } | null }).adminAttention?.badges ?? {}
+  const isAdmin = navItems.some((i) => i.href.startsWith('/admin'))
+  const path = url.split('?')[0]
+  // the menu item for this page: the longest link that is this path or a parent of it
+  const current = [...navItems]
+    .filter((i) => path === i.href || path.startsWith(`${i.href}/`))
+    .sort((x, y) => y.href.length - x.href.length)[0]
+  const tabs = navItems.filter((i) => i.mobileTab).slice(0, 4)
+  const shared = children.props as {
+    adminAttention?: { badges: Badges } | null
+    makerAttention?: { badges: Badges } | null
+  }
+  const badges: Badges = shared.adminAttention?.badges ?? shared.makerAttention?.badges ?? {}
   const [collapsed, setCollapsed] = useState(false)
 
   useEffect(() => {
@@ -194,7 +250,7 @@ export default function DashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-paper">
-      <NavigationProgress variant={navItems.some((i) => i.group) ? 'admin' : 'site'} />
+      <NavigationProgress variant={isAdmin ? 'admin' : 'site'} />
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-ink-900 focus:px-4 focus:py-2 focus:text-paper"
@@ -232,7 +288,7 @@ export default function DashboardLayout({
           </Button>
         </div>
 
-        {navItems.some((i) => i.group) && (
+        {isAdmin && (
           <div className="px-3 pt-4">
             <AdminCommand items={navItems} compact={collapsed} />
           </div>
@@ -289,59 +345,99 @@ export default function DashboardLayout({
 
       {/* Main content area */}
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* Top bar */}
-        <header className="sticky top-0 z-30 flex h-16 md:hidden items-center gap-4 border-b border-line bg-paper-raised px-4 sm:px-6">
-          {/* Mobile menu */}
-          <div className="md:hidden">
-            <Sheet key={url}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label={t('Menu')}>
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent
-                side="left"
-                className="palette-light w-72 bg-sidebar-bg p-0 text-sidebar-fg"
-              >
-                <SheetHeader className="border-b border-sidebar-border px-4 py-4">
-                  <SheetTitle className="text-sidebar-fg">{t(title)}</SheetTitle>
-                </SheetHeader>
-                <SidebarNavItems
-                  items={navItems}
-                  url={url}
-                  collapsed={false}
-                  mobile
-                  badges={badges}
-                />
-                <div className="border-t border-sidebar-border px-4 py-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <LanguageSwitch tone="paper" />
-                    <ThemeSwitch tone="paper" />
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-
-          <div className="flex flex-1 items-center justify-between">
-            <div />
-            {/* Mobile user avatar */}
-            <div className="md:hidden">
-              {user && (
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback>{user.initials}</AvatarFallback>
-                </Avatar>
-              )}
-            </div>
-          </div>
+        {/* Phone top bar: where you are (logo + page name), the full menu and your notifications */}
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-line bg-paper-raised px-2 md:hidden">
+          <MobileMenu
+            key={url}
+            title={title}
+            items={navItems}
+            url={url}
+            badges={badges}
+            trigger={
+              <Button variant="ghost" size="icon" aria-label={t('Menu')}>
+                <Menu className="h-5 w-5" />
+              </Button>
+            }
+          />
+          <Link route="home" aria-label={t('Fabrmatch home')} className="shrink-0">
+            <span className="flex h-6 w-6 flex-col justify-center gap-[3px]" aria-hidden>
+              <span className="h-[4px] w-full rounded-[1px] bg-ink-900" />
+              <span className="h-[4px] w-4/5 rounded-[1px] bg-heat-500" />
+              <span className="h-[4px] w-3/5 rounded-[1px] bg-ink-900" />
+            </span>
+          </Link>
+          <p className="min-w-0 flex-1 truncate font-display text-lg font-semibold text-ink-900">
+            {current ? t(current.label) : t(title)}
+          </p>
+          <NotificationBell />
         </header>
 
         {/* Page content */}
         <VerifyEmailBanner user={user} />
-        <main id="main" className="mx-auto w-full max-w-6xl flex-1 p-4 sm:p-6 lg:p-8">
+        <main
+          id="main"
+          className={cn(
+            'mx-auto w-full max-w-6xl flex-1 p-4 sm:p-6 lg:p-8',
+            tabs.length > 0 && 'pb-24 md:pb-8'
+          )}
+        >
           {children}
         </main>
       </div>
+
+      {/* Phone tab bar: the four places used most, one tap away; everything else under More */}
+      {tabs.length > 0 && (
+        <nav
+          aria-label={t('Main')}
+          className="fixed inset-x-0 bottom-0 z-30 grid border-t border-line bg-paper-raised pb-[env(safe-area-inset-bottom)] md:hidden"
+          style={{ gridTemplateColumns: `repeat(${tabs.length + 1}, minmax(0, 1fr))` }}
+        >
+          {tabs.map((item) => {
+            const active = current?.href === item.href
+            const count = item.badge ? (badges[item.badge] ?? 0) : 0
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={active ? 'page' : undefined}
+                className={cn(
+                  'relative flex min-h-14 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold',
+                  active ? 'text-ink-900' : 'text-ink-600'
+                )}
+              >
+                {active && (
+                  <span className="absolute inset-x-5 top-0 h-[3px] rounded-b bg-heat-500" />
+                )}
+                <span className="relative">
+                  <item.icon className="h-5 w-5" />
+                  {count > 0 && (
+                    <span className="absolute -top-1.5 -right-2.5 rounded-full bg-heat-500 px-1 font-mono text-[10px] leading-4 text-ink-900">
+                      {count > 99 ? '99+' : count}
+                    </span>
+                  )}
+                </span>
+                <span className="max-w-full truncate px-1">{t(item.label)}</span>
+              </Link>
+            )
+          })}
+          <MobileMenu
+            key={`more-${url}`}
+            title={title}
+            items={navItems}
+            url={url}
+            badges={badges}
+            trigger={
+              <button
+                type="button"
+                className="flex min-h-14 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold text-ink-600"
+              >
+                <Menu className="h-5 w-5" />
+                {t('More')}
+              </button>
+            }
+          />
+        </nav>
+      )}
 
       <Toaster position="top-center" richColors theme={dark ? 'dark' : 'light'} />
     </div>

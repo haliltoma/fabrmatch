@@ -768,4 +768,4 @@ export default function SellerStores({
 }
 
 SellerStores.layout = 'dashboard'
-SellerStores.dashboardProps = { navItems: sellerNav, title: 'Seller Panel' }
+SellerStores.dashboardProps = { navItems: sellerNav, title: 'Seller' }

@@ -6,4 +6,4 @@ export default function SellerPayout(props: PayeePayoutProps) {
 }
 
 SellerPayout.layout = 'dashboard'
-SellerPayout.dashboardProps = { navItems: sellerNav, title: 'Seller Panel' }
+SellerPayout.dashboardProps = { navItems: sellerNav, title: 'Seller' }

@@ -141,4 +141,4 @@ export default function SellerBranding({
 }
 
 SellerBranding.layout = 'dashboard'
-SellerBranding.dashboardProps = { navItems: sellerNav, title: 'Seller Panel' }
+SellerBranding.dashboardProps = { navItems: sellerNav, title: 'Seller' }

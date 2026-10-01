@@ -57,7 +57,7 @@ function SellerDashboard({
         tip={t('Customers see your brand on the parcel, never the maker who printed it.')}
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatTile label={t('Orders')} value={ordersTotal} hint={t('From your products')} />
         <StatTile
           label={t('Active products')}

@@ -3,7 +3,7 @@ import { useHydrated } from '~/lib/use_hydrated'
 import { router } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { toast } from 'sonner'
-import { Download, Clock, MapPin } from 'lucide-react'
+import { Camera, Check, Clock, Download, Loader2, MapPin } from 'lucide-react'
 import { makerNav } from '~/lib/nav'
 import { postJson } from '~/lib/api'
 import { formatDate, formatDateTime, formatMoney } from '~/lib/format'
@@ -256,23 +256,51 @@ function QcPhotos({ job }: { job: JobData }) {
     }
   }
 
+  const done = job.qcPhotoCount > 0
   return (
-    <div className="space-y-1">
-      <Label htmlFor={`qc-${job.id}`}>
-        {t('Photos of the finished part ({qcPhotoCount} added — at least 1 required)', {
-          qcPhotoCount: job.qcPhotoCount,
-        })}
-      </Label>
-      <input
-        id={`qc-${job.id}`}
-        type="file"
-        accept={PHOTO_TYPES.join(',')}
-        multiple
-        disabled={busy}
-        onChange={(e) => upload(e.target.files)}
-        className="block w-full text-sm"
-      />
-      {error && <p className="text-sm text-danger">{t(error)}</p>}
+    <div className="space-y-2">
+      <p className="text-sm font-semibold text-ink-900">
+        <span className="mr-1.5 font-mono text-xs text-ink-500">1</span>
+        {t('Photograph the finished part')}
+      </p>
+      <p className="text-xs text-ink-600">
+        {t(
+          'At least one photo. It stays with the order and protects you if the buyer reports a problem.'
+        )}
+      </p>
+      <div className="flex flex-wrap items-center gap-3">
+        <input
+          id={`qc-${job.id}`}
+          type="file"
+          accept={PHOTO_TYPES.join(',')}
+          multiple
+          disabled={busy}
+          onChange={(e) => upload(e.target.files)}
+          className="peer sr-only"
+        />
+        <label
+          htmlFor={`qc-${job.id}`}
+          className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-md border-2 border-ink-900 bg-paper-raised px-3 text-sm font-semibold text-ink-900 peer-focus-visible:ring-2 peer-focus-visible:ring-heat-500 peer-focus-visible:ring-offset-2 peer-disabled:cursor-wait peer-disabled:opacity-60"
+        >
+          {busy ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+          ) : (
+            <Camera className="h-4 w-4" aria-hidden />
+          )}
+          {busy ? t('Uploading…') : done ? t('Add more photos') : t('Add photos')}
+        </label>
+        <span
+          className={`inline-flex items-center gap-1.5 text-sm ${done ? 'font-semibold text-fil-700' : 'text-ink-600'}`}
+        >
+          {done && <Check className="h-4 w-4" aria-hidden />}
+          {done ? t('{count} added', { count: job.qcPhotoCount }) : t('No photo yet')}
+        </span>
+      </div>
+      {error && (
+        <p role="alert" className="text-sm text-danger">
+          {t(error)}
+        </p>
+      )}
     </div>
   )
 }
@@ -295,7 +323,12 @@ function ShipForm({ job }: { job: JobData }) {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-3 rounded-md border border-line bg-paper-sunken p-3">
+    <form onSubmit={submit} className="space-y-4 rounded-md border border-line bg-paper-sunken p-4">
+      <QcPhotos job={job} />
+      <p className="text-sm font-semibold text-ink-900">
+        <span className="mr-1.5 font-mono text-xs text-ink-500">2</span>
+        {t('Hand it to the carrier')}
+      </p>
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <Label htmlFor={`carrier-${job.id}`}>{t('Carrier')}</Label>
@@ -317,10 +350,20 @@ function ShipForm({ job }: { job: JobData }) {
           />
         </div>
       </div>
-      <QcPhotos job={job} />
-      <Button type="submit" size="sm" disabled={busy || job.qcPhotoCount < 1}>
-        {t('Mark as shipped')}
-      </Button>
+      <div className="flex flex-wrap items-center gap-3">
+        <Button
+          type="submit"
+          disabled={busy || job.qcPhotoCount < 1}
+          aria-describedby={job.qcPhotoCount < 1 ? `ship-why-${job.id}` : undefined}
+        >
+          {t('Mark as shipped')}
+        </Button>
+        {job.qcPhotoCount < 1 && (
+          <p id={`ship-why-${job.id}`} className="text-sm text-ink-600">
+            {t('Add a photo of the part first.')}
+          </p>
+        )}
+      </div>
     </form>
   )
 }
@@ -642,4 +685,4 @@ export default function WorkIndex({ offers, jobs, shopPhotos }: WorkPageProps) {
 }
 
 WorkIndex.layout = 'dashboard'
-WorkIndex.dashboardProps = { navItems: makerNav, title: 'Manufacturer Panel' }
+WorkIndex.dashboardProps = { navItems: makerNav, title: 'Maker' }

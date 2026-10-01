@@ -133,4 +133,4 @@ export default function RfqCreate({ files, materials }: Props) {
 }
 
 RfqCreate.layout = 'dashboard'
-RfqCreate.dashboardProps = { navItems: sellerNav, title: 'Seller Panel' }
+RfqCreate.dashboardProps = { navItems: sellerNav, title: 'Seller' }

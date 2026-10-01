@@ -407,4 +407,4 @@ export default function SellerProductsIndex({
 }
 
 SellerProductsIndex.layout = 'dashboard'
-SellerProductsIndex.dashboardProps = { navItems: sellerNav, title: 'Seller Panel' }
+SellerProductsIndex.dashboardProps = { navItems: sellerNav, title: 'Seller' }

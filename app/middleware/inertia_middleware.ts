@@ -12,6 +12,7 @@ import CartService from '#services/orders/cart_service'
 import NotificationService from '#services/notifications/notification_service'
 import SellerProfile from '#models/seller_profile'
 import AttentionService from '#services/admin/attention_service'
+import MakerAttentionService from '#services/manufacturing/maker_attention_service'
 import BaseInertiaMiddleware from '@adonisjs/inertia/inertia_middleware'
 
 export default class InertiaMiddleware extends BaseInertiaMiddleware {
@@ -40,6 +41,12 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
         ? await new AttentionService().summary()
         : null
 
+    // the maker's Work badge and dashboard "Next up", on maker pages only
+    const makerAttention =
+      auth?.user?.roleNames.includes('manufacturer') && ctx.request.url().startsWith('/maker')
+        ? await new MakerAttentionService().forUser(auth.user.id)
+        : null
+
     const locale = requestLocale(ctx)
 
     // browse prices are shown in the visitor's currency; charges stay in TRY (P1)
@@ -66,6 +73,7 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
       hasShop: ctx.inertia.always(hasShop),
       unreadNotifications: ctx.inertia.always(unread),
       adminAttention: ctx.inertia.always(adminAttention),
+      makerAttention: ctx.inertia.always(makerAttention),
     }
   }
 

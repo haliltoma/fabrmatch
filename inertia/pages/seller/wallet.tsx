@@ -280,4 +280,4 @@ export default function SellerWallet({
 }
 
 SellerWallet.layout = 'dashboard'
-SellerWallet.dashboardProps = { navItems: sellerNav, title: 'Seller Panel' }
+SellerWallet.dashboardProps = { navItems: sellerNav, title: 'Seller' }

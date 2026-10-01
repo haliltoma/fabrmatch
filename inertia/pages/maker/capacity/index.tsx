@@ -201,4 +201,4 @@ export default function CapacityIndex({
 }
 
 CapacityIndex.layout = 'dashboard'
-CapacityIndex.dashboardProps = { navItems: makerNav, title: 'Manufacturer Panel' }
+CapacityIndex.dashboardProps = { navItems: makerNav, title: 'Maker' }

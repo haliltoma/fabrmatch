@@ -152,4 +152,4 @@ export default function MakerRfqShow({ rfq, bid }: { rfq: Rfq; bid: Bid | null }
 }
 
 MakerRfqShow.layout = 'dashboard'
-MakerRfqShow.dashboardProps = { navItems: makerNav, title: 'Maker Panel' }
+MakerRfqShow.dashboardProps = { navItems: makerNav, title: 'Maker' }

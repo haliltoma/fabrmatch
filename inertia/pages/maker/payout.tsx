@@ -6,4 +6,4 @@ export default function MakerPayout(props: PayeePayoutProps) {
 }
 
 MakerPayout.layout = 'dashboard'
-MakerPayout.dashboardProps = { navItems: makerNav, title: 'Maker Panel' }
+MakerPayout.dashboardProps = { navItems: makerNav, title: 'Maker' }

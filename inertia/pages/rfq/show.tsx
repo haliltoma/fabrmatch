@@ -197,4 +197,4 @@ export default function RfqShow({ rfq, bids }: { rfq: Rfq; bids: Bid[] }) {
 }
 
 RfqShow.layout = 'dashboard'
-RfqShow.dashboardProps = { navItems: sellerNav, title: 'Seller Panel' }
+RfqShow.dashboardProps = { navItems: sellerNav, title: 'Seller' }

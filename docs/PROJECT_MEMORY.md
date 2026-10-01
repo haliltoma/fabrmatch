@@ -280,6 +280,8 @@
 
 ## Log
 
+- **2026-10-01** — U6 paneller: mobil üst çubuk (logo + sayfa adı), alt sekme çubuğu (üretici/satıcı), gruplu menüler, tek panel adı, üretici "Sırada" + İş rozeti (`MakerAttentionService`), ortak `NextUp`, iki adımlı kargo formu. 979 test.
+
 - **2026-10-01** — U9 iskeletler: `.skeleton` + `ui/skeleton.tsx` ailesi, `useSamePageLoading`; 3D önizleme, hızlı fiyat paneli, mağaza ızgarası, admin sipariş/kullanıcı listeleri. 977 test, a11y 0, ssr:check 55/55.
 
 - **2026-10-01** — U8: sayfa geçişi/form gönderimi yükleme göstergesi (müşteri: katman çubuğu + limon çip; admin: ince çizgi + köşe çipi; 200 ms eşik; kısmi yenilemeler hariç). 977 test.

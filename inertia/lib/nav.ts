@@ -41,31 +41,64 @@ import type { NavItem } from '~/layouts/dashboard'
  * Single source of truth for panel navigation.
  * Only routes that actually exist may appear here.
  */
+/** Maker menu: the day's work first, then the machines, then money and standing. */
 export const makerNav: NavItem[] = [
-  { label: 'Dashboard', href: '/maker', icon: Gauge },
-  { label: 'Work', href: '/maker/work', icon: ClipboardList },
-  { label: 'Printers', href: '/maker/printers', icon: Printer },
-  { label: 'Capacity', href: '/maker/capacity', icon: Wrench },
-  { label: 'Quote requests', href: '/maker/rfqs', icon: FileQuestion, feature: 'rfq' },
-  { label: 'Finishing', href: '/maker/finishing', icon: Brush },
-  { label: 'Performance', href: '/maker/performance', icon: Award },
-  { label: 'Earnings', href: '/maker/earnings', icon: Wallet },
-  { label: 'Payouts and invoices', href: '/maker/payout', icon: Landmark },
+  { label: 'Dashboard', href: '/maker', icon: Gauge, group: 'Work', mobileTab: true },
+  {
+    label: 'Work',
+    href: '/maker/work',
+    icon: ClipboardList,
+    group: 'Work',
+    badge: 'work',
+    mobileTab: true,
+  },
+  {
+    label: 'Quote requests',
+    href: '/maker/rfqs',
+    icon: FileQuestion,
+    feature: 'rfq',
+    group: 'Work',
+  },
+  { label: 'Printers', href: '/maker/printers', icon: Printer, group: 'Machines', mobileTab: true },
+  { label: 'Capacity', href: '/maker/capacity', icon: Wrench, group: 'Machines' },
+  { label: 'Finishing', href: '/maker/finishing', icon: Brush, group: 'Machines' },
+  { label: 'Earnings', href: '/maker/earnings', icon: Wallet, group: 'Money', mobileTab: true },
+  { label: 'Payouts and invoices', href: '/maker/payout', icon: Landmark, group: 'Money' },
+  { label: 'Performance', href: '/maker/performance', icon: Award, group: 'Money' },
 ]
 
+/** Seller menu: selling, then the shop's look and connections, then money, then own purchases. */
 export const sellerNav: NavItem[] = [
-  { label: 'Dashboard', href: '/seller', icon: TrendingUp },
-  { label: 'Sales', href: '/seller/orders', icon: ReceiptText },
-  { label: 'Products', href: '/seller/products', icon: Package },
-  { label: 'Analytics', href: '/seller/analytics', icon: LineChart },
-  { label: 'Quote requests', href: '/rfqs', icon: FileQuestion, feature: 'rfq' },
-  { label: 'Branding', href: '/seller/branding', icon: Tag },
-  { label: 'Your shops', href: '/seller/stores', icon: Store, feature: 'externalStores' },
-  { label: 'Wallet', href: '/seller/wallet', icon: Wallet, feature: 'externalStores' },
-  { label: 'Payouts and invoices', href: '/seller/payout', icon: Landmark },
-  { label: 'Developers', href: '/seller/developers', icon: KeyRound },
-  { label: 'My orders', href: '/orders', icon: ClipboardList },
-  { label: 'My invoices', href: '/invoices', icon: FileText },
+  { label: 'Dashboard', href: '/seller', icon: TrendingUp, group: 'Sell', mobileTab: true },
+  { label: 'Sales', href: '/seller/orders', icon: ReceiptText, group: 'Sell', mobileTab: true },
+  { label: 'Products', href: '/seller/products', icon: Package, group: 'Sell', mobileTab: true },
+  { label: 'Analytics', href: '/seller/analytics', icon: LineChart, group: 'Sell' },
+  { label: 'Quote requests', href: '/rfqs', icon: FileQuestion, feature: 'rfq', group: 'Sell' },
+  { label: 'Branding', href: '/seller/branding', icon: Tag, group: 'Your shop' },
+  {
+    label: 'Your shops',
+    href: '/seller/stores',
+    icon: Store,
+    feature: 'externalStores',
+    group: 'Your shop',
+  },
+  { label: 'Developers', href: '/seller/developers', icon: KeyRound, group: 'Your shop' },
+  {
+    label: 'Payouts and invoices',
+    href: '/seller/payout',
+    icon: Landmark,
+    group: 'Money',
+    mobileTab: true,
+  },
+  {
+    label: 'Wallet',
+    href: '/seller/wallet',
+    icon: Wallet,
+    feature: 'externalStores',
+    group: 'Money',
+  },
+  { label: 'My orders', href: '/orders', icon: ClipboardList, group: 'Buying' },
+  { label: 'My invoices', href: '/invoices', icon: FileText, group: 'Buying' },
 ]
 
 /**

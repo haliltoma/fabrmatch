@@ -80,4 +80,4 @@ export default function MakerRfqs({ rfqs }: { rfqs: Rfq[] }) {
 }
 
 MakerRfqs.layout = 'dashboard'
-MakerRfqs.dashboardProps = { navItems: makerNav, title: 'Maker Panel' }
+MakerRfqs.dashboardProps = { navItems: makerNav, title: 'Maker' }

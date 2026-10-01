@@ -497,4 +497,4 @@ export default function PrintersIndex({
 }
 
 PrintersIndex.layout = 'dashboard'
-PrintersIndex.dashboardProps = { navItems: makerNav, title: 'Manufacturer Panel' }
+PrintersIndex.dashboardProps = { navItems: makerNav, title: 'Maker' }

@@ -314,3 +314,10 @@ Neden: ilk sürüm (yazıcı + adımlar + 2 CTA) hero'nun anlattığını tekrar
 - **Sayfa geçişi** (`NavigationProgress`, her yerleşimde bir kez): 200 ms eşik; müşteri tarafında turuncu katman + mürekkep alt katman ve 1,2 sn sonra limon "Yükleniyor…" çipi; admin'de ince mürekkep çizgi + köşe çipi. Kendi yükleyicini ekleme; router olaylarını `useNavigationPhase` dinler.
 - **Kısmi yenileme** (`router.reload({ only })`, lazy bileşen, fetch ile gelen panel) sayfa çubuğunu tetiklemez; bileşen kendi iskeletini gösterir (U9).
 - **İskeletler** (`components/ui/skeleton.tsx`, `.skeleton`): gerçek içeriğin boyutunda (CLS 0), katman çizgili, alttan yukarı "basılır". Bir bölge = `SkeletonRegion` (ekran okuyucuya tek "Yükleniyor"). Filtrelenen liste: `useSamePageLoading()` true iken `SkeletonList`/`SkeletonGrid`. Düğme içinde küçük dönen ikon serbest; boş alan ortasında tek başına spinner yasak.
+
+## 28. Paneller: telefon kabuğu ve "Sırada" (2026-10-01)
+
+- **Telefon**: üst çubukta logo + bulunduğun sayfanın adı (menüdeki en uzun eşleşen bağlantı) + bildirim; altta en sık 4 sayfa (`mobileTab: true`) + "Daha fazla" (tam menü). Admin'de alt çubuk yok (masa başı iş). İçerik altta `pb-24` boşluk bırakır.
+- **Menü grupları** tüm panellerde (`group`); kısa menülerin grupları hep açık, admin'in alt grupları katlanır. Panel adı: "Maker" / "Seller" / "Admin".
+- **"Sırada" / "Şimdi seni bekleyenler"** = ortak `components/next_up.tsx`; kaynak sunucuda (`AttentionService`, `MakerAttentionService`), sıra = ilk yapılması gereken önce.
+- **Kapalı düğme** her zaman nedenini yanında yazar (`aria-describedby`). Dosya seçici tarayıcının stilsiz kutusu değil: gizli `input` + düğme görünümlü `label` (klavye odağı `peer-focus-visible`).
