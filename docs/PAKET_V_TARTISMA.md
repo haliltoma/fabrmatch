@@ -12,6 +12,7 @@ Durum: **tartışma** (2026-10-01). Görevler `docs/tasks.md` → "Paket V". Kar
 ## 2. Bugün sistem nasıl çalışıyor
 
 ### Dış mağazalar (R4, `flags.externalStores` kapalı)
+
 - Shopify, WooCommerce ve Etsy adaptörleri hazır: `app/services/integrations/stores/`. Ortak sözleşme `StoreAdapter`; her adaptör `tests/contracts/store_adapter_contract.ts` testini geçer.
 - Yayınlanan: ürün başına **malzeme başına bir varyant**. Fiyatı satıcı yazar ve fiyat **olduğu gibi** gider; mağazanın para birimine çevrilmez.
 - Sipariş akışı: Shopify/Woo webhook'u veya Etsy'de 5 dakikalık yoklama → `external_orders` → `OrderService.createExternalDraft` (alıcı = satıcı, teslimat son müşteriye) → satıcı öder (cüzdan, yalnız TRY ve model B) → eşleştirme → **üretici teklifi kabul eder** (`MatchingService.acceptOffer`). İstenen "üretici onayı" bu adım; zaten var.
@@ -24,6 +25,7 @@ Durum: **tartışma** (2026-10-01). Görevler `docs/tasks.md` → "Paket V". Kar
   - üretici gecikirse mağazaya ve satıcıya bildirim
 
 ### Fiyat motoru
+
 - `calculatePrice` (`app/services/pricing/price_engine.ts`):
   - malzeme = gram × bölge referans gram fiyatı
   - makine = dakika × **sabit 50 TL/sa**
@@ -34,33 +36,37 @@ Durum: **tartışma** (2026-10-01). Görevler `docs/tasks.md` → "Paket V". Kar
 - Kullanıcının endişesi tam burada: formül bir üreticinin maliyetini karşılamayabilir, o da işi reddeder ya da zararına basar.
 
 ### Bölge ve kur
+
 - `pricing_regions` (TR/EU/UK/US/ROW) şunları tutar: çarpan, malzeme gram fiyatı, komisyon, asgari tutar ve yuvarlama (`none` / `whole` / `charm99`).
 - Kur: TCMB'den 6 saatte bir, `fxMarginBps` %3 tampon, en fazla 72 saat eski olabilir.
 - Tampon fiyatın bileşenlerine dağılıyor; yuvarlama fazlası komisyona ekleniyor. **Kur geliri için ayrı bir defter hesabı yok**, raporlanamıyor.
 
 ### Eşleştirme
+
 - Aynı ülke zorunlu. Mesafe yalnız "aynı şehir mi" (1 / 0,5).
 - Fiyat, seçilen üreticiye veya uzaklığa **bağlı değil**.
 
 ## 3. Araştırma: başka platformlar nasıl yapıyor
 
-| Platform | Fiyatı kim belirler | Üreticinin rolü | Not |
-|---|---|---|---|
-| **Xometry** | Platformun fiyat motoru; aynı model **üreticiye ödenecek ikinci rakamı** da üretir | İş panosunda fiyat yazılı gelir: **kabul / pas / karşı teklif** | Her kabul ve pas, motora o üreticinin kabul edeceği en düşük fiyatı öğretir; %10 hizmet bedeli |
-| **Hubs (Protolabs Network)** | Platform | Ödenmiş siparişi **kabul, red ya da karşı teklif** | Aracı payı fabrika fiyatının %15–35 üstü |
-| **Treatstock** | Üretici kendi gram fiyatını ayarlar | Test modelde "beklenen kazancı" görerek fiyatını oynatır | Platform ücreti en az $2,99, en fazla %25 |
-| **Craftcloud** | Her üreticinin kendi fiyat motoru | Alıcı, teklif listesinden seçer (fiyat + süre) | Platform kendi payını eklemediğini söylüyor |
-| **Shopify Markets / Printful** | Kur + dönüşüm tamponu + yuvarlama kuralı | — | Aynı bölgede üretilen siparişte yerel fiyat sabit; kur oynaması yalnız sınır ötesinde |
+| Platform                       | Fiyatı kim belirler                                                                | Üreticinin rolü                                                 | Not                                                                                            |
+| ------------------------------ | ---------------------------------------------------------------------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| **Xometry**                    | Platformun fiyat motoru; aynı model **üreticiye ödenecek ikinci rakamı** da üretir | İş panosunda fiyat yazılı gelir: **kabul / pas / karşı teklif** | Her kabul ve pas, motora o üreticinin kabul edeceği en düşük fiyatı öğretir; %10 hizmet bedeli |
+| **Hubs (Protolabs Network)**   | Platform                                                                           | Ödenmiş siparişi **kabul, red ya da karşı teklif**              | Aracı payı fabrika fiyatının %15–35 üstü                                                       |
+| **Treatstock**                 | Üretici kendi gram fiyatını ayarlar                                                | Test modelde "beklenen kazancı" görerek fiyatını oynatır        | Platform ücreti en az $2,99, en fazla %25                                                      |
+| **Craftcloud**                 | Her üreticinin kendi fiyat motoru                                                  | Alıcı, teklif listesinden seçer (fiyat + süre)                  | Platform kendi payını eklemediğini söylüyor                                                    |
+| **Shopify Markets / Printful** | Kur + dönüşüm tamponu + yuvarlama kuralı                                           | —                                                               | Aynı bölgede üretilen siparişte yerel fiyat sabit; kur oynaması yalnız sınır ötesinde          |
 
 **Sektörün maliyet formülü:** taban = (malzeme × 1,10 fire + makine saati + işçilik/kurulum + son işlem) ÷ (1 − hata oranı) × (1 + kâr).
 
 **Yurt dışı satış (cross-border-ecommerce skill'i):**
+
 - Fiyatı her zaman yerel para biriminde göster; yabancı parada sepet terk etme %33 daha yüksek (Shopify 2025).
 - Kuru ödeme anında kilitle.
 - Psikolojik yuvarlamayı yerelleştir (19,99 € / $19.99).
 - Sınır ötesi satışta fiyata genelde %10–20 eklenir.
 
 Kaynaklar:
+
 - [Xometry topluluk: iş panosu, kabul/pas/karşı teklif](https://www.xometry.com/resources/blog/5-things-you-should-know-about-the-xometry-partner-network/)
 - [Xometry'nin iki rakamlı fiyat modeli](https://constiv.substack.com/p/the-part-shipped-two-weeks-ago-do)
 - [Xometry Instant Quoting Engine](https://www.xometry.com/machine-learning-for-manufacturing/)
@@ -81,14 +87,14 @@ Kaynaklar:
 
 ## 4. Kararlar
 
-| # | Karar (2026-10-01) | Gerekçe |
-|---|---|---|
-| **K-V1** | **Sabit fiyat + kabul** (Xometry/Hubs). Hızlı fiyat bir **aralık** gösterir, ödemede tek fiyat sabitlenir. Teklif yalnız **tabanı bu fiyata sığan** üreticiye gider; sığmayan karşı teklif verebilir. | Alıcı tek fiyat öder, beklemez. Üretici zararına iş görmez. |
-| **K-V2** | **Kâr: admin asgari belirler (varsayılan %25), üretici kendi kârını %30'a kadar artırabilir.** | Kullanıcının %25–30 hedefi. Yüksek kâr seçen daha az iş alır; pazar kendini dengeler. |
-| **K-V3** | **Üretici payı sabit.** Üreticiye teklifte gördüğü tutar, yani kendi tabanı, ödenir. Sabit fiyat ile taban arasındaki fark **platform geliri** olur. | Üretici ne alacağını önceden bilir. Platform, fiyat aralığının riskini taşır. |
-| **K-V4** | **Bölge para modu, admin seçer.** (a) yerel para fiyat tablosu veya (b) TRY tabanı + kur tamponu + yukarı yuvarlama. (b)'deki fark ayrı **`fx_gain`** defter hesabına yazılır ve raporlanır. | Yerel üretici yerel parayla maliyet yapar. Çevrimli satışta kur farkı görünür bir gelir olur. |
-| **K-V5** | **Mesafeye göre ek ücret.** Üretici kendi ek ücretini girer (ör. şehir dışı +%5, ülke geneli +%10, yurt dışı +%15). Bu ücret tabanına eklenir ve alıcı fiyatına yansır. | "Yakınlık parametresini değiştirebilir, fiyat ona göre olur." |
-| **K-V6** | **Platform sırası:** Trendyol/Hepsiburada → Wix → Amazon → eBay (Shopify, Etsy, WooCommerce hazır). | Önce Türkiye pazar yerleri. |
+| #        | Karar (2026-10-01)                                                                                                                                                                                    | Gerekçe                                                                                       |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| **K-V1** | **Sabit fiyat + kabul** (Xometry/Hubs). Hızlı fiyat bir **aralık** gösterir, ödemede tek fiyat sabitlenir. Teklif yalnız **tabanı bu fiyata sığan** üreticiye gider; sığmayan karşı teklif verebilir. | Alıcı tek fiyat öder, beklemez. Üretici zararına iş görmez.                                   |
+| **K-V2** | **Kâr: admin asgari belirler (varsayılan %25), üretici kendi kârını %30'a kadar artırabilir.**                                                                                                        | Kullanıcının %25–30 hedefi. Yüksek kâr seçen daha az iş alır; pazar kendini dengeler.         |
+| **K-V3** | **Üretici payı sabit.** Üreticiye teklifte gördüğü tutar, yani kendi tabanı, ödenir. Sabit fiyat ile taban arasındaki fark **platform geliri** olur.                                                  | Üretici ne alacağını önceden bilir. Platform, fiyat aralığının riskini taşır.                 |
+| **K-V4** | **Bölge para modu, admin seçer.** (a) yerel para fiyat tablosu veya (b) TRY tabanı + kur tamponu + yukarı yuvarlama. (b)'deki fark ayrı **`fx_gain`** defter hesabına yazılır ve raporlanır.          | Yerel üretici yerel parayla maliyet yapar. Çevrimli satışta kur farkı görünür bir gelir olur. |
+| **K-V5** | **Mesafeye göre ek ücret.** Üretici kendi ek ücretini girer (ör. şehir dışı +%5, ülke geneli +%10, yurt dışı +%15). Bu ücret tabanına eklenir ve alıcı fiyatına yansır.                               | "Yakınlık parametresini değiştirebilir, fiyat ona göre olur."                                 |
+| **K-V6** | **Platform sırası:** Trendyol/Hepsiburada → Wix → Amazon → eBay (Shopify, Etsy, WooCommerce hazır).                                                                                                   | Önce Türkiye pazar yerleri.                                                                   |
 
 ## 5. Önerilen fiyat akışı (örnek hesap)
 
@@ -96,14 +102,14 @@ Model: 100 g PLA, 5 saat baskı, alıcı İstanbul'da. Bölge TR (yerel para mod
 
 **Üretici A'nın maliyet profili (V1):** filament 600 TL/kg, makine 15 TL/sa, kurulum 30 TL, hata %5, kâr %25, aynı şehir.
 
-| Kalem | Hesap | TL |
-|---|---|---|
-| Malzeme | 0,1 kg × 600 × 1,10 fire | 66,00 |
-| Makine | 5 sa × 15 | 75,00 |
-| Kurulum/işçilik | | 30,00 |
-| Ara toplam | | 171,00 |
-| Hata payı | 171 ÷ 0,95 | 180,00 |
-| **Taban (üreticiye ödenecek)** | 180 × 1,25 | **225,00** |
+| Kalem                          | Hesap                    | TL         |
+| ------------------------------ | ------------------------ | ---------- |
+| Malzeme                        | 0,1 kg × 600 × 1,10 fire | 66,00      |
+| Makine                         | 5 sa × 15                | 75,00      |
+| Kurulum/işçilik                |                          | 30,00      |
+| Ara toplam                     |                          | 171,00     |
+| Hata payı                      | 171 ÷ 0,95               | 180,00     |
+| **Taban (üreticiye ödenecek)** | 180 × 1,25               | **225,00** |
 
 Uygun üreticilerin tabanları: A 225, B 205, C 240, D 260.
 
@@ -117,6 +123,7 @@ Uygun üreticilerin tabanları: A 225, B 205, C 240, D 260.
   - Toplam = 329 TL.
 
 **Yurt dışı / çevrimli satış (K-V4 b):** aynı 329 TL'lik sipariş EUR ile ödeniyor, orta kur 1 € = 36,00 TL.
+
 - Kur karşılığı: 329 ÷ 36,00 = 9,14 €
 - %3 tampon: 9,14 × 1,03 = 9,41 €
 - Yukarı yuvarlama (`,99`): **9,99 €**

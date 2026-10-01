@@ -482,27 +482,27 @@ Tartışma, araştırma, örnek hesap ve açık sorular: **`docs/PAKET_V_TARTISM
 
 ## Karar defteri (bekleyenler)
 
-| Kod    | Karar                                        | Öneri                                                                               | Durum                                   |
-| ------ | -------------------------------------------- | ----------------------------------------------------------------------------------- | --------------------------------------- |
-| K-A    | KDV dahil gösterim, ilk pazar                | TR KDV dahil; sonra AB                                                              | ⏸                                       |
-| K-B    | Üretici fiyatı: platform listesi + min fiyat | v1 min fiyat → **yerini K-V1/K-V2 aldı** (üretici maliyet profili + sabit fiyat)   | ✔ 2026-10-01 (K-V)                      |
-| K-C    | Fatura entegratörü                           | Yerel e-arşiv entegratörü; model B'de alıcıya tam fatura (R7-T5)                    | ⏸                                       |
-| K-L    | Satış modeli (kim satıcı, kim fatura keser)  | **B: Fabrmatch satıcı**, üretici tedarikçi (`docs/legal/satis-ve-fatura-modeli.md`) | ✔ B (2026-09-27), uzman teyidi bekliyor |
-| K-D/D3 | Kargo                                        | v1 tablo + manuel takip; v2 API                                                     | ⏸                                       |
-| K-E/D2 | Dış mağaza tahsilatı                         | Satıcı cüzdanı/kayıtlı kart                                                         | ⏸                                       |
-| K-F/D4 | Hosting                                      | Tek bölge + R2 + staging                                                            | ⏸                                       |
-| K-G    | Yeniden üretim                               | Evet (R3-T6)                                                                        | ✔ evet                                  |
-| K-H    | Dilimleyici                                  | Açık kaynak CLI, worker'da                                                          | ✔ karar                                 |
-| K-I    | Dil                                          | TR + EN                                                                             | ⏸                                       |
-| D1     | Stripe tüzel kişilik                         | –                                                                                   | ⏸ (R6)                                  |
-| D5     | Hukuki görüş (KVKK, mesafeli satış)          | Uzman metni                                                                         | ⏸                                       |
-| K-U    | UUID kapsamı (U7)                            | Öneri public_id idi; **kullanıcı seçimi: tüm birincil+yabancı anahtarlar UUID** | ✔ 2026-10-01                            |
-| K-V1   | Fiyat modeli (Paket V)                       | **Sabit fiyat + kabul**: aralık gösterilir, ödemede tek fiyat; teklif tabanı sığana | ✔ 2026-10-01                            |
-| K-V2   | Üretici kârı                                 | Admin asgari %25, üretici %30'a kadar artırır                                       | ✔ 2026-10-01                            |
-| K-V3   | Sabit fiyat ile taban farkı                  | Üretici payı sabit (kendi tabanı), fark platform geliri                             | ✔ 2026-10-01                            |
-| K-V4   | Para birimi                                  | Bölge seçer: yerel para tablosu ya da TRY + kur tamponu + yukarı yuvarlama (`fx_gain`) | ✔ 2026-10-01                         |
-| K-V5   | Yakınlık                                     | Üreticinin mesafe kademesine göre ek ücreti                                         | ✔ 2026-10-01                            |
-| K-V6   | Yeni platform sırası                         | Trendyol/Hepsiburada → Wix → Amazon → eBay                                          | ✔ 2026-10-01                            |
+| Kod    | Karar                                        | Öneri                                                                                  | Durum                                   |
+| ------ | -------------------------------------------- | -------------------------------------------------------------------------------------- | --------------------------------------- |
+| K-A    | KDV dahil gösterim, ilk pazar                | TR KDV dahil; sonra AB                                                                 | ⏸                                       |
+| K-B    | Üretici fiyatı: platform listesi + min fiyat | v1 min fiyat → **yerini K-V1/K-V2 aldı** (üretici maliyet profili + sabit fiyat)       | ✔ 2026-10-01 (K-V)                      |
+| K-C    | Fatura entegratörü                           | Yerel e-arşiv entegratörü; model B'de alıcıya tam fatura (R7-T5)                       | ⏸                                       |
+| K-L    | Satış modeli (kim satıcı, kim fatura keser)  | **B: Fabrmatch satıcı**, üretici tedarikçi (`docs/legal/satis-ve-fatura-modeli.md`)    | ✔ B (2026-09-27), uzman teyidi bekliyor |
+| K-D/D3 | Kargo                                        | v1 tablo + manuel takip; v2 API                                                        | ⏸                                       |
+| K-E/D2 | Dış mağaza tahsilatı                         | Satıcı cüzdanı/kayıtlı kart                                                            | ⏸                                       |
+| K-F/D4 | Hosting                                      | Tek bölge + R2 + staging                                                               | ⏸                                       |
+| K-G    | Yeniden üretim                               | Evet (R3-T6)                                                                           | ✔ evet                                  |
+| K-H    | Dilimleyici                                  | Açık kaynak CLI, worker'da                                                             | ✔ karar                                 |
+| K-I    | Dil                                          | TR + EN                                                                                | ⏸                                       |
+| D1     | Stripe tüzel kişilik                         | –                                                                                      | ⏸ (R6)                                  |
+| D5     | Hukuki görüş (KVKK, mesafeli satış)          | Uzman metni                                                                            | ⏸                                       |
+| K-U    | UUID kapsamı (U7)                            | Öneri public_id idi; **kullanıcı seçimi: tüm birincil+yabancı anahtarlar UUID**        | ✔ 2026-10-01                            |
+| K-V1   | Fiyat modeli (Paket V)                       | **Sabit fiyat + kabul**: aralık gösterilir, ödemede tek fiyat; teklif tabanı sığana    | ✔ 2026-10-01                            |
+| K-V2   | Üretici kârı                                 | Admin asgari %25, üretici %30'a kadar artırır                                          | ✔ 2026-10-01                            |
+| K-V3   | Sabit fiyat ile taban farkı                  | Üretici payı sabit (kendi tabanı), fark platform geliri                                | ✔ 2026-10-01                            |
+| K-V4   | Para birimi                                  | Bölge seçer: yerel para tablosu ya da TRY + kur tamponu + yukarı yuvarlama (`fx_gain`) | ✔ 2026-10-01                            |
+| K-V5   | Yakınlık                                     | Üreticinin mesafe kademesine göre ek ücreti                                            | ✔ 2026-10-01                            |
+| K-V6   | Yeni platform sırası                         | Trendyol/Hepsiburada → Wix → Amazon → eBay                                             | ✔ 2026-10-01                            |
 
 ---
 
