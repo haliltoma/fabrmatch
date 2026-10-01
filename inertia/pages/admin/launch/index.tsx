@@ -102,4 +102,4 @@ export default function AdminLaunch({ checks, ready }: { checks: Check[]; ready:
 }
 
 AdminLaunch.layout = 'dashboard'
-AdminLaunch.dashboardProps = { navItems: adminNav, title: 'Admin Panel' }
+AdminLaunch.dashboardProps = { navItems: adminNav, title: 'Admin' }

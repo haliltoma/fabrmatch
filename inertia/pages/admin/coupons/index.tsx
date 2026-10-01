@@ -191,4 +191,4 @@ export default function AdminCoupons({ coupons }: { coupons: Coupon[] }) {
 }
 
 AdminCoupons.layout = 'dashboard'
-AdminCoupons.dashboardProps = { navItems: adminNav, title: 'Admin Panel' }
+AdminCoupons.dashboardProps = { navItems: adminNav, title: 'Admin' }

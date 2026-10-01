@@ -85,4 +85,4 @@ export default function AdminExperiments({ experiments }: { experiments: Result[
 }
 
 AdminExperiments.layout = 'dashboard'
-AdminExperiments.dashboardProps = { navItems: adminNav, title: 'Admin Panel' }
+AdminExperiments.dashboardProps = { navItems: adminNav, title: 'Admin' }

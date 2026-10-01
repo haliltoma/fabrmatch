@@ -198,6 +198,11 @@ function MobileMenu({
         <SheetHeader className="border-b border-sidebar-border px-4 py-4">
           <SheetTitle className="text-sidebar-fg">{t(title)}</SheetTitle>
         </SheetHeader>
+        {items.some((i) => i.href.startsWith('/admin')) && (
+          <div className="px-3 pt-4">
+            <AdminCommand items={items} shortcut={false} />
+          </div>
+        )}
         <SidebarNavItems items={items} url={url} collapsed={false} mobile badges={badges} />
         <div className="border-t border-sidebar-border px-4 py-3">
           <div className="flex items-center justify-between gap-2">

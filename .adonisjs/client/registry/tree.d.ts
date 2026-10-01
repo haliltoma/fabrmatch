@@ -326,6 +326,7 @@ export interface ApiDefinition {
     index: typeof routes['admin_queue.index']
     rematch: typeof routes['admin_queue.rematch']
     acknowledge: typeof routes['admin_queue.acknowledge']
+    bulk: typeof routes['admin_queue.bulk']
     decideMaker: typeof routes['admin_queue.decide_maker']
     fraudDecision: typeof routes['admin_queue.fraud_decision']
     reportDecision: typeof routes['admin_queue.report_decision']

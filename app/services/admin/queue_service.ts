@@ -21,6 +21,16 @@ const RECONCILE_LOOKBACK_DAYS = 3
  * Everything that needs a human, in one place (R3-T1). Items are derived from real state or the
  * audit log; nothing here keeps a second copy that could drift.
  */
+/** Routine queue decisions that may be applied to many items at once. */
+export const BULK_ACTIONS = [
+  'photos.approve',
+  'photos.reject',
+  'support.answered',
+  'ack.payment_review',
+  'ack.reconcile',
+] as const
+export type BulkAction = (typeof BULK_ACTIONS)[number]
+
 export default class AdminQueueService {
   async unmatchedOrders() {
     const orders = await Order.query().where('status', 'unmatched').orderBy('updatedAt', 'asc')
@@ -164,6 +174,44 @@ export default class AdminQueueService {
       subjectId: 0,
       meta: { queue, ref },
     })
+  }
+
+  /**
+   * The same decision on many queue items at once, for the routine ones only: showing shop photos,
+   * closing answered support requests and acknowledging payment and ledger findings. Each item
+   * goes through its normal single-item path (and audit record); one failing item does not stop
+   * the rest. Maker approval, fraud and chargebacks stay one at a time on purpose.
+   */
+  async bulk(
+    action: BulkAction,
+    refs: string[],
+    adminId: number
+  ): Promise<{ done: number; failed: number }> {
+    let done = 0
+    let failed = 0
+    for (const ref of [...new Set(refs)]) {
+      try {
+        if (action === 'photos.approve' || action === 'photos.reject') {
+          await new ShopPhotoService().review(
+            Number(ref),
+            action === 'photos.approve' ? 'approve' : 'reject',
+            adminId
+          )
+        } else if (action === 'support.answered') {
+          await new SupportService().markAnswered(Number(ref), adminId)
+        } else {
+          await this.acknowledge(
+            action === 'ack.payment_review' ? 'payment_review' : 'reconcile',
+            ref,
+            adminId
+          )
+        }
+        done += 1
+      } catch {
+        failed += 1
+      }
+    }
+    return { done, failed }
   }
 
   /** Approving is what lets a maker receive offers (eligibility requires `active`). */

@@ -5,6 +5,9 @@ import { Badge } from '~/components/ui/badge'
 import { Card, CardContent } from '~/components/ui/card'
 import { Pagination, type PageMeta } from '~/components/pagination'
 import { useT } from '~/lib/i18n'
+import { Scale } from 'lucide-react'
+import { PageHeader } from '~/components/page_header'
+import { EmptyState } from '~/components/empty_state'
 
 type DisputeRow = {
   id: number
@@ -33,15 +36,19 @@ export default function AdminDisputesIndex({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-ink-900">{t('Disputes')}</h1>
-        <p className="text-ink-600">{t('Open cases hold the order payment until you decide')}</p>
-      </div>
+      <PageHeader
+        title={t('Disputes')}
+        description={t('Open cases hold the order payment until you decide')}
+      />
 
       {disputes.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center text-ink-600">{t('No disputes.')}</CardContent>
-        </Card>
+        <EmptyState
+          icon={Scale}
+          title={t('No disputes')}
+          description={t(
+            'When a buyer reports a problem with a part, the case and its photos land here.'
+          )}
+        />
       ) : (
         <div className="space-y-3">
           {disputes.map((d) => (
@@ -76,4 +83,4 @@ export default function AdminDisputesIndex({
 }
 
 AdminDisputesIndex.layout = 'dashboard'
-AdminDisputesIndex.dashboardProps = { navItems: adminNav, title: 'Admin Panel' }
+AdminDisputesIndex.dashboardProps = { navItems: adminNav, title: 'Admin' }

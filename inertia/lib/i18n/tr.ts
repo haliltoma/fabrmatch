@@ -3239,4 +3239,23 @@ export const tr: Record<string, string> = {
   'Sell': 'Satış',
   'Your shop': 'Mağazan',
   'Buying': 'Satın alma',
+  // admin: bulk queue actions, disputes
+  'No disputes': 'İtiraz yok',
+  'When a buyer reports a problem with a part, the case and its photos land here.':
+    'Bir alıcı parçayla ilgili sorun bildirdiğinde dosya ve fotoğrafları buraya düşer.',
+  'Opened {when} · total {amount}': '{when} tarihinde açıldı · toplam {amount}',
+  'Maker {alias}': 'Üretici {alias}',
+  'Select all': 'Tümünü seç',
+  '{count} selected': '{count} seçili',
+  'Mark selected answered': 'Seçilenleri cevaplandı say',
+  'Select request from {email}': '{email} talebini seç',
+  'Show selected in shop': 'Seçilenleri mağazada göster',
+  'Reject selected': 'Seçilenleri reddet',
+  'Select photo of {product}': '{product} fotoğrafını seç',
+  'Mark selected handled': 'Seçilenleri ele alındı say',
+  'Select event {ref}': '{ref} olayını seç',
+  'Select finding {ref}': '{ref} bulgusunu seç',
+  'Some items could not be changed; they may already have been handled.':
+    'Bazı öğeler değiştirilemedi; zaten ele alınmış olabilirler.',
+  'Done for all selected items.': 'Seçilen tüm öğeler için tamamlandı.',
 }

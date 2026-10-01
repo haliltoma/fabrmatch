@@ -389,4 +389,4 @@ export default function AdminPricingRegions({
 }
 
 AdminPricingRegions.layout = 'dashboard'
-AdminPricingRegions.dashboardProps = { navItems: adminNav, title: 'Admin Panel' }
+AdminPricingRegions.dashboardProps = { navItems: adminNav, title: 'Admin' }

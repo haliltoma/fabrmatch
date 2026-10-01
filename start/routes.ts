@@ -583,6 +583,7 @@ router
     router.get('/queues', [controllers.AdminQueue, 'index'])
     router.post('/queues/orders/:id/rematch', [controllers.AdminQueue, 'rematch'])
     router.post('/queues/acknowledge', [controllers.AdminQueue, 'acknowledge'])
+    router.post('/queues/bulk', [controllers.AdminQueue, 'bulk'])
     router.post('/queues/makers/:id', [controllers.AdminQueue, 'decideMaker'])
     router.post('/queues/fraud/:id', [controllers.AdminQueue, 'fraudDecision'])
     router.post('/queues/reports/:id', [controllers.AdminQueue, 'reportDecision'])

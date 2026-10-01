@@ -351,4 +351,4 @@ export default function AdminPayouts({
 }
 
 AdminPayouts.layout = 'dashboard'
-AdminPayouts.dashboardProps = { navItems: adminNav, title: 'Admin Panel' }
+AdminPayouts.dashboardProps = { navItems: adminNav, title: 'Admin' }

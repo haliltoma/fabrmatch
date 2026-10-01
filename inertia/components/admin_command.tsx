@@ -15,7 +15,16 @@ const ORDER_CODE = /^(fo-?[a-z0-9]{1,10}|[a-z0-9]{8})$/i
  * a user by e-mail or name, without hunting through the menu. Keyboard only if you like: arrows to
  * move, Enter to open, Esc to close.
  */
-export function AdminCommand({ items, compact = false }: { items: NavItem[]; compact?: boolean }) {
+export function AdminCommand({
+  items,
+  compact = false,
+  shortcut = true,
+}: {
+  items: NavItem[]
+  compact?: boolean
+  /** listen for Ctrl/⌘ + K; off for a second copy (the phone menu) so only one palette opens */
+  shortcut?: boolean
+}) {
   const { t } = useT()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -23,6 +32,7 @@ export function AdminCommand({ items, compact = false }: { items: NavItem[]; com
   const listRef = useRef<HTMLUListElement>(null)
 
   useEffect(() => {
+    if (!shortcut) return
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault()
@@ -31,7 +41,7 @@ export function AdminCommand({ items, compact = false }: { items: NavItem[]; com
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [])
+  }, [shortcut])
 
   const commands = useMemo<Command[]>(() => {
     const q = query.trim()

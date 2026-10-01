@@ -1242,6 +1242,12 @@ const routes = {
     tokens: [{"old":"/admin/queues/acknowledge","type":0,"val":"admin","end":""},{"old":"/admin/queues/acknowledge","type":0,"val":"queues","end":""},{"old":"/admin/queues/acknowledge","type":0,"val":"acknowledge","end":""}],
     types: placeholder as Registry['admin_queue.acknowledge']['types'],
   },
+  'admin_queue.bulk': {
+    methods: ["POST"],
+    pattern: '/admin/queues/bulk',
+    tokens: [{"old":"/admin/queues/bulk","type":0,"val":"admin","end":""},{"old":"/admin/queues/bulk","type":0,"val":"queues","end":""},{"old":"/admin/queues/bulk","type":0,"val":"bulk","end":""}],
+    types: placeholder as Registry['admin_queue.bulk']['types'],
+  },
   'admin_queue.decide_maker': {
     methods: ["POST"],
     pattern: '/admin/queues/makers/:id',

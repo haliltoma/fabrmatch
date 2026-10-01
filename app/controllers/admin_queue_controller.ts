@@ -1,6 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import vine from '@vinejs/vine'
-import AdminQueueService from '#services/admin/queue_service'
+import AdminQueueService, { BULK_ACTIONS } from '#services/admin/queue_service'
 import SupportService from '#services/support/support_service'
 import ChargebackService from '#services/payments/chargeback_service'
 import ContentReportService from '#services/admin/content_report_service'
@@ -27,6 +27,11 @@ const chargebackValidator = vine.create({
 })
 
 const makerValidator = vine.create({ decision: vine.enum(['approve', 'reject']) })
+
+const bulkValidator = vine.create({
+  action: vine.enum(BULK_ACTIONS),
+  refs: vine.array(vine.string().trim().minLength(1).maxLength(200)).minLength(1).maxLength(100),
+})
 
 export default class AdminQueueController {
   async index({ inertia }: HttpContext) {
@@ -149,6 +154,18 @@ export default class AdminQueueController {
     const { decision } = await request.validateUsing(makerValidator)
     await new AdminQueueService().decideMaker(Number(params.id), decision, auth.getUserOrFail().id)
     session.flash('success', decision === 'approve' ? 'Maker approved.' : 'Maker rejected.')
+    return response.redirect().toPath('/admin/queues')
+  }
+
+  async bulk({ request, response, session, auth }: HttpContext) {
+    const { action, refs } = await request.validateUsing(bulkValidator)
+    const { failed } = await new AdminQueueService().bulk(action, refs, auth.getUserOrFail().id)
+    session.flash(
+      failed > 0 ? 'error' : 'success',
+      failed > 0
+        ? 'Some items could not be changed; they may already have been handled.'
+        : 'Done for all selected items.'
+    )
     return response.redirect().toPath('/admin/queues')
   }
 }

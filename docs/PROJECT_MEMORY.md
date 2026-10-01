@@ -280,6 +280,8 @@
 
 ## Log
 
+- **2026-10-01** — U5b: rutin kuyruklarda toplu işlem (`/admin/queues/bulk`), itiraz sayfaları standart başlık/boş durum, tek panel adı, telefon menüsünde ⌘K. 980 test.
+
 - **2026-10-01** — U6 paneller: mobil üst çubuk (logo + sayfa adı), alt sekme çubuğu (üretici/satıcı), gruplu menüler, tek panel adı, üretici "Sırada" + İş rozeti (`MakerAttentionService`), ortak `NextUp`, iki adımlı kargo formu. 979 test.
 
 - **2026-10-01** — U9 iskeletler: `.skeleton` + `ui/skeleton.tsx` ailesi, `useSamePageLoading`; 3D önizleme, hızlı fiyat paneli, mağaza ızgarası, admin sipariş/kullanıcı listeleri. 977 test, a11y 0, ssr:check 55/55.

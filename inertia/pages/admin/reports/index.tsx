@@ -195,4 +195,4 @@ export default function AdminReports({
 }
 
 AdminReports.layout = 'dashboard'
-AdminReports.dashboardProps = { navItems: adminNav, title: 'Admin Panel' }
+AdminReports.dashboardProps = { navItems: adminNav, title: 'Admin' }

@@ -2479,6 +2479,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_queue_controller').default['acknowledge']>>>
     }
   }
+  'admin_queue.bulk': {
+    methods: ["POST"]
+    pattern: '/admin/queues/bulk'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_queue_controller').default['bulk']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_queue_controller').default['bulk']>>>
+    }
+  }
   'admin_queue.decide_maker': {
     methods: ["POST"]
     pattern: '/admin/queues/makers/:id'

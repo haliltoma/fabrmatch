@@ -210,6 +210,7 @@ export type ScannedRoutes = {
     'admin_queue.index': { paramsTuple?: []; params?: {} }
     'admin_queue.rematch': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_queue.acknowledge': { paramsTuple?: []; params?: {} }
+    'admin_queue.bulk': { paramsTuple?: []; params?: {} }
     'admin_queue.decide_maker': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_queue.fraud_decision': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_queue.report_decision': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -627,6 +628,7 @@ export type ScannedRoutes = {
     'admin_dispute.resolve': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_queue.rematch': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_queue.acknowledge': { paramsTuple?: []; params?: {} }
+    'admin_queue.bulk': { paramsTuple?: []; params?: {} }
     'admin_queue.decide_maker': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_queue.fraud_decision': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_queue.report_decision': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

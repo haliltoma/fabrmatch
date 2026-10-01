@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { useT } from '~/lib/i18n'
+import { OrderCode } from '~/components/order_code'
 
 type Evidence = {
   id: number
@@ -154,14 +155,16 @@ export default function AdminDisputesShow({
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-ink-900">
-            {dispute.order.code}
+          <h1 className="font-display text-3xl font-semibold text-ink-900">
+            <OrderCode code={dispute.order.code} className="text-3xl font-semibold" />
           </h1>
           <p className="text-ink-600">
-            Opened {formatDateTime(dispute.createdAt)} · Total{' '}
-            {formatMoney(dispute.order.totalMinor, dispute.order.currency)}
+            {t('Opened {when} · total {amount}', {
+              when: formatDateTime(dispute.createdAt),
+              amount: formatMoney(dispute.order.totalMinor, dispute.order.currency),
+            })}
             {dispute.order.productionJob?.manufacturerAlias
-              ? ` · Manufacturer ${dispute.order.productionJob.manufacturerAlias}`
+              ? ` · ${t('Maker {alias}', { alias: dispute.order.productionJob.manufacturerAlias })}`
               : ''}
           </p>
         </div>
@@ -246,4 +249,4 @@ export default function AdminDisputesShow({
 }
 
 AdminDisputesShow.layout = 'dashboard'
-AdminDisputesShow.dashboardProps = { navItems: adminNav, title: 'Admin Panel' }
+AdminDisputesShow.dashboardProps = { navItems: adminNav, title: 'Admin' }

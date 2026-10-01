@@ -279,4 +279,4 @@ export default function AdminCatalogIndex({
 }
 
 AdminCatalogIndex.layout = 'dashboard'
-AdminCatalogIndex.dashboardProps = { navItems: adminNav, title: 'Admin Panel' }
+AdminCatalogIndex.dashboardProps = { navItems: adminNav, title: 'Admin' }

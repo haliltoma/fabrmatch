@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { createContext, useContext, useState, type ReactNode } from 'react'
 import { router } from '@inertiajs/react'
 import { CheckCircle2 } from 'lucide-react'
 import { adminNav } from '~/lib/nav'
@@ -84,28 +84,121 @@ type PendingMaker = {
   createdAt: string | null
 }
 
-/** A queue with work in it; an empty queue is not drawn here but listed as clear at the bottom. */
+type BulkAction =
+  'photos.approve' | 'photos.reject' | 'support.answered' | 'ack.payment_review' | 'ack.reconcile'
+
+type Bulk = {
+  ids: string[]
+  actions: Array<{ action: BulkAction; label: string; outline?: boolean }>
+}
+
+const Selection = createContext<{ selected: Set<string>; toggle: (id: string) => void } | null>(
+  null
+)
+
+/** A row's tick box in a queue that allows bulk decisions; renders nothing elsewhere. */
+function RowCheck({ id, label }: { id: string | number; label: string }) {
+  const ctx = useContext(Selection)
+  if (!ctx) return null
+  const key = String(id)
+  return (
+    <input
+      type="checkbox"
+      aria-label={label}
+      checked={ctx.selected.has(key)}
+      onChange={() => ctx.toggle(key)}
+      className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-ink-900"
+    />
+  )
+}
+
+/**
+ * A queue with work in it; an empty queue is not drawn here but listed as clear at the bottom.
+ * Routine queues (`bulk`) get tick boxes and a bar to apply one decision to the selected items.
+ */
 function Section({
   id,
   title,
   count,
+  bulk,
   children,
 }: {
   id: string
   title: string
   count: number
+  bulk?: Bulk
   children: ReactNode
 }) {
+  const { t } = useT()
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [busy, setBusy] = useState(false)
   if (count === 0) return null
+
+  const ids = bulk?.ids ?? []
+  const all = ids.length > 0 && ids.every((i) => selected.has(i))
+  const toggle = (key: string) =>
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  const run = (action: BulkAction) =>
+    router.post(
+      '/admin/queues/bulk',
+      { action, refs: [...selected] },
+      {
+        preserveScroll: true,
+        onStart: () => setBusy(true),
+        onFinish: () => setBusy(false),
+        onSuccess: () => setSelected(new Set()),
+      }
+    )
+
   return (
     <section id={id} className="scroll-mt-6 space-y-3">
       <h2 className="flex items-center gap-2 font-display text-xl font-semibold text-ink-900">
         {title}
         <Badge variant="destructive">{count}</Badge>
       </h2>
-      <ul className="divide-y divide-line rounded-lg border border-line bg-paper-raised">
-        {children}
-      </ul>
+      {bulk && ids.length > 1 && (
+        <div className="flex min-h-11 flex-wrap items-center gap-3 rounded-lg border border-line bg-paper-sunken px-5 py-2">
+          <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-ink-800">
+            <input
+              type="checkbox"
+              checked={all}
+              onChange={() => setSelected(all ? new Set() : new Set(ids))}
+              className="h-4 w-4 cursor-pointer accent-ink-900"
+            />
+            {t('Select all')}
+          </label>
+          {selected.size > 0 && (
+            <>
+              <span className="text-sm text-ink-600" aria-live="polite">
+                {t('{count} selected', { count: selected.size })}
+              </span>
+              <span className="flex flex-wrap gap-2 sm:ml-auto">
+                {bulk.actions.map((a) => (
+                  <Button
+                    key={a.action}
+                    size="sm"
+                    variant={a.outline ? 'outline' : 'default'}
+                    disabled={busy}
+                    onClick={() => run(a.action)}
+                  >
+                    {a.label}
+                  </Button>
+                ))}
+              </span>
+            </>
+          )}
+        </div>
+      )}
+      <Selection.Provider value={bulk ? { selected, toggle } : null}>
+        <ul className="divide-y divide-line rounded-lg border border-line bg-paper-raised">
+          {children}
+        </ul>
+      </Selection.Provider>
     </section>
   )
 }
@@ -252,11 +345,20 @@ export default function AdminQueues({
         ))}
       </Section>
 
-      <Section id="support" title={t('Support requests')} count={support.length}>
+      <Section
+        id="support"
+        title={t('Support requests')}
+        count={support.length}
+        bulk={{
+          ids: support.map((r) => String(r.id)),
+          actions: [{ action: 'support.answered', label: t('Mark selected answered') }],
+        }}
+      >
         {support.map((r) => (
           <li key={r.id} className="space-y-1 px-5 py-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="font-medium text-ink-900">
+              <p className="flex items-start gap-3 font-medium text-ink-900">
+                <RowCheck id={r.id} label={t('Select request from {email}', { email: r.email })} />
                 {r.topic} <span className="font-normal text-ink-600">· {r.email}</span>
                 {r.orderCode && <span className="ml-2 font-mono text-xs">{r.orderCode}</span>}
               </p>
@@ -311,10 +413,22 @@ export default function AdminQueues({
         ))}
       </Section>
 
-      <Section id="shop-photos" title={t('Shop photos to review')} count={shopPhotos.length}>
+      <Section
+        id="shop-photos"
+        title={t('Shop photos to review')}
+        count={shopPhotos.length}
+        bulk={{
+          ids: shopPhotos.map((p) => String(p.id)),
+          actions: [
+            { action: 'photos.approve', label: t('Show selected in shop') },
+            { action: 'photos.reject', label: t('Reject selected'), outline: true },
+          ],
+        }}
+      >
         {shopPhotos.map((p) => (
           <li key={p.id} className="flex flex-wrap items-center justify-between gap-4 px-5 py-3">
             <div className="flex items-center gap-4">
+              <RowCheck id={p.id} label={t('Select photo of {product}', { product: p.product })} />
               <a href={p.url} target="_blank" rel="noreferrer">
                 <img
                   src={p.url}
@@ -436,18 +550,25 @@ export default function AdminQueues({
         id="payment-reviews"
         title={t('Payments needing review')}
         count={paymentReviews.length}
+        bulk={{
+          ids: paymentReviews.map((p) => p.ref),
+          actions: [{ action: 'ack.payment_review', label: t('Mark selected handled') }],
+        }}
       >
         {paymentReviews.map((p) => (
           <li key={p.ref} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
-            <div>
-              <p className="font-medium text-ink-900">{p.reason ?? 'Needs review'}</p>
-              <p className="text-xs text-ink-600">
-                {t('provider ref {v2} · event {ref} · {when}', {
-                  v2: p.providerRef ?? '—',
-                  ref: p.ref,
-                  when: formatDateTime(p.at),
-                })}
-              </p>
+            <div className="flex items-start gap-3">
+              <RowCheck id={p.ref} label={t('Select event {ref}', { ref: p.ref })} />
+              <div>
+                <p className="font-medium text-ink-900">{p.reason ?? 'Needs review'}</p>
+                <p className="text-xs text-ink-600">
+                  {t('provider ref {v2} · event {ref} · {when}', {
+                    v2: p.providerRef ?? '—',
+                    ref: p.ref,
+                    when: formatDateTime(p.at),
+                  })}
+                </p>
+              </div>
             </div>
             <Button
               size="sm"
@@ -460,15 +581,26 @@ export default function AdminQueues({
         ))}
       </Section>
 
-      <Section id="reconcile" title={t('Ledger reconciliation')} count={reconcile.length}>
+      <Section
+        id="reconcile"
+        title={t('Ledger reconciliation')}
+        count={reconcile.length}
+        bulk={{
+          ids: reconcile.map((f) => f.ref),
+          actions: [{ action: 'ack.reconcile', label: t('Mark selected handled') }],
+        }}
+      >
         {reconcile.map((f) => (
           <li key={f.ref} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
-            <div>
-              <p className="font-medium text-ink-900">{f.kind.replaceAll('_', ' ')}</p>
-              <p className="text-xs text-ink-600">
-                {f.orderId ? `order #${f.orderId} · ` : ''}
-                {f.detail} · {formatDateTime(f.at)}
-              </p>
+            <div className="flex items-start gap-3">
+              <RowCheck id={f.ref} label={t('Select finding {ref}', { ref: f.ref })} />
+              <div>
+                <p className="font-medium text-ink-900">{f.kind.replaceAll('_', ' ')}</p>
+                <p className="text-xs text-ink-600">
+                  {f.orderId ? `order #${f.orderId} · ` : ''}
+                  {f.detail} · {formatDateTime(f.at)}
+                </p>
+              </div>
             </div>
             <Button size="sm" variant="outline" onClick={() => acknowledge('reconcile', f.ref)}>
               {t('Mark handled')}

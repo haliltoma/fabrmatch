@@ -11,6 +11,7 @@ import type { MatchingEffects } from '#services/matching/matching_effects'
 import OrderStateMachine from '#services/orders/order_state_machine'
 import ReconciliationService from '#services/payments/reconciliation_service'
 import LedgerService from '#services/payments/ledger_service'
+import SupportService from '#services/support/support_service'
 import {
   createDraftOrder,
   createFundedOrder,
@@ -159,5 +160,41 @@ test.group('AdminQueueService', (group) => {
       await queues.acknowledge('reconcile', ' ', admin.id).catch((e) => e),
       QueueError
     )
+  })
+
+  test('bulk: routine items are handled together, one bad item does not stop the rest', async ({
+    assert,
+  }) => {
+    const admin = await createUser('admin')
+    const support = new SupportService()
+    for (const message of ['Where is my parcel?', 'Can I change the colour?']) {
+      await support.submit({ userId: null, email: 'a@example.com', topic: 'order', message })
+    }
+    const open = await support.listOpen()
+    assert.lengthOf(open, 2)
+
+    const result = await queues.bulk(
+      'support.answered',
+      [...open.map((r) => String(r.id)), '999999'],
+      admin.id
+    )
+    assert.deepEqual(result, { done: 2, failed: 1 })
+    assert.lengthOf(await support.listOpen(), 0)
+
+    for (const id of ['evt_a', 'evt_b']) {
+      await AuditLog.create({
+        action: 'payment.needs_review',
+        subjectType: 'payment',
+        subjectId: 0,
+        meta: { eventId: id, providerRef: id, reason: 'amount mismatch' },
+      })
+    }
+    const reviews = await queues.paymentReviews()
+    await queues.bulk(
+      'ack.payment_review',
+      reviews.map((r) => r.ref),
+      admin.id
+    )
+    assert.lengthOf(await queues.paymentReviews(), 0)
   })
 })

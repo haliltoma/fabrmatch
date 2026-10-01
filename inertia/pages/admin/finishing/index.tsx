@@ -176,4 +176,4 @@ export default function AdminFinishing({ options }: { options: Option[] }) {
 }
 
 AdminFinishing.layout = 'dashboard'
-AdminFinishing.dashboardProps = { navItems: adminNav, title: 'Admin Panel' }
+AdminFinishing.dashboardProps = { navItems: adminNav, title: 'Admin' }

@@ -122,4 +122,4 @@ export default function AdminSettings({ settings }: { settings: SettingRow[] }) 
 }
 
 AdminSettings.layout = 'dashboard'
-AdminSettings.dashboardProps = { navItems: adminNav, title: 'Admin Panel' }
+AdminSettings.dashboardProps = { navItems: adminNav, title: 'Admin' }
