@@ -20,7 +20,11 @@ import drive from '@adonisjs/drive/services/main'
 import ProductImage from '#models/product_image'
 import ProductImageService from '#services/catalog/product_image_service'
 import { storeAdapter } from '#services/integrations/stores/store_registry'
-import { fabrmatchSku, type IncomingOrder } from '#services/integrations/stores/store_adapter'
+import {
+  fabrmatchSku,
+  skuKey,
+  type IncomingOrder,
+} from '#services/integrations/stores/store_adapter'
 import { shopifyDomain } from '#services/integrations/stores/shopify_adapter'
 import { wooSiteUrl } from '#services/integrations/stores/woocommerce_adapter'
 
@@ -45,9 +49,8 @@ export interface PublishVariant {
   priceMinor: number
 }
 
-// FM-<seller product uuid>-<material>
-const SKU_PATTERN =
-  /^FM-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})-([A-Z0-9]+)$/i
+// FM-<12 hex key of the seller product>-<material> (store_adapter.ts fabrmatchSku)
+const SKU_PATTERN = /^FM-([0-9A-F]{12})-([A-Z0-9]+)$/i
 
 export interface ListingMapping {
   sellerProductId: string | null
@@ -199,7 +202,7 @@ export default class StoreService {
     const previous = await ExternalListing.query()
       .where('storeConnectionId', connection.id)
       .where('sellerProductId', product.id)
-      .whereLike('sku', `FM-${product.id}-%`)
+      .whereLike('sku', `FM-${skuKey(product.id)}-%`)
       .orderBy('id', 'desc')
       .first()
     const images = await new ProductImageService().forModelFiles([catalog.modelFileId])
@@ -552,6 +555,18 @@ export default class StoreService {
   }
 
   /** Every line mapped → a Fabrmatch order for the seller to pay; otherwise it waits. */
+  /** The seller's product a SKU key points at (see skuKey), or null when it is not theirs. */
+  private async productBySkuKey(sellerUserId: string, key: string): Promise<string | null> {
+    const row = await db
+      .from('seller_products as sp')
+      .join('seller_profiles as spf', 'spf.id', 'sp.seller_profile_id')
+      .where('spf.user_id', sellerUserId)
+      .whereRaw("right(replace(sp.id::text, '-', ''), 12) = ?", [key.toLowerCase()])
+      .select('sp.id')
+      .first()
+    return (row?.id as string | undefined) ?? null
+  }
+
   private async place(order: ExternalOrder, connection: StoreConnection) {
     if (order.orderId) return
     const listings = await ExternalListing.query()
@@ -583,9 +598,10 @@ export default class StoreService {
       }
       // a product we published carries our SKU even before its variants were read back
       const bySku = SKU_PATTERN.exec(line.sku ?? '')
-      if (bySku) {
+      const product = bySku ? await this.productBySkuKey(connection.sellerUserId, bySku[1]) : null
+      if (bySku && product) {
         mapping.set(line.variantId, {
-          sellerProductId: bySku[1].toLowerCase(),
+          sellerProductId: product,
           material: bySku[2],
           color: null,
           scalePercent: 100,

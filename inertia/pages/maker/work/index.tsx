@@ -634,7 +634,7 @@ export default function WorkIndex({ offers, jobs, shopPhotos }: WorkPageProps) {
         description={t('Offers matched to you, and the jobs you are producing.')}
       />
 
-      <section className="space-y-4">
+      <section id="offers" className="scroll-mt-20 space-y-4">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-600">
           {t('Offers ({length})', { length: offers.length })}
         </h2>
@@ -651,7 +651,7 @@ export default function WorkIndex({ offers, jobs, shopPhotos }: WorkPageProps) {
         )}
       </section>
 
-      <section className="space-y-4">
+      <section id="jobs" className="scroll-mt-20 space-y-4">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-600">
           {t('Active jobs ({length})', { length: activeJobs.length })}
         </h2>

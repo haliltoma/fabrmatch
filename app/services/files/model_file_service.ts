@@ -204,8 +204,8 @@ export default class ModelFileService {
         failed += 1
         continue
       }
+      // saving bumps updatedAt, so the file waits another full window before the next retry
       file.analysisStatus = 'pending'
-      file.updatedAt = now
       await file.save()
       await dispatch(file.id).catch((error) =>
         logger.warn({ msg: 'Failed to re-dispatch analysis job', modelFileId: file.id, error })

@@ -10,6 +10,7 @@ import { StatusBadge } from '~/components/status_badge'
 import { Pagination, type PageMeta } from '~/components/pagination'
 import { useT } from '~/lib/i18n'
 import { orderNextStep } from '~/lib/order_next_step'
+import { RefreshingList } from '~/components/refreshing_list'
 
 /** What this order is waiting for; the buyer's own turn stands out so it is not missed. */
 function NextLine({ status }: { status: string }) {
@@ -58,63 +59,67 @@ export default function OrdersIndex({ orders, meta }: { orders: OrderData[]; met
         description={t('Everything you have ordered, newest first.')}
       />
 
-      {orders.length === 0 ? (
-        <EmptyState
-          icon={PackageOpen}
-          title={t("You haven't ordered anything yet")}
-          description={t(
-            'Pick a product from the shop, or upload your own model and get a price in seconds.'
-          )}
-          action={
-            <div className="flex flex-wrap justify-center gap-3">
-              <Button asChild>
-                <Link href="/shop">{t('Browse the shop')}</Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/files">{t('Upload a model')}</Link>
-              </Button>
-              <Link
-                href="/#after-you-pay"
-                className="basis-full text-sm font-semibold text-ink-900 underline underline-offset-4"
-              >
-                {t('What happens after you pay')}
-              </Link>
-            </div>
-          }
-        />
-      ) : (
-        <ul className="space-y-3">
-          {orders.map((order) => (
-            <li key={order.id}>
-              <Link
-                href={`/orders/${order.id}`}
-                className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-line bg-paper-raised px-5 py-4 transition-colors hover:border-ink-900/40"
-              >
-                <div className="space-y-1">
-                  <OrderCode code={order.code} />
-                  <p className="text-sm text-ink-700">
-                    {order.items
-                      .map((i) => `${i.material}${i.color ? ` · ${i.color}` : ''} × ${i.quantity}`)
-                      .join(', ')}
-                  </p>
-                  <NextLine status={order.status} />
-                </div>
-                <div className="flex items-center gap-5">
-                  <div className="text-right">
-                    <Money
-                      minor={order.totalMinor}
-                      currency={order.currency}
-                      className="font-medium"
-                    />
-                    <p className="text-xs text-ink-600">{formatDateTime(order.createdAt)}</p>
+      <RefreshingList>
+        {orders.length === 0 ? (
+          <EmptyState
+            icon={PackageOpen}
+            title={t("You haven't ordered anything yet")}
+            description={t(
+              'Pick a product from the shop, or upload your own model and get a price in seconds.'
+            )}
+            action={
+              <div className="flex flex-wrap justify-center gap-3">
+                <Button asChild>
+                  <Link href="/shop">{t('Browse the shop')}</Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link href="/files">{t('Upload a model')}</Link>
+                </Button>
+                <Link
+                  href="/#after-you-pay"
+                  className="basis-full text-sm font-semibold text-ink-900 underline underline-offset-4"
+                >
+                  {t('What happens after you pay')}
+                </Link>
+              </div>
+            }
+          />
+        ) : (
+          <ul className="space-y-3">
+            {orders.map((order) => (
+              <li key={order.id}>
+                <Link
+                  href={`/orders/${order.id}`}
+                  className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-line bg-paper-raised px-5 py-4 transition-colors hover:border-ink-900/40"
+                >
+                  <div className="space-y-1">
+                    <OrderCode code={order.code} />
+                    <p className="text-sm text-ink-700">
+                      {order.items
+                        .map(
+                          (i) => `${i.material}${i.color ? ` · ${i.color}` : ''} × ${i.quantity}`
+                        )
+                        .join(', ')}
+                    </p>
+                    <NextLine status={order.status} />
                   </div>
-                  <StatusBadge status={order.status} />
-                </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
+                  <div className="flex items-center gap-5">
+                    <div className="text-right">
+                      <Money
+                        minor={order.totalMinor}
+                        currency={order.currency}
+                        className="font-medium"
+                      />
+                      <p className="text-xs text-ink-600">{formatDateTime(order.createdAt)}</p>
+                    </div>
+                    <StatusBadge status={order.status} />
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </RefreshingList>
 
       <Pagination meta={meta} />
     </div>

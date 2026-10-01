@@ -3,7 +3,7 @@ import { productJsonLd, type ProductSchemaInput } from '#services/storefront/pro
 import type { StorefrontDetail } from '#services/storefront/storefront_service'
 
 const product = {
-  id: 7,
+  id: '01a0f67a-dccf-7ac1-bc9e-e5f0df6f32d3',
   slug: 'vase',
   title: 'Vase',
   description: 'A tall vase',
@@ -45,7 +45,7 @@ test.group('product JSON-LD', () => {
   }) => {
     const ld = productJsonLd(input()) as any
     assert.equal(ld['@type'], 'Product')
-    assert.equal(ld.sku, 'FM-7')
+    assert.equal(ld.sku, 'FM-E5F0DF6F32D3')
     assert.equal(ld.offers.lowPrice, '120.00')
     assert.equal(ld.offers.highPrice, '150.50')
     assert.equal(ld.offers.offerCount, 2)

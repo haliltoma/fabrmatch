@@ -1,6 +1,6 @@
-import { Head } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { useT } from '~/lib/i18n'
+import { Seo } from '~/components/seo'
 
 export default function Legal({
   title,
@@ -17,9 +17,7 @@ export default function Legal({
 
   return (
     <>
-      <Head title={`${t(title)} — Fabrmatch`}>
-        <meta name="robots" content="noindex" />
-      </Head>
+      <Seo title={`${t(title)} — Fabrmatch`} noindex breadcrumbs={[{ name: t(title) }]} />
       <div className="mx-auto grid max-w-5xl gap-10 px-4 py-10 md:grid-cols-[14rem_1fr]">
         <nav aria-label={t('Legal documents')} className="space-y-1 text-sm">
           {docs.map((d) => (

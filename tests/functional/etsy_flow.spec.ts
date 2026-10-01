@@ -21,6 +21,7 @@ import {
   createStorefrontProduct,
 } from '#tests/helpers/order_fixtures'
 import { FakeEtsy } from '#tests/helpers/fake_shops'
+import { fabrmatchSku } from '#services/integrations/stores/store_adapter'
 
 const flags = fabrmatchConfig.flags as Record<string, number>
 const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1, 2, 3])
@@ -118,8 +119,8 @@ test.group('Etsy: connect with OAuth, publish, polled orders, tracking', (group)
     assert.deepEqual(
       listing.products.map((p) => [p.sku, p.price]),
       [
-        [`FM-${product.id}-PLA`, 25],
-        [`FM-${product.id}-PETG`, 29.9],
+        [fabrmatchSku(product.id, 'PLA'), 25],
+        [fabrmatchSku(product.id, 'PETG'), 29.9],
       ]
     )
 

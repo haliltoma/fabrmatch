@@ -1,14 +1,10 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import env from '#start/env'
 import LegalService from '#services/legal/legal_service'
-import ReviewService from '#services/storefront/review_service'
-import ShippingService from '#services/shipping/shipping_service'
-import { productJsonLd, SOLD_COUNT_MIN } from '#services/storefront/product_schema'
-import { DateTime } from 'luxon'
 import OrderService from '#services/orders/order_service'
 import StorefrontService from '#services/storefront/storefront_service'
+import ProductPageService from '#services/storefront/product_page_service'
 import { shopOrderValidator, shopQueryValidator } from '#validators/storefront'
-import CoverageService from '#services/matching/coverage_service'
 import PricingRegionService from '#services/pricing/pricing_region_service'
 import { visitorCountry } from '#services/pricing/visitor_country'
 
@@ -60,32 +56,9 @@ export default class StorefrontController {
     if (params.slug !== product.slug) return response.redirect(canonicalPath, false, 301)
 
     const canonicalUrl = `${siteUrl()}${canonicalPath}`
-    const reviewService = new ReviewService()
-    const [reviews, sold, served, shipping] = await Promise.all([
-      reviewService.forListing(product.id),
-      reviewService.soldCount(product.id),
-      new CoverageService().servesCountry(country),
-      new ShippingService().table(),
-    ])
-    const zone = shipping.zoneFor(country)
-    const jsonLd = productJsonLd({
-      product,
-      reviews,
-      url: canonicalUrl,
-      siteUrl: siteUrl(),
-      delivery: { country, served },
-      transitDays: { min: zone.transitDaysMin, max: zone.transitDaysMax },
-      priceValidUntil: DateTime.now().plus({ days: 30 }).toISODate()!,
-    })
-    return inertia.render('shop/show', {
-      product,
-      reviews,
-      canonicalUrl,
-      // prices follow the visitor's likely country; say so when nobody prints there yet (K-K)
-      delivery: { country, served },
-      soldCount: sold >= SOLD_COUNT_MIN ? sold : null,
-      jsonLd: JSON.stringify(jsonLd).replaceAll('<', '\\u003c'),
-    })
+    const extras = await new ProductPageService().extras(product, country, canonicalUrl, siteUrl())
+    // prices follow the visitor's likely country; the page says so when nobody prints there (K-K)
+    return inertia.render('shop/show', { product, canonicalUrl, ...extras })
   }
 
   async order({ request, auth, params, response }: HttpContext) {

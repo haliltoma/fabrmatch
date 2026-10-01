@@ -1,4 +1,5 @@
 import type { StorefrontDetail } from '#services/storefront/storefront_service'
+import { decimalPrice, skuKey } from '#services/integrations/stores/store_adapter'
 import type { ProductReviews } from '#services/storefront/review_service'
 
 /** Below this many finished orders the page does not boast a count (a "1 sold" hurts more than it helps). */
@@ -27,7 +28,6 @@ export interface ProductSchemaInput {
 export function productJsonLd(input: ProductSchemaInput) {
   const { product, reviews, url, siteUrl, delivery, transitDays } = input
   const plain = product.options.filter((o) => o.finishing === null).map((o) => o.unitPriceMinor)
-  const money = (minor: number) => (minor / 100).toFixed(2)
   const availability = delivery.served
     ? 'https://schema.org/InStock'
     : 'https://schema.org/OutOfStock'
@@ -37,7 +37,7 @@ export function productJsonLd(input: ProductSchemaInput) {
     'name': product.title,
     'description': product.description ?? product.title,
     'url': url,
-    'sku': `FM-${product.id}`,
+    'sku': `FM-${skuKey(product.id)}`,
     ...(product.category ? { category: product.category.name } : {}),
     ...(product.images.length > 0
       ? { image: product.images.slice(0, 4).map((i) => `${siteUrl}${i.url}`) }
@@ -46,8 +46,8 @@ export function productJsonLd(input: ProductSchemaInput) {
       '@type': 'AggregateOffer',
       'url': url,
       'priceCurrency': product.currency,
-      'lowPrice': money(Math.min(...plain)),
-      'highPrice': money(Math.max(...plain)),
+      'lowPrice': decimalPrice(Math.min(...plain)),
+      'highPrice': decimalPrice(Math.max(...plain)),
       'offerCount': plain.length,
       'availability': availability,
       'itemCondition': 'https://schema.org/NewCondition',

@@ -58,7 +58,7 @@ export default function RfqCreate({ files, materials }: Props) {
               onSubmit={(e) => {
                 e.preventDefault()
                 router.post('/rfqs', {
-                  modelFileId: Number(f.modelFileId),
+                  modelFileId: f.modelFileId,
                   title: f.title,
                   material: f.material,
                   color: f.color || undefined,

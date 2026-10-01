@@ -54,11 +54,21 @@ export default class MakerAttentionService {
         key: 'offers',
         count: offers,
         label: 'Offers waiting for your answer',
-        href: '/maker/work',
+        href: '/maker/work#offers',
       },
-      { key: 'overdue', count: overdue, label: 'Jobs past their due date', href: '/maker/work' },
-      { key: 'ship', count: ship, label: 'Parts ready to ship', href: '/maker/work' },
-      { key: 'start', count: start, label: 'Accepted jobs to start printing', href: '/maker/work' },
+      {
+        key: 'overdue',
+        count: overdue,
+        label: 'Jobs past their due date',
+        href: '/maker/work#jobs',
+      },
+      { key: 'ship', count: ship, label: 'Parts ready to ship', href: '/maker/work#jobs' },
+      {
+        key: 'start',
+        count: start,
+        label: 'Accepted jobs to start printing',
+        href: '/maker/work#jobs',
+      },
     ]
     return { badges: { work: offers + overdue }, items: all.filter((i) => i.count > 0) }
   }

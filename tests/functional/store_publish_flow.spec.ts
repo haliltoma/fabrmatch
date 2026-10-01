@@ -19,6 +19,7 @@ import {
   createStorefrontProduct,
 } from '#tests/helpers/order_fixtures'
 import { FakeShopify, FakeWoo } from '#tests/helpers/fake_shops'
+import { fabrmatchSku } from '#services/integrations/stores/store_adapter'
 
 const inertia = { 'x-inertia': 'true', 'x-inertia-version': '1', 'accept': 'application/json' }
 const flags = fabrmatchConfig.flags as Record<string, number>
@@ -141,8 +142,8 @@ test.group('Printify-style shops: connect → publish → paid order → trackin
     assert.deepEqual(
       inShop.variants.map((v) => [v.sku, v.price]),
       [
-        [`FM-${product.id}-PLA`, '349.00'],
-        [`FM-${product.id}-PETG`, '399.00'],
+        [fabrmatchSku(product.id, 'PLA'), '349.00'],
+        [fabrmatchSku(product.id, 'PETG'), '399.00'],
       ]
     )
     const sent = shopify.requests.find((r) => r.query?.includes('productSet('))!
@@ -262,14 +263,14 @@ test.group('Printify-style shops: connect → publish → paid order → trackin
     const pending = woo.orderWebhook(secret, {
       id: 801,
       status: 'pending',
-      lines: [{ variationId, sku: `FM-${product.id}-PLA`, quantity: 1 }],
+      lines: [{ variationId, sku: fabrmatchSku(product.id, 'PLA'), quantity: 1 }],
     })
     const unpaid = await client.post(path).headers(pending.headers).json(JSON.parse(pending.body))
     unpaid.assertBodyContains({ status: 'ignored' })
     const paid = woo.orderWebhook(secret, {
       id: 801,
       status: 'processing',
-      lines: [{ variationId, sku: `FM-${product.id}-PLA`, quantity: 1 }],
+      lines: [{ variationId, sku: fabrmatchSku(product.id, 'PLA'), quantity: 1 }],
     })
     const accepted = await client.post(path).headers(paid.headers).json(JSON.parse(paid.body))
     accepted.assertBodyContains({ status: 'received' })

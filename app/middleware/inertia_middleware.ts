@@ -35,16 +35,17 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
       auth.user.roleNames.includes('seller') &&
       !!(await SellerProfile.query().where('userId', auth.user.id).select('id').first())
 
-    // admin menu badges and the dashboard to-do list; only admins on admin pages pay for it
+    // menu badges and the "needs you now" lists, only on the panel pages that show them; functions,
+    // so a partial reload (a poll, a filter) that does not ask for them does not pay for them
+    const path = ctx.request.url()
+    const roles = auth?.user?.roleNames ?? []
     const adminAttention =
-      auth?.user?.roleNames.includes('admin') && ctx.request.url().startsWith('/admin')
-        ? await new AttentionService().summary()
+      roles.includes('admin') && path.startsWith('/admin')
+        ? () => new AttentionService().summary()
         : null
-
-    // the maker's Work badge and dashboard "Next up", on maker pages only
     const makerAttention =
-      auth?.user?.roleNames.includes('manufacturer') && ctx.request.url().startsWith('/maker')
-        ? await new MakerAttentionService().forUser(auth.user.id)
+      roles.includes('manufacturer') && path.startsWith('/maker') && auth?.user
+        ? () => new MakerAttentionService().forUser(auth.user!.id)
         : null
 
     const locale = requestLocale(ctx)
@@ -72,8 +73,8 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
       user: ctx.inertia.always(userData),
       hasShop: ctx.inertia.always(hasShop),
       unreadNotifications: ctx.inertia.always(unread),
-      adminAttention: ctx.inertia.always(adminAttention),
-      makerAttention: ctx.inertia.always(makerAttention),
+      adminAttention,
+      makerAttention,
     }
   }
 

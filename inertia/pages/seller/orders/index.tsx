@@ -11,6 +11,7 @@ import { PageHeader } from '~/components/page_header'
 import { Pagination, type PageMeta } from '~/components/pagination'
 import { StatusBadge } from '~/components/status_badge'
 import { useT } from '~/lib/i18n'
+import { RefreshingList } from '~/components/refreshing_list'
 
 type SaleRow = {
   id: string
@@ -64,51 +65,56 @@ function SellerOrders({
         ))}
       </div>
 
-      {orders.length === 0 ? (
-        <EmptyState
-          icon={ReceiptText}
-          title={status ? t('No sales with this status') : t('No sales yet')}
-          description={
-            status
-              ? t('Try another filter.')
-              : t('When a buyer orders one of your listed products it shows up here.')
-          }
-          action={
-            status ? undefined : (
-              <Button asChild>
-                <Link href="/seller/products">{t('Manage your products')}</Link>
-              </Button>
-            )
-          }
-        />
-      ) : (
-        <ul className="divide-y divide-line rounded-lg border border-line bg-paper-raised">
-          {orders.map((o) => (
-            <li key={o.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
-              <div className="space-y-0.5">
-                <OrderCode code={o.code} />
-                <p className="text-sm text-ink-700">
-                  {o.items
-                    .map((i) => `${i.material}${i.color ? ` · ${i.color}` : ''} × ${i.quantity}`)
-                    .join(', ')}
-                </p>
-                <p className="text-xs text-ink-600">{formatDate(o.createdAt)}</p>
-              </div>
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-ink-700">
-                  {t('You earn')}{' '}
-                  <Money
-                    minor={o.earnMinor}
-                    currency={o.currency}
-                    className="font-medium text-ink-900"
-                  />
-                </span>
-                <StatusBadge status={o.status} />
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+      <RefreshingList>
+        {orders.length === 0 ? (
+          <EmptyState
+            icon={ReceiptText}
+            title={status ? t('No sales with this status') : t('No sales yet')}
+            description={
+              status
+                ? t('Try another filter.')
+                : t('When a buyer orders one of your listed products it shows up here.')
+            }
+            action={
+              status ? undefined : (
+                <Button asChild>
+                  <Link href="/seller/products">{t('Manage your products')}</Link>
+                </Button>
+              )
+            }
+          />
+        ) : (
+          <ul className="divide-y divide-line rounded-lg border border-line bg-paper-raised">
+            {orders.map((o) => (
+              <li
+                key={o.id}
+                className="flex flex-wrap items-center justify-between gap-3 px-5 py-4"
+              >
+                <div className="space-y-0.5">
+                  <OrderCode code={o.code} />
+                  <p className="text-sm text-ink-700">
+                    {o.items
+                      .map((i) => `${i.material}${i.color ? ` · ${i.color}` : ''} × ${i.quantity}`)
+                      .join(', ')}
+                  </p>
+                  <p className="text-xs text-ink-600">{formatDate(o.createdAt)}</p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-ink-700">
+                    {t('You earn')}{' '}
+                    <Money
+                      minor={o.earnMinor}
+                      currency={o.currency}
+                      className="font-medium text-ink-900"
+                    />
+                  </span>
+                  <StatusBadge status={o.status} />
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </RefreshingList>
 
       <Pagination meta={meta} />
     </div>

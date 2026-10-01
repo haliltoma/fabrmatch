@@ -3258,4 +3258,9 @@ export const tr: Record<string, string> = {
   'Some items could not be changed; they may already have been handled.':
     'Bazı öğeler değiştirilemedi; zaten ele alınmış olabilirler.',
   'Done for all selected items.': 'Seçilen tüm öğeler için tamamlandı.',
+  // orders: unknown status
+  'We are updating this order': 'Bu siparişi güncelliyoruz',
+  'Its current status is shown above. We e-mail you when anything changes.':
+    'Güncel durumu yukarıda. Bir şey değişince sana e-posta göndeririz.',
+  'Being updated': 'Güncelleniyor',
 }

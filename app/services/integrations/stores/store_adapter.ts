@@ -93,9 +93,18 @@ export interface StoreAdapter {
   ): Promise<void>
 }
 
-/** Stable SKU for a Fabrmatch product in a material, so orders map even without a listing row. */
+/**
+ * The short key of a seller product in our SKUs: the last 12 hex digits of its UUIDv7 (48 random
+ * bits). A full UUID would not fit shop SKU limits (Etsy allows 32 characters); the key is only
+ * ever resolved among one seller's products, where 48 random bits do not collide.
+ */
+export function skuKey(sellerProductId: string) {
+  return sellerProductId.replaceAll('-', '').slice(-12).toUpperCase()
+}
+
+/** Stable SKU for a Fabrmatch product in a material (FM-<key>-<MATERIAL>, at most 22 characters). */
 export function fabrmatchSku(sellerProductId: string, material: string) {
-  return `FM-${sellerProductId}-${material.toUpperCase()}`
+  return `FM-${skuKey(sellerProductId)}-${material.toUpperCase()}`
 }
 
 /** 12345 → "123.45" (prices travel as decimal strings; integer maths only). */

@@ -173,7 +173,6 @@ export function orderNextStep(
         suggestions: AFTER,
       }
     case 'cancelled':
-    default:
       return {
         ...base,
         stage: null,
@@ -184,6 +183,18 @@ export function orderNextStep(
         money: 'none',
         short: 'Cancelled',
         suggestions: AFTER,
+      }
+    default:
+      // a status this page does not know yet: say nothing it cannot back up
+      return {
+        ...base,
+        stage: null,
+        actor: 'fabrmatch',
+        yourTurn: false,
+        title: 'We are updating this order',
+        detail: 'Its current status is shown above. We e-mail you when anything changes.',
+        money: 'none',
+        short: 'Being updated',
       }
   }
 }

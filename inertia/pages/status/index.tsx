@@ -1,8 +1,8 @@
-import { Head } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { Check, TriangleAlert } from 'lucide-react'
 import { formatDateTime } from '~/lib/format'
 import { useT } from '~/lib/i18n'
+import { Seo } from '~/components/seo'
 
 export default function Status({
   status,
@@ -18,9 +18,7 @@ export default function Status({
   const ok = status === 'ok'
   return (
     <>
-      <Head title={t('System status — Fabrmatch')}>
-        <meta name="robots" content="noindex" />
-      </Head>
+      <Seo title={t('System status — Fabrmatch')} noindex />
       <div className="mx-auto max-w-2xl space-y-6 px-4 py-12">
         <h1 className="font-display text-4xl font-semibold text-ink-900">{t('System status')}</h1>
         <div

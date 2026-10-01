@@ -7,6 +7,7 @@ import { Input } from '~/components/ui/input'
 import { PageHeader } from '~/components/page_header'
 import { Pagination, type PageMeta } from '~/components/pagination'
 import { useT } from '~/lib/i18n'
+import { RefreshingList } from '~/components/refreshing_list'
 
 type Row = {
   id: string
@@ -83,37 +84,39 @@ export default function AdminAudit({
         <Button type="submit">{t('Search')}</Button>
       </form>
 
-      <div className="overflow-x-auto rounded-lg border border-line bg-paper-raised">
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-line text-ink-600">
-            <tr>
-              <th className="px-4 py-3 font-medium">{t('When')}</th>
-              <th className="px-4 py-3 font-medium">{t('Action')}</th>
-              <th className="px-4 py-3 font-medium">{t('Subject')}</th>
-              <th className="px-4 py-3 font-medium">{t('Actor')}</th>
-              <th className="px-4 py-3 font-medium">{t('Details')}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-line">
-            {rows.map((r) => (
-              <tr key={r.id} className="align-top">
-                <td className="tabular whitespace-nowrap px-4 py-2">
-                  {formatDateTime(r.createdAt)}
-                </td>
-                <td className="px-4 py-2 font-medium text-ink-900">{r.action}</td>
-                <td className="px-4 py-2">
-                  {r.subjectType} #{r.subjectId}
-                </td>
-                <td className="px-4 py-2">{r.actorId ? `user #${r.actorId}` : 'system'}</td>
-                <td className="max-w-md px-4 py-2 font-mono text-xs text-ink-700">
-                  {r.meta === '{}' ? '—' : r.meta}
-                </td>
+      <RefreshingList rows={10}>
+        <div className="overflow-x-auto rounded-lg border border-line bg-paper-raised">
+          <table className="w-full text-left text-sm">
+            <thead className="border-b border-line text-ink-600">
+              <tr>
+                <th className="px-4 py-3 font-medium">{t('When')}</th>
+                <th className="px-4 py-3 font-medium">{t('Action')}</th>
+                <th className="px-4 py-3 font-medium">{t('Subject')}</th>
+                <th className="px-4 py-3 font-medium">{t('Actor')}</th>
+                <th className="px-4 py-3 font-medium">{t('Details')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        {rows.length === 0 && <p className="p-6 text-ink-600">{t('No entries match.')}</p>}
-      </div>
+            </thead>
+            <tbody className="divide-y divide-line">
+              {rows.map((r) => (
+                <tr key={r.id} className="align-top">
+                  <td className="tabular whitespace-nowrap px-4 py-2">
+                    {formatDateTime(r.createdAt)}
+                  </td>
+                  <td className="px-4 py-2 font-medium text-ink-900">{r.action}</td>
+                  <td className="px-4 py-2">
+                    {r.subjectType} #{r.subjectId}
+                  </td>
+                  <td className="px-4 py-2">{r.actorId ? `user #${r.actorId}` : 'system'}</td>
+                  <td className="max-w-md px-4 py-2 font-mono text-xs text-ink-700">
+                    {r.meta === '{}' ? '—' : r.meta}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {rows.length === 0 && <p className="p-6 text-ink-600">{t('No entries match.')}</p>}
+        </div>
+      </RefreshingList>
       <Pagination meta={meta} />
     </div>
   )

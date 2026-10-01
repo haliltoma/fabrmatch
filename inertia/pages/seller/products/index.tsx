@@ -178,9 +178,7 @@ function AddProductForm({
     router.post(
       '/seller/products',
       {
-        catalogProductId: form.data.catalogProductId
-          ? Number(form.data.catalogProductId)
-          : undefined,
+        catalogProductId: form.data.catalogProductId || undefined,
         title: form.data.title,
         description: form.data.description || undefined,
         marginBps: form.data.marginPercent

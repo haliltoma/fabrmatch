@@ -58,8 +58,8 @@ function AddProductForm({
           .split(',')
           .map((m) => m.trim())
           .filter(Boolean),
-        modelFileId: form.data.modelFileId ? Number(form.data.modelFileId) : undefined,
-        categoryId: form.data.categoryId ? Number(form.data.categoryId) : undefined,
+        modelFileId: form.data.modelFileId || undefined,
+        categoryId: form.data.categoryId || undefined,
         tags: form.data.tags
           .split(',')
           .map((tag) => tag.trim())

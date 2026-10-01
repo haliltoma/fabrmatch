@@ -10,6 +10,7 @@ import { Pagination, type PageMeta } from '~/components/pagination'
 import { StatTile } from '~/components/stat_tile'
 import { StatusBadge } from '~/components/status_badge'
 import { useT } from '~/lib/i18n'
+import { RefreshingList } from '~/components/refreshing_list'
 
 type Total = {
   currency: string
@@ -71,40 +72,42 @@ function MakerEarnings({
         </div>
       ))}
 
-      {payouts.length === 0 ? (
-        <EmptyState
-          icon={Wallet}
-          title={t('No payouts yet')}
-          description={t(
-            'Once a buyer confirms delivery of a job you produced, your share shows up here.'
-          )}
-        />
-      ) : (
-        <>
-          <ul className="divide-y divide-line rounded-lg border border-line bg-paper-raised">
-            {payouts.map((p) => (
-              <li
-                key={p.id}
-                className="flex flex-wrap items-center justify-between gap-3 px-5 py-3"
-              >
-                <div>
-                  <OrderCode code={p.orderCode} />
-                  <p className="text-xs text-ink-600">
-                    {p.paidAt
-                      ? `Paid ${formatDate(p.paidAt)}`
-                      : `Released ${formatDate(p.createdAt)}`}
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Money minor={p.amountMinor} currency={p.currency} className="text-sm" />
-                  <StatusBadge status={p.status} />
-                </div>
-              </li>
-            ))}
-          </ul>
-          <Pagination meta={meta} />
-        </>
-      )}
+      <RefreshingList>
+        {payouts.length === 0 ? (
+          <EmptyState
+            icon={Wallet}
+            title={t('No payouts yet')}
+            description={t(
+              'Once a buyer confirms delivery of a job you produced, your share shows up here.'
+            )}
+          />
+        ) : (
+          <>
+            <ul className="divide-y divide-line rounded-lg border border-line bg-paper-raised">
+              {payouts.map((p) => (
+                <li
+                  key={p.id}
+                  className="flex flex-wrap items-center justify-between gap-3 px-5 py-3"
+                >
+                  <div>
+                    <OrderCode code={p.orderCode} />
+                    <p className="text-xs text-ink-600">
+                      {p.paidAt
+                        ? `Paid ${formatDate(p.paidAt)}`
+                        : `Released ${formatDate(p.createdAt)}`}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Money minor={p.amountMinor} currency={p.currency} className="text-sm" />
+                    <StatusBadge status={p.status} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <Pagination meta={meta} />
+          </>
+        )}
+      </RefreshingList>
     </div>
   )
 }

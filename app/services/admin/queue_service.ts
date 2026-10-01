@@ -1,3 +1,4 @@
+import logger from '@adonisjs/core/services/logger'
 import ShopPhotoService from '#services/catalog/shop_photo_service'
 import DomainError from '#exceptions/domain_error'
 import db from '@adonisjs/lucid/services/db'
@@ -17,10 +18,7 @@ export type AckQueue = 'payment_review' | 'reconcile'
 
 const RECONCILE_LOOKBACK_DAYS = 3
 
-/**
- * Everything that needs a human, in one place (R3-T1). Items are derived from real state or the
- * audit log; nothing here keeps a second copy that could drift.
- */
+/** A row id; bulk refs for rows are checked before they reach a query. */
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 /** Routine queue decisions that may be applied to many items at once. */
@@ -33,6 +31,10 @@ export const BULK_ACTIONS = [
 ] as const
 export type BulkAction = (typeof BULK_ACTIONS)[number]
 
+/**
+ * Everything that needs a human, in one place (R3-T1). Items are derived from real state or the
+ * audit log; nothing here keeps a second copy that could drift.
+ */
 export default class AdminQueueService {
   async unmatchedOrders() {
     const orders = await Order.query().where('status', 'unmatched').orderBy('updatedAt', 'asc')
@@ -214,7 +216,9 @@ export default class AdminQueueService {
           )
         }
         done += 1
-      } catch {
+      } catch (error) {
+        // usually an item someone else already handled; logged in case it is something worse
+        logger.warn({ msg: 'bulk queue item failed', action, ref, error: (error as Error).message })
         failed += 1
       }
     }

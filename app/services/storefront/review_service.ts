@@ -49,7 +49,8 @@ export default class ReviewService {
   }
 
   /**
-   * How many times this listing was bought and paid for (cancelled and unpaid orders excluded).
+   * How many times this listing was bought and paid for and not taken back: unpaid, cancelled and
+   * disputed or refunded (resolved) orders do not count.
    * Shown on the product page as social proof once it reaches SOLD_COUNT_MIN.
    */
   async soldCount(sellerProductId: string): Promise<number> {
@@ -62,7 +63,15 @@ export default class ReviewService {
       .where('sp.id', sellerProductId)
       .whereRaw('spf.user_id = o.seller_id')
       .where('o.channel', 'storefront')
-      .whereNotIn('o.status', ['draft', 'awaiting_payment', 'cancelled'])
+      .whereIn('o.status', [
+        'paid',
+        'matching',
+        'unmatched',
+        'in_production',
+        'shipped',
+        'delivered',
+        'completed',
+      ])
       .countDistinct('o.id as n')
       .first()
     return Number(row?.n ?? 0)
