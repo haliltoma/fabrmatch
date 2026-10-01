@@ -1,5 +1,6 @@
 import vine from '@vinejs/vine'
 import { addressRules } from '#validators/order'
+import { moneyMinor } from '#validators/money'
 
 export const rfqCreateValidator = vine.create({
   modelFileId: vine.string().uuid(),
@@ -20,7 +21,7 @@ export const rfqAwardValidator = vine.create({
 
 export const rfqBidValidator = vine.create({
   /** per unit, TRY, as the maker types it */
-  price: vine.number().positive().max(100_000),
+  price: moneyMinor({ min: 1, max: 10_000_000 }),
   leadDays: vine.number().withoutDecimals().min(1).max(90),
   note: vine.string().trim().maxLength(300).optional(),
 })

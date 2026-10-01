@@ -7,6 +7,7 @@ import ProductPageService from '#services/storefront/product_page_service'
 import { shopOrderValidator, shopQueryValidator } from '#validators/storefront'
 import PricingRegionService from '#services/pricing/pricing_region_service'
 import { visitorCountry } from '#services/pricing/visitor_country'
+import { minorToInput } from '#services/pricing/money_input'
 
 const siteUrl = () => env.get('APP_URL').replace(/\/$/, '')
 
@@ -22,8 +23,8 @@ export default class StorefrontController {
       material: query.material,
       category: query.category,
       tag: query.tag,
-      minPriceMinor: query.minPrice === undefined ? undefined : Math.round(query.minPrice * 100),
-      maxPriceMinor: query.maxPrice === undefined ? undefined : Math.round(query.maxPrice * 100),
+      minPriceMinor: query.minPrice,
+      maxPriceMinor: query.maxPrice,
       sort: query.sort,
       page: query.page,
     })
@@ -35,8 +36,9 @@ export default class StorefrontController {
         material: query.material ?? '',
         category: query.category ?? '',
         tag: query.tag ?? '',
-        minPrice: query.minPrice ?? null,
-        maxPrice: query.maxPrice ?? null,
+        // back in the form the visitor typed (major units), so the next filter change sends the same
+        minPrice: query.minPrice === undefined ? null : minorToInput(query.minPrice),
+        maxPrice: query.maxPrice === undefined ? null : minorToInput(query.maxPrice),
         sort: query.sort ?? 'newest',
       },
       canonicalUrl: `${siteUrl()}/shop`,

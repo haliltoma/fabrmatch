@@ -11,6 +11,7 @@ import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { useT } from '~/lib/i18n'
 import { OrderCode } from '~/components/order_code'
+import { parseMoneyToMinor } from '~/lib/money'
 
 type Evidence = {
   id: string
@@ -74,7 +75,8 @@ function ResolveForm({ dispute }: { dispute: DisputeData }) {
       `/admin/disputes/${dispute.id}/resolve`,
       {
         resolution,
-        refundMinor: resolution === 'partial_refund' ? Math.round(Number(amount) * 100) : undefined,
+        refundMinor:
+          resolution === 'partial_refund' ? (parseMoneyToMinor(amount) ?? undefined) : undefined,
         note: note || undefined,
       },
       { onFinish: () => setBusy(false) }

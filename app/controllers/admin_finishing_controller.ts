@@ -26,7 +26,7 @@ export default class AdminFinishingController {
         code: data.code,
         name: data.name,
         description: data.description,
-        priceMinor: Math.round(data.price * 100),
+        priceMinor: data.price,
         materials: data.materials
           ? data.materials
               .split(',')
@@ -45,7 +45,7 @@ export default class AdminFinishingController {
     await new FinishingService().update(
       params.id,
       {
-        priceMinor: data.price === undefined ? undefined : Math.round(data.price * 100),
+        priceMinor: data.price,
         isActive: data.isActive,
         extraDays: data.extraDays,
       },

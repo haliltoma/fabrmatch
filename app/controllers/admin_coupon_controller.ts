@@ -3,8 +3,6 @@ import AuditLog from '#models/audit_log'
 import CouponService from '#services/pricing/coupon_service'
 import { couponValidator } from '#validators/coupon'
 
-const toMinor = (major: number) => Math.round(major * 100)
-
 export default class AdminCouponController {
   async index({ inertia }: HttpContext) {
     const rows = await new CouponService().list()
@@ -32,9 +30,10 @@ export default class AdminCouponController {
     const coupon = await new CouponService().create({
       code: data.code,
       kind: data.kind,
-      value: data.kind === 'percent' ? Math.round(data.value * 100) : toMinor(data.value),
-      minOrderMinor: data.minOrder ? toMinor(data.minOrder) : 0,
-      maxDiscountMinor: data.maxDiscount ? toMinor(data.maxDiscount) : null,
+      // the validator already scaled it: basis points for a percentage, minor units for an amount
+      value: data.value,
+      minOrderMinor: data.minOrder ?? 0,
+      maxDiscountMinor: data.maxDiscount ?? null,
       maxRedemptions: data.maxRedemptions ?? null,
       perUserLimit: data.perUserLimit ?? 1,
       firstOrderOnly: data.firstOrderOnly ?? false,

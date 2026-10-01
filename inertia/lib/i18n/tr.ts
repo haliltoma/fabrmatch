@@ -3263,4 +3263,7 @@ export const tr: Record<string, string> = {
   'Its current status is shown above. We e-mail you when anything changes.':
     'Güncel durumu yukarıda. Bir şey değişince sana e-posta göndeririz.',
   'Being updated': 'Güncelleniyor',
+  // admin coupons
+  '{percent}% off items': 'Ürünlerde %{percent} indirim',
+  '{amount} off': '{amount} indirim',
 }

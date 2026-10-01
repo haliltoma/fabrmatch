@@ -32,8 +32,8 @@ type Filters = {
   material: string
   category: string
   tag: string
-  minPrice: number | null
-  maxPrice: number | null
+  minPrice: string | null
+  maxPrice: string | null
   sort: string
 }
 

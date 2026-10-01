@@ -26,7 +26,7 @@ function toChanges(data: FormInput): RegionChanges {
         : data.commissionPercent === null
           ? null
           : Math.round(data.commissionPercent * 100),
-    minOrderMinor: data.minOrder === undefined ? undefined : Math.round(data.minOrder * 100),
+    minOrderMinor: data.minOrder,
     rounding: data.rounding,
   }
 }
@@ -71,7 +71,7 @@ export default class AdminPricingRegionController {
     await new PricingRegionAdmin().setMaterialPrice(
       params.id,
       material,
-      price === null ? null : Math.round(price * 100),
+      price,
       auth.getUserOrFail().id
     )
     session.flash('success', 'Saved.')

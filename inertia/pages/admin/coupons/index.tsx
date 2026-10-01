@@ -26,8 +26,11 @@ type Coupon = {
   used: number
 }
 
-const describe = (c: Coupon) =>
-  c.kind === 'percent' ? `${c.value / 100}% off items` : `${formatMoney(c.value, 'TRY')} off`
+/** "12.5% off items" / "50.00 TRY off", in the page language; the percentage is stored in bps. */
+const describe = (c: Coupon, t: (s: string, v?: Record<string, string | number>) => string) =>
+  c.kind === 'percent'
+    ? t('{percent}% off items', { percent: c.value / 100 })
+    : t('{amount} off', { amount: formatMoney(c.value, 'TRY') })
 
 function CreateForm() {
   const { t } = useT()
@@ -160,7 +163,7 @@ export default function AdminCoupons({ coupons }: { coupons: Coupon[] }) {
                         {c.isActive ? 'On' : 'Off'}
                       </Badge>
                     </p>
-                    <p className="text-sm text-ink-700">{describe(c)}</p>
+                    <p className="text-sm text-ink-700">{describe(c, t)}</p>
                     <p className="text-xs text-ink-600">
                       Used {c.used}
                       {c.maxRedemptions !== null ? ` of ${c.maxRedemptions}` : ''} ·{' '}

@@ -23,6 +23,10 @@ const FIELD_NAMES: Record<string, string> = {
 const field = (name: string) => FIELD_NAMES[name] ?? name
 
 const RULES: Array<[RegExp, (m: RegExpMatchArray) => string]> = [
+  // money fields (validators/money.ts)
+  [/^Enter an amount like 12\.50$/, () => 'Tutarı 12,50 gibi yaz'],
+  [/^The amount is too small$/, () => 'Tutar çok küçük'],
+  [/^The amount is too large$/, () => 'Tutar çok büyük'],
   [/^The (.+) field is required$/, (m) => `${field(m[1])} alanı zorunludur`],
   [/^The (.+) field must be a string$/, (m) => `${field(m[1])} alanı metin olmalıdır`],
   [

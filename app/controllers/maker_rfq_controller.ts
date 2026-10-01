@@ -57,7 +57,7 @@ export default class MakerRfqController {
     const user = auth.getUserOrFail()
     await user.load('manufacturerProfile')
     await new RfqBidService().submit(params.id, user.manufacturerProfile.id, {
-      unitPriceMinor: Math.round(data.price * 100),
+      unitPriceMinor: data.price,
       leadDays: data.leadDays,
       note: data.note,
     })

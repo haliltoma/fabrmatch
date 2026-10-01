@@ -1,12 +1,13 @@
 import vine from '@vinejs/vine'
+import { moneyMinor } from '#validators/money'
 
 export const shopQueryValidator = vine.create({
   category: vine.string().trim().maxLength(60).optional(),
   tag: vine.string().trim().maxLength(30).optional(),
   q: vine.string().trim().maxLength(100).optional(),
   material: vine.string().trim().toUpperCase().maxLength(32).optional(),
-  minPrice: vine.number().min(0).max(1_000_000).optional(),
-  maxPrice: vine.number().min(0).max(1_000_000).optional(),
+  minPrice: moneyMinor({ min: 0, max: 100_000_000 }).optional(),
+  maxPrice: moneyMinor({ min: 0, max: 100_000_000 }).optional(),
   sort: vine.enum(['newest', 'price_asc', 'price_desc'] as const).optional(),
   page: vine.number().min(1).max(1000).withoutDecimals().optional(),
 })
