@@ -30,7 +30,7 @@ export interface CouponInput {
   userId?: string | null
 }
 
-export const normalizeCode = (code: string) => code.trim().toUpperCase()
+const normalizeCode = (code: string) => code.trim().toUpperCase()
 
 export default class CouponService {
   async create(input: CouponInput): Promise<Coupon> {

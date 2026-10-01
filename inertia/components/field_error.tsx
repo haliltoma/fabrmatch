@@ -4,7 +4,7 @@ import { useT } from '~/lib/i18n'
 type Errors = Record<string, string | string[] | undefined>
 
 /** Validation errors the server sent back with the page (shared `errors` prop). */
-export function useFieldErrors(): Errors {
+function useFieldErrors(): Errors {
   const { props } = usePage<{ errors?: Errors }>()
   return props.errors ?? {}
 }

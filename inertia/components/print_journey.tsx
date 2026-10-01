@@ -37,7 +37,7 @@ const WALL_LINE = 'rgb(21 24 28 / 0.07)'
 const VASE =
   'M42 14H78C78 32 93 44 93 66C93 92 83 108 75 110H45C37 108 27 92 27 66C27 44 42 32 42 14Z'
 
-export const JOURNEY_STEPS: Array<{ id: Step; label: string }> = [
+const JOURNEY_STEPS: Array<{ id: Step; label: string }> = [
   { id: 'printing', label: 'Printing' },
   { id: 'packing', label: 'Packing' },
   { id: 'shipping', label: 'On its way' },

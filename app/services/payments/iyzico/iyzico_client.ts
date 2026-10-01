@@ -31,7 +31,7 @@ export type IyzicoTransport = (request: {
   body: string
 }) => Promise<{ status: number; body: string }>
 
-export const fetchTransport: IyzicoTransport = async ({ method, url, headers, body }) => {
+const fetchTransport: IyzicoTransport = async ({ method, url, headers, body }) => {
   const response = await fetch(url, {
     method,
     headers,

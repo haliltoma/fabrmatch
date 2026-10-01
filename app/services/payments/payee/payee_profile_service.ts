@@ -35,7 +35,7 @@ export interface PayeeProfileInput {
 const MAX_DOCUMENT_BYTES = 5 * 1024 * 1024
 
 /** Tax certificate / exemption certificate: PDF or a photo, recognised by its first bytes. */
-export function documentType(bytes: Buffer): { contentType: string; ext: string } | null {
+function documentType(bytes: Buffer): { contentType: string; ext: string } | null {
   if (bytes.toString('ascii', 0, 5) === '%PDF-')
     return { contentType: 'application/pdf', ext: 'pdf' }
   if (bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) {

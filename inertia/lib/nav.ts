@@ -159,10 +159,3 @@ export const adminNav: NavItem[] = [
   { label: 'Launch readiness', href: '/admin/launch', icon: Rocket, group: 'System' },
   { label: 'Settings', href: '/admin/settings', icon: Settings, group: 'System' },
 ]
-
-/** Best-matching panel nav for a user's roles (used on shared pages like /orders). */
-export function navForRoles(roles: string[] | undefined | null): NavItem[] {
-  if (roles?.includes('manufacturer')) return makerNav
-  if (roles?.includes('admin')) return adminNav
-  return sellerNav
-}

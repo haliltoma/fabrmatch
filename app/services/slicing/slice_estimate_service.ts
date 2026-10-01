@@ -16,7 +16,7 @@ export interface SlicedNumbers {
   printMinutes: number
 }
 
-export function configuredSlicer(): Slicer | null {
+function configuredSlicer(): Slicer | null {
   if (env.get('SLICER_DRIVER') !== 'orca') return null
   const bin = env.get('SLICER_BIN')
   const dir = env.get('SLICER_PROFILES_DIR')

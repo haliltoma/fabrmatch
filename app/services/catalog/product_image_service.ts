@@ -103,7 +103,7 @@ export default class ProductImageService {
   }
 }
 
-export function toShopImage(row: ProductImage): ShopImage {
+function toShopImage(row: ProductImage): ShopImage {
   return {
     id: row.id,
     kind: row.kind,

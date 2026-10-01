@@ -27,7 +27,7 @@ export interface SeoProps {
 const withLang = (url: string, lang: string) => `${url}${url.includes('?') ? '&' : '?'}lang=${lang}`
 
 /** JSON for a <script type="application/ld+json">, safe to inline in HTML. */
-export const ldJson = (data: unknown) => JSON.stringify(data).replaceAll('<', '\\u003c')
+const ldJson = (data: unknown) => JSON.stringify(data).replaceAll('<', '\\u003c')
 
 /**
  * Everything a public page needs in <head> for search engines, AI crawlers and link previews:
