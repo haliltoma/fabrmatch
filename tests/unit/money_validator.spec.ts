@@ -3,7 +3,10 @@ import vine from '@vinejs/vine'
 import { moneyMinor } from '#validators/money'
 
 const schema = vine.create({ amount: moneyMinor({ min: 1, max: 100_000_00 }) })
-const minorOf = async (amount: unknown) => (await schema.validate({ amount })).amount
+const minorOf = async (amount: unknown) => {
+  const { amount: minor } = await schema.validate({ amount })
+  return minor
+}
 
 test.group('money validator (no float maths)', () => {
   test('typed text and two-decimal numbers become exact minor units', async ({ assert }) => {

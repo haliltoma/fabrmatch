@@ -12,7 +12,8 @@
 */
 
 import { DateTime } from 'luxon'
-import { VineDate } from '@vinejs/vine'
+import vine, { SimpleMessagesProvider, VineDate } from '@vinejs/vine'
+import { FIELD_LABELS } from '#validators/field_labels'
 
 declare module '@vinejs/vine/types' {
   interface VineGlobalTransforms {
@@ -21,3 +22,6 @@ declare module '@vinejs/vine/types' {
 }
 
 VineDate.transform((value) => DateTime.fromJSDate(value))
+
+// readable field names in every message ("The postal code field…", not "The postalCode field…")
+vine.messagesProvider = new SimpleMessagesProvider({}, FIELD_LABELS)
