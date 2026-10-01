@@ -37,8 +37,8 @@ export type NotificationType = (typeof NOTIFICATION_TYPES)[number]
 
 export interface NotificationContext {
   code?: string
-  orderId?: number
-  disputeId?: number
+  orderId?: string
+  disputeId?: string
   amountMinor?: number
   currency?: string
   carrier?: string | null
@@ -49,7 +49,7 @@ export interface NotificationContext {
   ttlMinutes?: number
   /** RFQ code and title; the buyer's identity never goes with them */
   rfqCode?: string
-  rfqId?: number
+  rfqId?: string
   /** payout_action: what happened to the payee's tax details or purchase document */
   step?:
     | 'profile_approved'

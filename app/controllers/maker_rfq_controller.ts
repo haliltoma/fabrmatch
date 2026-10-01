@@ -37,7 +37,7 @@ export default class MakerRfqController {
   async show({ inertia, auth, params, response }: HttpContext) {
     const user = auth.getUserOrFail()
     await user.load('manufacturerProfile')
-    const rfq = await Rfq.find(Number(params.id))
+    const rfq = await Rfq.find(params.id)
     if (!rfq || !(await new RfqInviteService().isInvited(rfq.id, user.manufacturerProfile.id))) {
       return response.notFound()
     }
@@ -56,7 +56,7 @@ export default class MakerRfqController {
     const data = await request.validateUsing(rfqBidValidator)
     const user = auth.getUserOrFail()
     await user.load('manufacturerProfile')
-    await new RfqBidService().submit(Number(params.id), user.manufacturerProfile.id, {
+    await new RfqBidService().submit(params.id, user.manufacturerProfile.id, {
       unitPriceMinor: Math.round(data.price * 100),
       leadDays: data.leadDays,
       note: data.note,
@@ -68,7 +68,7 @@ export default class MakerRfqController {
   async withdraw({ response, auth, params, session }: HttpContext) {
     const user = auth.getUserOrFail()
     await user.load('manufacturerProfile')
-    await new RfqBidService().withdraw(Number(params.id), user.manufacturerProfile.id)
+    await new RfqBidService().withdraw(params.id, user.manufacturerProfile.id)
     session.flash('success', 'Offer withdrawn.')
     return response.redirect().toPath(`/maker/rfqs/${params.id}`)
   }

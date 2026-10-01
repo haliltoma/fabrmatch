@@ -14,6 +14,7 @@ import {
   orderPaymentStatus,
   orderStatus,
 } from '#tests/helpers/order_fixtures'
+import { uid } from '#tests/helpers/ids'
 
 const ledger = new LedgerService()
 
@@ -114,7 +115,7 @@ test.group('DisputeService', (group) => {
     const responded = await disputes.respond(dispute.id, profile.id, 'It shipped intact, see photo')
     assert.equal(responded.status, 'responded')
     await assert.rejects(
-      () => disputes.respond(dispute.id, profile.id + 999, 'not mine to answer'),
+      () => disputes.respond(dispute.id, uid(999), 'not mine to answer'),
       DisputeError as never
     )
   })

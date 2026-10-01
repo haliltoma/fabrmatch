@@ -16,6 +16,7 @@ import {
   createUser,
   ensureReferenceCatalog,
 } from '#tests/helpers/order_fixtures'
+import { uid } from '#tests/helpers/ids'
 
 const service = new FinishingService()
 
@@ -62,7 +63,7 @@ test.group('finishing options', (group) => {
     const { profile } = await createManufacturer()
     const all = await service.list({ activeOnly: true })
     const [sand, prime] = all
-    await service.setOffered(profile.id, [sand.id, prime.id, 999_999])
+    await service.setOffered(profile.id, [sand.id, prime.id, uid(999999)])
     assert.sameMembers(await service.offeredBy(profile.id), [sand.id, prime.id])
     await service.setOffered(profile.id, [sand.id])
     assert.deepEqual(await service.offeredBy(profile.id), [sand.id])

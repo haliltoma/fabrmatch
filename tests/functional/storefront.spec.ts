@@ -17,7 +17,7 @@ test.group('storefront (public)', (group) => {
     response.assertStatus(200)
     const props = response.body().props
     assert.deepEqual(
-      props.items.map((i: { id: number }) => i.id),
+      props.items.map((i: { id: string }) => i.id),
       [product.id]
     )
     assert.equal(props.total, 1)

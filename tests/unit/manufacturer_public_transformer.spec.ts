@@ -2,6 +2,7 @@ import { test } from '@japa/runner'
 import ManufacturerPublicTransformer from '#transformers/manufacturer_public_transformer'
 import ManufacturerProfile from '#models/manufacturer_profile'
 import app from '@adonisjs/core/services/app'
+import { uid } from '#tests/helpers/ids'
 
 test.group('ManufacturerPublicTransformer', () => {
   test('exposes only public alias, trust tier, and score', async ({ assert }) => {
@@ -13,7 +14,7 @@ test.group('ManufacturerPublicTransformer', () => {
     profile.country = 'TR'
     profile.ibanEnc = 'encrypted-iban-data'
     profile.taxIdEnc = 'encrypted-tax-id'
-    profile.userId = 99
+    profile.userId = uid(99)
 
     const item = ManufacturerPublicTransformer.transform(profile)
     const result = await item.resolve(app.container.createResolver(), 0)

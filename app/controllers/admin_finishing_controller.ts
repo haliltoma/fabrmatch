@@ -43,7 +43,7 @@ export default class AdminFinishingController {
   async update({ params, request, response, session, auth }: HttpContext) {
     const data = await request.validateUsing(finishingUpdateValidator)
     await new FinishingService().update(
-      Number(params.id),
+      params.id,
       {
         priceMinor: data.price === undefined ? undefined : Math.round(data.price * 100),
         isActive: data.isActive,

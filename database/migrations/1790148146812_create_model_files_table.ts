@@ -5,14 +5,8 @@ export default class extends BaseSchema {
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id')
-      table
-        .integer('owner_id')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('CASCADE')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
+      table.uuid('owner_id').notNullable().references('id').inTable('users').onDelete('CASCADE')
       table.string('storage_key', 512).notNullable().unique()
       table.string('original_name', 255).notNullable()
       table.enum('format', ['STL', '3MF', 'OBJ']).notNullable()

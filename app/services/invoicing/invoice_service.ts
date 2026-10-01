@@ -19,7 +19,7 @@ export default class InvoiceService {
   constructor(private provider: InvoiceProvider = new FakeInvoiceProvider()) {}
 
   /** The recipient's own invoices, newest first (voided ones stay listed with their status). */
-  async listForRecipient(userId: number, params: { page?: number; perPage?: number } = {}) {
+  async listForRecipient(userId: string, params: { page?: number; perPage?: number } = {}) {
     const { page, perPage } = pageParams(params)
     const paginator = await Invoice.query()
       .where('recipientUserId', userId)
@@ -30,7 +30,7 @@ export default class InvoiceService {
     return { rows: paginator.all(), meta: pageMeta(paginator.total, page, perPage) }
   }
 
-  async issueFor(orderId: number): Promise<Invoice | null> {
+  async issueFor(orderId: string): Promise<Invoice | null> {
     const order = await Order.findOrFail(orderId)
     if (order.status !== 'completed' && order.status !== 'resolved') return null
     if (order.platformFeeMinor <= 0) return null
@@ -113,7 +113,7 @@ export default class InvoiceService {
         order by o.id limit 100`
     )
     let issued = 0
-    for (const { id } of missing.rows as Array<{ id: number }>) {
+    for (const { id } of missing.rows as Array<{ id: string }>) {
       try {
         if (await this.issueFor(id)) issued++
       } catch (error) {
@@ -169,7 +169,7 @@ export default class InvoiceService {
   }
 
   /** Printable page for the invoice's recipient. */
-  async htmlFor(invoiceId: number, userId: number): Promise<string | null> {
+  async htmlFor(invoiceId: string, userId: string): Promise<string | null> {
     const invoice = await Invoice.query()
       .where('id', invoiceId)
       .where('recipientUserId', userId)

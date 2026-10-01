@@ -9,10 +9,10 @@ export default class UserRole extends BaseModel {
   static table = 'user_roles'
 
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
 
   @column()
-  declare userId: number
+  declare userId: string
 
   @column()
   declare role: Role

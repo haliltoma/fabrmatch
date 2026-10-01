@@ -29,7 +29,7 @@ export interface PricingItemInput {
   color?: string | null
   quantity: number
   infill?: number
-  printProfileId?: number | null
+  printProfileId?: string | null
   /** post-processing option code (sanding, painting…) */
   finishing?: string | null
   /** paint colour for a finishing that needs one */
@@ -56,9 +56,9 @@ export async function slicedNumbers(
 
 export interface PricedItem {
   scalePercent: number
-  modelFileId: number
+  modelFileId: string
   technology: PrinterTechnology
-  printProfileId: number | null
+  printProfileId: string | null
   finishingCode: string | null
   finishingColour: string | null
   finishingName: string | null
@@ -96,7 +96,7 @@ export interface PricedOrder {
   /** Set for foreign-currency orders: the stored rate row and the locked rate (margin included). */
   fx: LockedRate | null
   /** The pricing region whose rules priced the order (from the delivery country). */
-  pricingRegionId: number
+  pricingRegionId: string
 }
 
 /**

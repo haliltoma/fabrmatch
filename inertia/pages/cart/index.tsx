@@ -16,7 +16,7 @@ import { Money } from '~/components/money'
 import { PageHeader } from '~/components/page_header'
 
 type Line = {
-  id: number
+  id: string
   fileName: string
   material: string
   profileName: string | null

@@ -4,7 +4,7 @@ import RfqBid from '#models/rfq_bid'
 import MakerStatsService from '#services/manufacturing/maker_stats_service'
 
 export interface BuyerBidView {
-  id: number
+  id: string
   /** "Offer 1", "Offer 2"… — stable within this request, never the maker's alias or name */
   label: string
   unitPriceMinor: number

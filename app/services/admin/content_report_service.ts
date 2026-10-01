@@ -15,8 +15,8 @@ type Reason = (typeof REPORT_REASONS)[number]
 /** "Report this" from the shop plus the admin decision: block the model, or dismiss. */
 export default class ContentReportService {
   async report(
-    reporterId: number,
-    input: { sellerProductId: number; reason: Reason; details?: string | null }
+    reporterId: string,
+    input: { sellerProductId: string; reason: Reason; details?: string | null }
   ) {
     const product = await SellerProduct.query()
       .where('id', input.sellerProductId)
@@ -45,7 +45,7 @@ export default class ContentReportService {
     const rows = await ContentReport.query().where('status', 'open').orderBy('id', 'asc')
     const products = await SellerProduct.query().whereIn(
       'id',
-      rows.map((r) => r.sellerProductId).filter((id): id is number => id !== null)
+      rows.map((r) => r.sellerProductId).filter((id): id is string => id !== null)
     )
     const byId = new Map(products.map((p) => [p.id, p]))
     return rows.map((r) => ({
@@ -59,7 +59,7 @@ export default class ContentReportService {
   }
 
   /** Blocks the model behind the listing for good (orders and downloads stop) and closes every open report on it. */
-  async block(reportId: number, adminId: number, reason: string) {
+  async block(reportId: string, adminId: string, reason: string) {
     await db.transaction(async (trx) => {
       const report = await ContentReport.query({ client: trx })
         .where('id', reportId)
@@ -107,7 +107,7 @@ export default class ContentReportService {
     })
   }
 
-  async dismiss(reportId: number, adminId: number) {
+  async dismiss(reportId: string, adminId: string) {
     const changed = await ContentReport.query()
       .where('id', reportId)
       .where('status', 'open')

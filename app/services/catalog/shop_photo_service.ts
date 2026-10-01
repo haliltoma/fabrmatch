@@ -24,17 +24,17 @@ const CONTENT_TYPES: Record<string, string> = {
  */
 export default class ShopPhotoService {
   /** Model files of this job's order that are sold in the shop (active catalog products). */
-  async shopModelFileIds(orderId: number): Promise<number[]> {
+  async shopModelFileIds(orderId: string): Promise<string[]> {
     const rows = await db
       .from('order_items as oi')
       .join('catalog_products as cp', 'cp.model_file_id', 'oi.model_file_id')
       .where('oi.order_id', orderId)
       .where('cp.is_active', true)
       .distinct('oi.model_file_id')
-    return rows.map((r) => r.model_file_id as number)
+    return rows.map((r) => r.model_file_id as string)
   }
 
-  async offer(qcPhotoId: number, manufacturerProfileId: number, userId: number) {
+  async offer(qcPhotoId: string, manufacturerProfileId: string, userId: string) {
     const photo = await JobQcPhoto.find(qcPhotoId)
     const job = photo ? await ProductionJob.find(photo.productionJobId) : null
     if (!photo || !job || job.manufacturerProfileId !== manufacturerProfileId) {
@@ -68,7 +68,7 @@ export default class ShopPhotoService {
   }
 
   /** Offered state per QC photo, for the maker's job cards. */
-  async statusByQcPhoto(qcPhotoIds: number[]): Promise<Record<number, string>> {
+  async statusByQcPhoto(qcPhotoIds: string[]): Promise<Record<string, string>> {
     if (qcPhotoIds.length === 0) return {}
     const rows = await ProductImage.query().whereIn('qcPhotoId', qcPhotoIds)
     return Object.fromEntries(rows.map((r) => [r.qcPhotoId!, r.status]))
@@ -87,7 +87,7 @@ export default class ShopPhotoService {
         rows.map((r) => r.modelFileId)
       )
       .select('model_file_id', 'title')
-    const titleOf = new Map(titles.map((r) => [r.model_file_id as number, r.title as string]))
+    const titleOf = new Map(titles.map((r) => [r.model_file_id as string, r.title as string]))
     return rows.map((r) => ({
       id: r.id,
       url: `/admin/images/${r.id}`,
@@ -96,7 +96,7 @@ export default class ShopPhotoService {
     }))
   }
 
-  async review(imageId: number, decision: 'approve' | 'reject', adminId: number) {
+  async review(imageId: string, decision: 'approve' | 'reject', adminId: string) {
     await db.transaction(async (trx) => {
       const image = await ProductImage.query({ client: trx })
         .where('id', imageId)

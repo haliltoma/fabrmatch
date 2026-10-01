@@ -14,7 +14,7 @@ import { SkeletonGrid } from '~/components/ui/skeleton'
 import { useSamePageLoading } from '~/lib/use_navigation'
 
 type ProductCard = {
-  id: number
+  id: string
   slug: string
   title: string
   description: string | null

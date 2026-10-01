@@ -28,7 +28,7 @@ type OfferItem = {
 }
 
 type OfferData = {
-  id: number
+  id: string
   round: number
   status: string
   expiresAt: string
@@ -53,7 +53,7 @@ type ShipTo = {
 } | null
 
 type JobData = {
-  id: number
+  id: string
   status: string
   acceptedAt: string
   dueAt: string
@@ -63,16 +63,16 @@ type JobData = {
   rating: number | null
   qcPhotoCount: number
   dispute: {
-    id: number
+    id: string
     status: string
     reason: string
     manufacturerResponse: string | null
     resolution: string | null
     refundMinor: number
-    evidence: Array<{ id: number; note: string | null; by: 'buyer' | 'manufacturer' }>
+    evidence: Array<{ id: string; note: string | null; by: 'buyer' | 'manufacturer' }>
   } | null
   order: {
-    id: number
+    id: string
     code: string
     status: string
     shipCountry: string
@@ -82,7 +82,7 @@ type JobData = {
     shipTo: ShipTo
   }
   files: Array<{
-    grantId: number
+    grantId: string
     label: string
     expiresAt: string
     downloadsLeft: number
@@ -368,7 +368,7 @@ function ShipForm({ job }: { job: JobData }) {
   )
 }
 
-async function downloadGrant(grantId: number) {
+async function downloadGrant(grantId: string) {
   try {
     const { url } = await postJson<{ url: string }>(`/maker/grants/${grantId}/download`)
     window.open(url, '_blank', 'noopener')
@@ -484,7 +484,7 @@ function DisputeBox({ dispute }: { dispute: NonNullable<JobData['dispute']> }) {
   )
 }
 
-type ShopPhoto = { id: number; url: string; status: string | null }
+type ShopPhoto = { id: string; url: string; status: string | null }
 
 /** A shop product was printed: the maker may offer a QC photo; an admin checks it first. */
 function ShopPhotos({ photos }: { photos: ShopPhoto[] }) {
@@ -618,7 +618,7 @@ export type WorkPageProps = {
   offers: OfferData[]
   jobs: JobData[]
   offersChannel: string
-  shopPhotos: Record<number, ShopPhoto[]>
+  shopPhotos: Record<string, ShopPhoto[]>
 }
 
 export default function WorkIndex({ offers, jobs, shopPhotos }: WorkPageProps) {

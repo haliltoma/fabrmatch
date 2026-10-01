@@ -45,7 +45,7 @@ export default class LandingService {
     return '/files'
   }
 
-  private async hasOpenOffers(manufacturerProfileId: number): Promise<boolean> {
+  private async hasOpenOffers(manufacturerProfileId: string): Promise<boolean> {
     const offer = await MatchOffer.query()
       .where('manufacturerProfileId', manufacturerProfileId)
       .where('status', 'pending')

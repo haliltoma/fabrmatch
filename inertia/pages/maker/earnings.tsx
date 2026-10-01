@@ -18,7 +18,7 @@ type Total = {
   paidThisMonthMinor: number
 }
 type PayoutRow = {
-  id: number
+  id: string
   orderCode: string
   amountMinor: number
   currency: string

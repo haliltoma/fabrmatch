@@ -31,7 +31,7 @@ export function regionalReferenceMinor(
 /** What browse prices (shop, quotes) need from a region, resolved once per request. */
 export interface BrowseTerms {
   country: string
-  regionId: number
+  regionId: string
   commissionBps?: number
   rounding: RoundingRule
   referenceFor(material: string): number | null
@@ -97,7 +97,7 @@ export class PricingRegionAdmin {
       .orderBy('id', 'asc')
   }
 
-  async create(data: { code: string; name: string } & RegionChanges, adminId: number) {
+  async create(data: { code: string; name: string } & RegionChanges, adminId: string) {
     const code = data.code.trim().toUpperCase()
     if (!/^[A-Z0-9]{2,16}$/.test(code)) {
       throw new PricingRegionError('A region code is 2 to 16 letters or digits')
@@ -123,7 +123,7 @@ export class PricingRegionAdmin {
     })
   }
 
-  async update(id: number, changes: RegionChanges, adminId: number) {
+  async update(id: string, changes: RegionChanges, adminId: string) {
     return db.transaction(async (trx) => {
       const region = await PricingRegion.query({ client: trx })
         .where('id', id)
@@ -146,10 +146,10 @@ export class PricingRegionAdmin {
 
   /** A region's own price per gram for one material; null removes it (back to the multiplier). */
   async setMaterialPrice(
-    regionId: number,
+    regionId: string,
     material: string,
     pricePerGramMinor: number | null,
-    adminId: number
+    adminId: string
   ) {
     const code = material.trim().toUpperCase()
     if (!REFERENCE_PRICES[code]) throw new PricingRegionError(`Unknown material: ${code}`)
@@ -240,8 +240,10 @@ export class PricingRegionAdmin {
       if (countries.some((c) => !/^[A-Z]{2}$/.test(c))) {
         throw new PricingRegionError('Countries are two-letter codes, like DE or GB')
       }
-      const taken = await PricingRegion.query({ client: trx })
-        .whereNot('id', region.id ?? 0)
+      const others = PricingRegion.query({ client: trx })
+      // a new region (no id yet) clashes with any existing one
+      if (region.id) others.whereNot('id', region.id)
+      const taken = await others
         .whereRaw('jsonb_exists_any(countries, ?::text[])', [countries])
         .first()
       if (taken) {

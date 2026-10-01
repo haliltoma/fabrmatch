@@ -3,25 +3,17 @@ import { BaseSchema } from '@adonisjs/lucid/schema'
 export default class extends BaseSchema {
   async up() {
     this.schema.createTable('cart_items', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
+      table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE')
       table
-        .integer('user_id')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('CASCADE')
-      table
-        .integer('model_file_id')
-        .unsigned()
+        .uuid('model_file_id')
         .notNullable()
         .references('id')
         .inTable('model_files')
         .onDelete('CASCADE')
       table.string('material', 32).notNullable()
       table
-        .integer('print_profile_id')
-        .unsigned()
+        .uuid('print_profile_id')
         .nullable()
         .references('id')
         .inTable('print_profiles')

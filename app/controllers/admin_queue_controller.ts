@@ -75,7 +75,7 @@ export default class AdminQueueController {
 
   async shopPhotoDecision({ params, request, response, session, auth }: HttpContext) {
     const { decision } = await request.validateUsing(makerValidator)
-    await new ShopPhotoService().review(Number(params.id), decision, auth.getUserOrFail().id)
+    await new ShopPhotoService().review(params.id, decision, auth.getUserOrFail().id)
     session.flash(
       'success',
       decision === 'approve' ? 'Photo is now in the shop.' : 'Photo rejected.'
@@ -84,7 +84,7 @@ export default class AdminQueueController {
   }
 
   async rematch({ params, response, session, auth }: HttpContext) {
-    const offer = await new MatchingService().restart(Number(params.id), auth.getUserOrFail().id)
+    const offer = await new MatchingService().restart(params.id, auth.getUserOrFail().id)
     session.flash(
       'success',
       offer ? 'Matching restarted — an offer is out.' : 'Matching restarted, no maker is eligible.'
@@ -95,7 +95,7 @@ export default class AdminQueueController {
   async fraudDecision({ params, request, response, session, auth }: HttpContext) {
     const { decision } = await request.validateUsing(fraudDecisionValidator)
     const adminId = auth.getUserOrFail().id
-    const orderId = Number(params.id)
+    const orderId = params.id
     const fraud = new FraudService()
     if (decision === 'clear') {
       if (await fraud.clear(orderId, adminId)) {
@@ -115,10 +115,10 @@ export default class AdminQueueController {
     const service = new ContentReportService()
     const adminId = auth.getUserOrFail().id
     if (decision === 'block') {
-      await service.block(Number(params.id), adminId, reason ?? '')
+      await service.block(params.id, adminId, reason ?? '')
       session.flash('success', 'Model blocked and listings hidden.')
     } else {
-      await service.dismiss(Number(params.id), adminId)
+      await service.dismiss(params.id, adminId)
       session.flash('success', 'Report dismissed.')
     }
     return response.redirect().toPath('/admin/queues')
@@ -128,8 +128,8 @@ export default class AdminQueueController {
     const { decision, note } = await request.validateUsing(chargebackValidator)
     const service = new ChargebackService()
     const adminId = auth.getUserOrFail().id
-    if (decision === 'won') await service.won(Number(params.id), adminId, note)
-    else await service.lost(Number(params.id), adminId, note)
+    if (decision === 'won') await service.won(params.id, adminId, note)
+    else await service.lost(params.id, adminId, note)
     session.flash(
       'success',
       decision === 'won' ? 'Marked won — payouts can proceed.' : 'Marked lost.'
@@ -138,7 +138,7 @@ export default class AdminQueueController {
   }
 
   async supportAnswered({ params, response, session, auth }: HttpContext) {
-    await new SupportService().markAnswered(Number(params.id), auth.getUserOrFail().id)
+    await new SupportService().markAnswered(params.id, auth.getUserOrFail().id)
     session.flash('success', 'Marked as answered.')
     return response.redirect().toPath('/admin/queues')
   }
@@ -152,7 +152,7 @@ export default class AdminQueueController {
 
   async decideMaker({ params, request, response, session, auth }: HttpContext) {
     const { decision } = await request.validateUsing(makerValidator)
-    await new AdminQueueService().decideMaker(Number(params.id), decision, auth.getUserOrFail().id)
+    await new AdminQueueService().decideMaker(params.id, decision, auth.getUserOrFail().id)
     session.flash('success', decision === 'approve' ? 'Maker approved.' : 'Maker rejected.')
     return response.redirect().toPath('/admin/queues')
   }

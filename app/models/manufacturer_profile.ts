@@ -10,10 +10,10 @@ export default class ManufacturerProfile extends BaseModel {
   static table = 'manufacturer_profiles'
 
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
 
   @column()
-  declare userId: number
+  declare userId: string
 
   @column()
   declare publicAlias: string

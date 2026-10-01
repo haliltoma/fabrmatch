@@ -3,14 +3,8 @@ import { BaseSchema } from '@adonisjs/lucid/schema'
 export default class extends BaseSchema {
   async up() {
     this.schema.createTable('support_requests', (table) => {
-      table.increments('id')
-      table
-        .integer('user_id')
-        .unsigned()
-        .nullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('SET NULL')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
+      table.uuid('user_id').nullable().references('id').inTable('users').onDelete('SET NULL')
       table.string('email', 254).notNullable()
       table.string('topic', 30).notNullable()
       table.string('order_code', 20).nullable()

@@ -28,7 +28,7 @@ export default class RunHealthCheck extends Job<Record<string, never>> {
       actorId: null,
       action: 'health.alarm',
       subjectType: 'system',
-      subjectId: 0,
+      subjectId: null,
       meta: { alarms: now.split(','), status: report.status },
     })
   }

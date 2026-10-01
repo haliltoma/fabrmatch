@@ -58,13 +58,13 @@ export function isHardBlocker(reason: Reason): boolean {
 }
 
 export interface PrinterVerdict {
-  printerId: number
+  printerId: string
   name: string
   reasons: Reason[]
 }
 
 export interface MakerVerdict {
-  manufacturerProfileId: number
+  manufacturerProfileId: string
   alias: string
   name: string | null
   city: string | null
@@ -79,7 +79,7 @@ export interface MakerVerdict {
 }
 
 interface ExplainOptions {
-  offeredStatuses?: Map<number, string>
+  offeredStatuses?: Map<string, string>
   now?: DateTime
 }
 
@@ -98,7 +98,7 @@ export default class EligibilityExplainer {
     const from = now.toISODate()!
     const days = await productionDaysForOrder({ id: order.id, channel: order.channel, items })
     const to = now.plus({ days }).toISODate()!
-    const offered = options.offeredStatuses ?? new Map<number, string>()
+    const offered = options.offeredStatuses ?? new Map<string, string>()
     const checkPrice = order.channel !== 'rfq'
     const references = await orderReferences(
       order,
@@ -168,7 +168,7 @@ export default class EligibilityExplainer {
           technology,
           requiredMinutes,
           checkPrice,
-          wantedProfiles: wantedProfiles as number[],
+          wantedProfiles: wantedProfiles as string[],
           offeredProfiles: printerProfiles.get(printer.id),
           days,
           references,
@@ -201,8 +201,8 @@ export default class EligibilityExplainer {
       technology: string | undefined
       requiredMinutes: number
       checkPrice: boolean
-      wantedProfiles: number[]
-      offeredProfiles: Set<number> | undefined
+      wantedProfiles: string[]
+      offeredProfiles: Set<string> | undefined
       days: number
       references: Map<string, number | null>
     }
@@ -283,34 +283,34 @@ export default class EligibilityExplainer {
     return []
   }
 
-  private async rfqAwardee(orderId: number): Promise<number | null> {
+  private async rfqAwardee(orderId: string): Promise<string | null> {
     const awarded = await db
       .from('rfqs')
       .join('rfq_bids', 'rfq_bids.id', 'rfqs.awarded_bid_id')
       .where('rfqs.order_id', orderId)
       .select('rfq_bids.manufacturer_profile_id as maker')
       .first()
-    // no awarded bid → nobody is eligible; -1 matches no profile
-    return awarded ? awarded.maker : -1
+    // no awarded bid → nobody is eligible; an empty id matches no profile
+    return awarded ? awarded.maker : ''
   }
 
   private async printerProfiles(printers: Printer[]) {
-    const map = new Map<number, Set<number>>()
+    const map = new Map<string, Set<string>>()
     if (printers.length === 0) return map
     const rows = await db.from('printer_print_profiles').whereIn(
       'printer_id',
       printers.map((p) => p.id)
     )
     for (const row of rows) {
-      const set = map.get(row.printer_id) ?? new Set<number>()
+      const set = map.get(row.printer_id) ?? new Set<string>()
       set.add(row.print_profile_id)
       map.set(row.printer_id, set)
     }
     return map
   }
 
-  private async printerCounts(profileIds: number[]) {
-    const map = new Map<number, number>()
+  private async printerCounts(profileIds: string[]) {
+    const map = new Map<string, number>()
     if (profileIds.length === 0) return map
     const rows = await db
       .from('printers')
@@ -322,8 +322,8 @@ export default class EligibilityExplainer {
     return map
   }
 
-  private async finishings(profileIds: number[]) {
-    const map = new Map<number, Set<string>>()
+  private async finishings(profileIds: string[]) {
+    const map = new Map<string, Set<string>>()
     if (profileIds.length === 0) return map
     const rows = await db
       .from('manufacturer_finishings as mf')

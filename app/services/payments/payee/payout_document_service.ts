@@ -60,9 +60,9 @@ export default class PayoutDocumentService {
   }
 
   async submitInvoice(
-    userId: number,
+    userId: string,
     payee: Payee,
-    payoutId: number,
+    payoutId: string,
     input: InvoiceInput,
     file: Buffer
   ) {
@@ -155,8 +155,8 @@ export default class PayoutDocumentService {
 
   /** Approve → the payout joins the next bank transfer; reject → the payee uploads a new one. */
   async reviewInvoice(
-    adminId: number,
-    documentId: number,
+    adminId: string,
+    documentId: string,
     approve: boolean,
     reason?: string | null
   ) {
@@ -250,7 +250,7 @@ export default class PayoutDocumentService {
       .orderBy('id', 'asc')
   }
 
-  async file(documentId: number) {
+  async file(documentId: string) {
     const document = await PayoutDocument.findOrFail(documentId)
     if (!document.fileKey || !document.fileContentType) return null
     return {
@@ -263,7 +263,7 @@ export default class PayoutDocumentService {
    * Printable expense voucher (gider pusulası, VUK 234). `payee` limits it to that payee's own
    * vouchers; the admin passes null. Shows the payee's full tax number: it is their document.
    */
-  async voucherHtml(payoutId: number, payee: Payee | null): Promise<string | null> {
+  async voucherHtml(payoutId: string, payee: Payee | null): Promise<string | null> {
     const query = Payout.query().where('id', payoutId).preload('order').preload('document')
     if (payee) query.where('beneficiaryType', payee.type).where('beneficiaryId', payee.id)
     const payout = await query.first()

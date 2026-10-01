@@ -255,11 +255,11 @@ export class FakeIyzico {
 export class MemorySubMerchantDirectory implements SubMerchantDirectory {
   keys = new Map<string, string>()
 
-  async find(type: 'manufacturer' | 'seller', id: number) {
+  async find(type: 'manufacturer' | 'seller', id: string) {
     return this.keys.get(`${type}:${id}`) ?? null
   }
 
-  async save(type: 'manufacturer' | 'seller', id: number, key: string) {
+  async save(type: 'manufacturer' | 'seller', id: string, key: string) {
     this.keys.set(`${type}:${id}`, key)
   }
 

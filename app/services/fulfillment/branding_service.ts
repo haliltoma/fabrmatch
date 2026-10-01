@@ -29,7 +29,7 @@ export function logoType(bytes: Buffer): { contentType: string; ext: string } | 
 }
 
 export default class BrandingService {
-  async get(userId: number) {
+  async get(userId: string) {
     const profile = await SellerProfile.query().where('userId', userId).firstOrFail()
     return {
       brandName: profile.brandName,
@@ -39,7 +39,7 @@ export default class BrandingService {
   }
 
   /** Replaces the seller's logo; the old file is removed. */
-  async saveLogo(userId: number, bytes: Buffer) {
+  async saveLogo(userId: string, bytes: Buffer) {
     if (bytes.length === 0) throw new BrandingError('Choose an image')
     if (bytes.length > MAX_LOGO_BYTES) throw new BrandingError('The logo can be at most 256 KB')
     const type = logoType(bytes)
@@ -56,7 +56,7 @@ export default class BrandingService {
     return profile
   }
 
-  async removeLogo(userId: number) {
+  async removeLogo(userId: string) {
     const profile = await SellerProfile.query().where('userId', userId).firstOrFail()
     if (!profile.logoKey) return
     await drive
@@ -80,7 +80,7 @@ export default class BrandingService {
   }
 
   /** The seller's own name and thank-you line for the parcel. Blank clears it (the neutral slip is used). */
-  async save(userId: number, input: { brandName?: string | null; brandMessage?: string | null }) {
+  async save(userId: string, input: { brandName?: string | null; brandMessage?: string | null }) {
     const name = clean(input.brandName ?? '')
     const message = clean(input.brandMessage ?? '')
     if (name.length > 0 && name.length < 2) throw new BrandingError('The brand name is too short')

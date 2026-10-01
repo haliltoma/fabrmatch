@@ -14,7 +14,7 @@ import { SkeletonList } from '~/components/ui/skeleton'
 import { useSamePageLoading } from '~/lib/use_navigation'
 
 type Row = {
-  id: number
+  id: string
   email: string
   fullName: string | null
   roles: string[]

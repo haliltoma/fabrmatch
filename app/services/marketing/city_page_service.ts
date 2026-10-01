@@ -36,13 +36,13 @@ export default class CityPageService {
       .where('mp.status', 'active')
       .whereNotNull('mp.city')
       .select('mp.id', 'mp.city', 'mp.country')
-    const byCity = new Map<string, { city: string; country: string; ids: Set<number> }>()
+    const byCity = new Map<string, { city: string; country: string; ids: Set<string> }>()
     for (const m of makers) {
       const key = cityKey(m.city, m.country)
       const entry = byCity.get(key) ?? {
         city: String(m.city).trim(),
         country: String(m.country).toUpperCase(),
-        ids: new Set<number>(),
+        ids: new Set<string>(),
       }
       entry.ids.add(m.id)
       byCity.set(key, entry)
@@ -71,12 +71,12 @@ export default class CityPageService {
       const here = rates.filter((r) => cityKey(r.city, r.country) === key)
       const perMaterial = new Map<
         string,
-        { makers: Set<number>; min: number; max: number; currency: string }
+        { makers: Set<string>; min: number; max: number; currency: string }
       >()
       for (const r of here) {
         const code = String(r.material).toUpperCase()
         const m = perMaterial.get(`${code}|${r.currency}`) ?? {
-          makers: new Set<number>(),
+          makers: new Set<string>(),
           min: Number.MAX_SAFE_INTEGER,
           max: 0,
           currency: String(r.currency),

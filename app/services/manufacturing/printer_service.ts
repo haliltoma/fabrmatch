@@ -8,7 +8,7 @@ import type ManufacturerProfile from '#models/manufacturer_profile'
 
 interface CreatePrinterData {
   name: string
-  printerModelId?: number | null
+  printerModelId?: string | null
   technology: 'FDM' | 'SLA' | 'SLS'
   buildVolumeXMm: number
   buildVolumeYMm: number
@@ -47,7 +47,7 @@ export default class PrinterService {
     return PrinterModel.query().orderBy('brand', 'asc').orderBy('model', 'asc')
   }
 
-  private async assertModelExists(id: number): Promise<void> {
+  private async assertModelExists(id: string): Promise<void> {
     const model = await PrinterModel.find(id)
     if (!model) throw new DomainError('Unknown printer model')
   }
@@ -104,7 +104,7 @@ export default class PrinterService {
     await material.delete()
   }
 
-  async findPrinterForProfile(printerId: number, profileId: number): Promise<Printer | null> {
+  async findPrinterForProfile(printerId: string, profileId: string): Promise<Printer | null> {
     return Printer.query()
       .where('id', printerId)
       .where('manufacturerProfileId', profileId)

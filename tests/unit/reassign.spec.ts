@@ -39,7 +39,7 @@ async function inProduction() {
   return { order, maker, printer, job, matching }
 }
 
-const reserved = async (printerId: number) =>
+const reserved = async (printerId: string) =>
   (await CapacitySlot.query().where('printerId', printerId)).reduce(
     (a, s) => a + s.reservedMinutes,
     0

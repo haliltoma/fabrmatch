@@ -8,17 +8,11 @@ export default class extends BaseSchema {
     })
 
     this.schema.createTable('invoices', (table) => {
-      table.increments('id')
-      table
-        .integer('order_id')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('orders')
-        .onDelete('RESTRICT')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
+      table.uuid('order_id').notNullable().references('id').inTable('orders').onDelete('RESTRICT')
       // the platform's own invoice for its commission; makers and sellers invoice their own share
       table.enum('kind', ['platform_fee']).notNullable().defaultTo('platform_fee')
-      table.integer('recipient_user_id').unsigned().notNullable().references('id').inTable('users')
+      table.uuid('recipient_user_id').notNullable().references('id').inTable('users')
       table.string('number', 24).notNullable().unique()
       table.integer('net_minor').notNullable()
       table.integer('tax_rate_bps').notNullable()

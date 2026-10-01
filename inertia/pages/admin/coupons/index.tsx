@@ -11,7 +11,7 @@ import { formatDate, formatMoney } from '~/lib/format'
 import { useT } from '~/lib/i18n'
 
 type Coupon = {
-  id: number
+  id: string
   code: string
   kind: 'percent' | 'fixed'
   value: number

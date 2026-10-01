@@ -5,10 +5,10 @@ import Printer from '#models/printer'
 
 export default class CapacitySlot extends BaseModel {
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
 
   @column()
-  declare printerId: number
+  declare printerId: string
 
   @column()
   declare date: string

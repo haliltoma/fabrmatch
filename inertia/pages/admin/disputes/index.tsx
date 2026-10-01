@@ -10,7 +10,7 @@ import { PageHeader } from '~/components/page_header'
 import { EmptyState } from '~/components/empty_state'
 
 type DisputeRow = {
-  id: number
+  id: string
   status: string
   resolution: string | null
   orderCode: string

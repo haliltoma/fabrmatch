@@ -32,7 +32,7 @@ test.group('buyer journey (browser)', (group) => {
     await page.getByLabel('Postal code').fill('34000')
     await page.getByRole('button', { name: 'Continue to payment' }).click()
 
-    await page.waitForURL(/\/orders\/\d+$/)
+    await page.waitForURL(/\/orders\/[0-9a-f-]{36}$/)
     const orders = await Order.query().where('buyerId', user.id)
     assert.lengthOf(orders, 1)
     assert.equal(orders[0].status, 'draft')

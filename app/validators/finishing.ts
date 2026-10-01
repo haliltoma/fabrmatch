@@ -16,5 +16,5 @@ export const finishingUpdateValidator = vine.create({
 })
 
 export const makerFinishingValidator = vine.create({
-  optionIds: vine.array(vine.number().withoutDecimals().positive()).maxLength(50),
+  optionIds: vine.array(vine.string().uuid()).maxLength(50),
 })

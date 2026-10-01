@@ -3,7 +3,7 @@ import { BaseSchema } from '@adonisjs/lucid/schema'
 export default class extends BaseSchema {
   async up() {
     this.schema.createTable('fx_rates', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table.string('currency', 3).notNullable()
       // units of `currency` per 1 TRY, scaled by 1e9 (integer only, no floats); no digits in the name, Lucid's snake_case would break it
       table.bigInteger('rate_nano').notNullable()
@@ -13,7 +13,7 @@ export default class extends BaseSchema {
       table.unique(['currency', 'as_of'])
     })
     this.schema.alterTable('orders', (table) => {
-      table.integer('fx_rate_id').unsigned().nullable().references('id').inTable('fx_rates')
+      table.uuid('fx_rate_id').nullable().references('id').inTable('fx_rates')
       // the rate this order was priced with (margin included); null for TRY orders
       table.bigInteger('fx_rate_nano').nullable()
       // TRY equivalent of total_minor: trust-tier and fraud limits, GMV

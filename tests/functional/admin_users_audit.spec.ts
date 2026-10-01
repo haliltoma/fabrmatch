@@ -22,7 +22,7 @@ const n = async (search: Promise<Found>) => {
   const result = await search
   return result.rows.length
 }
-const ids = async (search: Promise<{ rows: Array<{ id: number }> }>) => {
+const ids = async (search: Promise<{ rows: Array<{ id: string }> }>) => {
   const result = await search
   return result.rows.map((r) => r.id)
 }
@@ -124,17 +124,17 @@ test.group('audit search', (group) => {
 
   test('filters by action family, subject, actor and date', async ({ assert }) => {
     const search = new AuditSearchService()
-    const mk = (action: string, subjectType: string, subjectId: number, actorId: number | null) =>
+    const mk = (action: string, subjectType: string, subjectId: string, actorId: string | null) =>
       AuditLog.create({ action, subjectType, subjectId, actorId, meta: {} })
     const actorA = await createUser('actor')
     const actorB = await createUser('actor')
-    await mk('order.transition', 'order', 7, null)
-    await mk('order.cancelled', 'order', 8, actorA.id)
-    await mk('user.suspended', 'user', 3, actorB.id)
+    await mk('order.transition', 'order', uid(7), null)
+    await mk('order.cancelled', 'order', uid(8), actorA.id)
+    await mk('user.suspended', 'user', uid(3), actorB.id)
 
     assert.equal(await n(search.search({ action: 'order.' })), 2)
     assert.equal(await n(search.search({ action: 'user.suspended' })), 1)
-    assert.equal(await n(search.search({ subjectType: 'order', subjectId: 8 })), 1)
+    assert.equal(await n(search.search({ subjectType: 'order', subjectId: uid(8) })), 1)
     assert.equal(await n(search.search({ actorId: actorA.id })), 1)
     assert.equal(await n(search.search({ from: '2999-01-01' })), 0)
     assert.equal(await n(search.search({ from: '2000-01-01', to: '2999-01-01' })), 3)
@@ -161,6 +161,7 @@ import FakePaymentProvider from '#services/payments/fake_provider'
 import PayoutService from '#services/payments/payout_service'
 import OrderHealthService from '#services/admin/order_health_service'
 import { createFundedOrder } from '#tests/helpers/order_fixtures'
+import { uid } from '#tests/helpers/ids'
 
 test.group('order health view (X-4)', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
@@ -184,7 +185,7 @@ test.group('order health view (X-4)', (group) => {
       health!.timeline.map((t) => t.action),
       'order.transition'
     )
-    assert.isNull(await new OrderHealthService().show(999999))
+    assert.isNull(await new OrderHealthService().show(uid(999999)))
   })
 
   test('list search by code and the admin routes', async ({ client, assert }) => {

@@ -34,7 +34,7 @@ export function computeTier(stats: ManufacturerStats | undefined): 0 | 1 | 2 {
 }
 
 export interface TierChange {
-  profileId: number
+  profileId: string
   from: number
   to: number
 }
@@ -68,9 +68,9 @@ export default class TrustTierService {
   }
 
   private async apply(
-    profileId: number,
+    profileId: string,
     target: number,
-    stats: Map<number, ManufacturerStats>
+    stats: Map<string, ManufacturerStats>
   ): Promise<TierChange | null> {
     return db.transaction(async (trx) => {
       const profile = await ManufacturerProfile.query({ client: trx })
@@ -106,7 +106,7 @@ export default class TrustTierService {
   }
 
   /** Admin override: pins the tier (any 0–3) so the nightly job leaves it alone. */
-  async setByAdmin(profileId: number, tier: number, adminId: number, note?: string) {
+  async setByAdmin(profileId: string, tier: number, adminId: string, note?: string) {
     if (!Number.isInteger(tier) || tier < 0 || tier > MAX_TIER) {
       throw new TrustTierError(`Tier must be a whole number from 0 to ${MAX_TIER}`)
     }
@@ -135,7 +135,7 @@ export default class TrustTierService {
   }
 
   /** Hands the tier back to the nightly calculation and applies it right away. */
-  async unlock(profileId: number, adminId: number) {
+  async unlock(profileId: string, adminId: string) {
     const stats = await this.stats.load([profileId])
     await db.transaction(async (trx) => {
       const profile = await ManufacturerProfile.query({ client: trx })

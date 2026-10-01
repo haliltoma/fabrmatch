@@ -13,19 +13,19 @@ import { EmptyState } from '~/components/empty_state'
 import { useT } from '~/lib/i18n'
 
 type ProductData = {
-  id: number
+  id: string
   title: string
   slug: string
   description: string | null
   allowedMaterials: string[]
   isActive: boolean
-  modelFileId: number | null
-  categoryId: number | null
+  modelFileId: string | null
+  categoryId: string | null
   tags: string[]
 }
 
-type ModelFileOption = { id: number; name: string }
-type CategoryOption = { id: number; name: string; isActive: boolean }
+type ModelFileOption = { id: string; name: string }
+type CategoryOption = { id: string; name: string; isActive: boolean }
 
 function AddProductForm({
   onClose,

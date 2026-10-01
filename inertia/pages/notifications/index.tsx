@@ -9,7 +9,7 @@ import { Pagination, type PageMeta } from '~/components/pagination'
 import { useT } from '~/lib/i18n'
 
 type Item = {
-  id: number
+  id: string
   type: string
   title: string
   body: string

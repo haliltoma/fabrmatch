@@ -15,15 +15,16 @@ import NotificationService from '#services/notifications/notification_service'
 import OrderNotifier from '#services/notifications/order_notifier'
 import { render, NOTIFICATION_TYPES } from '#services/notifications/catalog'
 import { addQcPhoto, createFundedOrder, createUser } from '#tests/helpers/order_fixtures'
+import { uid } from '#tests/helpers/ids'
 
 const service = new NotificationService()
 
-async function typesOf(userId: number) {
+async function typesOf(userId: string) {
   const rows = await Notification.query().where('userId', userId).orderBy('id', 'asc')
   return rows.map((n) => n.type)
 }
 
-async function inbox(userId: number) {
+async function inbox(userId: string) {
   return Notification.query().where('userId', userId).orderBy('id', 'asc')
 }
 
@@ -36,7 +37,7 @@ test.group('NotificationService', (group) => {
       userId: user.id,
       type: 'payment_received' as const,
       role: 'buyer' as const,
-      context: { code: 'FO-TEST0001', orderId: 1 },
+      context: { code: 'FO-TEST0001', orderId: uid(1) },
       eventKey: 'payment_received:1',
     }
     assert.isNotNull(await service.notify(input))
@@ -46,12 +47,12 @@ test.group('NotificationService', (group) => {
   })
 
   test('templates return nothing for roles that should not be told', ({ assert }) => {
-    assert.isNull(render('payment_received', 'maker', { code: 'X', orderId: 1 }))
-    assert.isNull(render('order_shipped', 'maker', { code: 'X', orderId: 1 }))
+    assert.isNull(render('payment_received', 'maker', { code: 'X', orderId: uid(1) }))
+    assert.isNull(render('order_shipped', 'maker', { code: 'X', orderId: uid(1) }))
     assert.isNull(render('offer_received', 'buyer', {}))
     for (const type of NOTIFICATION_TYPES) {
       const anyone = (['buyer', 'seller', 'maker', 'admin'] as const).some(
-        (role) => render(type, role, { code: 'X', orderId: 1 }) !== null
+        (role) => render(type, role, { code: 'X', orderId: uid(1) }) !== null
       )
       assert.isTrue(anyone, `${type} has at least one recipient`)
     }
@@ -69,7 +70,7 @@ test.group('NotificationService', (group) => {
         userId: user.id,
         type: 'order_cancelled',
         role: 'buyer',
-        context: { code: 'FO-X', orderId: 1 },
+        context: { code: 'FO-X', orderId: uid(1) },
         eventKey: `k:${key}`,
       })
     }
@@ -91,10 +92,10 @@ test.group('NotificationService', (group) => {
         userId: user.id,
         type: 'order_cancelled',
         role: 'buyer',
-        context: { code: 'FO-MAIL0001', orderId: 5 },
+        context: { code: 'FO-MAIL0001', orderId: uid(5) },
         eventKey: 'mail:1',
       })
-      const run = (id: number) => service.sendEmail(id)
+      const run = (id: string) => service.sendEmail(id)
 
       await service.setEmailPreference(user.id, 'order_cancelled', false)
       await run(notification!.id)
@@ -123,7 +124,7 @@ test.group('notification language', () => {
         userId: user.id,
         type: 'order_cancelled',
         role: 'buyer',
-        context: { code: 'FO-TR000001', orderId: 5 },
+        context: { code: 'FO-TR000001', orderId: uid(5) },
         eventKey: 'lang:1',
       })
       const row = await Notification.findOrFail(n!.id)
@@ -194,7 +195,7 @@ test.group('order lifecycle notifications (anonymity)', (group) => {
     assert.includeMembers(makerTypes, ['order_delivered', 'order_completed', 'payout_paid'])
 
     // tracking reaches the buyer only
-    const all = async (id: number) => JSON.stringify(await inbox(id))
+    const all = async (id: string) => JSON.stringify(await inbox(id))
     assert.include(await all(buyer.id), 'YK123456')
     assert.notInclude(await all(seller.id), 'YK123456')
     assert.notInclude(await all(makerUser.id), 'YK123456')

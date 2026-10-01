@@ -35,8 +35,8 @@ export default class NotificationController {
     const userId = auth.getUserOrFail().id
     const service = new NotificationService()
     const { rows } = await service.list(userId, { page: 1 })
-    const target = rows.find((n) => n.id === Number(params.id))
-    await service.markRead(userId, Number(params.id))
+    const target = rows.find((n) => n.id === params.id)
+    await service.markRead(userId, params.id)
     return response
       .redirect()
       .toPath(target ? String(target.data.link ?? '/notifications') : '/notifications')

@@ -4,7 +4,7 @@ import { DEFAULT_PRINTER_MODELS } from '#services/manufacturing/printer_model_de
 export default class extends BaseSchema {
   async up() {
     this.schema.createTable('printer_models', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table.string('brand', 60).notNullable()
       table.string('model', 80).notNullable()
       table.enum('technology', ['FDM', 'SLA', 'SLS']).notNullable()
@@ -28,8 +28,7 @@ export default class extends BaseSchema {
     // makers keep free-text machines: the link is optional
     this.schema.table('printers', (table) => {
       table
-        .integer('printer_model_id')
-        .unsigned()
+        .uuid('printer_model_id')
         .nullable()
         .references('id')
         .inTable('printer_models')

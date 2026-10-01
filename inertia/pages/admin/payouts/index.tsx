@@ -11,9 +11,9 @@ import { formatMoney } from '~/lib/format'
 import { useT } from '~/lib/i18n'
 
 type Profile = {
-  id: number
+  id: string
   beneficiaryType: 'manufacturer' | 'seller'
-  beneficiaryId: number
+  beneficiaryId: string
   taxStatus: string
   legalName: string
   taxNumber: string
@@ -25,7 +25,7 @@ type Profile = {
 }
 
 type Row = {
-  id: number
+  id: string
   orderCode: string | null
   status: string
   taxStatus: string | null
@@ -36,7 +36,7 @@ type Row = {
   currency: string
   beneficiaryType: 'manufacturer' | 'seller'
   document: {
-    id: number
+    id: string
     kind: 'supplier_invoice' | 'expense_voucher'
     number: string
     issuedOn: string | null
@@ -87,7 +87,7 @@ function Decision({ action, label }: { action: string; label: string }) {
   )
 }
 
-function MarkPaid({ id }: { id: number }) {
+function MarkPaid({ id }: { id: string }) {
   const { t } = useT()
   const [reference, setReference] = useState('')
   return (

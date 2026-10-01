@@ -9,14 +9,14 @@ import { PageHeader } from '~/components/page_header'
 import { useT } from '~/lib/i18n'
 
 type Zone = {
-  id: number
+  id: string
   code: string
   name: string
   countries: string[]
   isFallback: boolean
   extraPerKgMinor: number
   currency: string
-  rates: Array<{ id: number; upToGrams: number; priceMinor: number }>
+  rates: Array<{ id: string; upToGrams: number; priceMinor: number }>
 }
 
 function PriceRow({ label, initial, url }: { label: string; initial: number; url: string }) {

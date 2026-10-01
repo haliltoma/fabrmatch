@@ -1,18 +1,17 @@
 import { type ReactElement, useEffect } from 'react'
 import { type Data } from '@generated/data'
-import { toast, Toaster } from 'sonner'
+import { toast } from 'sonner'
 import { usePage } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { Logo } from '~/components/logo'
 import { useT } from '~/lib/i18n'
 import { ThemeSwitch } from '~/components/theme_switch'
-import { useTheme } from '~/lib/theme'
 import { LanguageSwitch } from '~/components/language_switch'
 import { NavigationProgress } from '~/components/navigation_progress'
+import { AppToaster } from '~/components/app_toaster'
 
 export default function AuthLayout({ children }: { children: ReactElement<Data.SharedProps> }) {
   const { t } = useT()
-  const { dark } = useTheme()
 
   const { url, flash } = usePage()
 
@@ -69,7 +68,7 @@ export default function AuthLayout({ children }: { children: ReactElement<Data.S
         </div>
       </main>
 
-      <Toaster position="top-center" richColors theme={dark ? 'dark' : 'light'} />
+      <AppToaster />
     </div>
   )
 }

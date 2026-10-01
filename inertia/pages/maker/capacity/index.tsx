@@ -19,7 +19,7 @@ type SlotData = {
 }
 
 type PrinterOption = {
-  id: number
+  id: string
   name: string
 }
 
@@ -29,7 +29,7 @@ function TemplateForm({
   printerId,
   template,
 }: {
-  printerId: number
+  printerId: string
   template: Record<string, number>
 }) {
   const { t } = useT()
@@ -103,7 +103,7 @@ export default function CapacityIndex({
   template,
 }: {
   printers: PrinterOption[]
-  selectedPrinterId: number | null
+  selectedPrinterId: string | null
   slots: SlotData[]
   template: Record<string, number>
 }) {

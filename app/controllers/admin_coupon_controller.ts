@@ -54,12 +54,12 @@ export default class AdminCouponController {
 
   async toggle({ params, request, response, session, auth }: HttpContext) {
     const active = request.input('active') === true || request.input('active') === 'true'
-    await new CouponService().setActive(Number(params.id), active)
+    await new CouponService().setActive(params.id, active)
     await AuditLog.create({
       actorId: auth.getUserOrFail().id,
       action: active ? 'coupon.activated' : 'coupon.deactivated',
       subjectType: 'coupon',
-      subjectId: Number(params.id),
+      subjectId: params.id,
       meta: {},
     })
     session.flash('success', active ? 'Coupon turned on.' : 'Coupon turned off.')

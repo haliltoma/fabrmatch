@@ -76,7 +76,7 @@ export default class HomeController {
       .orderBy('id', 'asc')
       .limit(12)
     const preview = new MarginPreviewService()
-    const samples: Array<{ id: number; title: string; material: string; costMinor: number }> = []
+    const samples: Array<{ id: string; title: string; material: string; costMinor: number }> = []
     for (const p of products) {
       if (samples.length === 4) break
       const [first] = await preview.preview(p.id, 0, terms)

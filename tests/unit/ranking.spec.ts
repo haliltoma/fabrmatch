@@ -6,13 +6,14 @@ import {
   seededRng,
 } from '#services/matching/ranking'
 import type { MatchCandidate } from '#services/matching/types'
+import { uid } from '#tests/helpers/ids'
 
 const OPTS = { explorationRate: 0.2, explorationWindowDays: 30, explorationMaxCompletedJobs: 3 }
 
 function candidate(id: number, overrides: Partial<MatchCandidate> = {}): MatchCandidate {
   return {
-    manufacturerProfileId: id,
-    printerId: id * 10,
+    manufacturerProfileId: uid(id),
+    printerId: uid(id * 10),
     slotDate: '2026-09-24',
     joinedDaysAgo: 365,
     completedJobs: 50,
@@ -105,7 +106,7 @@ test.group('ranking: rankCandidates', () => {
     )
     assert.deepEqual(
       ranked.map((c) => c.manufacturerProfileId),
-      [1, 2, 3]
+      [uid(1), uid(2), uid(3)]
     )
   })
 
@@ -120,11 +121,11 @@ test.group('ranking: rankCandidates', () => {
     })
 
     const exploit = rankCandidates([veteran, newbie, newbieBetter], () => 0.99, OPTS)
-    assert.equal(exploit.selection?.candidate.manufacturerProfileId, 1)
+    assert.equal(exploit.selection?.candidate.manufacturerProfileId, uid(1))
     assert.isFalse(exploit.selection?.isExploration)
 
     const explore = rankCandidates([veteran, newbie, newbieBetter], () => 0.01, OPTS)
-    assert.equal(explore.selection?.candidate.manufacturerProfileId, 3)
+    assert.equal(explore.selection?.candidate.manufacturerProfileId, uid(3))
     assert.isTrue(explore.selection?.isExploration)
   })
 
@@ -146,7 +147,7 @@ test.group('ranking: rankCandidates', () => {
     for (let i = 0; i < N; i++) {
       const { selection } = rankCandidates(list, rng, OPTS)
       if (selection?.isExploration) explored++
-      if (selection?.candidate.manufacturerProfileId === 3) newbieWins++
+      if (selection?.candidate.manufacturerProfileId === uid(3)) newbieWins++
     }
     assert.closeTo(explored / N, 0.2, 0.02)
     // Newbie never wins on score here, so every one of its offers comes from exploration.

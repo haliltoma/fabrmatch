@@ -22,7 +22,7 @@ export default class ReferenceCatalogService {
 
   async createMaterial(
     input: { code: string; name: string; technology: 'FDM' | 'SLA' | 'SLS' },
-    adminId: number
+    adminId: string
   ) {
     const code = input.code.trim().toUpperCase()
     if (!/^[A-Z0-9][A-Z0-9_-]{0,31}$/.test(code)) {
@@ -41,7 +41,7 @@ export default class ReferenceCatalogService {
     return material
   }
 
-  async createColor(input: { name: string; hex: string }, adminId: number) {
+  async createColor(input: { name: string; hex: string }, adminId: string) {
     const name = input.name.trim()
     if (!/^#[0-9a-fA-F]{6}$/.test(input.hex)) {
       throw new ReferenceCatalogError('Colour must be a hex value like #1E5FBF')
@@ -54,14 +54,14 @@ export default class ReferenceCatalogService {
   }
 
   /** Retired entries stay on existing offers but can no longer be picked. */
-  async setMaterialActive(id: number, isActive: boolean, adminId: number) {
+  async setMaterialActive(id: string, isActive: boolean, adminId: string) {
     const material = await Material.findOrFail(id)
     material.isActive = isActive
     await material.save()
     await this.audit(adminId, 'catalog.material_toggled', id, { code: material.code, isActive })
   }
 
-  async setColorActive(id: number, isActive: boolean, adminId: number) {
+  async setColorActive(id: string, isActive: boolean, adminId: string) {
     const color = await Color.findOrFail(id)
     color.isActive = isActive
     await color.save()
@@ -97,9 +97,9 @@ export default class ReferenceCatalogService {
   }
 
   private async audit(
-    adminId: number,
+    adminId: string,
     action: string,
-    subjectId: number,
+    subjectId: string,
     meta: Record<string, unknown>
   ) {
     await AuditLog.create({ actorId: adminId, action, subjectType: 'catalog', subjectId, meta })

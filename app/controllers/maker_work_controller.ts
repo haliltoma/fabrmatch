@@ -59,7 +59,7 @@ export default class MakerWorkController {
   async offerPhoto({ auth, params, response, session }: HttpContext) {
     const user = auth.getUserOrFail()
     const profile = await new MakerWorkService().profileFor(user)
-    await new ShopPhotoService().offer(Number(params.id), profile.id, user.id)
+    await new ShopPhotoService().offer(params.id, profile.id, user.id)
     session.flash('success', 'Thanks! The photo shows in the shop once we have checked it.')
     return response.redirect().back()
   }
@@ -98,14 +98,14 @@ export default class MakerWorkController {
     const { contentType } = await request.validateUsing(evidenceUploadValidator)
     const profile = await new MakerWorkService().profileFor(auth.getUserOrFail())
     return response.json(
-      await new QcPhotoService().presignUpload(Number(params.id), profile.id, contentType)
+      await new QcPhotoService().presignUpload(params.id, profile.id, contentType)
     )
   }
 
   async qcRegister({ request, auth, params, response }: HttpContext) {
     const { storageKey } = await request.validateUsing(registerEvidenceValidator)
     const profile = await new MakerWorkService().profileFor(auth.getUserOrFail())
-    await new QcPhotoService().register(Number(params.id), profile.id, storageKey)
+    await new QcPhotoService().register(params.id, profile.id, storageKey)
     return response.json({ ok: true })
   }
 
@@ -132,7 +132,7 @@ export default class MakerWorkController {
   async packingSlip({ auth, params, response }: HttpContext) {
     const profile = await new MakerWorkService().profileFor(auth.getUserOrFail())
     try {
-      const html = await new PackingSlipService().htmlForJob(Number(params.id), profile.id)
+      const html = await new PackingSlipService().htmlForJob(params.id, profile.id)
       return response.header('content-type', 'text/html; charset=utf-8').send(html)
     } catch (error) {
       if (error instanceof PackingSlipError) return response.notFound()

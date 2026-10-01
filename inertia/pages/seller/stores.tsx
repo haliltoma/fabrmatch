@@ -15,7 +15,7 @@ import { useT } from '~/lib/i18n'
 import { cn } from '~/lib/utils'
 
 type Connection = {
-  id: number
+  id: string
   provider: string
   shopName: string
   shopUrl: string | null
@@ -23,10 +23,10 @@ type Connection = {
   lastSyncedAt: string | null
 }
 type Listing = {
-  id: number
+  id: string
   title: string
   sku: string | null
-  sellerProductId: number | null
+  sellerProductId: string | null
   material: string | null
   color: string | null
   scalePercent: number | null
@@ -35,17 +35,17 @@ type Listing = {
   externalProductId: string
 }
 type ExternalOrder = {
-  id: number
+  id: string
   name: string
   status: 'needs_mapping' | 'placed' | 'ignored' | 'failed' | 'cancelled'
   error: string | null
   lines: Array<{ title: string; sku: string | null; quantity: number }>
-  order: { id: number; code: string; status: string; totalMinor: number; currency: string } | null
+  order: { id: string; code: string; status: string; totalMinor: number; currency: string } | null
   fulfillmentStatus: 'none' | 'pending' | 'pushed' | 'failed'
   fulfillmentError: string | null
 }
 type Product = {
-  id: number
+  id: string
   title: string
   materials: string[]
   scales: number[]
@@ -57,7 +57,7 @@ const selectClass =
 
 function MappingRow({ listing, products }: { listing: Listing; products: Product[] }) {
   const { t } = useT()
-  const [productId, setProductId] = useState<number | null>(listing.sellerProductId)
+  const [productId, setProductId] = useState<string | null>(listing.sellerProductId)
   const product = products.find((p) => p.id === productId) ?? null
   const [material, setMaterial] = useState(listing.material ?? product?.materials[0] ?? '')
   const [color, setColor] = useState(listing.color ?? '')
@@ -88,7 +88,7 @@ function MappingRow({ listing, products }: { listing: Listing; products: Product
           className={selectClass}
           value={productId ?? ''}
           onChange={(e) => {
-            const next = e.target.value ? Number(e.target.value) : null
+            const next = e.target.value || null
             setProductId(next)
             const chosen = products.find((p) => p.id === next)
             if (chosen) {
@@ -358,7 +358,7 @@ function PublishForm({
   listings: Listing[]
 }) {
   const { t } = useT()
-  const [productId, setProductId] = useState<number | null>(products[0]?.id ?? null)
+  const [productId, setProductId] = useState<string | null>(products[0]?.id ?? null)
   const product = products.find((p) => p.id === productId) ?? null
   const publishedPrice = (material: string) =>
     listings.find((l) => l.published && l.sellerProductId === productId && l.material === material)
@@ -366,9 +366,9 @@ function PublishForm({
   const [prices, setPrices] = useState<Record<string, number | null>>({})
   const [chosen, setChosen] = useState<Record<string, boolean>>({})
   const [busy, setBusy] = useState(false)
-  const [category, setCategory] = useState<{ id: number; path: string } | null>(null)
+  const [category, setCategory] = useState<{ id: string; path: string } | null>(null)
   const [categoryQuery, setCategoryQuery] = useState('')
-  const [categoryResults, setCategoryResults] = useState<Array<{ id: number; path: string }>>([])
+  const [categoryResults, setCategoryResults] = useState<Array<{ id: string; path: string }>>([])
   const needsCategory = connection.provider === 'etsy'
   const alreadyPublished = listings.some((l) => l.published && l.sellerProductId === productId)
   const currency = connection.currency ?? 'TRY'
@@ -418,7 +418,7 @@ function PublishForm({
           id="pub-product"
           className={selectClass}
           value={productId ?? ''}
-          onChange={(e) => setProductId(Number(e.target.value))}
+          onChange={(e) => setProductId(e.target.value)}
         >
           {products.map((p) => (
             <option key={p.id} value={p.id}>
@@ -575,7 +575,7 @@ export default function SellerStores({
   callbackUrl: string | null
   currency: string | null
   connections: Connection[]
-  currentId: number | null
+  currentId: string | null
   listings: Listing[]
   orders: ExternalOrder[]
   products: Product[]

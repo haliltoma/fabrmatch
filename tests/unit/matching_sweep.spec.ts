@@ -31,7 +31,7 @@ async function paidOrder() {
   return order
 }
 
-const age = (orderId: number) =>
+const age = (orderId: string) =>
   db
     .from('orders')
     .where('id', orderId)

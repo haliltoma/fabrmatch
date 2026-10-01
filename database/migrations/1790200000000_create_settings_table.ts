@@ -5,13 +5,7 @@ export default class extends BaseSchema {
     this.schema.createTable('settings', (table) => {
       table.string('key', 80).primary()
       table.jsonb('value').notNullable()
-      table
-        .integer('updated_by')
-        .unsigned()
-        .nullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('SET NULL')
+      table.uuid('updated_by').nullable().references('id').inTable('users').onDelete('SET NULL')
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()
     })

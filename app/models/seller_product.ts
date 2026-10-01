@@ -8,13 +8,13 @@ export type SellerProductStatus = 'draft' | 'active' | 'archived'
 
 export default class SellerProduct extends BaseModel {
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
 
   @column()
-  declare sellerProfileId: number
+  declare sellerProfileId: string
 
   @column()
-  declare catalogProductId: number | null
+  declare catalogProductId: string | null
 
   @column()
   declare title: string

@@ -7,11 +7,11 @@ import type Printer from '#models/printer'
 import type ProductionJob from '#models/production_job'
 
 export default class CapacityService {
-  async setSlot(printerId: number, date: string, maxMinutes: number): Promise<CapacitySlot> {
+  async setSlot(printerId: string, date: string, maxMinutes: number): Promise<CapacitySlot> {
     return CapacitySlot.updateOrCreate({ printerId, date }, { maxMinutes, printerId, date })
   }
 
-  async getSlots(printerId: number, from: string, to: string): Promise<CapacitySlot[]> {
+  async getSlots(printerId: string, from: string, to: string): Promise<CapacitySlot[]> {
     return CapacitySlot.query()
       .where('printerId', printerId)
       .where('date', '>=', from)
@@ -24,7 +24,7 @@ export default class CapacityService {
    * to prevent double-booking under concurrent requests.
    * Returns true if reservation succeeded, false if insufficient capacity.
    */
-  async reserveMinutes(printerId: number, date: string, minutes: number): Promise<boolean> {
+  async reserveMinutes(printerId: string, date: string, minutes: number): Promise<boolean> {
     return db.transaction(async (trx) => {
       const slot = await CapacitySlot.query({ client: trx })
         .where('printerId', printerId)
@@ -47,7 +47,7 @@ export default class CapacityService {
    * Must run inside the caller's transaction; the chosen slot row is locked.
    */
   async reserveInWindow(
-    printerId: number,
+    printerId: string,
     from: string,
     to: string,
     minutes: number,
@@ -71,7 +71,7 @@ export default class CapacityService {
   /**
    * Release reserved minutes (e.g., order cancelled).
    */
-  async releaseMinutes(printerId: number, date: string, minutes: number): Promise<void> {
+  async releaseMinutes(printerId: string, date: string, minutes: number): Promise<void> {
     await db.transaction(async (trx) => {
       const slot = await CapacitySlot.query({ client: trx })
         .where('printerId', printerId)
@@ -113,7 +113,7 @@ export default class CapacityService {
     )
   }
 
-  async getWeeklyTemplate(printerId: number): Promise<WeeklyTemplate | null> {
+  async getWeeklyTemplate(printerId: string): Promise<WeeklyTemplate | null> {
     return WeeklyTemplate.query().where('printerId', printerId).first()
   }
 
@@ -121,7 +121,7 @@ export default class CapacityService {
    * Generate capacity slots from weekly template for a date range.
    * Does not overwrite slots that already have reservations.
    */
-  async applyTemplate(printerId: number, from: string, to: string): Promise<number> {
+  async applyTemplate(printerId: string, from: string, to: string): Promise<number> {
     const template = await this.getWeeklyTemplate(printerId)
     if (!template) return 0
 

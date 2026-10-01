@@ -14,7 +14,7 @@ import { EmptyState } from '~/components/empty_state'
 import { useT } from '~/lib/i18n'
 
 type Material = {
-  id: number
+  id: string
   material: string
   colors: string[]
   pricePerGramMinor: number
@@ -23,20 +23,20 @@ type Material = {
 }
 
 type PrinterData = {
-  id: number
+  id: string
   name: string
   technology: string
   buildVolumeXMm: number
   buildVolumeYMm: number
   buildVolumeZMm: number
   isActive: boolean
-  offeredProfileIds: number[]
+  offeredProfileIds: string[]
   printerModel: string | null
   materials: Material[]
 }
 
 type PrinterModelOption = {
-  id: number
+  id: string
   brand: string
   model: string
   technology: 'FDM' | 'SLA' | 'SLS'
@@ -57,7 +57,7 @@ function AddPrinterForm({
 
   const form = useForm({
     name: '',
-    printerModelId: null as number | null,
+    printerModelId: null as string | null,
     technology: 'FDM' as 'FDM' | 'SLA' | 'SLS',
     buildVolumeXMm: 220,
     buildVolumeYMm: 220,
@@ -69,7 +69,7 @@ function AddPrinterForm({
   const [namedByHand, setNamedByHand] = useState(false)
 
   function pick(id: string) {
-    const modelId = id === '' ? null : Number(id)
+    const modelId = id === '' ? null : id
     const model = models.find((m) => m.id === modelId) ?? null
     form.setData((data) => ({
       ...data,
@@ -191,7 +191,7 @@ function AddMaterialForm({
   catalog,
   onClose,
 }: {
-  printerId: number
+  printerId: string
   technology: string
   catalog: Catalog
   onClose: () => void
@@ -275,15 +275,15 @@ function AddMaterialForm({
   )
 }
 
-type ProfileOption = { id: number; name: string; technology: string }
+type ProfileOption = { id: string; name: string; technology: string }
 
 function ProfilePicker({ printer, profiles }: { printer: PrinterData; profiles: ProfileOption[] }) {
   const { t } = useT()
 
   const options = profiles.filter((p) => p.technology === printer.technology)
-  const [selected, setSelected] = useState<number[]>(printer.offeredProfileIds)
+  const [selected, setSelected] = useState<string[]>(printer.offeredProfileIds)
   if (options.length === 0) return null
-  const toggle = (id: number) =>
+  const toggle = (id: string) =>
     setSelected((list) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]))
   const changed =
     selected.length !== printer.offeredProfileIds.length ||
@@ -336,7 +336,7 @@ export default function PrintersIndex({
   const { t } = useT()
 
   const [showAddPrinter, setShowAddPrinter] = useState(false)
-  const [addMaterialFor, setAddMaterialFor] = useState<number | null>(null)
+  const [addMaterialFor, setAddMaterialFor] = useState<string | null>(null)
 
   return (
     <div className="space-y-6">

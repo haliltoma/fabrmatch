@@ -5,22 +5,20 @@ export default class extends BaseSchema {
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table
-        .integer('model_file_id')
-        .unsigned()
+        .uuid('model_file_id')
         .notNullable()
         .references('id')
         .inTable('model_files')
         .onDelete('CASCADE')
       table
-        .integer('manufacturer_profile_id')
-        .unsigned()
+        .uuid('manufacturer_profile_id')
         .notNullable()
         .references('id')
         .inTable('manufacturer_profiles')
         .onDelete('CASCADE')
-      table.integer('production_job_id').unsigned().nullable()
+      table.uuid('production_job_id').nullable()
       table.timestamp('expires_at').notNullable()
       table.integer('max_downloads').unsigned().notNullable().defaultTo(2)
       table.integer('download_count').unsigned().notNullable().defaultTo(0)
@@ -33,15 +31,14 @@ export default class extends BaseSchema {
 
     // Download audit log
     this.schema.createTable('file_download_logs', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table
-        .integer('grant_id')
-        .unsigned()
+        .uuid('grant_id')
         .notNullable()
         .references('id')
         .inTable('file_access_grants')
         .onDelete('CASCADE')
-      table.integer('manufacturer_profile_id').unsigned().notNullable()
+      table.uuid('manufacturer_profile_id').notNullable()
       table.string('ip_address', 45).nullable()
       table.string('user_agent', 512).nullable()
       table.timestamp('created_at').notNullable()

@@ -58,7 +58,7 @@ test.group('eligibility explainer', (group) => {
     await createPrinter(ownOrder.profile)
 
     const verdicts = await new EligibilityExplainer().explain(order)
-    const of = (id: number) => verdicts.find((v) => v.manufacturerProfileId === id)
+    const of = (id: string) => verdicts.find((v) => v.manufacturerProfileId === id)
 
     assert.isTrue(of(fits.profile.id)!.eligible)
     assert.deepEqual(codes(of(fits.profile.id)), [])

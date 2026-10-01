@@ -12,13 +12,13 @@ const LOOKBACK_DAYS = 30
 export default class MissedOrdersService {
   async forPrinters(
     printers: Array<{
-      id: number
+      id: string
       technology: string
-      materials: Array<{ id: number; material: string; pricePerGramMinor: number }>
+      materials: Array<{ id: string; material: string; pricePerGramMinor: number }>
     }>,
     country = 'TR'
-  ): Promise<Map<number, { missedOrders: number; referencePricePerGramMinor: number }>> {
-    const result = new Map<number, { missedOrders: number; referencePricePerGramMinor: number }>()
+  ): Promise<Map<string, { missedOrders: number; referencePricePerGramMinor: number }>> {
+    const result = new Map<string, { missedOrders: number; referencePricePerGramMinor: number }>()
     const since = DateTime.now().minus({ days: LOOKBACK_DAYS }).toSQL()!
     const code = country.trim().toUpperCase()
     const regions = new PricingRegionService()

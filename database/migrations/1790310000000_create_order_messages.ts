@@ -3,15 +3,9 @@ import { BaseSchema } from '@adonisjs/lucid/schema'
 export default class extends BaseSchema {
   async up() {
     this.schema.createTable('order_messages', (table) => {
-      table.increments('id')
-      table
-        .integer('order_id')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('orders')
-        .onDelete('CASCADE')
-      table.integer('sender_id').unsigned().notNullable().references('id').inTable('users')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
+      table.uuid('order_id').notNullable().references('id').inTable('orders').onDelete('CASCADE')
+      table.uuid('sender_id').notNullable().references('id').inTable('users')
       table.enum('sender_role', ['buyer', 'maker']).notNullable()
       // what the other side sees: contact details already masked
       table.text('body').notNullable()

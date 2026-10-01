@@ -3,14 +3,8 @@ import { BaseSchema } from '@adonisjs/lucid/schema'
 export default class extends BaseSchema {
   async up() {
     this.schema.createTable('notifications', (table) => {
-      table.increments('id')
-      table
-        .integer('user_id')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('CASCADE')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
+      table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE')
       table.string('type', 48).notNullable()
       table.string('title', 160).notNullable()
       table.text('body').notNullable()
@@ -27,14 +21,8 @@ export default class extends BaseSchema {
     })
 
     this.schema.createTable('notification_preferences', (table) => {
-      table.increments('id')
-      table
-        .integer('user_id')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('CASCADE')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
+      table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE')
       table.string('type', 48).notNullable()
       table.boolean('email').notNullable().defaultTo(true)
       table.timestamp('created_at').notNullable()

@@ -61,7 +61,7 @@ test.group('cart over HTTP', (group) => {
       .redirects(0)
       .json({ shippingAddress: TR_ADDRESS })
     checkout.assertStatus(302)
-    assert.match(checkout.header('location') ?? '', /^\/orders\/\d+$/)
+    assert.match(checkout.header('location') ?? '', /^\/orders\/[0-9a-f-]{36}$/)
     const orders = await Order.query().where('buyerId', user.id)
     assert.lengthOf(orders, 1)
     assert.equal(orders[0].totalMinor, page.body().props.totals.totalMinor)

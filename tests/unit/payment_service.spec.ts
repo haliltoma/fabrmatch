@@ -17,7 +17,7 @@ import {
 
 function setup() {
   const provider = new FakePaymentProvider('test-secret')
-  const started: number[] = []
+  const started: string[] = []
   const service = new PaymentService(provider, async (orderId) => {
     started.push(orderId)
   })

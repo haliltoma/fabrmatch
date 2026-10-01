@@ -4,9 +4,9 @@ import string from '@adonisjs/core/helpers/string'
 interface CreateCatalogData {
   title: string
   description?: string | null
-  modelFileId?: number | null
+  modelFileId?: string | null
   allowedMaterials: string[]
-  categoryId?: number | null
+  categoryId?: string | null
   tags?: string[]
   allowedScales?: number[]
 }
@@ -77,7 +77,7 @@ export default class CatalogService {
     return CatalogProduct.query().where('isActive', true).orderBy('title', 'asc')
   }
 
-  async findById(id: number): Promise<CatalogProduct | null> {
+  async findById(id: string): Promise<CatalogProduct | null> {
     return CatalogProduct.find(id)
   }
 

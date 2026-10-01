@@ -9,11 +9,11 @@ import { Pagination, type PageMeta } from '~/components/pagination'
 import { useT } from '~/lib/i18n'
 
 type Row = {
-  id: number
+  id: string
   action: string
-  actorId: number | null
+  actorId: string | null
   subjectType: string
-  subjectId: number
+  subjectId: string | null
   meta: string
   createdAt: string | null
 }
@@ -22,8 +22,8 @@ type Filters = Record<'action' | 'subjectType' | 'subjectId' | 'actorId' | 'from
 const FIELDS: Array<[keyof Filters, string, string]> = [
   ['action', 'Action (e.g. order. or user.suspended)', 'w-64'],
   ['subjectType', 'Subject type', 'w-32'],
-  ['subjectId', 'Subject id', 'w-24'],
-  ['actorId', 'Actor id', 'w-24'],
+  ['subjectId', 'Subject id', 'w-80'],
+  ['actorId', 'Actor id', 'w-80'],
 ]
 
 export default function AdminAudit({

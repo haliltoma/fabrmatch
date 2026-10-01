@@ -7,19 +7,19 @@ export interface WalletMovement {
   kind: 'top_up' | 'order' | 'refund' | 'withdrawal'
   amountMinor: number
   orderCode: string | null
-  orderId: number | null
+  orderId: string | null
 }
 
 /** Read side of the seller wallet (R4-T2). Money moves only through PaymentService. */
 export default class WalletService {
   private ledger = new LedgerService()
 
-  async balance(userId: number) {
+  async balance(userId: string) {
     return this.ledger.balance('seller_wallet', { walletUserId: userId, currency: 'TRY' })
   }
 
   /** The seller's own movements, newest first: in (top-up, refund) positive, out negative. */
-  async movements(userId: number, limit = 50): Promise<WalletMovement[]> {
+  async movements(userId: string, limit = 50): Promise<WalletMovement[]> {
     const rows = await db
       .from('ledger_entries as l')
       .leftJoin('orders as o', 'o.id', 'l.order_id')
@@ -51,12 +51,12 @@ export default class WalletService {
     }))
   }
 
-  async autoPay(userId: number) {
+  async autoPay(userId: string) {
     const profile = await SellerProfile.query().where('userId', userId).first()
     return profile?.walletAutoPay ?? false
   }
 
-  async setAutoPay(userId: number, on: boolean) {
+  async setAutoPay(userId: string, on: boolean) {
     await SellerProfile.query().where('userId', userId).update({ wallet_auto_pay: on })
   }
 }

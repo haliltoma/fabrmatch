@@ -16,6 +16,7 @@ import {
   createUser,
   ensureReferenceCatalog,
 } from '#tests/helpers/order_fixtures'
+import { uid } from '#tests/helpers/ids'
 
 const service = new PrintProfileService()
 
@@ -35,7 +36,7 @@ test.group('print profiles', (group) => {
     const a = await createDraftOrder(undefined, { printProfileId: standard.id })
     const b = await createDraftOrder(undefined, { printProfileId: fine.id })
     const c = await createDraftOrder(undefined, { printProfileId: strong.id })
-    const item = async (id: number) => OrderItem.query().where('orderId', id).firstOrFail()
+    const item = async (id: string) => OrderItem.query().where('orderId', id).firstOrFail()
     const [ia, ib, ic] = [await item(a.order.id), await item(b.order.id), await item(c.order.id)]
 
     assert.equal(ia.printProfileId, standard.id)
@@ -54,7 +55,7 @@ test.group('print profiles', (group) => {
       /not available/
     )
     await assert.rejects(
-      () => createDraftOrder(undefined, { printProfileId: 999999 }),
+      () => createDraftOrder(undefined, { printProfileId: uid(999999) }),
       /not available/
     )
   })

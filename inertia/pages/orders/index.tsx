@@ -30,7 +30,7 @@ function NextLine({ status }: { status: string }) {
 }
 
 type OrderItem = {
-  id: number
+  id: string
   fileName: string | null
   material: string
   color: string | null
@@ -39,7 +39,7 @@ type OrderItem = {
 }
 
 type OrderData = {
-  id: number
+  id: string
   code: string
   status: string
   currency: string

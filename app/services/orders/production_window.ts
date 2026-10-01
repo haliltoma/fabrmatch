@@ -19,7 +19,7 @@ export async function productionDaysFor(items: Array<{ finishingCode: string | n
  * (review fix): that is the window, not the platform default the buyer never agreed to.
  */
 export async function productionDaysForOrder(order: {
-  id: number
+  id: string
   channel: string
   items: Array<{ finishingCode: string | null }>
 }) {

@@ -52,7 +52,7 @@ export default class TestCheckoutService {
   }
 
   /** The payment behind a checkout link, for the buyer who owns it (an order or a wallet top-up). */
-  async find(providerRef: string, buyerId: number) {
+  async find(providerRef: string, buyerId: string) {
     const payment = await Payment.query()
       .where('providerRef', providerRef)
       .where('provider', 'fake')
@@ -77,7 +77,7 @@ export default class TestCheckoutService {
     }
   }
 
-  async charge(providerRef: string, buyerId: number, card: CardInput): Promise<ChargeResult> {
+  async charge(providerRef: string, buyerId: string, card: CardInput): Promise<ChargeResult> {
     const { payment, returnUrl, open } = await this.find(providerRef, buyerId)
     if (!open) {
       throw new TestCheckoutError('This checkout is already finished.', { status: 409 })

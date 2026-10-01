@@ -27,7 +27,7 @@ export type PayeeProfile = {
 }
 
 type PayoutDocument = {
-  id: number
+  id: string
   kind: 'supplier_invoice' | 'expense_voucher'
   number: string
   issuedOn: string | null
@@ -40,7 +40,7 @@ type PayoutDocument = {
 }
 
 export type PayoutRow = {
-  id: number
+  id: string
   orderCode: string | null
   status: string
   taxStatus: string | null

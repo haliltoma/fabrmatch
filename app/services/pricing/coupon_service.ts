@@ -27,7 +27,7 @@ export interface CouponInput {
   endsAt?: DateTime | null
   note?: string | null
   /** personal coupon: only this user can use it */
-  userId?: number | null
+  userId?: string | null
 }
 
 export const normalizeCode = (code: string) => code.trim().toUpperCase()
@@ -62,7 +62,7 @@ export default class CouponService {
     })
   }
 
-  async setActive(id: number, active: boolean): Promise<void> {
+  async setActive(id: string, active: boolean): Promise<void> {
     const coupon = await Coupon.findOrFail(id)
     coupon.isActive = active
     await coupon.save()
@@ -75,8 +75,8 @@ export default class CouponService {
   }
 
   /** Redemptions that still count: not cancelled, and not a long-abandoned draft. */
-  private async usedCounts(couponIds: number[], userId?: number, trx?: TransactionClientContract) {
-    if (couponIds.length === 0) return new Map<number, number>()
+  private async usedCounts(couponIds: string[], userId?: string, trx?: TransactionClientContract) {
+    if (couponIds.length === 0) return new Map<string, number>()
     const client = trx ?? db
     const query = client
       .from('coupon_redemptions as r')
@@ -91,7 +91,7 @@ export default class CouponService {
       .count('* as n')
     if (userId) query.where('r.user_id', userId)
     const rows = await query
-    return new Map<number, number>(rows.map((r) => [Number(r.coupon_id), Number(r.n)]))
+    return new Map<string, number>(rows.map((r) => [String(r.coupon_id), Number(r.n)]))
   }
 
   /**
@@ -143,7 +143,7 @@ export default class CouponService {
   async redeem(
     coupon: Coupon,
     user: User,
-    orderId: number,
+    orderId: string,
     discountMinor: number,
     trx: TransactionClientContract
   ) {

@@ -3,7 +3,7 @@ import { BaseSchema } from '@adonisjs/lucid/schema'
 export default class extends BaseSchema {
   async up() {
     this.schema.createTable('categories', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table.string('slug', 60).notNullable().unique()
       table.string('name', 80).notNullable()
       table.boolean('is_active').notNullable().defaultTo(true)
@@ -11,8 +11,7 @@ export default class extends BaseSchema {
     })
     this.schema.alterTable('catalog_products', (table) => {
       table
-        .integer('category_id')
-        .unsigned()
+        .uuid('category_id')
         .nullable()
         .references('id')
         .inTable('categories')

@@ -67,7 +67,7 @@ export default class DisputeService {
   constructor(
     payments: PaymentService | null = null,
     payouts: PayoutService | null = null,
-    private startRematch: (orderId: number) => Promise<unknown> = async (orderId) => {
+    private startRematch: (orderId: string) => Promise<unknown> = async (orderId) => {
       const { default: MatchingService } = await import('#services/matching/matching_service')
       return new MatchingService().runRound(orderId)
     }
@@ -86,7 +86,7 @@ export default class DisputeService {
   }
 
   /** Buyer opens a dispute within the window after delivery; payout is blocked from then on. */
-  async open(orderId: number, buyerId: number, reason: string): Promise<Dispute> {
+  async open(orderId: string, buyerId: string, reason: string): Promise<Dispute> {
     const text = reason.trim()
     if (text.length < 10)
       throw new DisputeError('Please describe the problem (at least 10 characters)')
@@ -129,7 +129,7 @@ export default class DisputeService {
   }
 
   /** The maker's pre-shipping photos become the first evidence, so both sides see the same record. */
-  private async attachQcPhotos(disputeId: number, orderId: number, trx: TransactionClientContract) {
+  private async attachQcPhotos(disputeId: string, orderId: string, trx: TransactionClientContract) {
     const job = await ProductionJob.query({ client: trx })
       .where('orderId', orderId)
       .whereNot('status', 'cancelled')
@@ -151,7 +151,7 @@ export default class DisputeService {
   }
 
   /** Short-lived signed PUT URL for one evidence photo; participants only. */
-  async presignEvidenceUpload(disputeId: number, userId: number, contentType: string) {
+  async presignEvidenceUpload(disputeId: string, userId: string, contentType: string) {
     const ext = EVIDENCE_TYPES[contentType]
     if (!ext) throw new DisputeError('Evidence must be a JPG, PNG or WebP image')
     const dispute = await Dispute.findOrFail(disputeId)
@@ -166,7 +166,7 @@ export default class DisputeService {
   }
 
   /** Dispute for an order, visible to its buyer (or admin when `buyerId` is null). */
-  async findForOrder(orderId: number): Promise<Dispute | null> {
+  async findForOrder(orderId: string): Promise<Dispute | null> {
     return Dispute.query()
       .where('orderId', orderId)
       .orderBy('id', 'desc')
@@ -184,7 +184,7 @@ export default class DisputeService {
     return { rows: paginator.all(), meta: pageMeta(paginator.total, page, perPage) }
   }
 
-  async findForAdmin(disputeId: number): Promise<Dispute> {
+  async findForAdmin(disputeId: string): Promise<Dispute> {
     return Dispute.query()
       .where('id', disputeId)
       .preload('evidence')
@@ -197,7 +197,7 @@ export default class DisputeService {
   }
 
   /** Signed, short-lived view URLs for a dispute's photos. */
-  async evidenceUrls(evidence: DisputeEvidence[]): Promise<Record<number, string>> {
+  async evidenceUrls(evidence: DisputeEvidence[]): Promise<Record<string, string>> {
     const disk = drive.use('s3')
     const entries = await Promise.all(
       evidence.map(
@@ -209,8 +209,8 @@ export default class DisputeService {
 
   /** Buyer or the producing manufacturer attaches a photo (already uploaded to Drive). */
   async addEvidence(
-    disputeId: number,
-    uploaderId: number,
+    disputeId: string,
+    uploaderId: string,
     input: { storageKey: string; note?: string }
   ): Promise<DisputeEvidence> {
     const dispute = await Dispute.findOrFail(disputeId)
@@ -245,7 +245,7 @@ export default class DisputeService {
     })
   }
 
-  async respond(disputeId: number, manufacturerProfileId: number, text: string): Promise<Dispute> {
+  async respond(disputeId: string, manufacturerProfileId: string, text: string): Promise<Dispute> {
     const response = text.trim()
     if (response.length < 5) throw new DisputeError('Please write a response')
 
@@ -278,7 +278,7 @@ export default class DisputeService {
    * state change; the provider call and the payout run after commit (both idempotent, with
    * sweeps as safety net). A partial refund is taken from the manufacturer's share only.
    */
-  async resolve(disputeId: number, adminId: number, input: ResolveInput): Promise<Dispute> {
+  async resolve(disputeId: string, adminId: string, input: ResolveInput): Promise<Dispute> {
     const { resolved, orderId, refunded, reprint } = await db.transaction(async (trx) => {
       const dispute = await Dispute.query({ client: trx })
         .where('id', disputeId)
@@ -355,7 +355,7 @@ export default class DisputeService {
    * The maker who already failed is excluded automatically — they hold an earlier offer.
    * Allowed once per order so a bad order cannot loop forever.
    */
-  private async startReprint(orderId: number, disputeId: number, trx: TransactionClientContract) {
+  private async startReprint(orderId: string, disputeId: string, trx: TransactionClientContract) {
     const earlier = await Dispute.query({ client: trx })
       .where('orderId', orderId)
       .whereNot('id', disputeId)
@@ -385,7 +385,7 @@ export default class DisputeService {
       .update({ matching_round: 0, delivered_at: null, updated_at: DateTime.now().toSQL() })
   }
 
-  private async assertParticipant(dispute: Dispute, userId: number) {
+  private async assertParticipant(dispute: Dispute, userId: string) {
     const order = await Order.findOrFail(dispute.orderId)
     if (order.buyerId === userId) return
 
@@ -400,7 +400,7 @@ export default class DisputeService {
     if (!job) throw new DisputeError('Dispute not found')
   }
 
-  private async safely(label: string, orderId: number, fn: () => Promise<unknown>) {
+  private async safely(label: string, orderId: string, fn: () => Promise<unknown>) {
     try {
       await fn()
     } catch (error) {

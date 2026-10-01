@@ -14,7 +14,7 @@ import type ModelFile from '#models/model_file'
  * Tier 2: job duration (30 days default), unlimited (999)
  * Tier 3: 90 days, unlimited (999)
  */
-const TIER_RULES: Record<number, { expiryHours: number; maxDownloads: number }> = {
+const TIER_RULES: Record<string, { expiryHours: number; maxDownloads: number }> = {
   0: { expiryHours: 24, maxDownloads: 2 },
   1: { expiryHours: 72, maxDownloads: 5 },
   2: { expiryHours: 30 * 24, maxDownloads: 999 },
@@ -29,7 +29,7 @@ export default class FileAccessService {
   async createGrant(
     modelFile: ModelFile,
     manufacturerProfile: ManufacturerProfile,
-    productionJobId?: number,
+    productionJobId?: string,
     trx?: TransactionClientContract
   ): Promise<FileAccessGrant> {
     const tier = manufacturerProfile.trustTier ?? 0
@@ -53,8 +53,8 @@ export default class FileAccessService {
    * Atomically increments download_count. Logs access.
    */
   async download(
-    grantId: number,
-    manufacturerProfileId: number,
+    grantId: string,
+    manufacturerProfileId: string,
     meta: { ipAddress?: string; userAgent?: string } = {}
   ): Promise<{ url: string } | { error: string }> {
     return db.transaction(async (trx) => {
@@ -111,7 +111,7 @@ export default class FileAccessService {
   /**
    * Find active grants for a manufacturer.
    */
-  async findActiveGrants(manufacturerProfileId: number): Promise<FileAccessGrant[]> {
+  async findActiveGrants(manufacturerProfileId: string): Promise<FileAccessGrant[]> {
     return FileAccessGrant.query()
       .where('manufacturerProfileId', manufacturerProfileId)
       .where('expiresAt', '>', DateTime.now().toSQL()!)
@@ -123,7 +123,7 @@ export default class FileAccessService {
   /**
    * Find a specific grant for a manufacturer.
    */
-  async findGrant(grantId: number, manufacturerProfileId: number): Promise<FileAccessGrant | null> {
+  async findGrant(grantId: string, manufacturerProfileId: string): Promise<FileAccessGrant | null> {
     return FileAccessGrant.query()
       .where('id', grantId)
       .where('manufacturerProfileId', manufacturerProfileId)

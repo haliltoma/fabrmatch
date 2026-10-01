@@ -97,7 +97,7 @@ export default class OrderController {
 
   /** Pays the order from the buyer's wallet balance (sellers paying their shop's orders). */
   async payFromWallet({ auth, params, response, session }: HttpContext) {
-    await new PaymentService().payFromWallet(Number(params.id), auth.getUserOrFail().id)
+    await new PaymentService().payFromWallet(params.id, auth.getUserOrFail().id)
     session.flash('success', 'Paid from your balance — looking for a maker.')
     return response.redirect().toPath(`/orders/${params.id}`)
   }

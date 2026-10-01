@@ -8,18 +8,16 @@ export default class extends BaseSchema {
     })
 
     this.schema.createTable('content_reports', (table) => {
-      table.increments('id')
-      table.integer('reporter_id').unsigned().notNullable().references('id').inTable('users')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
+      table.uuid('reporter_id').notNullable().references('id').inTable('users')
       table
-        .integer('model_file_id')
-        .unsigned()
+        .uuid('model_file_id')
         .nullable()
         .references('id')
         .inTable('model_files')
         .onDelete('CASCADE')
       table
-        .integer('seller_product_id')
-        .unsigned()
+        .uuid('seller_product_id')
         .nullable()
         .references('id')
         .inTable('seller_products')
@@ -27,7 +25,7 @@ export default class extends BaseSchema {
       table.enum('reason', ['weapon', 'copyright', 'unsafe', 'other']).notNullable()
       table.string('details', 500).nullable()
       table.enum('status', ['open', 'actioned', 'dismissed']).notNullable().defaultTo('open')
-      table.integer('resolved_by').unsigned().nullable().references('id').inTable('users')
+      table.uuid('resolved_by').nullable().references('id').inTable('users')
       table.timestamp('resolved_at').nullable()
       table.timestamp('created_at').notNullable()
       table.index(['status'])

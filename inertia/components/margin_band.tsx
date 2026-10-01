@@ -8,7 +8,7 @@ import { formatPrice } from '~/lib/format'
 import { marginSplit } from '~/lib/margin'
 import { useT } from '~/lib/i18n'
 
-export type MarginSample = { id: number; title: string; material: string; costMinor: number }
+export type MarginSample = { id: string; title: string; material: string; costMinor: number }
 
 /** Real catalog designs priced by our engine; the visitor only picks the margin. */
 export function MarginBand({ samples }: { samples: MarginSample[] }) {
@@ -51,7 +51,7 @@ export function MarginBand({ samples }: { samples: MarginSample[] }) {
               id="margin-design"
               className="flex h-11 w-full rounded-md border border-ink-900/25 bg-paper-raised px-3 text-sm"
               value={sample.id}
-              onChange={(e) => setId(Number(e.target.value))}
+              onChange={(e) => setId(e.target.value)}
             >
               {samples.map((s) => (
                 <option key={s.id} value={s.id}>

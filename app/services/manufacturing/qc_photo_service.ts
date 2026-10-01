@@ -19,7 +19,7 @@ const OPEN_STATUSES = ['accepted', 'printing', 'produced']
 
 /** Photos of the finished part, taken before it ships. They double as evidence if a dispute follows. */
 export default class QcPhotoService {
-  async presignUpload(jobId: number, manufacturerProfileId: number, contentType: string) {
+  async presignUpload(jobId: string, manufacturerProfileId: string, contentType: string) {
     const ext = TYPES[contentType]
     if (!ext) throw new QcPhotoError('Photos must be JPG, PNG or WebP')
     await this.ownedOpenJob(jobId, manufacturerProfileId)
@@ -30,7 +30,7 @@ export default class QcPhotoService {
     return { storageKey, signedUrl }
   }
 
-  async register(jobId: number, manufacturerProfileId: number, storageKey: string) {
+  async register(jobId: string, manufacturerProfileId: string, storageKey: string) {
     await this.ownedOpenJob(jobId, manufacturerProfileId)
     const pattern = new RegExp(`^qc/${jobId}/[0-9a-f-]{36}\\.(jpg|png|webp)$`)
     const valid = app.inTest ? storageKey.startsWith(`qc/${jobId}/`) : pattern.test(storageKey)
@@ -44,16 +44,16 @@ export default class QcPhotoService {
     return JobQcPhoto.create({ productionJobId: jobId, storageKey })
   }
 
-  async count(jobId: number): Promise<number> {
+  async count(jobId: string): Promise<number> {
     const row = await JobQcPhoto.query().where('productionJobId', jobId).count('* as n').first()
     return Number(row?.$extras.n ?? 0)
   }
 
-  async list(jobId: number) {
+  async list(jobId: string) {
     return JobQcPhoto.query().where('productionJobId', jobId).orderBy('id')
   }
 
-  async urls(photos: JobQcPhoto[]): Promise<Record<number, string>> {
+  async urls(photos: JobQcPhoto[]): Promise<Record<string, string>> {
     const disk = drive.use('s3')
     const entries = await Promise.all(
       photos.map(
@@ -63,7 +63,7 @@ export default class QcPhotoService {
     return Object.fromEntries(entries)
   }
 
-  private async ownedOpenJob(jobId: number, manufacturerProfileId: number) {
+  private async ownedOpenJob(jobId: string, manufacturerProfileId: string) {
     const job = await ProductionJob.query()
       .where('id', jobId)
       .where('manufacturerProfileId', manufacturerProfileId)

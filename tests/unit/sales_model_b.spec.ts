@@ -21,6 +21,7 @@ import {
 import { splitGross } from '#services/tax/tax'
 import { isValidTckn, isValidVkn } from '#services/identity/tax_ids'
 import { approvePayee, createFundedOrder, createUser } from '#tests/helpers/order_fixtures'
+import { uid } from '#tests/helpers/ids'
 
 const ledger = new LedgerService()
 const PDF = Buffer.from('%PDF-1.4 test invoice')
@@ -286,13 +287,7 @@ test.group('Model B: releasing a completed order', (group) => {
     // someone else's payout
     await assert.rejects(
       () =>
-        documents.submitInvoice(
-          makerUser.id,
-          { ...payee, id: payee.id + 999 },
-          payout.id,
-          invoice,
-          PDF
-        ),
+        documents.submitInvoice(makerUser.id, { ...payee, id: uid(999) }, payout.id, invoice, PDF),
       /not found/
     )
 

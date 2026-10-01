@@ -7,7 +7,7 @@ import MarginPreviewService from '#services/catalog/margin_preview_service'
 import SellerAnalyticsService from '#services/catalog/seller_analytics_service'
 
 const previewValidator = vine.create({
-  catalogProductId: vine.number().positive().withoutDecimals(),
+  catalogProductId: vine.string().uuid(),
   marginBps: vine.number().withoutDecimals().min(0).max(20000),
 })
 const analyticsValidator = vine.create({

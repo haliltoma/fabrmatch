@@ -3,7 +3,7 @@ import { BaseSchema } from '@adonisjs/lucid/schema'
 export default class extends BaseSchema {
   async up() {
     this.schema.createTable('coupons', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table.string('code', 40).notNullable().unique()
       table.enum('kind', ['percent', 'fixed']).notNullable()
       // percent: basis points (1000 = 10%); fixed: TRY minor units (converted for other currencies)
@@ -20,18 +20,11 @@ export default class extends BaseSchema {
       table.timestamp('created_at').notNullable()
     })
     this.schema.createTable('coupon_redemptions', (table) => {
-      table.increments('id')
-      table.integer('coupon_id').unsigned().notNullable().references('id').inTable('coupons')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
+      table.uuid('coupon_id').notNullable().references('id').inTable('coupons')
+      table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE')
       table
-        .integer('user_id')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('CASCADE')
-      table
-        .integer('order_id')
-        .unsigned()
+        .uuid('order_id')
         .notNullable()
         .unique()
         .references('id')

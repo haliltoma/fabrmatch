@@ -6,8 +6,8 @@ export interface AuditFilters {
   /** exact action or a prefix ending in ".", e.g. "order." */
   action?: string
   subjectType?: string
-  subjectId?: number
-  actorId?: number
+  subjectId?: string
+  actorId?: string
   from?: string
   to?: string
   page?: number

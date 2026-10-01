@@ -10,7 +10,7 @@ export default class StoreWebhookController {
     if (!raw) return response.badRequest({ error: 'Empty body' })
     try {
       const result = await new StoreService().receiveOrderWebhook(
-        Number(params.id),
+        params.id,
         raw,
         request.headers() as never
       )

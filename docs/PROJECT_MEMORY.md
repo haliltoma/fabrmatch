@@ -280,6 +280,8 @@
 
 ## Log
 
+- **2026-10-01** — U7 UUID: tüm PK/FK UUIDv7 (`uuid_generate_v7()` SQL fonksiyonu, varsayılan değer), migration'lar yerinde çevrildi, yerel DB yeniden kuruldu + demo seed; rotalarda genel UUID eşleyici; testlerde `uid(n)`; dış mağaza id'leri sayı kaldı; `AppToaster` (bildirim kontrastı). 980 test, a11y 0, ssr 60/60.
+
 - **2026-10-01** — U5b: rutin kuyruklarda toplu işlem (`/admin/queues/bulk`), itiraz sayfaları standart başlık/boş durum, tek panel adı, telefon menüsünde ⌘K. 980 test.
 
 - **2026-10-01** — U6 paneller: mobil üst çubuk (logo + sayfa adı), alt sekme çubuğu (üretici/satıcı), gruplu menüler, tek panel adı, üretici "Sırada" + İş rozeti (`MakerAttentionService`), ortak `NextUp`, iki adımlı kargo formu. 979 test.

@@ -3,7 +3,7 @@ import { BaseSchema } from '@adonisjs/lucid/schema'
 export default class extends BaseSchema {
   async up() {
     this.schema.createTable('leads', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table.string('email', 254).notNullable()
       table.enum('interest', ['maker', 'seller', 'buyer']).notNullable()
       table.string('city', 80).nullable()
@@ -22,7 +22,7 @@ export default class extends BaseSchema {
 
     // anonymous funnel events: no user id, no e-mail, no IP
     this.schema.createTable('marketing_events', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table.string('name', 40).notNullable()
       table.string('source', 60).nullable()
       table.string('medium', 60).nullable()

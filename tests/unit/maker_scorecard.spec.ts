@@ -8,6 +8,7 @@ import EarningsService from '#services/payments/earnings_service'
 import FakePaymentProvider from '#services/payments/fake_provider'
 import PayoutService from '#services/payments/payout_service'
 import { createFundedOrder } from '#tests/helpers/order_fixtures'
+import { uid } from '#tests/helpers/ids'
 
 test.group('MakerScorecardService', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
@@ -84,7 +85,7 @@ test.group('EarningsService', (group) => {
     assert.notInclude(json, buyer.email)
     assert.notInclude(json, 'Ali Veli')
 
-    const other = await earnings.list('manufacturer', profile.id + 999)
+    const other = await earnings.list('manufacturer', uid(999))
     assert.lengthOf(other.rows, 0)
   })
 

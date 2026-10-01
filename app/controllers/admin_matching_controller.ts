@@ -15,7 +15,7 @@ export default class AdminMatchingController {
 
   async show({ params, inertia }: HttpContext) {
     return inertia.render('admin/matching/show', {
-      ...(await new MatchSuggestionService().forOrder(Number(params.id))),
+      ...(await new MatchSuggestionService().forOrder(params.id)),
       autoOffer: MatchingService.autoOffer(),
     })
   }
@@ -23,12 +23,9 @@ export default class AdminMatchingController {
   async offer({ params, request, response, session, auth }: HttpContext) {
     const { manufacturerProfileId } = await request.validateUsing(adminOfferValidator)
     // manual mode: the admin decides, rules are advice; automatic mode: rules are required
-    await new MatchingService().offerTo(
-      Number(params.id),
-      manufacturerProfileId,
-      auth.getUserOrFail().id,
-      { allowOverride: !MatchingService.autoOffer() }
-    )
+    await new MatchingService().offerTo(params.id, manufacturerProfileId, auth.getUserOrFail().id, {
+      allowOverride: !MatchingService.autoOffer(),
+    })
     session.flash('success', 'Offer sent. The maker has to accept it before the time runs out.')
     return response.redirect().toPath(`/admin/matching/${params.id}`)
   }

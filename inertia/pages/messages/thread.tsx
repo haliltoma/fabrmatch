@@ -8,7 +8,7 @@ import { OrderCode } from '~/components/order_code'
 import { useT } from '~/lib/i18n'
 
 type Message = {
-  id: number
+  id: string
   mine: boolean
   from: string
   body: string
@@ -24,7 +24,7 @@ function Thread({
   postHref,
 }: {
   side: 'buyer' | 'maker'
-  order: { id: number; code: string; status: string }
+  order: { id: string; code: string; status: string }
   messages: Message[]
   backHref: string
   postHref: string

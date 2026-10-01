@@ -11,7 +11,7 @@ import { formatDateTime } from '~/lib/format'
 import { useT } from '~/lib/i18n'
 
 type Key = {
-  id: number
+  id: string
   name: string
   prefix: string
   lastUsedAt: string | null
@@ -19,15 +19,15 @@ type Key = {
   createdAt: string
 }
 type Endpoint = {
-  id: number
+  id: string
   url: string
   isActive: boolean
   disabledReason: string | null
   consecutiveFailures: number
 }
 type Delivery = {
-  id: number
-  endpointId: number
+  id: string
+  endpointId: string
   eventType: string
   status: string
   attempts: number
@@ -40,7 +40,7 @@ type Props = {
   endpoints: Endpoint[]
   deliveries: Delivery[]
   newApiKey: string | null
-  newWebhookSecret: { endpointId: number; secret: string } | null
+  newWebhookSecret: { endpointId: string; secret: string } | null
 }
 
 function Secret({ title, note, value }: { title: string; note: string; value: string }) {

@@ -31,7 +31,7 @@ function setup() {
   const payments = new PaymentService(provider, async () => {})
   const payouts = new PayoutService(provider)
   const matching = new MatchingService(noEffects, () => 0.99)
-  const rematchCalls: number[] = []
+  const rematchCalls: string[] = []
   const disputes = new DisputeService(payments, payouts, async (id) => {
     rematchCalls.push(id)
     return matching.runRound(id)
@@ -128,7 +128,7 @@ test.group('reprint after a dispute (R3-T6)', (group) => {
     const { default: ProductionJobTransformer } =
       await import('#transformers/production_job_transformer')
     const { default: app } = await import('@adonisjs/core/services/app')
-    const view = async (profileId: number) =>
+    const view = async (profileId: string) =>
       JSON.stringify(
         await ProductionJobTransformer.transform(
           await new MakerWorkService().jobs(profileId)

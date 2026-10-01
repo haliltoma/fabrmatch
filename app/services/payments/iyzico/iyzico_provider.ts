@@ -39,9 +39,9 @@ export interface IyzicoSubMerchantInput {
 
 /** Where sub-merchant keys live, and the onboarding details of a beneficiary. */
 export interface SubMerchantDirectory {
-  find(type: 'manufacturer' | 'seller', id: number): Promise<string | null>
-  save(type: 'manufacturer' | 'seller', id: number, key: string): Promise<void>
-  details(type: 'manufacturer' | 'seller', id: number): Promise<IyzicoSubMerchantInput>
+  find(type: 'manufacturer' | 'seller', id: string): Promise<string | null>
+  save(type: 'manufacturer' | 'seller', id: string, key: string): Promise<void>
+  details(type: 'manufacturer' | 'seller', id: string): Promise<IyzicoSubMerchantInput>
 }
 
 export interface IyzicoOptions {

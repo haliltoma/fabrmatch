@@ -5,13 +5,13 @@ import FileAccessGrant from '#models/file_access_grant'
 
 export default class FileDownloadLog extends BaseModel {
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
 
   @column()
-  declare grantId: number
+  declare grantId: string
 
   @column()
-  declare manufacturerProfileId: number
+  declare manufacturerProfileId: string
 
   @column()
   declare ipAddress: string | null

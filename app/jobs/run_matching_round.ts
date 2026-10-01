@@ -4,7 +4,7 @@ import Order from '#models/order'
 import MatchingService from '#services/matching/matching_service'
 
 interface RunMatchingRoundPayload {
-  orderId: number
+  orderId: string
 }
 
 export default class RunMatchingRound extends Job<RunMatchingRoundPayload> {

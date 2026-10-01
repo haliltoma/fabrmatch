@@ -26,7 +26,7 @@ export default class CarrierService {
   }
 
   /** Buys a label for a produced job. The sender line carries the maker's alias only. */
-  async createLabel(jobId: number, weightGrams: number): Promise<Label> {
+  async createLabel(jobId: string, weightGrams: number): Promise<Label> {
     const job = await ProductionJob.query().where('id', jobId).preload('order').firstOrFail()
     const profile = await ManufacturerProfile.findOrFail(job.manufacturerProfileId)
     const address = new OrderService().decryptShippingAddress(job.order)

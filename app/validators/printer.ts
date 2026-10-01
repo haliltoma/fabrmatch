@@ -2,7 +2,7 @@ import vine from '@vinejs/vine'
 
 export const createPrinterValidator = vine.create({
   name: vine.string().trim().minLength(1).maxLength(100),
-  printerModelId: vine.number().positive().withoutDecimals().optional().nullable(),
+  printerModelId: vine.string().uuid().optional().nullable(),
   technology: vine.enum(['FDM', 'SLA', 'SLS'] as const),
   buildVolumeXMm: vine.number().positive().max(2000),
   buildVolumeYMm: vine.number().positive().max(2000),
@@ -11,7 +11,7 @@ export const createPrinterValidator = vine.create({
 
 export const updatePrinterValidator = vine.create({
   name: vine.string().trim().minLength(1).maxLength(100).optional(),
-  printerModelId: vine.number().positive().withoutDecimals().optional().nullable(),
+  printerModelId: vine.string().uuid().optional().nullable(),
   technology: vine.enum(['FDM', 'SLA', 'SLS'] as const).optional(),
   buildVolumeXMm: vine.number().positive().max(2000).optional(),
   buildVolumeYMm: vine.number().positive().max(2000).optional(),
@@ -37,5 +37,5 @@ export const updateMaterialValidator = vine.create({
 })
 
 export const profilesValidator = vine.create({
-  profileIds: vine.array(vine.number().positive().withoutDecimals()),
+  profileIds: vine.array(vine.string().uuid()),
 })

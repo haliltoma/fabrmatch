@@ -7,9 +7,9 @@ import { PageHeader } from '~/components/page_header'
 import { useT } from '~/lib/i18n'
 
 type Row = {
-  id: number
+  id: string
   from: string
-  senderId: number
+  senderId: string
   shown: string
   original: string | null
   maskedCount: number
@@ -20,7 +20,7 @@ export default function AdminMessages({
   order,
   messages,
 }: {
-  order: { id: number; code: string; status: string }
+  order: { id: string; code: string; status: string }
   messages: Row[]
 }) {
   const { t } = useT()

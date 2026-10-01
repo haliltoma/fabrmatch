@@ -96,7 +96,7 @@ test.group('Idempotency-Key (X-3)', (group) => {
     await new CartService().add(user, { modelFileId: file.id, material: 'PLA', quantity: 1 })
     const retry = await attempt()
     retry.assertStatus(302)
-    assert.match(retry.header('location') ?? '', /^\/orders\/\d+$/)
+    assert.match(retry.header('location') ?? '', /^\/orders\/[0-9a-f-]{36}$/)
   })
 })
 

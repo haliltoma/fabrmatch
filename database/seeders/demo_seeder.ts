@@ -335,8 +335,8 @@ export default class DemoSeeder extends BaseSeeder {
 
   private async approvedPayee(
     type: 'manufacturer' | 'seller',
-    beneficiaryId: number,
-    userId: number,
+    beneficiaryId: string,
+    userId: string,
     taxStatus: 'company' | 'sole_proprietor',
     legalName: string
   ) {
@@ -380,7 +380,7 @@ export default class DemoSeeder extends BaseSeeder {
   }
 
   /** Puts the demo mesh behind a model file row and renders its shop images. */
-  private async storeMesh(title: string, storageKey: string, modelFileId: number) {
+  private async storeMesh(title: string, storageKey: string, modelFileId: string) {
     const mesh = demoMeshFor(title)
     if (!mesh) return
     const disk = drive.use('s3')

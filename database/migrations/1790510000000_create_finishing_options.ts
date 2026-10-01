@@ -4,7 +4,7 @@ import { DEFAULT_FINISHINGS } from '#services/catalog/finishing_defaults'
 export default class extends BaseSchema {
   async up() {
     this.schema.createTable('finishing_options', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table.string('code', 32).notNullable().unique()
       table.string('name', 100).notNullable()
       table.string('description', 300).notNullable().defaultTo('')
@@ -16,17 +16,15 @@ export default class extends BaseSchema {
       table.timestamp('created_at').notNullable()
     })
     this.schema.createTable('manufacturer_finishings', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table
-        .integer('manufacturer_profile_id')
-        .unsigned()
+        .uuid('manufacturer_profile_id')
         .notNullable()
         .references('id')
         .inTable('manufacturer_profiles')
         .onDelete('CASCADE')
       table
-        .integer('finishing_option_id')
-        .unsigned()
+        .uuid('finishing_option_id')
         .notNullable()
         .references('id')
         .inTable('finishing_options')

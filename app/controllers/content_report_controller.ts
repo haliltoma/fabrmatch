@@ -11,7 +11,7 @@ export default class ContentReportController {
   async store({ params, request, response, session, auth }: HttpContext) {
     const data = await request.validateUsing(validator)
     await new ContentReportService().report(auth.getUserOrFail().id, {
-      sellerProductId: Number(params.id),
+      sellerProductId: params.id,
       ...data,
     })
     session.flash('success', 'Thank you — our team will review this listing.')

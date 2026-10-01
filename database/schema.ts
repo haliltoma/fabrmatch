@@ -13,7 +13,7 @@ export class ApiKeySchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare keyHash: string
   @column.dateTime()
@@ -25,7 +25,7 @@ export class ApiKeySchema extends BaseModel {
   @column.dateTime()
   declare revokedAt: DateTime | null
   @column()
-  declare userId: number
+  declare userId: string
 }
 
 export class AuditLogSchema extends BaseModel {
@@ -34,15 +34,15 @@ export class AuditLogSchema extends BaseModel {
   @column()
   declare action: string
   @column()
-  declare actorId: number | null
+  declare actorId: string | null
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare meta: any
   @column()
-  declare subjectId: number
+  declare subjectId: string | null
   @column()
   declare subjectType: string
 }
@@ -55,11 +55,11 @@ export class CapacitySlotSchema extends BaseModel {
   @column.date()
   declare date: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare maxMinutes: number
   @column()
-  declare printerId: number
+  declare printerId: string
   @column()
   declare reservedMinutes: number
   @column.dateTime({ autoCreate: true, autoUpdate: true })
@@ -72,7 +72,7 @@ export class CarrierEventSchema extends BaseModel {
   @column()
   declare eventId: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column.dateTime()
   declare processedAt: DateTime | null
   @column()
@@ -97,21 +97,21 @@ export class CartItemSchema extends BaseModel {
   @column()
   declare finishingColour: string | null
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare infill: string | null
   @column()
   declare material: string
   @column()
-  declare modelFileId: number
+  declare modelFileId: string
   @column()
-  declare printProfileId: number | null
+  declare printProfileId: string | null
   @column()
   declare quantity: number
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
   @column()
-  declare userId: number
+  declare userId: string
 }
 
 export class CatalogProductSchema extends BaseModel {
@@ -122,17 +122,17 @@ export class CatalogProductSchema extends BaseModel {
   @column()
   declare allowedScales: any
   @column()
-  declare categoryId: number | null
+  declare categoryId: string | null
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column()
   declare description: string | null
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare isActive: boolean
   @column()
-  declare modelFileId: number | null
+  declare modelFileId: string | null
   @column()
   declare slug: string
   @column()
@@ -149,7 +149,7 @@ export class CategorySchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare isActive: boolean
   @column()
@@ -168,19 +168,19 @@ export class ChargebackSchema extends BaseModel {
   @column()
   declare currency: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare note: string | null
   @column()
-  declare orderId: number
+  declare orderId: string
   @column()
-  declare paymentId: number
+  declare paymentId: string
   @column()
   declare providerEventId: string
   @column.dateTime()
   declare resolvedAt: DateTime | null
   @column()
-  declare resolvedBy: number | null
+  declare resolvedBy: string | null
   @column()
   declare status: string
   @column()
@@ -195,7 +195,7 @@ export class ColorSchema extends BaseModel {
   @column()
   declare hex: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare isActive: boolean
   @column()
@@ -212,11 +212,11 @@ export class ConsentSchema extends BaseModel {
   @column()
   declare granted: boolean
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare kind: string
   @column()
-  declare userId: number
+  declare userId: string
   @column()
   declare version: string
 }
@@ -229,19 +229,19 @@ export class ContentReportSchema extends BaseModel {
   @column()
   declare details: string | null
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
-  declare modelFileId: number | null
+  declare modelFileId: string | null
   @column()
   declare reason: string
   @column()
-  declare reporterId: number
+  declare reporterId: string
   @column.dateTime()
   declare resolvedAt: DateTime | null
   @column()
-  declare resolvedBy: number | null
+  declare resolvedBy: string | null
   @column()
-  declare sellerProductId: number | null
+  declare sellerProductId: string | null
   @column()
   declare status: string
 }
@@ -250,17 +250,17 @@ export class CouponRedemptionSchema extends BaseModel {
   static $columns = ['couponId', 'createdAt', 'discountMinor', 'id', 'orderId', 'userId'] as const
   $columns = CouponRedemptionSchema.$columns
   @column()
-  declare couponId: number
+  declare couponId: string
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column()
   declare discountMinor: number
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
-  declare orderId: number
+  declare orderId: string
   @column()
-  declare userId: number
+  declare userId: string
 }
 
 export class CouponSchema extends BaseModel {
@@ -275,7 +275,7 @@ export class CouponSchema extends BaseModel {
   @column()
   declare firstOrderOnly: boolean
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare isActive: boolean
   @column()
@@ -293,7 +293,7 @@ export class CouponSchema extends BaseModel {
   @column.dateTime()
   declare startsAt: DateTime | null
   @column()
-  declare userId: number | null
+  declare userId: string | null
   @column()
   declare value: number
 }
@@ -304,15 +304,15 @@ export class DisputeEvidenceSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column()
-  declare disputeId: number
+  declare disputeId: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare note: string | null
   @column()
   declare storageKey: string
   @column()
-  declare uploaderId: number
+  declare uploaderId: string
 }
 
 export class DisputeSchema extends BaseModel {
@@ -323,13 +323,13 @@ export class DisputeSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare manufacturerResponse: string | null
   @column()
-  declare openedBy: number
+  declare openedBy: string
   @column()
-  declare orderId: number
+  declare orderId: string
   @column()
   declare reason: string
   @column()
@@ -339,7 +339,7 @@ export class DisputeSchema extends BaseModel {
   @column.dateTime()
   declare resolvedAt: DateTime | null
   @column()
-  declare resolvedBy: number | null
+  declare resolvedBy: string | null
   @column()
   declare status: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
@@ -356,7 +356,7 @@ export class ExperimentEventSchema extends BaseModel {
   @column()
   declare experiment: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare variant: string
   @column()
@@ -375,7 +375,7 @@ export class ExternalListingSchema extends BaseModel {
   @column()
   declare externalVariantId: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare material: string | null
   @column()
@@ -385,11 +385,11 @@ export class ExternalListingSchema extends BaseModel {
   @column()
   declare scalePercent: number | null
   @column()
-  declare sellerProductId: number | null
+  declare sellerProductId: string | null
   @column()
   declare sku: string | null
   @column()
-  declare storeConnectionId: number
+  declare storeConnectionId: string
   @column()
   declare title: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
@@ -416,11 +416,11 @@ export class ExternalOrderSchema extends BaseModel {
   @column()
   declare fulfillmentStatus: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare lines: any
   @column()
-  declare orderId: number | null
+  declare orderId: string | null
   @column()
   declare shippingAddressEnc: string
   @column.dateTime()
@@ -428,7 +428,7 @@ export class ExternalOrderSchema extends BaseModel {
   @column()
   declare status: string
   @column()
-  declare storeConnectionId: number
+  declare storeConnectionId: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 }
@@ -443,15 +443,15 @@ export class FileAccessGrantSchema extends BaseModel {
   @column.dateTime()
   declare expiresAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
-  declare manufacturerProfileId: number
+  declare manufacturerProfileId: string
   @column()
   declare maxDownloads: number
   @column()
-  declare modelFileId: number
+  declare modelFileId: string
   @column()
-  declare productionJobId: number | null
+  declare productionJobId: string | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 }
@@ -462,13 +462,13 @@ export class FileDownloadLogSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column()
-  declare grantId: number
+  declare grantId: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare ipAddress: string | null
   @column()
-  declare manufacturerProfileId: number
+  declare manufacturerProfileId: string
   @column()
   declare userAgent: string | null
 }
@@ -485,7 +485,7 @@ export class FinishingOptionSchema extends BaseModel {
   @column()
   declare extraDays: number
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare isActive: boolean
   @column()
@@ -506,13 +506,13 @@ export class FraudFlagSchema extends BaseModel {
   @column()
   declare detail: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
-  declare orderId: number
+  declare orderId: string
   @column.dateTime()
   declare resolvedAt: DateTime | null
   @column()
-  declare resolvedBy: number | null
+  declare resolvedBy: string | null
   @column()
   declare rule: string
   @column()
@@ -531,7 +531,7 @@ export class FxRateSchema extends BaseModel {
   @column()
   declare currency: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare rateNano: bigint | number
   @column()
@@ -555,7 +555,7 @@ export class InvoiceSchema extends BaseModel {
   @column()
   declare grossMinor: number
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column.dateTime()
   declare issuedAt: DateTime
   @column()
@@ -565,13 +565,13 @@ export class InvoiceSchema extends BaseModel {
   @column()
   declare number: string
   @column()
-  declare orderId: number
+  declare orderId: string
   @column()
   declare provider: string
   @column()
   declare providerRef: string | null
   @column()
-  declare recipientUserId: number
+  declare recipientUserId: string
   @column()
   declare status: string
   @column()
@@ -586,9 +586,9 @@ export class JobQcPhotoSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
-  declare productionJobId: number
+  declare productionJobId: string
   @column()
   declare storageKey: string
 }
@@ -607,7 +607,7 @@ export class LeadSchema extends BaseModel {
   @column()
   declare email: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare interest: string
   @column()
@@ -634,26 +634,26 @@ export class LedgerEntrySchema extends BaseModel {
   @column()
   declare direction: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare memo: string | null
   @column()
-  declare orderId: number | null
+  declare orderId: string | null
   @column()
   declare transactionId: string
   @column()
-  declare walletUserId: number | null
+  declare walletUserId: string | null
 }
 
 export class ManufacturerFinishingSchema extends BaseModel {
   static $columns = ['finishingOptionId', 'id', 'manufacturerProfileId'] as const
   $columns = ManufacturerFinishingSchema.$columns
   @column()
-  declare finishingOptionId: number
+  declare finishingOptionId: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
-  declare manufacturerProfileId: number
+  declare manufacturerProfileId: string
 }
 
 export class ManufacturerProfileSchema extends BaseModel {
@@ -668,7 +668,7 @@ export class ManufacturerProfileSchema extends BaseModel {
   @column()
   declare ibanEnc: string | null
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare isCorporate: boolean
   @column()
@@ -686,7 +686,7 @@ export class ManufacturerProfileSchema extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
   @column()
-  declare userId: number
+  declare userId: string
 }
 
 export class MarketingEventSchema extends BaseModel {
@@ -697,7 +697,7 @@ export class MarketingEventSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare medium: string | null
   @column()
@@ -718,15 +718,15 @@ export class MatchOfferSchema extends BaseModel {
   @column.dateTime()
   declare expiresAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare isExploration: boolean
   @column()
-  declare manufacturerProfileId: number
+  declare manufacturerProfileId: string
   @column()
-  declare orderId: number
+  declare orderId: string
   @column()
-  declare printerId: number | null
+  declare printerId: string | null
   @column.dateTime()
   declare respondedAt: DateTime | null
   @column()
@@ -749,7 +749,7 @@ export class MaterialSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare isActive: boolean
   @column()
@@ -784,15 +784,15 @@ export class ModelFileSchema extends BaseModel {
   @column()
   declare format: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare isPrintable: boolean | null
   @column()
   declare originalName: string
   @column()
-  declare ownerId: number
+  declare ownerId: string
   @column()
-  declare previousFileId: number | null
+  declare previousFileId: string | null
   @column()
   declare revision: number
   @column()
@@ -817,13 +817,13 @@ export class NotificationPreferenceSchema extends BaseModel {
   @column()
   declare email: boolean
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare type: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
   @column()
-  declare userId: number
+  declare userId: string
 }
 
 export class NotificationSchema extends BaseModel {
@@ -840,7 +840,7 @@ export class NotificationSchema extends BaseModel {
   @column()
   declare eventKey: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column.dateTime()
   declare readAt: DateTime | null
   @column()
@@ -848,7 +848,7 @@ export class NotificationSchema extends BaseModel {
   @column()
   declare type: string
   @column()
-  declare userId: number
+  declare userId: string
 }
 
 export class OrderItemSchema extends BaseModel {
@@ -871,17 +871,17 @@ export class OrderItemSchema extends BaseModel {
   @column()
   declare finishingName: string | null
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare manufacturerShareMinor: number
   @column()
   declare material: string
   @column()
-  declare modelFileId: number
+  declare modelFileId: string
   @column()
-  declare orderId: number
+  declare orderId: string
   @column()
-  declare printProfileId: number | null
+  declare printProfileId: string | null
   @column()
   declare quantity: number
   @column()
@@ -902,17 +902,17 @@ export class OrderMessageSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare maskedCount: number
   @column()
-  declare orderId: number
+  declare orderId: string
   @column()
   declare originalEnc: string | null
   @column.dateTime()
   declare readAt: DateTime | null
   @column()
-  declare senderId: number
+  declare senderId: string
   @column()
   declare senderRole: string
 }
@@ -923,7 +923,7 @@ export class OrderSchema extends BaseModel {
   @column()
   declare baseTotalMinor: number
   @column()
-  declare buyerId: number
+  declare buyerId: string
   @column()
   declare channel: string
   @column()
@@ -939,21 +939,21 @@ export class OrderSchema extends BaseModel {
   @column()
   declare discountMinor: number
   @column()
-  declare fxRateId: number | null
+  declare fxRateId: string | null
   @column()
   declare fxRateNano: bigint | number | null
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare matchingRound: number
   @column()
   declare platformFeeMinor: number
   @column()
-  declare pricingRegionId: number | null
+  declare pricingRegionId: string | null
   @column()
   declare requiredTrustTier: number
   @column()
-  declare sellerId: number | null
+  declare sellerId: string | null
   @column()
   declare sellerShareMinor: number
   @column()
@@ -982,7 +982,7 @@ export class PayeeTaxProfileSchema extends BaseModel {
   @column()
   declare addressEnc: string
   @column()
-  declare beneficiaryId: number
+  declare beneficiaryId: string
   @column()
   declare beneficiaryType: string
   @column.dateTime({ autoCreate: true })
@@ -994,7 +994,7 @@ export class PayeeTaxProfileSchema extends BaseModel {
   @column()
   declare ibanEnc: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare legalName: string
   @column()
@@ -1002,7 +1002,7 @@ export class PayeeTaxProfileSchema extends BaseModel {
   @column.dateTime()
   declare reviewedAt: DateTime | null
   @column()
-  declare reviewedBy: number | null
+  declare reviewedBy: string | null
   @column()
   declare status: string
   @column.dateTime()
@@ -1016,7 +1016,7 @@ export class PayeeTaxProfileSchema extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
   @column()
-  declare userId: number
+  declare userId: string
 }
 
 export class PaymentProviderCallSchema extends BaseModel {
@@ -1027,7 +1027,7 @@ export class PaymentProviderCallSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare idempotencyKey: string
   @column()
@@ -1040,13 +1040,13 @@ export class PaymentSubMerchantSchema extends BaseModel {
   static $columns = ['beneficiaryId', 'beneficiaryType', 'createdAt', 'id', 'provider', 'subMerchantKey'] as const
   $columns = PaymentSubMerchantSchema.$columns
   @column()
-  declare beneficiaryId: number
+  declare beneficiaryId: string
   @column()
   declare beneficiaryType: string
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare provider: string
   @column()
@@ -1057,7 +1057,7 @@ export class PaymentWebhookSchema extends BaseModel {
   static $columns = ['id', 'payload', 'processedAt', 'provider', 'providerEventId', 'receivedAt', 'type'] as const
   $columns = PaymentWebhookSchema.$columns
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare payload: any
   @column.dateTime()
@@ -1082,9 +1082,9 @@ export class PaymentSchema extends BaseModel {
   @column()
   declare currency: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
-  declare orderId: number | null
+  declare orderId: string | null
   @column()
   declare provider: string
   @column()
@@ -1096,7 +1096,7 @@ export class PaymentSchema extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
   @column()
-  declare walletUserId: number | null
+  declare walletUserId: string | null
 }
 
 export class PayoutDocumentSchema extends BaseModel {
@@ -1113,7 +1113,7 @@ export class PayoutDocumentSchema extends BaseModel {
   @column()
   declare grossMinor: number
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column.date()
   declare issuedOn: DateTime
   @column()
@@ -1121,13 +1121,13 @@ export class PayoutDocumentSchema extends BaseModel {
   @column()
   declare number: string
   @column()
-  declare payoutId: number
+  declare payoutId: string
   @column()
   declare rejectionReason: string | null
   @column.dateTime()
   declare reviewedAt: DateTime | null
   @column()
-  declare reviewedBy: number | null
+  declare reviewedBy: string | null
   @column()
   declare status: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
@@ -1144,7 +1144,7 @@ export class PayoutSchema extends BaseModel {
   @column()
   declare amountMinor: number
   @column()
-  declare beneficiaryId: number
+  declare beneficiaryId: string
   @column()
   declare beneficiaryType: string
   @column.dateTime({ autoCreate: true })
@@ -1154,9 +1154,9 @@ export class PayoutSchema extends BaseModel {
   @column()
   declare grossMinor: number | null
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
-  declare orderId: number
+  declare orderId: string
   @column.dateTime()
   declare paidAt: DateTime | null
   @column()
@@ -1181,13 +1181,13 @@ export class PricingRegionMaterialSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare material: string
   @column()
   declare pricePerGramMinor: number
   @column()
-  declare pricingRegionId: number
+  declare pricingRegionId: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }
@@ -1206,7 +1206,7 @@ export class PricingRegionSchema extends BaseModel {
   @column()
   declare currency: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare isFallback: boolean
   @column()
@@ -1229,7 +1229,7 @@ export class PrintProfileSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare infillPercent: number
   @column()
@@ -1258,13 +1258,13 @@ export class PrinterMaterialSchema extends BaseModel {
   @column()
   declare currency: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare material: string
   @column()
   declare pricePerGramMinor: number
   @column()
-  declare printerId: number
+  declare printerId: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 }
@@ -1285,7 +1285,7 @@ export class PrinterModelSchema extends BaseModel {
   @column()
   declare enclosed: boolean
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare model: string
   @column()
@@ -1298,9 +1298,9 @@ export class PrinterPrintProfileSchema extends BaseModel {
   static $columns = ['printProfileId', 'printerId'] as const
   $columns = PrinterPrintProfileSchema.$columns
   @column()
-  declare printProfileId: number
+  declare printProfileId: string
   @column({ isPrimary: true })
-  declare printerId: number
+  declare printerId: string
 }
 
 export class PrinterSchema extends BaseModel {
@@ -1315,15 +1315,15 @@ export class PrinterSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare isActive: boolean
   @column()
-  declare manufacturerProfileId: number
+  declare manufacturerProfileId: string
   @column()
   declare name: string
   @column()
-  declare printerModelId: number | null
+  declare printerModelId: string | null
   @column()
   declare technology: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
@@ -1342,25 +1342,25 @@ export class ProductImageSchema extends BaseModel {
   @column()
   declare height: number | null
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare kind: string
   @column()
-  declare modelFileId: number
+  declare modelFileId: string
   @column()
-  declare qcPhotoId: number | null
+  declare qcPhotoId: string | null
   @column()
   declare renderVersion: number | null
   @column.dateTime()
   declare reviewedAt: DateTime | null
   @column()
-  declare reviewedBy: number | null
+  declare reviewedBy: string | null
   @column()
   declare status: string
   @column()
   declare storageKey: string
   @column()
-  declare submittedBy: number | null
+  declare submittedBy: string | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
   @column()
@@ -1375,7 +1375,7 @@ export class ProductionJobSchema extends BaseModel {
   @column()
   declare cancelReason: string | null
   @column()
-  declare capacitySlotId: number | null
+  declare capacitySlotId: string | null
   @column()
   declare carrier: string | null
   @column.dateTime({ autoCreate: true })
@@ -1383,13 +1383,13 @@ export class ProductionJobSchema extends BaseModel {
   @column.dateTime()
   declare dueAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
-  declare manufacturerProfileId: number
+  declare manufacturerProfileId: string
   @column()
-  declare orderId: number
+  declare orderId: string
   @column()
-  declare printerId: number | null
+  declare printerId: string | null
   @column.dateTime()
   declare producedAt: DateTime | null
   @column()
@@ -1414,15 +1414,15 @@ export class ReferralSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
-  declare refereeCouponId: number | null
+  declare refereeCouponId: string | null
   @column()
-  declare refereeId: number
+  declare refereeId: string
   @column()
-  declare referrerCouponId: number | null
+  declare referrerCouponId: string | null
   @column()
-  declare referrerId: number
+  declare referrerId: string
   @column()
   declare rejectReason: string | null
   @column.dateTime()
@@ -1437,15 +1437,15 @@ export class RfqBidSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare leadDays: number
   @column()
-  declare manufacturerProfileId: number
+  declare manufacturerProfileId: string
   @column()
   declare note: string | null
   @column()
-  declare rfqId: number
+  declare rfqId: string
   @column()
   declare status: string
   @column()
@@ -1460,24 +1460,24 @@ export class RfqInviteSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare isExploration: boolean
   @column()
-  declare manufacturerProfileId: number
+  declare manufacturerProfileId: string
   @column()
-  declare rfqId: number
+  declare rfqId: string
 }
 
 export class RfqSchema extends BaseModel {
   static $columns = ['awardedBidId', 'bidsCloseAt', 'buyerId', 'code', 'color', 'createdAt', 'id', 'material', 'maxLeadDays', 'modelFileId', 'orderId', 'quantity', 'requiredTrustTier', 'shipCountry', 'status', 'technology', 'title', 'updatedAt'] as const
   $columns = RfqSchema.$columns
   @column()
-  declare awardedBidId: number | null
+  declare awardedBidId: string | null
   @column.dateTime()
   declare bidsCloseAt: DateTime
   @column()
-  declare buyerId: number
+  declare buyerId: string
   @column()
   declare code: string
   @column()
@@ -1485,15 +1485,15 @@ export class RfqSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare material: string
   @column()
   declare maxLeadDays: number
   @column()
-  declare modelFileId: number
+  declare modelFileId: string
   @column()
-  declare orderId: number | null
+  declare orderId: string | null
   @column()
   declare quantity: number
   @column()
@@ -1514,7 +1514,7 @@ export class SellerProductSchema extends BaseModel {
   static $columns = ['catalogProductId', 'createdAt', 'currency', 'description', 'id', 'marginBps', 'minMakerTier', 'searchVector', 'sellerProfileId', 'status', 'title', 'updatedAt'] as const
   $columns = SellerProductSchema.$columns
   @column()
-  declare catalogProductId: number | null
+  declare catalogProductId: string | null
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column()
@@ -1522,7 +1522,7 @@ export class SellerProductSchema extends BaseModel {
   @column()
   declare description: string | null
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare marginBps: number
   @column()
@@ -1530,7 +1530,7 @@ export class SellerProductSchema extends BaseModel {
   @column()
   declare searchVector: string | null
   @column()
-  declare sellerProfileId: number
+  declare sellerProfileId: string
   @column()
   declare status: string
   @column()
@@ -1553,7 +1553,7 @@ export class SellerProfileSchema extends BaseModel {
   @column()
   declare defaultMarginBps: number
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare isCorporate: boolean
   @column()
@@ -1567,7 +1567,7 @@ export class SellerProfileSchema extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
   @column()
-  declare userId: number
+  declare userId: string
   @column()
   declare walletAutoPay: boolean
 }
@@ -1582,7 +1582,7 @@ export class SettingSchema extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
   @column()
-  declare updatedBy: number | null
+  declare updatedBy: string | null
   @column()
   declare value: any
 }
@@ -1593,7 +1593,7 @@ export class ShippingRateSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare priceMinor: number
   @column()
@@ -1601,7 +1601,7 @@ export class ShippingRateSchema extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
   @column()
-  declare zoneId: number
+  declare zoneId: string
 }
 
 export class ShippingZoneSchema extends BaseModel {
@@ -1618,7 +1618,7 @@ export class ShippingZoneSchema extends BaseModel {
   @column()
   declare extraPerKgMinor: number
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare isFallback: boolean
   @column()
@@ -1643,7 +1643,7 @@ export class SliceEstimateSchema extends BaseModel {
   @column()
   declare gramsCenti: number | null
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare printMinutes: number | null
   @column()
@@ -1672,7 +1672,7 @@ export class StoreConnectionSchema extends BaseModel {
   @column()
   declare externalShopId: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column.dateTime()
   declare lastSyncedAt: DateTime | null
   @column.dateTime()
@@ -1682,7 +1682,7 @@ export class StoreConnectionSchema extends BaseModel {
   @column()
   declare refreshTokenEnc: string | null
   @column()
-  declare sellerUserId: number
+  declare sellerUserId: string
   @column()
   declare shopName: string
   @column()
@@ -1707,7 +1707,7 @@ export class SupportRequestSchema extends BaseModel {
   @column()
   declare email: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare message: string
   @column()
@@ -1717,7 +1717,7 @@ export class SupportRequestSchema extends BaseModel {
   @column()
   declare topic: string
   @column()
-  declare userId: number | null
+  declare userId: string | null
 }
 
 export class TaxRateSchema extends BaseModel {
@@ -1743,11 +1743,11 @@ export class TwoFactorBackupCodeSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column.dateTime()
   declare usedAt: DateTime | null
   @column()
-  declare userId: number
+  declare userId: string
 }
 
 export class UserRoleSchema extends BaseModel {
@@ -1756,11 +1756,11 @@ export class UserRoleSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare role: string
   @column()
-  declare userId: number
+  declare userId: string
 }
 
 export class UserSessionSchema extends BaseModel {
@@ -1779,7 +1779,7 @@ export class UserSessionSchema extends BaseModel {
   @column()
   declare userAgent: string | null
   @column()
-  declare userId: number
+  declare userId: string
 }
 
 export class UserSchema extends BaseModel {
@@ -1800,7 +1800,7 @@ export class UserSchema extends BaseModel {
   @column()
   declare fullName: string | null
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare locale: string | null
   @column({ serializeAs: null })
@@ -1829,7 +1829,7 @@ export class VerificationTokenSchema extends BaseModel {
   @column.dateTime()
   declare expiresAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare token: string
   @column()
@@ -1837,7 +1837,7 @@ export class VerificationTokenSchema extends BaseModel {
   @column.dateTime()
   declare usedAt: DateTime | null
   @column()
-  declare userId: number
+  declare userId: string
 }
 
 export class WebhookDeliverySchema extends BaseModel {
@@ -1850,13 +1850,13 @@ export class WebhookDeliverySchema extends BaseModel {
   @column.dateTime()
   declare deliveredAt: DateTime | null
   @column()
-  declare endpointId: number
+  declare endpointId: string
   @column()
   declare eventId: string
   @column()
   declare eventType: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare lastError: string | null
   @column()
@@ -1879,7 +1879,7 @@ export class WebhookEndpointSchema extends BaseModel {
   @column()
   declare disabledReason: string | null
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare isActive: boolean
   @column()
@@ -1887,7 +1887,7 @@ export class WebhookEndpointSchema extends BaseModel {
   @column()
   declare url: string
   @column()
-  declare userId: number
+  declare userId: string
 }
 
 export class WeeklyTemplateSchema extends BaseModel {
@@ -1896,9 +1896,9 @@ export class WeeklyTemplateSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
-  declare printerId: number
+  declare printerId: string
   @column()
   declare schedule: any
   @column.dateTime({ autoCreate: true, autoUpdate: true })

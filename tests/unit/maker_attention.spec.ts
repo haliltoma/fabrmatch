@@ -14,7 +14,7 @@ import {
   ensureReferenceCatalog,
 } from '#tests/helpers/order_fixtures'
 
-async function jobFor(profileId: number, printerId: number, status: string, dueInDays: number) {
+async function jobFor(profileId: string, printerId: string, status: string, dueInDays: number) {
   const { product } = await createStorefrontProduct()
   const order = await new OrderService().createStorefrontDraft(
     await createUser('buyer'),

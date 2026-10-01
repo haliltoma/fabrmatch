@@ -24,7 +24,7 @@ export default class AdminOrderController {
   }
 
   async show({ inertia, params, response }: HttpContext) {
-    const health = await new OrderHealthService().show(Number(params.id))
+    const health = await new OrderHealthService().show(params.id)
     if (!health) return response.notFound()
     return inertia.render('admin/orders/show', health)
   }
@@ -32,7 +32,7 @@ export default class AdminOrderController {
   /** Take a stuck job away from its maker and send the order back to matching (review fix 5). */
   async reassign({ params, request, response, session, auth }: HttpContext) {
     const { reason } = await request.validateUsing(reassignValidator)
-    await new MatchingService().reassign(Number(params.id), auth.getUserOrFail().id, reason)
+    await new MatchingService().reassign(params.id, auth.getUserOrFail().id, reason)
     session.flash(
       'success',
       'The order is back in matching; the previous maker will not be offered it again.'

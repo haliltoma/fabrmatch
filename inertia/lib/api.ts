@@ -25,7 +25,7 @@ export async function postJson<T = unknown>(url: string, body?: unknown): Promis
 }
 
 /** presign → PUT to storage → register: attaches one photo to a dispute. */
-export async function uploadDisputeEvidence(disputeId: number, file: File, note?: string) {
+export async function uploadDisputeEvidence(disputeId: string, file: File, note?: string) {
   const { storageKey, signedUrl } = await postJson<{ storageKey: string; signedUrl: string }>(
     `/disputes/${disputeId}/evidence/upload-url`,
     { contentType: file.type }

@@ -11,7 +11,7 @@ import { RENDER_VERSION, renderTurntable } from '#services/files/model_renderer'
 const MAX_TRIANGLES = 2_000_000
 
 export interface ShopImage {
-  id: number
+  id: string
   kind: 'render' | 'maker_photo'
   url: string
   width: number | null
@@ -29,7 +29,7 @@ export default class ProductImageService {
    * Renders the model once per RENDER_VERSION. Idempotent: a file that already has this version's
    * renders is skipped; older-version renders are replaced.
    */
-  async renderModel(modelFileId: number): Promise<number> {
+  async renderModel(modelFileId: string): Promise<number> {
     const file = await ModelFile.find(modelFileId)
     if (!file || file.blockedAt || file.analysisStatus !== 'done') return 0
 
@@ -85,8 +85,8 @@ export default class ProductImageService {
   }
 
   /** Approved pictures per model file: maker photos first (the real thing), then the turntable. */
-  async forModelFiles(modelFileIds: number[]): Promise<Map<number, ShopImage[]>> {
-    const map = new Map<number, ShopImage[]>()
+  async forModelFiles(modelFileIds: string[]): Promise<Map<string, ShopImage[]>> {
+    const map = new Map<string, ShopImage[]>()
     if (modelFileIds.length === 0) return map
     const rows = await ProductImage.query()
       .whereIn('modelFileId', [...new Set(modelFileIds)])

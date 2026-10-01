@@ -8,7 +8,7 @@ export interface RotationReport {
   rotated: number
   alreadyCurrent: number
   /** values neither key can open: left untouched and listed by row id */
-  unreadable: number[]
+  unreadable: string[]
 }
 
 const BATCH = 500
@@ -31,9 +31,10 @@ export default class KeyRotationService {
         alreadyCurrent: 0,
         unreadable: [],
       }
-      let lastId = 0
+      // UUIDv7 keys sort by creation time, so keyset paging by id still walks every row once
+      let lastId = '00000000-0000-0000-0000-000000000000'
       for (;;) {
-        const rows: Array<{ id: number; value: string }> = await db
+        const rows: Array<{ id: string; value: string }> = await db
           .from(table)
           .whereNotNull(column)
           .where('id', '>', lastId)
@@ -43,7 +44,7 @@ export default class KeyRotationService {
         if (rows.length === 0) break
         lastId = rows[rows.length - 1].id
 
-        const updates: Array<{ id: number; value: string }> = []
+        const updates: Array<{ id: string; value: string }> = []
         for (const row of rows) {
           if (this.encryption.isCurrent(row.value)) {
             report.alreadyCurrent++

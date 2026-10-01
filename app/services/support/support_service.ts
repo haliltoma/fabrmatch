@@ -12,7 +12,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
 export default class SupportService {
   async submit(input: {
-    userId: number | null
+    userId: string | null
     email: string
     topic: SupportTopic
     orderCode?: string | null
@@ -46,7 +46,7 @@ export default class SupportService {
     }))
   }
 
-  async markAnswered(id: number, adminId: number) {
+  async markAnswered(id: string, adminId: string) {
     const changed = await SupportRequest.query()
       .where('id', id)
       .where('status', 'open')

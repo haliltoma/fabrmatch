@@ -13,7 +13,7 @@ import { useT } from '~/lib/i18n'
 type Rounding = 'none' | 'whole' | 'charm99'
 
 type Region = {
-  id: number
+  id: string
   code: string
   name: string
   currency: string

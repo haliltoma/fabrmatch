@@ -110,7 +110,7 @@ export default class TwoFactorService {
     return null
   }
 
-  async backupCodesRemaining(userId: number): Promise<number> {
+  async backupCodesRemaining(userId: string): Promise<number> {
     const row = await TwoFactorBackupCode.query()
       .where('userId', userId)
       .whereNull('usedAt')
@@ -155,7 +155,7 @@ export default class TwoFactorService {
   }
 
   private async replaceBackupCodes(
-    userId: number,
+    userId: string,
     trx: TransactionClientContract
   ): Promise<string[]> {
     await TwoFactorBackupCode.query({ client: trx }).where('userId', userId).delete()

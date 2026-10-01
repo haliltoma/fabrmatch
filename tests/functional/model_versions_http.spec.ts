@@ -54,7 +54,7 @@ test.group('model versions over HTTP', (group) => {
 
     const list = await client.get('/files').headers(inertia).loginAs(user)
     assert.deepEqual(
-      list.body().props.files.map((f: { id: number }) => f.id),
+      list.body().props.files.map((f: { id: string }) => f.id),
       [v2.id]
     )
     assert.equal(list.body().props.files[0].olderVersions[0].id, v1.id)

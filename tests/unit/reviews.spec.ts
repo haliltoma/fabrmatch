@@ -15,7 +15,7 @@ import {
 } from '#tests/helpers/order_fixtures'
 
 async function finishedSale(
-  productId: number,
+  productId: string,
   rating: number | null,
   comment: string | null,
   status: 'completed' | 'resolved' = 'completed'

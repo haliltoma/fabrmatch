@@ -12,7 +12,7 @@ export interface ManufacturerStats {
 
 /** Track record per maker; feeds matching ranking and the trust-tier calculation. */
 export default class MakerStatsService {
-  async load(profileIds: number[]): Promise<Map<number, ManufacturerStats>> {
+  async load(profileIds: string[]): Promise<Map<string, ManufacturerStats>> {
     if (profileIds.length === 0) return new Map()
     const rows = await db
       .from('production_jobs as pj')
@@ -44,9 +44,9 @@ export default class MakerStatsService {
         )
       )
 
-    const map = new Map<number, ManufacturerStats>()
+    const map = new Map<string, ManufacturerStats>()
     for (const r of rows) {
-      map.set(Number(r.manufacturer_profile_id), {
+      map.set(String(r.manufacturer_profile_id), {
         completed: Number(r.completed),
         avgRating: r.avg_rating === null ? null : Number(r.avg_rating),
         active: Number(r.active),

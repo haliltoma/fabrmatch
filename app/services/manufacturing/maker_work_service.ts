@@ -9,7 +9,7 @@ export default class MakerWorkService {
     return ManufacturerProfile.query().where('userId', user.id).firstOrFail()
   }
 
-  async pendingOffers(manufacturerProfileId: number): Promise<MatchOffer[]> {
+  async pendingOffers(manufacturerProfileId: string): Promise<MatchOffer[]> {
     return MatchOffer.query()
       .where('manufacturerProfileId', manufacturerProfileId)
       .where('status', 'pending')
@@ -18,7 +18,7 @@ export default class MakerWorkService {
       .orderBy('expiresAt', 'asc')
   }
 
-  async jobs(manufacturerProfileId: number): Promise<ProductionJob[]> {
+  async jobs(manufacturerProfileId: string): Promise<ProductionJob[]> {
     return ProductionJob.query()
       .where('manufacturerProfileId', manufacturerProfileId)
       .preload('order', (q) =>

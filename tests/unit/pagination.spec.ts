@@ -37,7 +37,8 @@ test.group('paginated lists', (group) => {
     assert.lengthOf(first.rows, 2)
     assert.lengthOf(last.rows, 1)
     assert.deepEqual(first.meta, { page: 1, perPage: 2, total: 5, pages: 3 })
-    assert.isAbove(first.rows[0].id, first.rows[1].id)
+    // UUIDv7 keys sort like the old sequence: newer rows compare greater
+    assert.isTrue(first.rows[0].id > first.rows[1].id)
     assert.isTrue(first.rows.every((o) => o.buyerId === buyer.id))
   })
 

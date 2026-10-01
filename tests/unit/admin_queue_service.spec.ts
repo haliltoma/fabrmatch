@@ -124,7 +124,7 @@ test.group('AdminQueueService', (group) => {
     await AuditLog.create({
       action: 'payment.needs_review',
       subjectType: 'payment',
-      subjectId: 0,
+      subjectId: null,
       meta: { eventId: 'evt_1', providerRef: 'ref_1', reason: 'amount mismatch' },
     })
     const [review] = await queues.paymentReviews()
@@ -175,7 +175,7 @@ test.group('AdminQueueService', (group) => {
 
     const result = await queues.bulk(
       'support.answered',
-      [...open.map((r) => String(r.id)), '999999'],
+      [...open.map((r) => String(r.id)), 'not-a-row'],
       admin.id
     )
     assert.deepEqual(result, { done: 2, failed: 1 })
@@ -185,7 +185,7 @@ test.group('AdminQueueService', (group) => {
       await AuditLog.create({
         action: 'payment.needs_review',
         subjectType: 'payment',
-        subjectId: 0,
+        subjectId: null,
         meta: { eventId: id, providerRef: id, reason: 'amount mismatch' },
       })
     }

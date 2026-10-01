@@ -18,7 +18,7 @@ type Movement = {
   kind: 'top_up' | 'order' | 'refund' | 'withdrawal'
   amountMinor: number
   orderCode: string | null
-  orderId: number | null
+  orderId: string | null
 }
 
 const KIND: Record<Movement['kind'], string> = {

@@ -1,6 +1,7 @@
 import FakePaymentProvider from '#services/payments/fake_provider'
 import { paymentProviderContract } from '#tests/contracts/payment_provider_contract'
 import { makeIyzico } from '#tests/helpers/fake_iyzico'
+import { uid } from '#tests/helpers/ids'
 
 paymentProviderContract('fake', () => {
   const provider = new FakePaymentProvider()
@@ -9,7 +10,7 @@ paymentProviderContract('fake', () => {
 
 paymentProviderContract('iyzico (in-memory API)', () => {
   const { provider, fake, directory } = makeIyzico({ marketplace: true })
-  directory.keys.set('manufacturer:7', 'maker-sub')
+  directory.keys.set(`manufacturer:${uid(7)}`, 'maker-sub')
   return {
     provider,
     signedEvent: ({ eventId, type, providerRef, amountMinor }) => {

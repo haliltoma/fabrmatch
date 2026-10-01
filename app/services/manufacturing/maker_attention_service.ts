@@ -24,12 +24,12 @@ export type MakerAttention = {
  * started yet.
  */
 export default class MakerAttentionService {
-  async forUser(userId: number): Promise<MakerAttention | null> {
+  async forUser(userId: string): Promise<MakerAttention | null> {
     const profile = await ManufacturerProfile.query().where('userId', userId).select('id').first()
     return profile ? this.forProfile(profile.id) : null
   }
 
-  async forProfile(profileId: number, now: DateTime = DateTime.now()): Promise<MakerAttention> {
+  async forProfile(profileId: string, now: DateTime = DateTime.now()): Promise<MakerAttention> {
     const jobs = () => ProductionJob.query().where('manufacturerProfileId', profileId)
     const [offerRow, overdueRow, shipRow, startRow] = await Promise.all([
       MatchOffer.query()

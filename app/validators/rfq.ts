@@ -2,7 +2,7 @@ import vine from '@vinejs/vine'
 import { addressRules } from '#validators/order'
 
 export const rfqCreateValidator = vine.create({
-  modelFileId: vine.number().positive().withoutDecimals(),
+  modelFileId: vine.string().uuid(),
   title: vine.string().trim().minLength(3).maxLength(120),
   material: vine.string().trim().toUpperCase().maxLength(32),
   color: vine.string().trim().maxLength(40).optional(),
@@ -14,7 +14,7 @@ export const rfqCreateValidator = vine.create({
 })
 
 export const rfqAwardValidator = vine.create({
-  bidId: vine.number().positive().withoutDecimals(),
+  bidId: vine.string().uuid(),
   shippingAddress: addressRules(),
 })
 

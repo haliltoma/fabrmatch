@@ -15,7 +15,7 @@ export default class AdminCategoryController {
 
   async toggle({ params, request, response, auth }: HttpContext) {
     const { isActive } = await request.validateUsing(toggleValidator)
-    await new CategoryService().setActive(Number(params.id), isActive, auth.getUserOrFail().id)
+    await new CategoryService().setActive(params.id, isActive, auth.getUserOrFail().id)
     return response.redirect().toPath('/admin/catalog')
   }
 }

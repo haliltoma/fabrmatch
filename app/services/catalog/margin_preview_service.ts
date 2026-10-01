@@ -22,7 +22,7 @@ const MAX_MARGIN_BPS = 20_000
  */
 export default class MarginPreviewService {
   async preview(
-    catalogProductId: number,
+    catalogProductId: string,
     marginBps: number,
     terms?: BrowseTerms
   ): Promise<MarginOption[]> {

@@ -28,7 +28,7 @@ export const MAX_BID_DAYS = 14
 export const AWARD_GRACE_DAYS = 14
 
 export interface CreateRfqInput {
-  modelFileId: number
+  modelFileId: string
   title: string
   material: string
   color?: string | null
@@ -123,15 +123,15 @@ export default class RfqService {
     return rfq
   }
 
-  async findForBuyer(id: number, buyerId: number): Promise<Rfq | null> {
+  async findForBuyer(id: string, buyerId: string): Promise<Rfq | null> {
     return Rfq.query().where('id', id).where('buyerId', buyerId).first()
   }
 
-  async listForBuyer(buyerId: number) {
+  async listForBuyer(buyerId: string) {
     return Rfq.query().where('buyerId', buyerId).orderBy('id', 'desc').limit(100)
   }
 
-  async cancel(rfqId: number, buyerId: number): Promise<void> {
+  async cancel(rfqId: string, buyerId: string): Promise<void> {
     await db.transaction(async (trx) => {
       const rfq = await Rfq.query({ client: trx })
         .where('id', rfqId)
@@ -156,9 +156,9 @@ export default class RfqService {
    * an offer (they still have to accept it, and can decline). Every other bid is closed.
    */
   async award(
-    rfqId: number,
+    rfqId: string,
     buyer: User,
-    bidId: number,
+    bidId: string,
     address: ShippingAddress
   ): Promise<{ rfq: Rfq; order: Order }> {
     const result = await db.transaction(async (trx) => {

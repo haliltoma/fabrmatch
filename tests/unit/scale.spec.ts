@@ -29,7 +29,7 @@ test.group('size variants (R4-T9)', (group) => {
     const base = await createDraftOrder(buyer)
     const big = await createDraftOrder(buyer, { scalePercent: 200 } as never)
     const small = await createDraftOrder(buyer, { scalePercent: 50 } as never)
-    const item = async (id: number) => OrderItem.query().where('orderId', id).firstOrFail()
+    const item = async (id: string) => OrderItem.query().where('orderId', id).firstOrFail()
     const [b, l, s] = [
       await item(base.order.id),
       await item(big.order.id),

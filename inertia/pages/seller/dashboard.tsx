@@ -13,7 +13,7 @@ import { SetupChecklist, type Setup } from '~/components/maker_setup'
 import { useT } from '~/lib/i18n'
 
 type RecentOrder = {
-  id: number
+  id: string
   code: string
   status: string
   earnMinor: number

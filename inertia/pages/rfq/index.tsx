@@ -10,7 +10,7 @@ import { formatDateTime } from '~/lib/format'
 import { useT } from '~/lib/i18n'
 
 type Rfq = {
-  id: number
+  id: string
   code: string
   title: string
   material: string

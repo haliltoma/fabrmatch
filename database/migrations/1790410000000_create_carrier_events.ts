@@ -4,7 +4,7 @@ export default class extends BaseSchema {
   async up() {
     // carrier webhooks are deduplicated by the carrier's own event id, like payment webhooks
     this.schema.createTable('carrier_events', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table.string('provider', 30).notNullable()
       table.string('event_id', 120).notNullable()
       table.string('tracking_number', 60).notNullable()

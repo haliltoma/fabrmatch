@@ -55,7 +55,7 @@ export default class LegalService {
    * Called before an order is created. When acceptance is switched on, the buyer must have ticked
    * the box; the accepted version is stored so it can be shown later.
    */
-  async requireAcceptance(userId: number, accepted: boolean | undefined) {
+  async requireAcceptance(userId: string, accepted: boolean | undefined) {
     if (!env.get('LEGAL_ACCEPTANCE_REQUIRED', false)) return
     if (!accepted)
       throw new LegalError('Please accept the terms and the distance sales terms to continue')

@@ -18,7 +18,7 @@ export default class RfqInviteService {
    * country, not the buyer, with an active printer of the right technology that offers the material
    * (and colour) and fits the part. Price is NOT a filter — the bid is the price.
    */
-  async candidates(rfq: Rfq): Promise<number[]> {
+  async candidates(rfq: Rfq): Promise<string[]> {
     const file = await ModelFile.findOrFail(rfq.modelFileId)
     const bbox = bboxOf(file)
 
@@ -38,7 +38,7 @@ export default class RfqInviteService {
       })
       .orderBy('id', 'asc')
 
-    const makers = new Set<number>()
+    const makers = new Set<string>()
     for (const printer of printers) {
       const build: [number, number, number] = [
         printer.buildVolumeXMm,
@@ -55,7 +55,7 @@ export default class RfqInviteService {
    * Invites up to MAX_INVITES makers. The discovery quota applies here too (business rule 3): when a
    * new maker qualifies, at least one is invited even if better-known makers would fill the list.
    */
-  async invite(rfq: Rfq): Promise<Array<{ manufacturerProfileId: number; userId: number }>> {
+  async invite(rfq: Rfq): Promise<Array<{ manufacturerProfileId: string; userId: string }>> {
     const ids = await this.candidates(rfq)
     if (ids.length === 0) return []
 
@@ -69,7 +69,7 @@ export default class RfqInviteService {
         rating: s?.avgRating ?? 0,
         isNew: (s?.completed ?? 0) <= cfg.explorationMaxCompletedJobs,
       }))
-      .sort((a, b) => b.completed - a.completed || b.rating - a.rating || a.id - b.id)
+      .sort((a, b) => b.completed - a.completed || b.rating - a.rating || a.id.localeCompare(b.id))
 
     let chosen = ranked.slice(0, MAX_INVITES)
     const newcomers = ranked.filter((r) => r.isNew)
@@ -92,7 +92,7 @@ export default class RfqInviteService {
     return profiles.map((p) => ({ manufacturerProfileId: p.id, userId: p.userId }))
   }
 
-  async isInvited(rfqId: number, manufacturerProfileId: number): Promise<boolean> {
+  async isInvited(rfqId: string, manufacturerProfileId: string): Promise<boolean> {
     const row = await RfqInvite.query()
       .where('rfqId', rfqId)
       .where('manufacturerProfileId', manufacturerProfileId)

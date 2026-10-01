@@ -23,7 +23,7 @@ const fraudCount = async () => {
   const counts = await new AdminQueueService().counts()
   return counts.fraud
 }
-const statusOf = async (id: number) => {
+const statusOf = async (id: string) => {
   const order = await Order.findOrFail(id)
   return order.status
 }
@@ -138,7 +138,7 @@ test.group('fraud rules (R3-T10)', (group) => {
     assert,
   }) => {
     const provider = new FakePaymentProvider('s')
-    const started: number[] = []
+    const started: string[] = []
     const payments = new PaymentService(provider, async (id) => {
       started.push(id)
     })

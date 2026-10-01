@@ -21,7 +21,7 @@ export interface CheckoutAddress {
 
 export interface CheckoutRequest {
   /** null for a wallet top-up */
-  orderId: number | null
+  orderId: string | null
   orderCode: string
   amountMinor: number
   currency: string
@@ -61,7 +61,7 @@ export interface WebhookEvent {
 export interface ApproveItemRequest {
   providerRef: string
   beneficiaryType: 'manufacturer' | 'seller'
-  beneficiaryId: number
+  beneficiaryId: string
   amountMinor: number
   currency: string
   /** Same key → same result, never a second transfer. */
@@ -77,7 +77,7 @@ export interface RefundRequest {
 
 export interface RegisterSubMerchantRequest {
   beneficiaryType: 'manufacturer' | 'seller'
-  beneficiaryId: number
+  beneficiaryId: string
   displayName: string
 }
 

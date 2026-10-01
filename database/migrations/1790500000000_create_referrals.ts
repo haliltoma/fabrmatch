@@ -7,27 +7,14 @@ export default class extends BaseSchema {
     })
     this.schema.alterTable('coupons', (table) => {
       // a personal coupon (referral reward): only this user may use it
-      table
-        .integer('user_id')
-        .unsigned()
-        .nullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('CASCADE')
+      table.uuid('user_id').nullable().references('id').inTable('users').onDelete('CASCADE')
     })
     this.schema.createTable('referrals', (table) => {
-      table.increments('id')
-      table
-        .integer('referrer_id')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('CASCADE')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
+      table.uuid('referrer_id').notNullable().references('id').inTable('users').onDelete('CASCADE')
       // one referrer per new account, ever
       table
-        .integer('referee_id')
-        .unsigned()
+        .uuid('referee_id')
         .notNullable()
         .unique()
         .references('id')
@@ -35,8 +22,8 @@ export default class extends BaseSchema {
         .onDelete('CASCADE')
       table.enum('status', ['pending', 'rewarded', 'rejected']).notNullable().defaultTo('pending')
       table.string('reject_reason', 100).nullable()
-      table.integer('referee_coupon_id').unsigned().nullable().references('id').inTable('coupons')
-      table.integer('referrer_coupon_id').unsigned().nullable().references('id').inTable('coupons')
+      table.uuid('referee_coupon_id').nullable().references('id').inTable('coupons')
+      table.uuid('referrer_coupon_id').nullable().references('id').inTable('coupons')
       table.timestamp('rewarded_at').nullable()
       table.timestamp('created_at').notNullable()
       table.index(['referrer_id'])

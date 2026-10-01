@@ -28,7 +28,7 @@ export class OfferError extends DomainError {}
 type RoundOutcome =
   | { kind: 'noop' }
   | { kind: 'offer'; offer: MatchOffer }
-  | { kind: 'unmatched'; orderId: number; reason: string }
+  | { kind: 'unmatched'; orderId: string; reason: string }
 
 export default class MatchingService {
   private sm = new OrderStateMachine()
@@ -43,7 +43,7 @@ export default class MatchingService {
   ) {}
 
   /** paid → matching, then first round. */
-  async start(orderId: number, actorId: number | null = null): Promise<MatchOffer | null> {
+  async start(orderId: string, actorId: string | null = null): Promise<MatchOffer | null> {
     await this.sm.transition(orderId, 'matching', { actorId })
     return this.runRound(orderId)
   }
@@ -115,7 +115,7 @@ export default class MatchingService {
    * Admin re-match of an `unmatched` order (e.g. after approving new makers): resets the round
    * counter and starts again. Makers that already declined or expired stay excluded.
    */
-  async restart(orderId: number, adminId: number): Promise<MatchOffer | null> {
+  async restart(orderId: string, adminId: string): Promise<MatchOffer | null> {
     await db.transaction(async (trx) => {
       const order = await Order.query({ client: trx }).where('id', orderId).forUpdate().first()
       if (!order || order.status !== 'unmatched') {
@@ -142,7 +142,7 @@ export default class MatchingService {
    * After `maxRounds` offers (or with no eligible candidates left) the order becomes `unmatched`.
    * With automatic matching off it does nothing: the order waits for an admin (`offerTo`).
    */
-  async runRound(orderId: number): Promise<MatchOffer | null> {
+  async runRound(orderId: string): Promise<MatchOffer | null> {
     const cfg = fabrmatchConfig.matching
     if (!MatchingService.autoOffer()) return null
 
@@ -221,9 +221,9 @@ export default class MatchingService {
    * The maker still has to accept. An `unmatched` order is reopened.
    */
   async offerTo(
-    orderId: number,
-    manufacturerProfileId: number,
-    adminId: number,
+    orderId: string,
+    manufacturerProfileId: string,
+    adminId: string,
     options: { allowOverride?: boolean } = {}
   ): Promise<MatchOffer> {
     const cfg = fabrmatchConfig.matching
@@ -248,7 +248,7 @@ export default class MatchingService {
       const { ranked } = rankCandidates(candidates, this.rng, cfg)
       const chosen = ranked.find((c) => c.manufacturerProfileId === manufacturerProfileId)
 
-      let target: { printerId: number; slotDate: DateTime; score: number; unmet: string[] }
+      let target: { printerId: string; slotDate: DateTime; score: number; unmet: string[] }
       if (chosen) {
         target = {
           printerId: chosen.printerId,
@@ -312,7 +312,7 @@ export default class MatchingService {
   /** The printer an override offer goes to: the one missing the fewest rules, else any printer. */
   private async overrideTarget(
     order: Order,
-    manufacturerProfileId: number,
+    manufacturerProfileId: string,
     previous: MatchOffer[]
   ) {
     const verdicts = await new EligibilityExplainer().explain(order, {
@@ -356,9 +356,9 @@ export default class MatchingService {
    * sees a non-pending status and fails. Capacity is reserved in the same transaction.
    */
   async acceptOffer(
-    offerId: number,
-    manufacturerProfileId: number,
-    actorId: number | null = null
+    offerId: string,
+    manufacturerProfileId: string,
+    actorId: string | null = null
   ): Promise<ProductionJob> {
     const job = await db.transaction(async (trx) => {
       // order first, then offer: the same order cancellation takes its locks in, so an accept
@@ -446,7 +446,7 @@ export default class MatchingService {
    * cancelled, its file access ends, its hours are freed and the order goes back to matching.
    * The next round skips every maker who already had an offer, so it will not return to them.
    */
-  async reassign(orderId: number, adminId: number, reason: string): Promise<void> {
+  async reassign(orderId: string, adminId: string, reason: string): Promise<void> {
     await db.transaction(async (trx) => {
       const order = await Order.query({ client: trx })
         .where('id', orderId)
@@ -494,9 +494,9 @@ export default class MatchingService {
   }
 
   async declineOffer(
-    offerId: number,
-    manufacturerProfileId: number,
-    actorId: number | null = null
+    offerId: string,
+    manufacturerProfileId: string,
+    actorId: string | null = null
   ): Promise<MatchOffer | null> {
     const orderId = await db.transaction(async (trx) => {
       const offer = await this.lockOwnedOffer(offerId, manufacturerProfileId, trx)
@@ -510,7 +510,7 @@ export default class MatchingService {
   }
 
   /** Idempotent; safe to call early or twice. Returns the next offer if a new round started. */
-  async expireOffer(offerId: number): Promise<MatchOffer | null> {
+  async expireOffer(offerId: string): Promise<MatchOffer | null> {
     const orderId = await db.transaction(async (trx) => {
       const offer = await MatchOffer.query({ client: trx }).where('id', offerId).forUpdate().first()
       if (!offer || offer.status !== 'pending' || offer.expiresAt > DateTime.now()) return null
@@ -533,8 +533,8 @@ export default class MatchingService {
   }
 
   private async lockOwnedOffer(
-    offerId: number,
-    manufacturerProfileId: number,
+    offerId: string,
+    manufacturerProfileId: string,
     trx: TransactionClientContract
   ): Promise<MatchOffer> {
     const offer = await MatchOffer.query({ client: trx }).where('id', offerId).forUpdate().first()
@@ -546,7 +546,7 @@ export default class MatchingService {
   }
 
   private async markUnmatched(
-    orderId: number,
+    orderId: string,
     reason: string,
     trx: TransactionClientContract
   ): Promise<RoundOutcome> {
@@ -557,9 +557,9 @@ export default class MatchingService {
   private async audit(
     trx: TransactionClientContract,
     action: string,
-    orderId: number,
+    orderId: string,
     meta: Record<string, unknown>,
-    actorId: number | null = null
+    actorId: string | null = null
   ) {
     await AuditLog.create(
       { actorId, action, subjectType: 'order', subjectId: orderId, meta },

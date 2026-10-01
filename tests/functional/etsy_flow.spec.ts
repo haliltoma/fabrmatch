@@ -185,7 +185,7 @@ test.group('Etsy: connect with OAuth, publish, polled orders, tracking', (group)
       .withSession({ etsy_pkce: start.session().etsy_pkce })
       .redirects(0)
     back.assertStatus(302)
-    assert.match(back.header('location') ?? '', /\/seller\/stores\?shop=\d+/)
+    assert.match(back.header('location') ?? '', /\/seller\/stores\?shop=[0-9a-f-]{36}/)
 
     const categories = await client
       .get('/seller/stores/etsy/categories?q=vase')

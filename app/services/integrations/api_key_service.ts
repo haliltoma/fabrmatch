@@ -15,7 +15,7 @@ export const hashKey = (key: string) => createHash('sha256').update(key).digest(
 
 export default class ApiKeyService {
   /** The full key is returned once; only its hash is stored. */
-  async create(userId: number, name: string): Promise<{ key: string; record: ApiKey }> {
+  async create(userId: string, name: string): Promise<{ key: string; record: ApiKey }> {
     const active = await ApiKey.query().where('userId', userId).whereNull('revokedAt')
     if (active.length >= MAX_ACTIVE_KEYS) {
       throw new ApiKeyError(`You can have at most ${MAX_ACTIVE_KEYS} active API keys`)
@@ -30,11 +30,11 @@ export default class ApiKeyService {
     return { key, record }
   }
 
-  async list(userId: number) {
+  async list(userId: string) {
     return ApiKey.query().where('userId', userId).orderBy('id', 'desc')
   }
 
-  async revoke(userId: number, id: number): Promise<void> {
+  async revoke(userId: string, id: string): Promise<void> {
     const key = await ApiKey.query().where('id', id).where('userId', userId).first()
     if (!key) throw new ApiKeyError('API key not found')
     if (!key.revokedAt) {

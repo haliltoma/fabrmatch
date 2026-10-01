@@ -25,7 +25,7 @@ export interface StorefrontFilters {
 }
 
 export interface StorefrontCard {
-  id: number
+  id: string
   slug: string
   title: string
   description: string | null
@@ -212,7 +212,7 @@ export default class StorefrontService {
     return result.rows as Array<{ slug: string; name: string }>
   }
 
-  async find(id: number, terms?: BrowseTerms): Promise<StorefrontDetail | null> {
+  async find(id: string, terms?: BrowseTerms): Promise<StorefrontDetail | null> {
     const product = await this.visible()
       .where('seller_products.id', id)
       .select('seller_products.*')
@@ -271,7 +271,7 @@ export default class StorefrontService {
   }
 
   /** Ids + timestamps for sitemap.xml. */
-  async sitemapEntries(): Promise<Array<{ id: number; slug: string; updatedAt: string }>> {
+  async sitemapEntries(): Promise<Array<{ id: string; slug: string; updatedAt: string }>> {
     const rows = await this.visible()
       .select('seller_products.*')
       .orderBy('seller_products.id', 'asc')
@@ -281,7 +281,7 @@ export default class StorefrontService {
   private toCard(
     product: SellerProduct,
     shipping: ShippingTable,
-    images: Map<number, ShopImage[]>,
+    images: Map<string, ShopImage[]>,
     preferredMaterial?: string,
     terms?: BrowseTerms
   ): StorefrontCard | null {

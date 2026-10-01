@@ -1,6 +1,6 @@
 export interface MatchCandidate {
-  manufacturerProfileId: number
-  printerId: number
+  manufacturerProfileId: string
+  printerId: string
   slotDate: string
   joinedDaysAgo: number
   completedJobs: number

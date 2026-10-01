@@ -4,6 +4,7 @@ import { translateValidationMessage } from '#services/i18n/validation_messages'
 import LegalService from '#services/legal/legal_service'
 import { analyzeDfm } from '#services/files/dfm_analyzer'
 import { NOTIFICATION_TYPES, render } from '#services/notifications/catalog'
+import { uid } from '#tests/helpers/ids'
 
 test.group('i18n', () => {
   test('every t() key used in the UI has a Turkish dictionary entry', ({ assert }) => {
@@ -39,7 +40,7 @@ test.group('i18n', () => {
 
 test.group('notifications in Turkish', () => {
   test('templates render in Turkish with the same facts and no identity leak', ({ assert }) => {
-    const c = { code: 'FO-1', orderId: 7, amountMinor: 1250, currency: 'TRY' }
+    const c = { code: 'FO-1', orderId: uid(7), amountMinor: 1250, currency: 'TRY' }
     const en = render('refund_issued', 'buyer', c, 'en')!
     const tr = render('refund_issued', 'buyer', c, 'tr')!
     assert.include(en.title, '12.50 TRY')
@@ -50,7 +51,13 @@ test.group('notifications in Turkish', () => {
   })
 
   test('every type and role renders in both languages or in neither', ({ assert }) => {
-    const c = { code: 'FO-1', orderId: 7, rfqCode: 'RFQ-1', rfqId: 3, resolution: 'full_refund' }
+    const c = {
+      code: 'FO-1',
+      orderId: uid(7),
+      rfqCode: 'RFQ-1',
+      rfqId: uid(3),
+      resolution: 'full_refund',
+    }
     for (const type of NOTIFICATION_TYPES) {
       for (const role of ['buyer', 'seller', 'maker', 'admin'] as const) {
         const en = render(type, role, c, 'en')

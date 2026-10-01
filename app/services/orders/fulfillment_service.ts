@@ -34,7 +34,7 @@ export interface SlaReport {
 }
 
 /** Best-effort, after commit: the `ReleasePayouts` sweep is the safety net if this is lost. */
-async function dispatchPayoutRelease(orderId: number) {
+async function dispatchPayoutRelease(orderId: string) {
   if (app.inTest) return
   try {
     const { default: ReleasePayouts } = await import('#jobs/release_payouts')
@@ -52,7 +52,7 @@ export default class FulfillmentService {
   private sm = new OrderStateMachine()
   private notifier = new OrderNotifier()
 
-  async markPrinting(jobId: number, manufacturerProfileId: number, actorId: number | null = null) {
+  async markPrinting(jobId: string, manufacturerProfileId: string, actorId: string | null = null) {
     return db.transaction(async (trx) => {
       const job = await this.lockMakerJob(jobId, manufacturerProfileId, trx)
       this.assertJobStep(job, 'printing')
@@ -63,7 +63,7 @@ export default class FulfillmentService {
     })
   }
 
-  async markProduced(jobId: number, manufacturerProfileId: number, actorId: number | null = null) {
+  async markProduced(jobId: string, manufacturerProfileId: string, actorId: string | null = null) {
     return db.transaction(async (trx) => {
       const job = await this.lockMakerJob(jobId, manufacturerProfileId, trx)
       this.assertJobStep(job, 'produced')
@@ -76,10 +76,10 @@ export default class FulfillmentService {
   }
 
   async markShipped(
-    jobId: number,
-    manufacturerProfileId: number,
+    jobId: string,
+    manufacturerProfileId: string,
     shipment: { carrier: string; trackingNumber: string },
-    actorId: number | null = null
+    actorId: string | null = null
   ) {
     const shipped = await db.transaction(async (trx) => {
       const job = await this.lockMakerJob(jobId, manufacturerProfileId, trx)
@@ -111,7 +111,7 @@ export default class FulfillmentService {
   }
 
   /** Buyer (or admin) confirms the parcel arrived; starts the dispute window. */
-  async markDelivered(orderId: number, actorId: number | null, meta: Record<string, unknown> = {}) {
+  async markDelivered(orderId: string, actorId: string | null, meta: Record<string, unknown> = {}) {
     const delivered = await db.transaction(async (trx) => {
       const order = await this.sm.transition(orderId, 'delivered', { trx, actorId, meta })
       await ProductionJob.query({ client: trx })
@@ -124,13 +124,13 @@ export default class FulfillmentService {
     return delivered
   }
 
-  async markDeliveredByBuyer(orderId: number, buyerId: number) {
+  async markDeliveredByBuyer(orderId: string, buyerId: string) {
     await this.assertBuyer(orderId, buyerId)
     return this.markDelivered(orderId, buyerId, { by: 'buyer' })
   }
 
   /** Buyer waives the rest of the dispute window. */
-  async completeByBuyer(orderId: number, buyerId: number) {
+  async completeByBuyer(orderId: string, buyerId: string) {
     await this.assertBuyer(orderId, buyerId)
     const order = await this.sm.transition(orderId, 'completed', {
       actorId: buyerId,
@@ -186,7 +186,7 @@ export default class FulfillmentService {
     return { delivered, completed }
   }
 
-  async review(orderId: number, buyerId: number, rating: number, comment: string | null) {
+  async review(orderId: string, buyerId: string, rating: number, comment: string | null) {
     if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
       throw new FulfillmentError('Rating must be an integer between 1 and 5')
     }
@@ -236,14 +236,14 @@ export default class FulfillmentService {
     }
   }
 
-  private async assertBuyer(orderId: number, buyerId: number) {
+  private async assertBuyer(orderId: string, buyerId: string) {
     const order = await Order.find(orderId)
     if (!order || order.buyerId !== buyerId) throw new FulfillmentError('Order not found')
   }
 
   private async lockMakerJob(
-    jobId: number,
-    manufacturerProfileId: number,
+    jobId: string,
+    manufacturerProfileId: string,
     trx: TransactionClientContract
   ) {
     const job = await ProductionJob.query({ client: trx }).where('id', jobId).forUpdate().first()
@@ -262,9 +262,9 @@ export default class FulfillmentService {
   private async audit(
     trx: TransactionClientContract,
     action: string,
-    orderId: number,
+    orderId: string,
     meta: Record<string, unknown>,
-    actorId: number | null
+    actorId: string | null
   ) {
     await AuditLog.create(
       { actorId, action, subjectType: 'order', subjectId: orderId, meta },

@@ -37,7 +37,7 @@ test.group('ModelFileService.recoverStalled', (group) => {
     const stuck = await fileFor('processing', 20)
     const fresh = await fileFor('pending', 5)
     const done = await fileFor('done', 60)
-    const sent: number[] = []
+    const sent: string[] = []
 
     const result = await new ModelFileService().recoverStalled({
       dispatch: async (id) => {
@@ -57,7 +57,7 @@ test.group('ModelFileService.recoverStalled', (group) => {
     assert,
   }) => {
     const old = await fileFor('pending', 180)
-    const sent: number[] = []
+    const sent: string[] = []
 
     await new ModelFileService().recoverStalled({
       dispatch: async (id) => {

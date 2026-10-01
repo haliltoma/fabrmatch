@@ -1,12 +1,11 @@
 import { type Data } from '@generated/data'
-import { toast, Toaster } from 'sonner'
+import { toast } from 'sonner'
 import { usePage } from '@inertiajs/react'
 import { type ReactElement, useEffect } from 'react'
 import { Form, Link } from '@adonisjs/inertia/react'
 import { Menu } from 'lucide-react'
 import { Logo } from '~/components/logo'
 import { ThemeSwitch } from '~/components/theme_switch'
-import { useTheme } from '~/lib/theme'
 import { LanguageSwitch } from '~/components/language_switch'
 import { CurrencySwitch } from '~/components/currency_switch'
 import { useT } from '~/lib/i18n'
@@ -25,6 +24,7 @@ import {
 } from '~/components/ui/dropdown_menu'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '~/components/ui/sheet'
 import { NavigationProgress } from '~/components/navigation_progress'
+import { AppToaster } from '~/components/app_toaster'
 
 const FOOTER_COLUMNS: Array<{ title: string; links: Array<{ href: string; label: string }> }> = [
   {
@@ -76,7 +76,6 @@ function panelHref(roles: string[] | undefined, hasShop: boolean) {
 
 export default function Layout({ children }: { children: ReactElement<Data.SharedProps> }) {
   const { t, locale } = useT()
-  const { dark } = useTheme()
   useEffect(() => {
     document.documentElement.lang = locale
   }, [locale])
@@ -296,7 +295,7 @@ export default function Layout({ children }: { children: ReactElement<Data.Share
         </div>
       </footer>
 
-      <Toaster position="top-center" richColors theme={dark ? 'dark' : 'light'} />
+      <AppToaster />
     </div>
   )
 }

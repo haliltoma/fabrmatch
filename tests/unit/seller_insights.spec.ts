@@ -11,6 +11,7 @@ import {
   createUser,
   ensureReferenceCatalog,
 } from '#tests/helpers/order_fixtures'
+import { uid } from '#tests/helpers/ids'
 
 test.group('margin preview and seller analytics (R4-T7)', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
@@ -40,7 +41,7 @@ test.group('margin preview and seller analytics (R4-T7)', (group) => {
     const service = new MarginPreviewService()
     assert.deepEqual(await service.preview(catalog.id, -5), [])
     assert.deepEqual(await service.preview(catalog.id, 99999), [])
-    assert.deepEqual(await service.preview(999999, 1000), [])
+    assert.deepEqual(await service.preview(uid(999999), 1000), [])
   })
 
   test('analytics counts a seller’s storefront orders, earnings only when completed', async ({

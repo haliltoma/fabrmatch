@@ -20,7 +20,7 @@ export type PayeeType = 'manufacturer' | 'seller'
 export interface Payee {
   type: PayeeType
   /** Same id the payouts use: manufacturer_profiles.id, or the seller's users.id */
-  id: number
+  id: string
 }
 
 export interface PayeeProfileInput {
@@ -164,7 +164,7 @@ export default class PayeeProfileService {
     return profile.row
   }
 
-  async review(adminId: number, profileId: number, approve: boolean, reason?: string | null) {
+  async review(adminId: string, profileId: string, approve: boolean, reason?: string | null) {
     const trimmed = reason?.trim() ?? ''
     if (!approve && trimmed.length < 5) {
       throw new PayeeProfileError('Say what needs to be fixed (at least 5 characters)')
@@ -210,7 +210,7 @@ export default class PayeeProfileService {
     return PayeeTaxProfile.query().where('status', 'pending_review').orderBy('submittedAt', 'asc')
   }
 
-  async document(profileId: number) {
+  async document(profileId: string) {
     const profile = await PayeeTaxProfile.findOrFail(profileId)
     if (!profile.documentKey || !profile.documentContentType) return null
     return {

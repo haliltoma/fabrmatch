@@ -14,7 +14,7 @@ import { formatDateTime } from '~/lib/format'
 import { useT } from '~/lib/i18n'
 
 type Rfq = {
-  id: number
+  id: string
   code: string
   title: string
   material: string
@@ -24,11 +24,11 @@ type Rfq = {
   bidsCloseAt: string
   maxLeadDays: number
   status: string
-  orderId: number | null
+  orderId: string | null
   fileName: string | null
 }
 type Bid = {
-  id: number
+  id: string
   label: string
   unitPriceMinor: number
   leadDays: number
@@ -97,7 +97,7 @@ function AwardForm({ rfq, bid, onCancel }: { rfq: Rfq; bid: Bid; onCancel: () =>
 export default function RfqShow({ rfq, bids }: { rfq: Rfq; bids: Bid[] }) {
   const { t } = useT()
 
-  const [choosing, setChoosing] = useState<number | null>(null)
+  const [choosing, setChoosing] = useState<string | null>(null)
   const decidable = rfq.status === 'open' || rfq.status === 'closed'
   return (
     <div className="mx-auto max-w-3xl space-y-6">

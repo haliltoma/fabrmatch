@@ -19,7 +19,7 @@ import { useT } from '~/lib/i18n'
 import { useIdempotencyKey } from '~/lib/idempotency'
 
 type OrderItem = {
-  id: number
+  id: string
   fileName: string | null
   technology: string
   material: string
@@ -31,7 +31,7 @@ type OrderItem = {
 }
 
 type OrderData = {
-  id: number
+  id: string
   code: string
   status: string
   channel: string
@@ -51,13 +51,13 @@ type OrderData = {
 type TimelineEntry = { status: string; at: string }
 
 type DisputeData = {
-  id: number
+  id: string
   status: string
   reason: string
   manufacturerResponse: string | null
   resolution: string | null
   refundMinor: number
-  evidence: Array<{ id: number; note: string | null; by: 'buyer' | 'manufacturer' }>
+  evidence: Array<{ id: string; note: string | null; by: 'buyer' | 'manufacturer' }>
 } | null
 
 type ReviewData = { rating: number; comment: string | null } | null
@@ -194,7 +194,7 @@ function DisputeSection({
   )
 }
 
-function ReviewForm({ orderId }: { orderId: number }) {
+function ReviewForm({ orderId }: { orderId: string }) {
   const { t } = useT()
 
   const [rating, setRating] = useState(5)

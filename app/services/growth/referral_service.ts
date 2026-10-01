@@ -52,7 +52,7 @@ export default class ReferralService {
     throw new Error('Could not create a referral code')
   }
 
-  private async issue(userId: number, options: { firstOrderOnly: boolean; note: string }) {
+  private async issue(userId: string, options: { firstOrderOnly: boolean; note: string }) {
     const cfg = fabrmatchConfig.referral
     return this.coupons.create({
       code: randomCode(8, 'INV-'),

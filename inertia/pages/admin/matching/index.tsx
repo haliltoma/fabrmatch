@@ -11,7 +11,7 @@ import { PageHeader } from '~/components/page_header'
 import { useT } from '~/lib/i18n'
 
 type Row = {
-  id: number
+  id: string
   code: string
   state: 'needs_maker' | 'offer_out' | 'unmatched'
   totalMinor: number

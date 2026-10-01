@@ -12,14 +12,14 @@ import { StatusBadge } from '~/components/status_badge'
 import { useT } from '~/lib/i18n'
 
 type RecentOrder = {
-  id: number
+  id: string
   code: string
   status: string
   totalMinor: number
   currency: string
   createdAt: string | null
 }
-type RecentUser = { id: number; name: string | null; email: string; createdAt: string | null }
+type RecentUser = { id: string; name: string | null; email: string; createdAt: string | null }
 
 function AdminDashboard({
   usersTotal,

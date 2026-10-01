@@ -146,7 +146,7 @@ test.group('auto-cancel of unmatched orders (R0-T3)', (group) => {
     return { order, buyer }
   }
 
-  const ageOrder = (orderId: number, days: number) =>
+  const ageOrder = (orderId: string, days: number) =>
     db
       .from('orders')
       .where('id', orderId)

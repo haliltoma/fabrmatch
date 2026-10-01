@@ -67,12 +67,12 @@ export default class CartController {
 
   async update({ request, response, auth, params }: HttpContext) {
     const { quantity } = await request.validateUsing(cartQuantityValidator)
-    await new CartService().setQuantity(auth.getUserOrFail(), Number(params.id), quantity)
+    await new CartService().setQuantity(auth.getUserOrFail(), params.id, quantity)
     return response.redirect().toPath('/cart')
   }
 
   async remove({ response, auth, params }: HttpContext) {
-    await new CartService().remove(auth.getUserOrFail(), Number(params.id))
+    await new CartService().remove(auth.getUserOrFail(), params.id)
     return response.redirect().toPath('/cart')
   }
 

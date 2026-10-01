@@ -40,7 +40,7 @@ export default class AdminPrintProfileController {
 
   async toggle({ params, request, response, auth }: HttpContext) {
     const { isActive } = await request.validateUsing(toggleValidator)
-    await new PrintProfileService().setActive(Number(params.id), isActive, auth.getUserOrFail().id)
+    await new PrintProfileService().setActive(params.id, isActive, auth.getUserOrFail().id)
     return response.redirect().toPath('/admin/profiles')
   }
 }

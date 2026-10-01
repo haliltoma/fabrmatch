@@ -11,16 +11,16 @@ export type PrinterTechnology = 'FDM' | 'SLA' | 'SLS'
 
 export default class Printer extends BaseModel {
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
 
   @column()
-  declare manufacturerProfileId: number
+  declare manufacturerProfileId: string
 
   @column()
   declare name: string
 
   @column()
-  declare printerModelId: number | null
+  declare printerModelId: string | null
 
   @column()
   declare technology: PrinterTechnology

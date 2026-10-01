@@ -11,9 +11,9 @@ import { Pagination, type PageMeta } from '~/components/pagination'
 import { useT } from '~/lib/i18n'
 
 type InvoiceData = {
-  id: number
+  id: string
   number: string
-  orderId: number
+  orderId: string
   orderCode: string | null
   status: 'issued' | 'voided'
   issuedAt: string | null

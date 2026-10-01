@@ -4,6 +4,7 @@ import Printer from '#models/printer'
 import PrinterModel from '#models/printer_model'
 import RoleService from '#services/identity/role_service'
 import { createManufacturer, ensureReferenceCatalog } from '#tests/helpers/order_fixtures'
+import { uid } from '#tests/helpers/ids'
 
 const inertia = { 'x-inertia': 'true', 'x-inertia-version': '1', 'accept': 'application/json' }
 
@@ -90,7 +91,7 @@ test.group('printer model catalogue over HTTP (X-14)', (group) => {
       .headers(inertia)
       .redirects(0)
       .field('name', 'Ghost')
-      .field('printerModelId', '99999999')
+      .field('printerModelId', uid(99999999))
       .field('technology', 'FDM')
       .field('buildVolumeXMm', '220')
       .field('buildVolumeYMm', '220')

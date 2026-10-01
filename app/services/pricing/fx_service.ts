@@ -16,7 +16,7 @@ import { StaticFxProvider, TcmbProvider, type FxProvider } from '#services/prici
 export class FxError extends DomainError {}
 
 export interface LockedRate {
-  fxRateId: number
+  fxRateId: string
   rateE9: bigint
 }
 

@@ -9,10 +9,10 @@ export interface WeeklySchedule {
 
 export default class WeeklyTemplate extends BaseModel {
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
 
   @column()
-  declare printerId: number
+  declare printerId: string
 
   @column({
     prepare: (value: WeeklySchedule) => JSON.stringify(value),

@@ -4,7 +4,7 @@ import { DEFAULT_PRICING_REGIONS } from '#services/pricing/pricing_region_defaul
 export default class extends BaseSchema {
   async up() {
     this.schema.createTable('pricing_regions', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table.string('code', 16).notNullable().unique()
       table.string('name', 80).notNullable()
       table.string('currency', 3).notNullable()
@@ -28,10 +28,9 @@ export default class extends BaseSchema {
     )
 
     this.schema.createTable('pricing_region_materials', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table
-        .integer('pricing_region_id')
-        .unsigned()
+        .uuid('pricing_region_id')
         .notNullable()
         .references('id')
         .inTable('pricing_regions')
@@ -54,8 +53,7 @@ export default class extends BaseSchema {
     // which region's rules priced the order (null for orders placed before regions existed)
     this.schema.table('orders', (table) => {
       table
-        .integer('pricing_region_id')
-        .unsigned()
+        .uuid('pricing_region_id')
         .nullable()
         .references('id')
         .inTable('pricing_regions')

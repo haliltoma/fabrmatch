@@ -8,10 +8,9 @@ import { BaseSchema } from '@adonisjs/lucid/schema'
 export default class extends BaseSchema {
   async up() {
     this.schema.createTable('product_images', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table
-        .integer('model_file_id')
-        .unsigned()
+        .uuid('model_file_id')
         .notNullable()
         .references('id')
         .inTable('model_files')
@@ -26,26 +25,13 @@ export default class extends BaseSchema {
       table.integer('angle').nullable()
       table.integer('render_version').nullable()
       table
-        .integer('qc_photo_id')
-        .unsigned()
+        .uuid('qc_photo_id')
         .nullable()
         .references('id')
         .inTable('job_qc_photos')
         .onDelete('SET NULL')
-      table
-        .integer('submitted_by')
-        .unsigned()
-        .nullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('SET NULL')
-      table
-        .integer('reviewed_by')
-        .unsigned()
-        .nullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('SET NULL')
+      table.uuid('submitted_by').nullable().references('id').inTable('users').onDelete('SET NULL')
+      table.uuid('reviewed_by').nullable().references('id').inTable('users').onDelete('SET NULL')
       table.timestamp('reviewed_at').nullable()
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()

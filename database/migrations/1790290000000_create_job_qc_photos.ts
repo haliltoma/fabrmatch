@@ -3,10 +3,9 @@ import { BaseSchema } from '@adonisjs/lucid/schema'
 export default class extends BaseSchema {
   async up() {
     this.schema.createTable('job_qc_photos', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table
-        .integer('production_job_id')
-        .unsigned()
+        .uuid('production_job_id')
         .notNullable()
         .references('id')
         .inTable('production_jobs')

@@ -11,14 +11,8 @@ export default class extends BaseSchema {
 
     // Token table for email verification + password reset
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id')
-      table
-        .integer('user_id')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('CASCADE')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
+      table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE')
       table.enum('type', ['email_verification', 'password_reset']).notNullable()
       table.string('token', 64).notNullable().unique()
       table.timestamp('expires_at').notNullable()

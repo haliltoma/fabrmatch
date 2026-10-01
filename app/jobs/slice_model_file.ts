@@ -4,7 +4,7 @@ import PrintProfile from '#models/print_profile'
 import SliceEstimateService from '#services/slicing/slice_estimate_service'
 
 interface Payload {
-  modelFileId: number
+  modelFileId: string
 }
 
 /** After analysis: slice the model for every active FDM profile so quotes can use real numbers. */

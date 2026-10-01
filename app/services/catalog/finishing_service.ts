@@ -65,7 +65,7 @@ export default class FinishingService {
       priceMinor: number
       materials?: string[] | null
     },
-    adminId: number
+    adminId: string
   ) {
     const code = input.code.trim().toUpperCase()
     if (!/^[A-Z0-9][A-Z0-9_-]{0,31}$/.test(code)) {
@@ -109,9 +109,9 @@ export default class FinishingService {
 
   /** New orders use the new price; orders already priced keep theirs (frozen on the item). */
   async update(
-    id: number,
+    id: string,
     changes: { priceMinor?: number; isActive?: boolean; extraDays?: number },
-    adminId: number
+    adminId: string
   ) {
     const option = await FinishingOption.findOrFail(id)
     if (changes.priceMinor !== undefined) {
@@ -142,16 +142,16 @@ export default class FinishingService {
     return option
   }
 
-  async offeredBy(manufacturerProfileId: number): Promise<number[]> {
+  async offeredBy(manufacturerProfileId: string): Promise<string[]> {
     const rows = await db
       .from('manufacturer_finishings')
       .where('manufacturer_profile_id', manufacturerProfileId)
       .select('finishing_option_id')
-    return rows.map((r) => r.finishing_option_id as number)
+    return rows.map((r) => r.finishing_option_id as string)
   }
 
   /** A maker declares which finishings they really do; only those are matched to orders that ask for them. */
-  async setOffered(manufacturerProfileId: number, optionIds: number[]) {
+  async setOffered(manufacturerProfileId: string, optionIds: string[]) {
     const valid = await FinishingOption.query().whereIn('id', optionIds).where('isActive', true)
     await db.transaction(async (trx) => {
       await trx

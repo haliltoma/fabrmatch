@@ -16,7 +16,7 @@ import { useT } from '~/lib/i18n'
 import { PaintColourField, type PaintColour } from '~/components/paint_colour'
 
 type FileInfo = {
-  id: number
+  id: string
   originalName: string
   format: string
   volumeMm3: number
@@ -63,8 +63,8 @@ function QuotePage({
   file: FileInfo | null
   error: string | null
   materials: MaterialOption[]
-  profiles: Array<{ id: number; name: string; technology: string; postProcess: string | null }>
-  newerVersionId: number | null
+  profiles: Array<{ id: string; name: string; technology: string; postProcess: string | null }>
+  newerVersionId: string | null
   finishings: Array<{
     code: string
     name: string
@@ -80,7 +80,7 @@ function QuotePage({
   const { t } = useT()
 
   const [eta, setEta] = useState<{ earliest: string; latest: string } | null>(null)
-  const [profileId, setProfileId] = useState<number | null>(null)
+  const [profileId, setProfileId] = useState<string | null>(null)
   const chosenTechnology = profiles.find((p) => p.id === profileId)?.technology
   const visibleMaterials = chosenTechnology
     ? materials.filter((m) => m.technology === chosenTechnology)
@@ -325,7 +325,7 @@ function QuotePage({
                 className="flex h-10 w-full rounded-md border border-line bg-paper-raised px-3 py-2 text-sm"
                 value={profileId ?? ''}
                 onChange={(e) => {
-                  const next = e.target.value ? Number(e.target.value) : null
+                  const next = e.target.value || null
                   setProfileId(next)
                   const tech = profiles.find((p) => p.id === next)?.technology
                   const fits = materials.filter((m) => !tech || m.technology === tech)

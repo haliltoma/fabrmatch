@@ -9,10 +9,10 @@ import OrderNotifier from '#services/notifications/order_notifier'
 export interface MatchingEffects {
   offerCreated(offer: MatchOffer): Promise<void>
   offerAccepted(job: ProductionJob): Promise<void>
-  orderUnmatched(orderId: number, reason: string): Promise<void>
+  orderUnmatched(orderId: string, reason: string): Promise<void>
 }
 
-export function offersChannel(manufacturerProfileId: number) {
+export function offersChannel(manufacturerProfileId: string) {
   return `manufacturers/${manufacturerProfileId}/offers`
 }
 
@@ -58,7 +58,7 @@ export default class QueueMatchingEffects implements MatchingEffects {
     await safely('notify order parties', () => this.notifier.inProduction(job.orderId))
   }
 
-  async orderUnmatched(orderId: number, reason: string) {
+  async orderUnmatched(orderId: string, reason: string) {
     logger.warn({ msg: 'order unmatched — needs admin review', orderId, reason })
     await safely('notify buyer', () => this.notifier.unmatched(orderId))
   }

@@ -45,10 +45,12 @@ export interface PublishVariant {
   priceMinor: number
 }
 
-const SKU_PATTERN = /^FM-(\d+)-([A-Z0-9]+)$/
+// FM-<seller product uuid>-<material>
+const SKU_PATTERN =
+  /^FM-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})-([A-Z0-9]+)$/i
 
 export interface ListingMapping {
-  sellerProductId: number | null
+  sellerProductId: string | null
   material: string | null
   color: string | null
   scalePercent: number | null
@@ -71,7 +73,7 @@ export default class StoreService {
       .orderBy('id', 'asc')
   }
 
-  private async ownConnection(seller: User, connectionId: number) {
+  private async ownConnection(seller: User, connectionId: string) {
     const connection = await StoreConnection.query()
       .where('id', connectionId)
       .where('sellerUserId', seller.id)
@@ -163,8 +165,8 @@ export default class StoreService {
    */
   async publish(
     seller: User,
-    connectionId: number,
-    sellerProductId: number,
+    connectionId: string,
+    sellerProductId: string,
     variants: PublishVariant[],
     categoryId: string | null = null
   ) {
@@ -284,11 +286,11 @@ export default class StoreService {
    * `connectionId` is null (used when the seller archives the product). A shop that cannot be
    * reached does not stop the others; the failures are returned.
    */
-  async unpublish(seller: User, sellerProductId: number, connectionId: number | null = null) {
+  async unpublish(seller: User, sellerProductId: string, connectionId: string | null = null) {
     const listings = await ExternalListing.query()
       .where('sellerProductId', sellerProductId)
       .where('published', true)
-    const byShop = new Map<number, string>()
+    const byShop = new Map<string, string>()
     for (const listing of listings) byShop.set(listing.storeConnectionId, listing.externalProductId)
     const failed: string[] = []
     for (const [shopId, productId] of byShop) {
@@ -334,7 +336,7 @@ export default class StoreService {
     return connection
   }
 
-  async disconnect(seller: User, connectionId: number) {
+  async disconnect(seller: User, connectionId: string) {
     const connection = await this.ownConnection(seller, connectionId)
     connection.status = 'disconnected'
     connection.accessTokenEnc = null
@@ -349,7 +351,7 @@ export default class StoreService {
   }
 
   /** Pulls the shop's variants; mappings the seller already made are kept. */
-  async syncListings(seller: User, connectionId: number) {
+  async syncListings(seller: User, connectionId: string) {
     const connection = await this.ownConnection(seller, connectionId)
     const variants = await storeAdapter(connection.provider).listVariants(connection)
     for (const variant of variants) {
@@ -397,13 +399,13 @@ export default class StoreService {
     }
   }
 
-  async listings(seller: User, connectionId: number) {
+  async listings(seller: User, connectionId: string) {
     const connection = await this.ownConnection(seller, connectionId)
     return ExternalListing.query().where('storeConnectionId', connection.id).orderBy('title', 'asc')
   }
 
   /** R4-T3: this variant is this product, printed in this material / colour / size. */
-  async mapListing(seller: User, listingId: number, mapping: ListingMapping) {
+  async mapListing(seller: User, listingId: string, mapping: ListingMapping) {
     const listing = await ExternalListing.findOrFail(listingId)
     const connection = await this.ownConnection(seller, listing.storeConnectionId)
 
@@ -452,7 +454,7 @@ export default class StoreService {
 
   /** Webhook entry: verify, store once per external id, and place it if every line is mapped. */
   async receiveOrderWebhook(
-    connectionId: number,
+    connectionId: string,
     rawBody: string,
     headers: Record<string, string | undefined>
   ) {
@@ -562,7 +564,7 @@ export default class StoreService {
     const mapping = new Map<
       string,
       {
-        sellerProductId: number
+        sellerProductId: string
         material: string
         color: string | null
         scalePercent: number | null
@@ -583,7 +585,7 @@ export default class StoreService {
       const bySku = SKU_PATTERN.exec(line.sku ?? '')
       if (bySku) {
         mapping.set(line.variantId, {
-          sellerProductId: Number(bySku[1]),
+          sellerProductId: bySku[1].toLowerCase(),
           material: bySku[2],
           color: null,
           scalePercent: 100,
@@ -666,7 +668,7 @@ export default class StoreService {
   }
 
   /** True when the order was paid from the seller's balance (auto-pay on and enough money). */
-  private async autoPay(seller: User, order: { id: number; totalMinor: number; currency: string }) {
+  private async autoPay(seller: User, order: { id: string; totalMinor: number; currency: string }) {
     const profile = await SellerProfile.query().where('userId', seller.id).first()
     if (!profile?.walletAutoPay || order.currency !== 'TRY') return false
     try {
@@ -682,7 +684,7 @@ export default class StoreService {
     }
   }
 
-  async orders(seller: User, connectionId: number) {
+  async orders(seller: User, connectionId: string) {
     const connection = await this.ownConnection(seller, connectionId)
     return ExternalOrder.query()
       .where('storeConnectionId', connection.id)
@@ -731,7 +733,7 @@ export default class StoreService {
   }
 
   /** R4-T4: the order shipped — queue the tracking for the shop. */
-  async orderShipped(orderId: number) {
+  async orderShipped(orderId: string) {
     await ExternalOrder.query()
       .where('orderId', orderId)
       .where('fulfillmentStatus', 'none')
@@ -782,7 +784,7 @@ export default class StoreService {
   }
 
   /** Seller can retry a write-back that gave up. */
-  async retryFulfillment(seller: User, externalOrderId: number) {
+  async retryFulfillment(seller: User, externalOrderId: string) {
     const order = await ExternalOrder.findOrFail(externalOrderId)
     await this.ownConnection(seller, order.storeConnectionId)
     if (order.fulfillmentStatus !== 'failed') throw new StoreError('Nothing to retry')

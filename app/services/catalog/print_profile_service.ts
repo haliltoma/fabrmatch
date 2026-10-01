@@ -26,7 +26,7 @@ export default class PrintProfileService {
       timeFactorBps: number
       postProcess?: string | null
     },
-    adminId: number
+    adminId: string
   ) {
     const code = input.code.trim().toUpperCase()
     if (!/^[A-Z0-9][A-Z0-9_-]{0,31}$/.test(code)) {
@@ -79,7 +79,7 @@ export default class PrintProfileService {
     })
   }
 
-  async setActive(id: number, isActive: boolean, adminId: number) {
+  async setActive(id: string, isActive: boolean, adminId: string) {
     const profile = await PrintProfile.findOrFail(id)
     profile.isActive = isActive
     await profile.save()
@@ -93,14 +93,14 @@ export default class PrintProfileService {
   }
 
   /** A buyer's pick must be an active profile. */
-  async resolveForOrder(id: number): Promise<PrintProfile> {
+  async resolveForOrder(id: string): Promise<PrintProfile> {
     const profile = await PrintProfile.query().where('id', id).where('isActive', true).first()
     if (!profile) throw new PrintProfileError('That print profile is not available')
     return profile
   }
 
   /** New printers start by offering every active profile of their technology. */
-  async offerAllFor(printerId: number, technology: Technology) {
+  async offerAllFor(printerId: string, technology: Technology) {
     await db.rawQuery(
       `insert into printer_print_profiles (printer_id, print_profile_id)
        select ?, id from print_profiles where technology = ? and is_active on conflict do nothing`,
@@ -108,13 +108,13 @@ export default class PrintProfileService {
     )
   }
 
-  async offeredIds(printerId: number): Promise<number[]> {
+  async offeredIds(printerId: string): Promise<string[]> {
     const rows = await db.from('printer_print_profiles').where('printer_id', printerId)
-    return rows.map((r) => r.print_profile_id as number)
+    return rows.map((r) => r.print_profile_id as string)
   }
 
   /** The maker's declaration; only active profiles of the printer's own technology count. */
-  async setOffered(printerId: number, technology: Technology, profileIds: number[]) {
+  async setOffered(printerId: string, technology: Technology, profileIds: string[]) {
     const valid = await PrintProfile.query()
       .whereIn('id', profileIds)
       .where('technology', technology)

@@ -12,7 +12,7 @@ import { EmptyState } from '~/components/empty_state'
 import { useT } from '~/lib/i18n'
 
 type Unmatched = {
-  id: number
+  id: string
   code: string
   matchingRound: number
   totalMinor: number
@@ -20,8 +20,8 @@ type Unmatched = {
   since: string | null
 }
 type Overdue = {
-  jobId: number
-  orderId: number
+  jobId: string
+  orderId: string
   orderCode: string
   status: string
   manufacturerAlias: string
@@ -37,12 +37,12 @@ type PaymentReview = {
 type Finding = {
   ref: string
   kind: string
-  orderId: number | null
+  orderId: string | null
   detail: string
   at: string | null
 }
 type FraudItem = {
-  orderId: number
+  orderId: string
   orderCode: string
   status: string
   totalMinor: number
@@ -51,23 +51,23 @@ type FraudItem = {
   flags: Array<{ rule: string; severity: string; detail: string }>
 }
 type Report = {
-  id: number
+  id: string
   reason: string
   details: string | null
-  productId: number | null
+  productId: string | null
   productTitle: string | null
   createdAt: string | null
 }
 type Chargeback = {
-  id: number
-  orderId: number
+  id: string
+  orderId: string
   orderCode: string
   amountMinor: number
   currency: string
   createdAt: string | null
 }
 type SupportItem = {
-  id: number
+  id: string
   email: string
   topic: string
   orderCode: string | null
@@ -75,7 +75,7 @@ type SupportItem = {
   createdAt: string | null
 }
 type PendingMaker = {
-  id: number
+  id: string
   alias: string
   email: string
   city: string | null
@@ -227,7 +227,7 @@ export default function AdminQueues({
   reports: Report[]
   chargebacks: Chargeback[]
   support: SupportItem[]
-  shopPhotos: { id: number; url: string; product: string; createdAt: string | null }[]
+  shopPhotos: { id: string; url: string; product: string; createdAt: string | null }[]
 }) {
   const { t } = useT()
 

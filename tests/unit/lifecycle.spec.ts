@@ -15,7 +15,7 @@ import {
 } from '#tests/helpers/order_fixtures'
 
 const LIFECYCLE = ['welcome', 'payment_reminder', 'review_request', 'capacity_idle']
-const typesOf = async (userId: number) => {
+const typesOf = async (userId: string) => {
   const rows = await Notification.query().where('userId', userId).whereIn('type', LIFECYCLE)
   return rows.map((n) => n.type)
 }

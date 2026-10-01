@@ -21,7 +21,7 @@ interface Finding {
  * checks (same card on many accounts) need the provider's card fingerprint and come with iyzico.
  */
 export default class FraudService {
-  async assess(orderId: number, now: DateTime = DateTime.now()): Promise<{ hold: boolean }> {
+  async assess(orderId: string, now: DateTime = DateTime.now()): Promise<{ hold: boolean }> {
     const order = await Order.findOrFail(orderId)
     const findings = [
       ...(await this.newAccountHighValue(order, now)),
@@ -55,7 +55,7 @@ export default class FraudService {
     const flags = await FraudFlag.query().where('status', 'open').orderBy('id', 'asc')
     const orders = await Order.query().whereIn('id', [...new Set(flags.map((f) => f.orderId))])
     const byId = new Map(orders.map((o) => [o.id, o]))
-    const grouped = new Map<number, FraudFlag[]>()
+    const grouped = new Map<string, FraudFlag[]>()
     for (const f of flags) grouped.set(f.orderId, [...(grouped.get(f.orderId) ?? []), f])
     return [...grouped.entries()].map(([orderId, list]) => {
       const order = byId.get(orderId)!
@@ -72,18 +72,18 @@ export default class FraudService {
   }
 
   /** Marks every open flag of the order cleared. Returns true when matching may now start. */
-  async clear(orderId: number, adminId: number): Promise<boolean> {
+  async clear(orderId: string, adminId: string): Promise<boolean> {
     const changed = await this.resolve(orderId, 'cleared', adminId)
     const order = await Order.findOrFail(orderId)
     return changed > 0 && order.status === 'paid'
   }
 
-  async reject(orderId: number, adminId: number) {
+  async reject(orderId: string, adminId: string) {
     const changed = await this.resolve(orderId, 'rejected', adminId)
     if (changed === 0) throw new FraudError('Nothing to reject: no open flags on this order')
   }
 
-  private async resolve(orderId: number, status: 'cleared' | 'rejected', adminId: number) {
+  private async resolve(orderId: string, status: 'cleared' | 'rejected', adminId: string) {
     const updated = await FraudFlag.query()
       .where('orderId', orderId)
       .where('status', 'open')
@@ -172,7 +172,7 @@ export default class FraudService {
       : []
   }
 
-  private async sharedIps(userId: number, others: number[]): Promise<string[]> {
+  private async sharedIps(userId: string, others: Array<string | null>): Promise<string[]> {
     const rows = await db.rawQuery(
       `select distinct s1.ip_address
          from user_sessions s1

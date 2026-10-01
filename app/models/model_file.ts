@@ -9,14 +9,14 @@ export type AnalysisStatus = 'pending' | 'processing' | 'done' | 'failed'
 
 export default class ModelFile extends BaseModel {
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
 
   @column()
-  declare ownerId: number
+  declare ownerId: string
 
   /** the revision this file replaces, if it is a newer version of the same model */
   @column()
-  declare previousFileId: number | null
+  declare previousFileId: string | null
 
   @column()
   declare revision: number

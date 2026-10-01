@@ -10,7 +10,7 @@ export default class CategoryService {
     return Category.query().orderBy('name')
   }
 
-  async create(name: string, adminId: number) {
+  async create(name: string, adminId: string) {
     const trimmed = name.trim()
     if (trimmed.length < 2) throw new CategoryError('Give the category a name')
     const slug = string.slug(trimmed, { lower: true })
@@ -28,7 +28,7 @@ export default class CategoryService {
     return category
   }
 
-  async setActive(id: number, isActive: boolean, adminId: number) {
+  async setActive(id: string, isActive: boolean, adminId: string) {
     const category = await Category.findOrFail(id)
     category.isActive = isActive
     await category.save()

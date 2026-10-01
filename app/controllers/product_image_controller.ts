@@ -9,7 +9,7 @@ import ProductImage from '#models/product_image'
 export default class ProductImageController {
   async show({ params, response }: HttpContext) {
     const image = await ProductImage.query()
-      .where('id', Number(params.id))
+      .where('id', params.id)
       .where('status', 'approved')
       .first()
     if (!image) return response.notFound()
@@ -17,7 +17,7 @@ export default class ProductImageController {
   }
 
   async adminShow({ params, response }: HttpContext) {
-    const image = await ProductImage.find(Number(params.id))
+    const image = await ProductImage.find(params.id)
     if (!image) return response.notFound()
     return this.stream(image, response, 'private, no-store')
   }

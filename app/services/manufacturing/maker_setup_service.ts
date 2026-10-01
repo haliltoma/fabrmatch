@@ -34,7 +34,7 @@ export default class MakerSetupService {
       .where('manufacturer_profile_id', profile.id)
       .where('is_active', true)
       .select('id')
-    const printerIds = printers.map((p) => p.id as number)
+    const printerIds = printers.map((p) => p.id as string)
 
     const count = async (query: ReturnType<typeof db.from>, column = '*') => {
       const row = await query.count(`${column} as n`).first()

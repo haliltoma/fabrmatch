@@ -5,10 +5,9 @@ export default class extends BaseSchema {
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table
-        .integer('manufacturer_profile_id')
-        .unsigned()
+        .uuid('manufacturer_profile_id')
         .notNullable()
         .references('id')
         .inTable('manufacturer_profiles')

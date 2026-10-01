@@ -37,6 +37,7 @@ import {
   createUser,
   ensureReferenceCatalog,
 } from '#tests/helpers/order_fixtures'
+import { uid } from '#tests/helpers/ids'
 
 const rfqs = new RfqService()
 const bids = new RfqBidService()
@@ -391,7 +392,7 @@ test.group('choosing a winner', (group) => {
     const stranger = await corporateBuyer()
     await assert.rejects(() => rfqs.award(rfq.id, stranger, win.id, TR_ADDRESS), /not found/)
     await assert.rejects(
-      () => rfqs.award(rfq.id, buyer, 999_999, TR_ADDRESS),
+      () => rfqs.award(rfq.id, buyer, uid(999999), TR_ADDRESS),
       /no longer available/
     )
 

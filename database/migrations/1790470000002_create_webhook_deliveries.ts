@@ -3,10 +3,9 @@ import { BaseSchema } from '@adonisjs/lucid/schema'
 export default class extends BaseSchema {
   async up() {
     this.schema.createTable('webhook_deliveries', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table
-        .integer('endpoint_id')
-        .unsigned()
+        .uuid('endpoint_id')
         .notNullable()
         .references('id')
         .inTable('webhook_endpoints')

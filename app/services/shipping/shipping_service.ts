@@ -29,7 +29,7 @@ export default class ShippingService {
     const zones = await db.from('shipping_zones').orderBy('id')
     const rates = await db.from('shipping_rates').orderBy('up_to_grams')
     return zones.map((z) => ({
-      id: z.id as number,
+      id: z.id as string,
       code: z.code as string,
       name: z.name as string,
       countries: (typeof z.countries === 'string'
@@ -41,14 +41,14 @@ export default class ShippingService {
       rates: rates
         .filter((r) => r.zone_id === z.id)
         .map((r) => ({
-          id: r.id as number,
+          id: r.id as string,
           upToGrams: r.up_to_grams as number,
           priceMinor: r.price_minor as number,
         })),
     }))
   }
 
-  async setRate(rateId: number, priceMinor: number, adminId: number) {
+  async setRate(rateId: string, priceMinor: number, adminId: string) {
     this.assertPrice(priceMinor)
     await this.audited(adminId, 'shipping.rate_changed', rateId, async () => {
       const row = await db.from('shipping_rates').where('id', rateId).first()
@@ -61,7 +61,7 @@ export default class ShippingService {
     })
   }
 
-  async setExtraPerKg(zoneId: number, priceMinor: number, adminId: number) {
+  async setExtraPerKg(zoneId: string, priceMinor: number, adminId: string) {
     this.assertPrice(priceMinor)
     await this.audited(adminId, 'shipping.extra_changed', zoneId, async () => {
       const row = await db.from('shipping_zones').where('id', zoneId).first()
@@ -81,9 +81,9 @@ export default class ShippingService {
   }
 
   private async audited(
-    adminId: number,
+    adminId: string,
     action: string,
-    subjectId: number,
+    subjectId: string,
     run: () => Promise<Record<string, unknown>>
   ) {
     const meta = await run()

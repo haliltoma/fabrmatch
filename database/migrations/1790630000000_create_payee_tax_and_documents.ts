@@ -24,11 +24,11 @@ const list = (values: string[]) => values.map((v) => `'${v}'`).join(', ')
 export default class extends BaseSchema {
   async up() {
     this.schema.createTable('payee_tax_profiles', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table.enu('beneficiary_type', ['manufacturer', 'seller']).notNullable()
       // same id the payouts use: manufacturer_profiles.id, or the seller's users.id
-      table.integer('beneficiary_id').notNullable()
-      table.integer('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE')
+      table.uuid('beneficiary_id').notNullable()
+      table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE')
       table
         .enu('tax_status', ['company', 'sole_proprietor', 'simple_method', 'home_exempt'])
         .notNullable()
@@ -41,7 +41,7 @@ export default class extends BaseSchema {
       table.string('document_content_type', 64).nullable()
       table.enu('status', ['pending_review', 'approved', 'rejected']).notNullable()
       table.string('rejection_reason', 500).nullable()
-      table.integer('reviewed_by').nullable().references('id').inTable('users').onDelete('SET NULL')
+      table.uuid('reviewed_by').nullable().references('id').inTable('users').onDelete('SET NULL')
       table.timestamp('reviewed_at').nullable()
       table.timestamp('submitted_at').notNullable()
       table.timestamp('created_at').notNullable()
@@ -70,9 +70,9 @@ export default class extends BaseSchema {
     )
 
     this.schema.createTable('payout_documents', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table
-        .integer('payout_id')
+        .uuid('payout_id')
         .notNullable()
         .unique()
         .references('id')
@@ -89,7 +89,7 @@ export default class extends BaseSchema {
       table.string('file_content_type', 64).nullable()
       table.enu('status', ['submitted', 'approved', 'rejected']).notNullable()
       table.string('rejection_reason', 500).nullable()
-      table.integer('reviewed_by').nullable().references('id').inTable('users').onDelete('SET NULL')
+      table.uuid('reviewed_by').nullable().references('id').inTable('users').onDelete('SET NULL')
       table.timestamp('reviewed_at').nullable()
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').notNullable()

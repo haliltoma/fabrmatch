@@ -9,7 +9,7 @@ import NotificationService from '#services/notifications/notification_service'
 export default class LifecycleService {
   constructor(private notifications = new NotificationService()) {}
 
-  async welcome(userId: number) {
+  async welcome(userId: string) {
     await this.notifications.notify({
       userId,
       role: 'buyer',
@@ -28,7 +28,7 @@ export default class LifecycleService {
       [now.minus({ hours: 24 }).toSQL(), now.minus({ hours: 72 }).toSQL()]
     )
     let sent = 0
-    for (const o of rows.rows as Array<{ id: number; code: string; buyer_id: number }>) {
+    for (const o of rows.rows as Array<{ id: string; code: string; buyer_id: string }>) {
       const made = await this.notifications.notify({
         userId: o.buyer_id,
         role: 'buyer',
@@ -52,7 +52,7 @@ export default class LifecycleService {
       [now.minus({ days: 3 }).toSQL(), now.minus({ days: 14 }).toSQL()]
     )
     let sent = 0
-    for (const o of rows.rows as Array<{ id: number; code: string; buyer_id: number }>) {
+    for (const o of rows.rows as Array<{ id: string; code: string; buyer_id: string }>) {
       const made = await this.notifications.notify({
         userId: o.buyer_id,
         role: 'buyer',
@@ -79,7 +79,7 @@ export default class LifecycleService {
       [now.toISODate(), now.plus({ days: 7 }).toISODate()]
     )
     let sent = 0
-    for (const r of rows.rows as Array<{ user_id: number }>) {
+    for (const r of rows.rows as Array<{ user_id: string }>) {
       const made = await this.notifications.notify({
         userId: r.user_id,
         role: 'maker',

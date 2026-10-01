@@ -21,6 +21,8 @@ const RECONCILE_LOOKBACK_DAYS = 3
  * Everything that needs a human, in one place (R3-T1). Items are derived from real state or the
  * audit log; nothing here keeps a second copy that could drift.
  */
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 /** Routine queue decisions that may be applied to many items at once. */
 export const BULK_ACTIONS = [
   'photos.approve',
@@ -78,7 +80,7 @@ export default class AdminQueueService {
         order by a.id desc
         limit 100`
     )
-    return (rows.rows as Array<{ id: number; meta: Record<string, string>; created_at: Date }>).map(
+    return (rows.rows as Array<{ id: string; meta: Record<string, string>; created_at: Date }>).map(
       (r) => ({
         ref: String(r.meta.eventId),
         providerRef: r.meta.providerRef ?? null,
@@ -108,7 +110,7 @@ export default class AdminQueueService {
     return (
       rows.rows as Array<{
         subject_type: string
-        subject_id: number
+        subject_id: string
         meta: { kind: string; detail: string }
         created_at: Date
       }>
@@ -165,13 +167,13 @@ export default class AdminQueueService {
     }
   }
 
-  async acknowledge(queue: AckQueue, ref: string, adminId: number) {
+  async acknowledge(queue: AckQueue, ref: string, adminId: string) {
     if (!ref.trim()) throw new QueueError('Missing item reference')
     await AuditLog.create({
       actorId: adminId,
       action: 'queue.acknowledged',
       subjectType: 'queue',
-      subjectId: 0,
+      subjectId: null,
       meta: { queue, ref },
     })
   }
@@ -185,20 +187,25 @@ export default class AdminQueueService {
   async bulk(
     action: BulkAction,
     refs: string[],
-    adminId: number
+    adminId: string
   ): Promise<{ done: number; failed: number }> {
     let done = 0
     let failed = 0
     for (const ref of [...new Set(refs)]) {
+      // photo and support items are rows: a malformed id is a failure, not a database error
+      if (!action.startsWith('ack.') && !UUID.test(ref)) {
+        failed += 1
+        continue
+      }
       try {
         if (action === 'photos.approve' || action === 'photos.reject') {
           await new ShopPhotoService().review(
-            Number(ref),
+            ref,
             action === 'photos.approve' ? 'approve' : 'reject',
             adminId
           )
         } else if (action === 'support.answered') {
-          await new SupportService().markAnswered(Number(ref), adminId)
+          await new SupportService().markAnswered(ref, adminId)
         } else {
           await this.acknowledge(
             action === 'ack.payment_review' ? 'payment_review' : 'reconcile',
@@ -215,7 +222,7 @@ export default class AdminQueueService {
   }
 
   /** Approving is what lets a maker receive offers (eligibility requires `active`). */
-  async decideMaker(profileId: number, decision: 'approve' | 'reject', adminId: number) {
+  async decideMaker(profileId: string, decision: 'approve' | 'reject', adminId: string) {
     await db.transaction(async (trx) => {
       const profile = await ManufacturerProfile.query({ client: trx })
         .where('id', profileId)

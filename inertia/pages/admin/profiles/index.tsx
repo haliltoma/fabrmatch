@@ -10,7 +10,7 @@ import { PageHeader } from '~/components/page_header'
 import { useT } from '~/lib/i18n'
 
 type Profile = {
-  id: number
+  id: string
   code: string
   name: string
   technology: string

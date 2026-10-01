@@ -8,7 +8,7 @@ import { EmptyState } from '~/components/empty_state'
 import { useT } from '~/lib/i18n'
 
 type Maker = {
-  id: number
+  id: string
   alias: string
   email: string
   city: string | null

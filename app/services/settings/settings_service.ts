@@ -62,7 +62,7 @@ export default class SettingsService {
     }
   }
 
-  async set(key: string, value: number, adminId: number): Promise<void> {
+  async set(key: string, value: number, adminId: string): Promise<void> {
     const def = definitionOf(key)
     if (!Number.isFinite(value) || (def.integer && !Number.isInteger(value))) {
       throw new SettingsError(`${def.label} must be ${def.integer ? 'a whole number' : 'a number'}`)
@@ -88,7 +88,7 @@ export default class SettingsService {
           actorId: adminId,
           action: 'setting.changed',
           subjectType: 'setting',
-          subjectId: 0,
+          subjectId: null,
           meta: { key, from: before, to: value },
         },
         { client: trx }
@@ -98,7 +98,7 @@ export default class SettingsService {
   }
 
   /** Removes the override; the default from `config/fabrmatch.ts` applies again. */
-  async reset(key: string, adminId: number): Promise<void> {
+  async reset(key: string, adminId: string): Promise<void> {
     definitionOf(key)
     const removed = await db.transaction(async (trx) => {
       const existing = await Setting.query({ client: trx }).where('key', key).forUpdate().first()
@@ -109,7 +109,7 @@ export default class SettingsService {
           actorId: adminId,
           action: 'setting.reset',
           subjectType: 'setting',
-          subjectId: 0,
+          subjectId: null,
           meta: { key, to: DEFAULTS[key] },
         },
         { client: trx }

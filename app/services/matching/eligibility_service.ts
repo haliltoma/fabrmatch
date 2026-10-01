@@ -72,7 +72,7 @@ function toDateString(value: unknown): string {
 }
 
 interface FindOptions {
-  excludeManufacturerIds?: number[]
+  excludeManufacturerIds?: string[]
   buyerCity?: string | null
   now?: DateTime
 }
@@ -91,7 +91,7 @@ export default class EligibilityService {
     const now = options.now ?? DateTime.now()
     const from = now.toISODate()!
     const to = now.plus({ days: await productionDaysForOrder({ ...order, items }) }).toISODate()!
-    const excludedUserIds = [order.buyerId, order.sellerId].filter((id): id is number => !!id)
+    const excludedUserIds = [order.buyerId, order.sellerId].filter((id): id is string => !!id)
     const excludedProfileIds = options.excludeManufacturerIds ?? []
 
     const printers = await Printer.query()
@@ -117,7 +117,7 @@ export default class EligibilityService {
 
     // an RFQ order was awarded to one maker: only they can be offered it, and their bid, not the
     // platform's reference price, is the price
-    let awardedTo: number | null = null
+    let awardedTo: string | null = null
     if (order.channel === 'rfq') {
       const awarded = await db
         .from('rfqs')
@@ -160,16 +160,16 @@ export default class EligibilityService {
           'printer_id',
           eligible.map((p) => p.id)
         )
-        .whereIn('print_profile_id', wanted as number[])
-      const byPrinter = new Map<number, Set<number>>()
+        .whereIn('print_profile_id', wanted as string[])
+      const byPrinter = new Map<string, Set<string>>()
       for (const row of offered) {
-        const set = byPrinter.get(row.printer_id) ?? new Set<number>()
+        const set = byPrinter.get(row.printer_id) ?? new Set<string>()
         set.add(row.print_profile_id)
         byPrinter.set(row.printer_id, set)
       }
       for (let i = eligible.length - 1; i >= 0; i--) {
         const have = byPrinter.get(eligible[i].id)
-        if (!wanted.every((id) => have?.has(id as number))) eligible.splice(i, 1)
+        if (!wanted.every((id) => have?.has(id as string))) eligible.splice(i, 1)
       }
     }
 
@@ -184,7 +184,7 @@ export default class EligibilityService {
         ])
         .whereIn('fo.code', finishings as string[])
         .select('mf.manufacturer_profile_id', 'fo.code')
-      const byMaker = new Map<number, Set<string>>()
+      const byMaker = new Map<string, Set<string>>()
       for (const row of offered) {
         const set = byMaker.get(row.manufacturer_profile_id) ?? new Set<string>()
         set.add(row.code)
@@ -197,7 +197,7 @@ export default class EligibilityService {
     }
 
     // One candidate per manufacturer: the printer with the earliest free slot.
-    const best = new Map<number, Printer>()
+    const best = new Map<string, Printer>()
     for (const p of eligible) {
       const current = best.get(p.manufacturerProfileId)
       if (

@@ -242,7 +242,7 @@ export default class FinancialReportService {
    */
   async payoutsCsv(
     period: Period,
-    scope: { type: 'manufacturer' | 'seller'; beneficiaryId: number } | null
+    scope: { type: 'manufacturer' | 'seller'; beneficiaryId: string } | null
   ): Promise<string> {
     const query = db
       .from('payouts as p')

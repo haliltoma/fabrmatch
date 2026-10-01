@@ -16,7 +16,7 @@ import LedgerService from '#services/payments/ledger_service'
 const monthStart = () => DateTime.now().startOf('month').toSQL()!
 
 /** Paid out this month, one figure per currency (currencies are never added together). */
-async function paidOutThisMonth(type: 'manufacturer' | 'seller', beneficiaryId: number) {
+async function paidOutThisMonth(type: 'manufacturer' | 'seller', beneficiaryId: string) {
   const rows = await db
     .from('payouts')
     .where('beneficiary_type', type)
@@ -35,7 +35,7 @@ async function paidOutThisMonth(type: 'manufacturer' | 'seller', beneficiaryId: 
  * seller rows never carry manufacturer fields, maker rows never carry buyer fields.
  */
 export default class DashboardService {
-  async seller(userId: number, profile: SellerProfile) {
+  async seller(userId: string, profile: SellerProfile) {
     const [orders, products, earned, recent] = await Promise.all([
       Order.query().where('sellerId', userId).count('* as n').first(),
       SellerProduct.query()

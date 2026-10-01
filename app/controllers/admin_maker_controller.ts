@@ -40,13 +40,13 @@ export default class AdminMakerController {
 
   async setTier({ params, request, response, session, auth }: HttpContext) {
     const { tier, note } = await request.validateUsing(tierValidator)
-    await new TrustTierService().setByAdmin(Number(params.id), tier, auth.getUserOrFail().id, note)
+    await new TrustTierService().setByAdmin(params.id, tier, auth.getUserOrFail().id, note)
     session.flash('success', 'Tier set and pinned.')
     return response.redirect().toPath('/admin/makers')
   }
 
   async unlockTier({ params, response, session, auth }: HttpContext) {
-    await new TrustTierService().unlock(Number(params.id), auth.getUserOrFail().id)
+    await new TrustTierService().unlock(params.id, auth.getUserOrFail().id)
     session.flash('success', 'Tier is automatic again.')
     return response.redirect().toPath('/admin/makers')
   }

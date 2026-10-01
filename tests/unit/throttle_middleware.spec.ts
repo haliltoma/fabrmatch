@@ -1,8 +1,9 @@
 import { test } from '@japa/runner'
 import { randomUUID } from 'node:crypto'
 import ThrottleMiddleware from '#middleware/throttle_middleware'
+import { uid } from '#tests/helpers/ids'
 
-function fakeCtx(userId: number | null, ip = '203.0.113.9') {
+function fakeCtx(userId: string | null, ip = '203.0.113.9') {
   return {
     auth: { user: userId ? { id: userId } : null },
     request: { ip: () => ip },
@@ -15,10 +16,10 @@ test.group('ThrottleMiddleware', () => {
     const options = { name: `test:${randomUUID()}`, requests: 2, duration: '1 minute' }
     const next = async () => 'ok'
 
-    assert.equal(await middleware.handle(fakeCtx(1), next, options), 'ok')
-    assert.equal(await middleware.handle(fakeCtx(1), next, options), 'ok')
-    await assert.rejects(() => middleware.handle(fakeCtx(1), next, options))
-    assert.equal(await middleware.handle(fakeCtx(2), next, options), 'ok')
+    assert.equal(await middleware.handle(fakeCtx(uid(1)), next, options), 'ok')
+    assert.equal(await middleware.handle(fakeCtx(uid(1)), next, options), 'ok')
+    await assert.rejects(() => middleware.handle(fakeCtx(uid(1)), next, options))
+    assert.equal(await middleware.handle(fakeCtx(uid(2)), next, options), 'ok')
   })
 
   test('anonymous callers are keyed by IP', async ({ assert }) => {

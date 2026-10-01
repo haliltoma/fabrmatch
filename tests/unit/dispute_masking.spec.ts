@@ -4,13 +4,14 @@ import Dispute from '#models/dispute'
 import DisputeEvidence from '#models/dispute_evidence'
 import DisputeTransformer from '#transformers/dispute_transformer'
 import { maskedText } from '#services/messaging/contact_filter'
+import { uid } from '#tests/helpers/ids'
 
 function dispute() {
   const d = new Dispute()
   d.merge({
-    id: 1,
-    orderId: 2,
-    openedBy: 10,
+    id: uid(1),
+    orderId: uid(2),
+    openedBy: uid(10),
     status: 'responded',
     reason: 'Broken. Call me: 0532 123 45 67 or ali@example.com',
     manufacturerResponse: 'Sorry! WhatsApp me on +90 555 111 22 33, Atölye',
@@ -20,7 +21,7 @@ function dispute() {
   })
   d.createdAt = DateTime.now()
   const e = new DisputeEvidence()
-  e.merge({ id: 5, uploaderId: 10, note: 'see instagram @ali.workshop', storageKey: 'x' })
+  e.merge({ id: uid(5), uploaderId: uid(10), note: 'see instagram @ali.workshop', storageKey: 'x' })
   e.createdAt = DateTime.now()
   d.$setRelated('evidence', [e])
   return d

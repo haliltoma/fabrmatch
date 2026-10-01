@@ -17,6 +17,7 @@ import {
   ensureReferenceCatalog,
 } from '#tests/helpers/order_fixtures'
 import { DateTime } from 'luxon'
+import { uid } from '#tests/helpers/ids'
 
 const branding = new BrandingService()
 const slips = new PackingSlipService()
@@ -126,7 +127,7 @@ test.group('white label packing card (R4-T13)', (group) => {
     const { job, maker } = await storefrontJob()
     const stranger = await createManufacturer()
     await assert.rejects(() => slips.htmlForJob(job.id, stranger.profile.id), PackingSlipError)
-    await assert.rejects(() => slips.htmlForJob(999_999, maker.profile.id), PackingSlipError)
+    await assert.rejects(() => slips.htmlForJob(uid(999999), maker.profile.id), PackingSlipError)
     await ProductionJob.query().where('id', job.id).update({ status: 'cancelled' })
     await assert.rejects(() => slips.htmlForJob(job.id, maker.profile.id), PackingSlipError)
   })

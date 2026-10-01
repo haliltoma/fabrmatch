@@ -17,7 +17,7 @@ import { SkeletonModel } from '~/components/ui/skeleton'
 const StlViewer = lazy(() => import('~/components/stl_viewer'))
 
 type FileData = {
-  id: number
+  id: string
   originalName: string
   format: string
   sizeBytes: number
@@ -30,7 +30,7 @@ type FileData = {
   bboxZMm: number | null
   triangleCount: number | null
   revision: number
-  olderVersions: Array<{ id: number; revision: number; createdAt: string }>
+  olderVersions: Array<{ id: string; revision: number; createdAt: string }>
   createdAt: string
 }
 
@@ -66,7 +66,7 @@ function StatusBadge({ status, blocked }: { status: string; blocked: boolean }) 
   return <Badge className="bg-danger-soft text-danger">{t('Analysis failed')}</Badge>
 }
 
-function PreviewButton({ fileId, format }: { fileId: number; format: string }) {
+function PreviewButton({ fileId, format }: { fileId: string; format: string }) {
   const { t } = useT()
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
@@ -117,7 +117,7 @@ function UploadDialog({
   replaces,
 }: {
   onClose: () => void
-  replaces: { id: number; name: string } | null
+  replaces: { id: string; name: string } | null
 }) {
   const { t } = useT()
 
@@ -286,7 +286,7 @@ function FilesIndex({ files, meta }: { files: FileData[]; meta: PageMeta }) {
   // the scan runs in the background: refresh the list until every file has a verdict, slowing
   // down and then stopping, so a stuck scan does not turn into a request every few seconds forever
   const poll = usePollWhile(scanning, () => router.reload({ only: ['files'] }))
-  const [replaces, setReplaces] = useState<{ id: number; name: string } | null>(null)
+  const [replaces, setReplaces] = useState<{ id: string; name: string } | null>(null)
 
   return (
     <div className="mx-auto max-w-4xl space-y-8">

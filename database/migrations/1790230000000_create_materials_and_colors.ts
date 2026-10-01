@@ -4,7 +4,7 @@ import { DEFAULT_COLORS, DEFAULT_MATERIALS } from '#services/catalog/reference_d
 export default class extends BaseSchema {
   async up() {
     this.schema.createTable('materials', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table.string('code', 32).notNullable().unique()
       table.string('name', 80).notNullable()
       table.enum('technology', ['FDM', 'SLA', 'SLS']).notNullable()
@@ -13,7 +13,7 @@ export default class extends BaseSchema {
       table.timestamp('updated_at').nullable()
     })
     this.schema.createTable('colors', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table.string('name', 40).notNullable()
       table.string('hex', 7).notNullable()
       table.boolean('is_active').notNullable().defaultTo(true)

@@ -20,7 +20,7 @@ import { StatusBadge } from '~/components/status_badge'
 import { useT } from '~/lib/i18n'
 
 type Maker = {
-  id: number
+  id: string
   alias: string
   name: string | null
   city: string | null
@@ -29,7 +29,7 @@ type Maker = {
 }
 
 type Suggestion = {
-  manufacturerProfileId: number
+  manufacturerProfileId: string
   maker: Maker
   printer: string
   earliestSlot: string
@@ -49,17 +49,17 @@ type Suggestion = {
 type Reason = { code: string; [key: string]: string | number | string[] | number[] }
 
 type Verdict = {
-  manufacturerProfileId: number
+  manufacturerProfileId: string
   alias: string
   name: string | null
   city: string | null
   trustTier: number
   reasons: Reason[]
-  printers: { printerId: number; name: string; reasons: Reason[] }[]
+  printers: { printerId: string; name: string; reasons: Reason[] }[]
   blocked: boolean
 }
 
-type Pick = { id: number; label: string; missing: string[] }
+type Pick = { id: string; label: string; missing: string[] }
 
 const HARD = new Set(['is_buyer', 'is_seller', 'suspended', 'no_printer'])
 
@@ -225,7 +225,7 @@ function NotEligible({
 
 type Props = {
   order: {
-    id: number
+    id: string
     code: string
     status: string
     totalMinor: number
@@ -250,7 +250,7 @@ type Props = {
   suggestions: Suggestion[]
   notEligible: Verdict[]
   history: {
-    id: number
+    id: string
     round: number
     status: string
     maker: Maker

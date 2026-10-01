@@ -130,14 +130,15 @@ test.group('TrustTierService', (group) => {
   test('invalid tiers and unknown makers are rejected', async ({ assert }) => {
     const admin = await createUser('admin')
     const service = new TrustTierService()
-    await assert.rejects(() => service.setByAdmin(1, 4, admin.id), /0 to 3/)
-    await assert.rejects(() => service.setByAdmin(999999, 1, admin.id), /not found/)
+    await assert.rejects(() => service.setByAdmin(uid(1), 4, admin.id), /0 to 3/)
+    await assert.rejects(() => service.setByAdmin(uid(999999), 1, admin.id), /not found/)
   })
 })
 
 import fabrmatchConfig from '#config/fabrmatch'
 import { requiredTierForTotal } from '#services/manufacturing/trust_tier_service'
 import { createDraftOrder } from '#tests/helpers/order_fixtures'
+import { uid } from '#tests/helpers/ids'
 
 test.group('order value vs maker tier (X-9)', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())

@@ -18,7 +18,7 @@ import {
 } from '#transformers/store_transformer'
 
 const listValidator = vine.create({
-  shop: vine.number().withoutDecimals().positive().optional(),
+  shop: vine.string().uuid().optional(),
 })
 
 const connectValidator = vine.create({
@@ -30,7 +30,7 @@ const connectValidator = vine.create({
 })
 
 const publishValidator = vine.create({
-  sellerProductId: vine.number().withoutDecimals().positive(),
+  sellerProductId: vine.string().uuid(),
   categoryId: vine
     .string()
     .trim()
@@ -48,11 +48,11 @@ const publishValidator = vine.create({
 })
 
 const unpublishValidator = vine.create({
-  sellerProductId: vine.number().withoutDecimals().positive(),
+  sellerProductId: vine.string().uuid(),
 })
 
 const mapValidator = vine.create({
-  sellerProductId: vine.number().withoutDecimals().positive().nullable(),
+  sellerProductId: vine.string().uuid().nullable(),
   material: vine.string().trim().maxLength(20).nullable().optional(),
   color: vine.string().trim().maxLength(40).nullable().optional(),
   scalePercent: vine.number().withoutDecimals().min(10).max(1000).nullable().optional(),
@@ -87,13 +87,13 @@ export default class SellerStoreController {
       .orderBy('title', 'asc')
     const files = await ModelFile.query().whereIn(
       'id',
-      products.map((p) => p.catalogProduct?.modelFileId).filter((id): id is number => !!id)
+      products.map((p) => p.catalogProduct?.modelFileId).filter((id): id is string => !!id)
     )
     const fileOf = new Map(files.map((f) => [f.id, f]))
     const shipping = await new ShippingService().table()
     /** What one piece costs the seller (no margin, delivery in Türkiye) and a suggested shop price. */
     const pricesFor = (product: SellerProduct) => {
-      const file = fileOf.get(product.catalogProduct?.modelFileId ?? 0)
+      const file = fileOf.get(product.catalogProduct?.modelFileId ?? '')
       if (!file) return []
       const atCost = Object.create(product, { marginBps: { value: 0 } }) as SellerProduct
       return product.catalogProduct.allowedMaterials.flatMap((material) => {
@@ -154,7 +154,7 @@ export default class SellerStoreController {
     const data = await request.validateUsing(publishValidator)
     await this.stores.publish(
       auth.getUserOrFail(),
-      Number(params.id),
+      params.id,
       data.sellerProductId,
       data.variants,
       data.categoryId ?? null
@@ -166,11 +166,7 @@ export default class SellerStoreController {
   /** Takes a product off sale in this shop (kept there as a draft). */
   async unpublish({ auth, params, request, response, session }: HttpContext) {
     const { sellerProductId } = await request.validateUsing(unpublishValidator)
-    const { failed } = await this.stores.unpublish(
-      auth.getUserOrFail(),
-      sellerProductId,
-      Number(params.id)
-    )
+    const { failed } = await this.stores.unpublish(auth.getUserOrFail(), sellerProductId, params.id)
     if (failed.length > 0) session.flash('error', failed.join(' '))
     else session.flash('success', 'Taken off sale in your shop.')
     return response.redirect().toPath(`/seller/stores?shop=${params.id}`)
@@ -216,20 +212,20 @@ export default class SellerStoreController {
   }
 
   async sync({ auth, params, response, session }: HttpContext) {
-    await this.stores.syncListings(auth.getUserOrFail(), Number(params.id))
+    await this.stores.syncListings(auth.getUserOrFail(), params.id)
     session.flash('success', 'Products refreshed from the shop.')
     return response.redirect().toPath(`/seller/stores?shop=${params.id}`)
   }
 
   async disconnect({ auth, params, response, session }: HttpContext) {
-    await this.stores.disconnect(auth.getUserOrFail(), Number(params.id))
+    await this.stores.disconnect(auth.getUserOrFail(), params.id)
     session.flash('success', 'Shop disconnected.')
     return response.redirect().toPath('/seller/stores')
   }
 
   async map({ auth, params, request, response, session }: HttpContext) {
     const data = await request.validateUsing(mapValidator)
-    const listing = await this.stores.mapListing(auth.getUserOrFail(), Number(params.id), {
+    const listing = await this.stores.mapListing(auth.getUserOrFail(), params.id, {
       sellerProductId: data.sellerProductId,
       material: data.material ?? null,
       color: data.color ?? null,
@@ -240,7 +236,7 @@ export default class SellerStoreController {
   }
 
   async retry({ auth, params, response, session }: HttpContext) {
-    await this.stores.retryFulfillment(auth.getUserOrFail(), Number(params.id))
+    await this.stores.retryFulfillment(auth.getUserOrFail(), params.id)
     session.flash('success', 'We will send the tracking to your shop again.')
     return response.redirect().back()
   }

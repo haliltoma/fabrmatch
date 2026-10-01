@@ -22,7 +22,7 @@ const escapeHtml = (t: string) =>
  * give for delivery (business rule 1): only the order code, what is inside, and who it is for.
  */
 export default class PackingSlipService {
-  async htmlForJob(jobId: number, manufacturerProfileId: number): Promise<string> {
+  async htmlForJob(jobId: string, manufacturerProfileId: string): Promise<string> {
     const job = await ProductionJob.query()
       .where('id', jobId)
       .where('manufacturerProfileId', manufacturerProfileId)

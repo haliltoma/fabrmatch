@@ -23,16 +23,16 @@ import {
 } from '#tests/helpers/order_fixtures'
 
 class RecordingEffects implements MatchingEffects {
-  offers: number[] = []
-  accepted: number[] = []
-  unmatched: Array<{ orderId: number; reason: string }> = []
+  offers: string[] = []
+  accepted: string[] = []
+  unmatched: Array<{ orderId: string; reason: string }> = []
   async offerCreated(offer: MatchOffer) {
     this.offers.push(offer.id)
   }
   async offerAccepted(job: ProductionJobModel) {
     this.accepted.push(job.id)
   }
-  async orderUnmatched(orderId: number, reason: string) {
+  async orderUnmatched(orderId: string, reason: string) {
     this.unmatched.push({ orderId, reason })
   }
 }

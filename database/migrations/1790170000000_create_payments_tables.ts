@@ -19,14 +19,8 @@ export default class extends BaseSchema {
     })
 
     this.schema.createTable('payments', (table) => {
-      table.increments('id')
-      table
-        .integer('order_id')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('orders')
-        .onDelete('RESTRICT')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
+      table.uuid('order_id').notNullable().references('id').inTable('orders').onDelete('RESTRICT')
       table.string('provider', 16).notNullable()
       table.string('provider_ref', 128).notNullable()
       table
@@ -45,7 +39,7 @@ export default class extends BaseSchema {
 
     // Webhook dedup: at-least-once delivery → the unique key makes replays a no-op.
     this.schema.createTable('payment_webhooks', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table.string('provider', 16).notNullable()
       table.string('provider_event_id', 128).notNullable()
       table.string('type', 64).notNullable()
@@ -57,19 +51,13 @@ export default class extends BaseSchema {
     })
 
     this.schema.createTable('ledger_entries', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table.uuid('transaction_id').notNullable()
       table.enu('account', LEDGER_ACCOUNTS).notNullable()
       table.enu('direction', ['debit', 'credit']).notNullable()
       table.integer('amount_minor').notNullable()
       table.string('currency', 3).notNullable()
-      table
-        .integer('order_id')
-        .unsigned()
-        .nullable()
-        .references('id')
-        .inTable('orders')
-        .onDelete('RESTRICT')
+      table.uuid('order_id').nullable().references('id').inTable('orders').onDelete('RESTRICT')
       table.string('memo', 128).nullable()
       table.timestamp('created_at').notNullable()
 
@@ -108,16 +96,10 @@ export default class extends BaseSchema {
     `)
 
     this.schema.createTable('payouts', (table) => {
-      table.increments('id')
-      table
-        .integer('order_id')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('orders')
-        .onDelete('RESTRICT')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
+      table.uuid('order_id').notNullable().references('id').inTable('orders').onDelete('RESTRICT')
       table.enu('beneficiary_type', ['manufacturer', 'seller']).notNullable()
-      table.integer('beneficiary_id').unsigned().notNullable()
+      table.uuid('beneficiary_id').notNullable()
       table.integer('amount_minor').notNullable()
       table.string('currency', 3).notNullable()
       table.string('provider_ref', 128).nullable()
@@ -131,28 +113,16 @@ export default class extends BaseSchema {
     })
 
     this.schema.createTable('disputes', (table) => {
-      table.increments('id')
-      table
-        .integer('order_id')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('orders')
-        .onDelete('RESTRICT')
-      table
-        .integer('opened_by')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('RESTRICT')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
+      table.uuid('order_id').notNullable().references('id').inTable('orders').onDelete('RESTRICT')
+      table.uuid('opened_by').notNullable().references('id').inTable('users').onDelete('RESTRICT')
       table.text('reason').notNullable()
       table.enu('status', ['open', 'responded', 'resolved']).notNullable().defaultTo('open')
       table.enu('resolution', ['full_refund', 'partial_refund', 'release']).nullable()
       table.integer('refund_minor').notNullable().defaultTo(0)
       table.text('manufacturer_response').nullable()
       table.text('admin_note').nullable()
-      table.integer('resolved_by').unsigned().nullable().references('id').inTable('users')
+      table.uuid('resolved_by').nullable().references('id').inTable('users')
       table.timestamp('resolved_at').nullable()
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').notNullable()
@@ -166,21 +136,14 @@ export default class extends BaseSchema {
     )
 
     this.schema.createTable('dispute_evidence', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table
-        .integer('dispute_id')
-        .unsigned()
+        .uuid('dispute_id')
         .notNullable()
         .references('id')
         .inTable('disputes')
         .onDelete('CASCADE')
-      table
-        .integer('uploader_id')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('RESTRICT')
+      table.uuid('uploader_id').notNullable().references('id').inTable('users').onDelete('RESTRICT')
       table.string('storage_key', 512).notNullable()
       table.text('note').nullable()
       table.timestamp('created_at').notNullable()

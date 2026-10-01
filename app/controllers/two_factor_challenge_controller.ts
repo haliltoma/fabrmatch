@@ -7,12 +7,12 @@ import { redirectAfterSignIn } from '#services/identity/landing_service'
 import { codeValidator } from '#validators/account_security'
 import { TWO_FACTOR_PENDING, TWO_FACTOR_PENDING_MINUTES } from '#controllers/session_controller'
 
-export const twoFactorThrottleKey = (userId: number) => `two-factor:user:${userId}`
+export const twoFactorThrottleKey = (userId: string) => `two-factor:user:${userId}`
 
 /** Second step of login: the password already checked out, now prove the authenticator or a backup code. */
 export default class TwoFactorChallengeController {
-  private pendingUserId(session: HttpContext['session']): number | null {
-    const pending = session.get(TWO_FACTOR_PENDING) as { userId: number; at: number } | undefined
+  private pendingUserId(session: HttpContext['session']): string | null {
+    const pending = session.get(TWO_FACTOR_PENDING) as { userId: string; at: number } | undefined
     if (!pending) return null
     if (Date.now() - pending.at > TWO_FACTOR_PENDING_MINUTES * 60_000) {
       session.forget(TWO_FACTOR_PENDING)

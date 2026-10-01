@@ -10,14 +10,8 @@ export default class extends BaseSchema {
     })
 
     this.schema.createTable('two_factor_backup_codes', (table) => {
-      table.increments('id')
-      table
-        .integer('user_id')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('CASCADE')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
+      table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE')
       table.string('code_hash', 64).notNullable()
       table.timestamp('used_at').nullable()
       table.timestamp('created_at').notNullable()
@@ -26,13 +20,7 @@ export default class extends BaseSchema {
 
     this.schema.createTable('user_sessions', (table) => {
       table.uuid('id').primary()
-      table
-        .integer('user_id')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('CASCADE')
+      table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE')
       table.string('ip_address', 64).nullable()
       table.string('user_agent', 300).nullable()
       table.timestamp('last_seen_at').notNullable()

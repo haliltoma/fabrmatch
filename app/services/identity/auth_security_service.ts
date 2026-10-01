@@ -21,17 +21,17 @@ export default class AuthSecurityService {
    * Spends a live token in one statement: of two requests racing with the same link, only one
    * gets the user id back. Returns null for unknown, used or expired tokens.
    */
-  private async consume(token: string, type: TokenType): Promise<number | null> {
+  private async consume(token: string, type: TokenType): Promise<string | null> {
     const result = await db.rawQuery(
       `update verification_tokens set used_at = now()
         where token = ? and type = ? and used_at is null and expires_at > now()
         returning user_id`,
       [hashToken(token), type]
     )
-    return (result.rows[0]?.user_id as number | undefined) ?? null
+    return (result.rows[0]?.user_id as string | undefined) ?? null
   }
 
-  private async createToken(userId: number, type: TokenType, hoursValid: number): Promise<string> {
+  private async createToken(userId: string, type: TokenType, hoursValid: number): Promise<string> {
     // Invalidate existing tokens of same type
     await VerificationToken.query()
       .where('userId', userId)

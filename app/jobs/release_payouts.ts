@@ -3,7 +3,7 @@ import type { JobOptions } from '@adonisjs/queue/types'
 import PayoutService from '#services/payments/payout_service'
 
 /** Payload-less sweep (idempotent) or a targeted release for one order. */
-export default class ReleasePayouts extends Job<{ orderId?: number }> {
+export default class ReleasePayouts extends Job<{ orderId?: string }> {
   static options: JobOptions = {
     queue: 'default',
     maxRetries: 3,

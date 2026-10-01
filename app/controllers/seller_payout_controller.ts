@@ -93,7 +93,7 @@ export default class SellerPayoutController {
     await this.documents.submitInvoice(
       user.id,
       payee,
-      Number(params.id),
+      params.id,
       data,
       await readFile(file.tmpPath)
     )
@@ -104,7 +104,7 @@ export default class SellerPayoutController {
   /** Printable expense voucher we issued for this payee (home producers). */
   async voucher({ auth, params, response }: HttpContext) {
     const payee = await this.payees.payeeOf(auth.getUserOrFail(), this.payeeType)
-    const html = await this.documents.voucherHtml(Number(params.id), payee)
+    const html = await this.documents.voucherHtml(params.id, payee)
     if (!html) return response.notFound()
     return response.header('content-type', 'text/html; charset=utf-8').send(html)
   }

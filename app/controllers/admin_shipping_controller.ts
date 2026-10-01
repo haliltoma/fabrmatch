@@ -13,18 +13,14 @@ export default class AdminShippingController {
 
   async updateRate({ params, request, response, session, auth }: HttpContext) {
     const { priceMinor } = await request.validateUsing(priceValidator)
-    await new ShippingService().setRate(Number(params.id), priceMinor, auth.getUserOrFail().id)
+    await new ShippingService().setRate(params.id, priceMinor, auth.getUserOrFail().id)
     session.flash('success', 'Rate saved.')
     return response.redirect().toPath('/admin/shipping')
   }
 
   async updateExtra({ params, request, response, session, auth }: HttpContext) {
     const { priceMinor } = await request.validateUsing(priceValidator)
-    await new ShippingService().setExtraPerKg(
-      Number(params.id),
-      priceMinor,
-      auth.getUserOrFail().id
-    )
+    await new ShippingService().setExtraPerKg(params.id, priceMinor, auth.getUserOrFail().id)
     session.flash('success', 'Rate saved.')
     return response.redirect().toPath('/admin/shipping')
   }

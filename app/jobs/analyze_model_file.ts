@@ -11,7 +11,7 @@ import { MeshParseError, parseModel } from '#services/files/mesh_parser'
 import type { ModelFormat } from '#services/files/file_scanner'
 
 interface AnalyzeModelFilePayload {
-  modelFileId: number
+  modelFileId: string
 }
 
 export default class AnalyzeModelFile extends Job<AnalyzeModelFilePayload> {

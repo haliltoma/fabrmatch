@@ -6,6 +6,7 @@ import DomainError from '#exceptions/domain_error'
 import ManufacturerProfile from '#models/manufacturer_profile'
 import User from '#models/user'
 import { ensureReferenceCatalog } from '#tests/helpers/order_fixtures'
+import { uid } from '#tests/helpers/ids'
 
 test.group('PrinterService', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
@@ -207,7 +208,7 @@ test.group('PrinterService model catalogue (X-14)', (group) => {
       () =>
         service.create(profile, {
           name: 'Ghost',
-          printerModelId: 99_999_999,
+          printerModelId: uid(99999999),
           technology: 'FDM',
           buildVolumeXMm: 220,
           buildVolumeYMm: 220,

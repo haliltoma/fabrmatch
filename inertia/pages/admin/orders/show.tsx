@@ -15,7 +15,7 @@ import { useT } from '~/lib/i18n'
 
 type Props = {
   order: {
-    id: number
+    id: string
     code: string
     status: string
     channel: string
@@ -27,8 +27,8 @@ type Props = {
     sellerShareMinor: number
     requiredTrustTier: number
     matchingRound: number
-    buyerId: number
-    sellerId: number | null
+    buyerId: string
+    sellerId: string | null
     shippingAddress: {
       fullName: string
       line1: string
@@ -45,16 +45,16 @@ type Props = {
     unitCostMinor: number
   }>
   jobs: Array<{
-    id: number
+    id: string
     status: string
     alias: string | null
     dueAt: string | null
     carrier: string | null
     trackingNumber: string | null
   }>
-  timeline: Array<{ at: string | null; action: string; actorId: number | null; meta: string }>
+  timeline: Array<{ at: string | null; action: string; actorId: string | null; meta: string }>
   ledger: Array<{
-    id: number
+    id: string
     transactionId: string
     account: string
     direction: string
@@ -64,15 +64,15 @@ type Props = {
   ledgerBalances: Record<string, number>
   ledgerBalanced: boolean
   payments: Array<{
-    id: number
+    id: string
     status: string
     amountMinor: number
     refundedMinor: number
     providerRef: string
   }>
   webhooks: Array<{ eventId: string; type: string; processed: boolean }>
-  payouts: Array<{ id: number; beneficiary: string; amountMinor: number; status: string }>
-  disputes: Array<{ id: number; status: string }>
+  payouts: Array<{ id: string; beneficiary: string; amountMinor: number; status: string }>
+  disputes: Array<{ id: string; status: string }>
   fraudFlags: Array<{ rule: string; severity: string; status: string; detail: string }>
   messageCount: number
 }
@@ -92,7 +92,7 @@ const Empty = () => {
 }
 
 /** Stuck in production: cancel the maker's job and send the order back to matching. */
-function ReassignForm({ orderId }: { orderId: number }) {
+function ReassignForm({ orderId }: { orderId: string }) {
   const { t } = useT()
   const [reason, setReason] = useState('')
   const [busy, setBusy] = useState(false)

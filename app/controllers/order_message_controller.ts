@@ -10,7 +10,7 @@ export default class OrderMessageController {
   protected expected: Side = 'buyer'
 
   protected async guard(ctx: HttpContext, expected: Side) {
-    const orderId = Number(ctx.params.id)
+    const orderId = ctx.params.id
     const side = await new MessageService().sideOf(orderId, ctx.auth.getUserOrFail().id)
     if (side !== expected) return null
     return { orderId, side }

@@ -61,7 +61,7 @@ export default class PayoutService {
    * `completed` (or resolved in the manufacturer's favour) and never while a dispute is open.
    * Idempotent — safe to call from the job, the sweep and by hand.
    */
-  async release(orderId: number): Promise<ReleaseResult> {
+  async release(orderId: string): Promise<ReleaseResult> {
     const { allocated, needInvoice, orderCode } = await db.transaction((trx) =>
       this.allocate(orderId, trx)
     )
@@ -71,7 +71,7 @@ export default class PayoutService {
   }
 
   private async allocate(
-    orderId: number,
+    orderId: string,
     trx: TransactionClientContract
   ): Promise<{ allocated: boolean; needInvoice: Payout[]; orderCode: string }> {
     const order = await Order.query({ client: trx }).where('id', orderId).forUpdate().firstOrFail()
@@ -219,8 +219,8 @@ export default class PayoutService {
     trx: TransactionClientContract,
     input: {
       escrow: number
-      manufacturer: { id: number; share: number }
-      seller: { id: number; share: number } | null
+      manufacturer: { id: string; share: number }
+      seller: { id: string; share: number } | null
     }
   ): Promise<Payout[]> {
     const withholdingBps = fabrmatchConfig.payouts.homeExemptWithholdingBps
@@ -332,7 +332,7 @@ export default class PayoutService {
 
   /** GVK 9/6: a home producer's yearly sales stay under the limit (TRY payouts are counted). */
   private async assertUnderExemptionCap(
-    payee: { type: 'manufacturer' | 'seller'; id: number },
+    payee: { type: 'manufacturer' | 'seller'; id: string },
     grossMinor: number,
     currency: string,
     trx: TransactionClientContract
@@ -361,7 +361,7 @@ export default class PayoutService {
    * Sales model B: payouts are bank transfers from Fabrmatch's account. Finance sends them, then
    * marks each one paid with the bank reference; the ledger moves the payable to cash only then.
    */
-  async markPaid(adminId: number, payoutId: number, reference: string) {
+  async markPaid(adminId: string, payoutId: string, reference: string) {
     const ref = reference.trim()
     if (ref.length < 3) throw new PayoutError('Enter the bank transfer reference')
     const payout = await db.transaction(async (trx) => {
@@ -416,7 +416,7 @@ export default class PayoutService {
   }
 
   /** Pays every pending payout of an order; a provider failure leaves it pending for the retry sweep. */
-  async processPending(orderId: number): Promise<{ paid: number; pending: number }> {
+  async processPending(orderId: string): Promise<{ paid: number; pending: number }> {
     if (this.model === 'merchant_of_record') {
       // bank transfers, marked paid by finance (markPaid); nothing moves at the provider
       const rows = await Payout.query()
@@ -496,7 +496,7 @@ export default class PayoutService {
 
   /** Payouts go only to accounts whose e-mail is verified (R0-T2). */
   private async beneficiaryVerified(payout: Payout): Promise<boolean> {
-    let userId: number | null = payout.beneficiaryId
+    let userId: string | null = payout.beneficiaryId
     if (payout.beneficiaryType === 'manufacturer') {
       const profile = await db
         .from('manufacturer_profiles')
@@ -529,7 +529,7 @@ export default class PayoutService {
         limit 100`
     )
     let released = 0
-    for (const { id } of rows.rows as Array<{ id: number }>) {
+    for (const { id } of rows.rows as Array<{ id: string }>) {
       try {
         await this.release(id)
         released++

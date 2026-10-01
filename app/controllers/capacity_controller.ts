@@ -22,7 +22,7 @@ export default class CapacityController {
     const printerService = new PrinterService()
     const printers = await printerService.listForProfile(user.manufacturerProfile)
 
-    const printerId = Number(request.input('printerId')) || printers[0]?.id
+    const printerId = String(request.input('printerId') ?? '') || printers[0]?.id
     const capacityService = new CapacityService()
 
     const today = new Date()

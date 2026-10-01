@@ -15,7 +15,7 @@ export const statementMonthValidator = vine.create({
 export async function sendStatement(
   response: HttpContext['response'],
   month: string | undefined,
-  scope: { type: 'manufacturer' | 'seller'; beneficiaryId: number }
+  scope: { type: 'manufacturer' | 'seller'; beneficiaryId: string }
 ) {
   const base = month ? DateTime.fromFormat(month, 'yyyy-MM') : DateTime.now()
   const period = monthPeriod(base.year, base.month)

@@ -1,6 +1,6 @@
 import { type ReactElement, useEffect, useState } from 'react'
 import { type Data } from '@generated/data'
-import { toast, Toaster } from 'sonner'
+import { toast } from 'sonner'
 import { usePage } from '@inertiajs/react'
 import { Form, Link } from '@adonisjs/inertia/react'
 import { Menu, ChevronLeft, LogOut, ShieldCheck } from 'lucide-react'
@@ -13,10 +13,10 @@ import { Avatar, AvatarFallback } from '~/components/ui/avatar'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '~/components/ui/sheet'
 import { useT } from '~/lib/i18n'
 import { ThemeSwitch } from '~/components/theme_switch'
-import { useTheme } from '~/lib/theme'
 import { LanguageSwitch } from '~/components/language_switch'
 import { AdminCommand } from '~/components/admin_command'
 import { NavigationProgress } from '~/components/navigation_progress'
+import { AppToaster } from '~/components/app_toaster'
 
 export interface NavItem {
   label: string
@@ -221,7 +221,6 @@ export default function DashboardLayout({
   title,
 }: DashboardLayoutProps) {
   const { t } = useT()
-  const { dark } = useTheme()
 
   const { url, flash } = usePage()
   const navItems = allItems.filter(
@@ -444,7 +443,7 @@ export default function DashboardLayout({
         </nav>
       )}
 
-      <Toaster position="top-center" richColors theme={dark ? 'dark' : 'light'} />
+      <AppToaster />
     </div>
   )
 }

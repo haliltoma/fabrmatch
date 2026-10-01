@@ -4,6 +4,7 @@ import {
   type PaymentProvider,
   type WebhookEventType,
 } from '#services/payments/provider'
+import { uid } from '#tests/helpers/ids'
 
 export interface ProviderHarness {
   provider: PaymentProvider
@@ -45,7 +46,7 @@ export function paymentProviderContract(label: string, make: () => ProviderHarne
     test('createCheckout returns a provider ref and a redirect url', async ({ assert }) => {
       const { provider } = make()
       const result = await provider.createCheckout({
-        orderId: 1,
+        orderId: uid(1),
         orderCode: 'FO-CONTRACT1',
         amountMinor: 12_500,
         currency: 'TRY',
@@ -103,7 +104,7 @@ export function paymentProviderContract(label: string, make: () => ProviderHarne
       const base = {
         providerRef: 'ref_3',
         beneficiaryType: 'manufacturer' as const,
-        beneficiaryId: 7,
+        beneficiaryId: uid(7),
         amountMinor: 9_000,
         currency: 'TRY',
       }
@@ -125,7 +126,7 @@ export function paymentProviderContract(label: string, make: () => ProviderHarne
       const { provider } = make()
       const input = {
         beneficiaryType: 'seller' as const,
-        beneficiaryId: 3,
+        beneficiaryId: uid(3),
         displayName: 'Shop',
       }
       const a = await provider.registerSubMerchant(input)

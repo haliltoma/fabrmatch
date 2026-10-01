@@ -6,16 +6,16 @@ import ManufacturerProfile from '#models/manufacturer_profile'
 
 export default class FileAccessGrant extends BaseModel {
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
 
   @column()
-  declare modelFileId: number
+  declare modelFileId: string
 
   @column()
-  declare manufacturerProfileId: number
+  declare manufacturerProfileId: string
 
   @column()
-  declare productionJobId: number | null
+  declare productionJobId: string | null
 
   @column.dateTime()
   declare expiresAt: DateTime

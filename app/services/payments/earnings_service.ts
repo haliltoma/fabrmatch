@@ -10,7 +10,7 @@ export type Beneficiary = 'manufacturer' | 'seller'
  * and amounts — never the other side of the order (business rule 1).
  */
 export default class EarningsService {
-  async summary(type: Beneficiary, beneficiaryId: number) {
+  async summary(type: Beneficiary, beneficiaryId: string) {
     const rows = await db
       .from('payouts')
       .where('beneficiary_type', type)
@@ -40,7 +40,7 @@ export default class EarningsService {
 
   async list(
     type: Beneficiary,
-    beneficiaryId: number,
+    beneficiaryId: string,
     params: { page?: number; perPage?: number } = {}
   ) {
     const { page, perPage } = pageParams(params)

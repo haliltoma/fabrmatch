@@ -5,8 +5,7 @@ export default class extends BaseSchema {
     this.schema.alterTable('model_files', (table) => {
       // a new revision of the same model points at the one it replaces
       table
-        .integer('previous_file_id')
-        .unsigned()
+        .uuid('previous_file_id')
         .nullable()
         .references('id')
         .inTable('model_files')

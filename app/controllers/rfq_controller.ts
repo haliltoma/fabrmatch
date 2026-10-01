@@ -48,7 +48,7 @@ export default class RfqController {
 
   async show({ inertia, auth, params, response }: HttpContext) {
     const service = new RfqService()
-    const rfq = await service.findForBuyer(Number(params.id), auth.getUserOrFail().id)
+    const rfq = await service.findForBuyer(params.id, auth.getUserOrFail().id)
     if (!rfq) return response.notFound()
     await rfq.load('modelFile')
     return inertia.render('rfq/show', {
@@ -60,7 +60,7 @@ export default class RfqController {
   async award({ request, response, auth, params, session }: HttpContext) {
     const { bidId, shippingAddress } = await request.validateUsing(rfqAwardValidator)
     const { order } = await new RfqService().award(
-      Number(params.id),
+      params.id,
       auth.getUserOrFail(),
       bidId,
       shippingAddress
@@ -70,7 +70,7 @@ export default class RfqController {
   }
 
   async cancel({ response, auth, params, session }: HttpContext) {
-    await new RfqService().cancel(Number(params.id), auth.getUserOrFail().id)
+    await new RfqService().cancel(params.id, auth.getUserOrFail().id)
     session.flash('success', 'Request cancelled.')
     return response.redirect().toPath('/rfqs')
   }

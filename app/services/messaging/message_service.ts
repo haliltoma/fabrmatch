@@ -25,7 +25,7 @@ export default class MessageService {
   private encryption = new EncryptionService()
 
   /** Which side of the order this user is on, or null. Makers only count while their job is active. */
-  async sideOf(orderId: number, userId: number): Promise<Side | null> {
+  async sideOf(orderId: string, userId: string): Promise<Side | null> {
     const order = await Order.find(orderId)
     if (!order) return null
     if (order.buyerId === userId) return 'buyer'
@@ -38,7 +38,7 @@ export default class MessageService {
     return profile?.userId === userId ? 'maker' : null
   }
 
-  async send(orderId: number, senderId: number, body: string): Promise<OrderMessage> {
+  async send(orderId: string, senderId: string, body: string): Promise<OrderMessage> {
     const side = await this.sideOf(orderId, senderId)
     if (!side) throw new MessageError('Order not found')
     const order = await Order.findOrFail(orderId)
@@ -63,7 +63,7 @@ export default class MessageService {
   }
 
   /** The thread as one side sees it; opening it marks the other side's messages read. */
-  async thread(orderId: number, viewer: Side) {
+  async thread(orderId: string, viewer: Side) {
     const rows = await OrderMessage.query().where('orderId', orderId).orderBy('id', 'asc')
     await OrderMessage.query()
       .where('orderId', orderId)
@@ -80,7 +80,7 @@ export default class MessageService {
     }))
   }
 
-  async unreadFor(orderId: number, viewer: Side): Promise<number> {
+  async unreadFor(orderId: string, viewer: Side): Promise<number> {
     const row = await OrderMessage.query()
       .where('orderId', orderId)
       .whereNot('senderRole', viewer)
@@ -91,7 +91,7 @@ export default class MessageService {
   }
 
   /** Admin view: masked text plus the original where something was hidden. */
-  async threadForAdmin(orderId: number) {
+  async threadForAdmin(orderId: string) {
     const rows = await OrderMessage.query().where('orderId', orderId).orderBy('id', 'asc')
     return rows.map((m) => ({
       id: m.id,
@@ -106,7 +106,7 @@ export default class MessageService {
 
   private async notifyOther(order: Order, from: Side, message: OrderMessage) {
     try {
-      let recipient: number | null = null
+      let recipient: string | null = null
       if (from === 'maker') recipient = order.buyerId
       else {
         const job = await ProductionJob.query()

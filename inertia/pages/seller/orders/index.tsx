@@ -13,7 +13,7 @@ import { StatusBadge } from '~/components/status_badge'
 import { useT } from '~/lib/i18n'
 
 type SaleRow = {
-  id: number
+  id: string
   code: string
   status: string
   currency: string

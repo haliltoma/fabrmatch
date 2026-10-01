@@ -287,7 +287,7 @@ test.group('External shops: notifications and cancellations', (group) => {
     return made
   }
 
-  const inbox = async (userId: number) =>
+  const inbox = async (userId: string) =>
     (await Notification.query().where('userId', userId)).map((n) => n.title)
 
   test('the seller is told when an order needs a link, and when it is ready to pay', async ({

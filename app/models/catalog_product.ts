@@ -6,7 +6,7 @@ import { DateTime } from 'luxon'
 
 export default class CatalogProduct extends BaseModel {
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
 
   @column()
   declare title: string
@@ -18,7 +18,7 @@ export default class CatalogProduct extends BaseModel {
   declare description: string | null
 
   @column()
-  declare modelFileId: number | null
+  declare modelFileId: string | null
 
   @column({
     prepare: (value: string[]) => JSON.stringify(value),
@@ -33,7 +33,7 @@ export default class CatalogProduct extends BaseModel {
   declare allowedScales: number[]
 
   @column()
-  declare categoryId: number | null
+  declare categoryId: string | null
 
   @column({
     prepare: (value: string[]) => JSON.stringify(value),

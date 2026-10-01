@@ -19,7 +19,7 @@ import {
 import { pageMeta, pageParams } from '#services/pagination'
 
 export interface NotifyInput {
-  userId: number
+  userId: string
   type: NotificationType
   role: NotificationRole
   context: NotificationContext
@@ -69,7 +69,7 @@ export default class NotificationService {
   }
 
   /** Sends the e-mail for one notification. Idempotent; skipped when opted out or already sent. */
-  async sendEmail(notificationId: number): Promise<boolean> {
+  async sendEmail(notificationId: string): Promise<boolean> {
     const notification = await Notification.find(notificationId)
     if (!notification || notification.emailedAt) return false
     if (!(await this.wantsEmail(notification.userId, notification.type as NotificationType))) {
@@ -133,7 +133,7 @@ export default class NotificationService {
     }
   }
 
-  async unreadCount(userId: number): Promise<number> {
+  async unreadCount(userId: string): Promise<number> {
     const row = await Notification.query()
       .where('userId', userId)
       .whereNull('readAt')
@@ -142,7 +142,7 @@ export default class NotificationService {
     return Number(row?.$extras.n ?? 0)
   }
 
-  async list(userId: number, params: { page?: number } = {}) {
+  async list(userId: string, params: { page?: number } = {}) {
     const { page, perPage } = pageParams(params)
     const paginator = await Notification.query()
       .where('userId', userId)
@@ -151,7 +151,7 @@ export default class NotificationService {
     return { rows: paginator.all(), meta: pageMeta(paginator.total, page, perPage) }
   }
 
-  async markRead(userId: number, notificationId: number): Promise<void> {
+  async markRead(userId: string, notificationId: string): Promise<void> {
     await Notification.query()
       .where('id', notificationId)
       .where('userId', userId)
@@ -159,7 +159,7 @@ export default class NotificationService {
       .update({ readAt: DateTime.now().toSQL() })
   }
 
-  async markAllRead(userId: number): Promise<void> {
+  async markAllRead(userId: string): Promise<void> {
     await Notification.query()
       .where('userId', userId)
       .whereNull('readAt')
@@ -167,7 +167,7 @@ export default class NotificationService {
   }
 
   /** Types the user receives by e-mail (default: all). */
-  async emailPreferences(userId: number): Promise<Record<NotificationType, boolean>> {
+  async emailPreferences(userId: string): Promise<Record<NotificationType, boolean>> {
     const rows = await NotificationPreference.query().where('userId', userId)
     const map = Object.fromEntries(NOTIFICATION_TYPES.map((t) => [t, true])) as Record<
       NotificationType,
@@ -181,7 +181,7 @@ export default class NotificationService {
     return map
   }
 
-  async setEmailPreference(userId: number, type: NotificationType, email: boolean) {
+  async setEmailPreference(userId: string, type: NotificationType, email: boolean) {
     const existing = await NotificationPreference.query()
       .where('userId', userId)
       .where('type', type)
@@ -194,7 +194,7 @@ export default class NotificationService {
     }
   }
 
-  async wantsEmail(userId: number, type: NotificationType): Promise<boolean> {
+  async wantsEmail(userId: string, type: NotificationType): Promise<boolean> {
     const pref = await NotificationPreference.query()
       .where('userId', userId)
       .where('type', type)

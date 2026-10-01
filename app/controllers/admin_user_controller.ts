@@ -31,13 +31,13 @@ export default class AdminUserController {
 
   async suspend({ params, request, response, session, auth }: HttpContext) {
     const { reason } = await request.validateUsing(suspendValidator)
-    await new UserAdminService().suspend(Number(params.id), reason, auth.getUserOrFail().id)
+    await new UserAdminService().suspend(params.id, reason, auth.getUserOrFail().id)
     session.flash('success', 'Account suspended and signed out everywhere.')
     return response.redirect().back()
   }
 
   async unsuspend({ params, response, session, auth }: HttpContext) {
-    await new UserAdminService().unsuspend(Number(params.id), auth.getUserOrFail().id)
+    await new UserAdminService().unsuspend(params.id, auth.getUserOrFail().id)
     session.flash('success', 'Account restored.')
     return response.redirect().back()
   }

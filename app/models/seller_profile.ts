@@ -10,10 +10,10 @@ export default class SellerProfile extends BaseModel {
   static table = 'seller_profiles'
 
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
 
   @column()
-  declare userId: number
+  declare userId: string
 
   @column()
   declare businessName: string

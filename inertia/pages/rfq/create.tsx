@@ -9,7 +9,7 @@ import { PageHeader } from '~/components/page_header'
 import { useT } from '~/lib/i18n'
 
 type Props = {
-  files: Array<{ id: number; name: string }>
+  files: Array<{ id: string; name: string }>
   materials: Array<{ code: string; name: string; technology: string }>
 }
 

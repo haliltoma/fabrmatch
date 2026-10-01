@@ -24,7 +24,7 @@ async function enrolled(role?: 'admin' | 'seller') {
   return { user, secret, step }
 }
 
-const clearThrottle = (userId: number) =>
+const clearThrottle = (userId: string) =>
   limiter.use({ requests: 5, duration: '15 minutes' }).delete(twoFactorThrottleKey(userId))
 
 test.group('login second step', (group) => {

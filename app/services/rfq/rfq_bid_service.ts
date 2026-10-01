@@ -17,7 +17,7 @@ export default class RfqBidService {
   private invites = new RfqInviteService()
 
   /** A maker's own bid on an RFQ they were invited to; sending again replaces the earlier one. */
-  async submit(rfqId: number, manufacturerProfileId: number, input: BidInput): Promise<RfqBid> {
+  async submit(rfqId: string, manufacturerProfileId: string, input: BidInput): Promise<RfqBid> {
     const rfq = await Rfq.find(rfqId)
     if (!rfq || !(await this.invites.isInvited(rfq.id, manufacturerProfileId))) {
       throw new RfqError('Request not found')
@@ -78,7 +78,7 @@ export default class RfqBidService {
     return bid
   }
 
-  async withdraw(rfqId: number, manufacturerProfileId: number): Promise<void> {
+  async withdraw(rfqId: string, manufacturerProfileId: string): Promise<void> {
     const rfq = await Rfq.find(rfqId)
     const bid = await RfqBid.query()
       .where('rfqId', rfqId)
@@ -94,7 +94,7 @@ export default class RfqBidService {
   }
 
   /** Requests a maker was invited to, newest first, with their own bid if any. */
-  async listForMaker(manufacturerProfileId: number) {
+  async listForMaker(manufacturerProfileId: string) {
     const profile = await ManufacturerProfile.findOrFail(manufacturerProfileId)
     const rfqs = await Rfq.query()
       .whereIn('id', (q) => {

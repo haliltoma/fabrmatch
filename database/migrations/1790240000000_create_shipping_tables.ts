@@ -4,7 +4,7 @@ import { DEFAULT_SHIPPING_ZONES } from '#services/shipping/shipping_defaults'
 export default class extends BaseSchema {
   async up() {
     this.schema.createTable('shipping_zones', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table.string('code', 16).notNullable().unique()
       table.string('name', 80).notNullable()
       table.jsonb('countries').notNullable().defaultTo('[]')
@@ -21,10 +21,9 @@ export default class extends BaseSchema {
     )
 
     this.schema.createTable('shipping_rates', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table
-        .integer('zone_id')
-        .unsigned()
+        .uuid('zone_id')
         .notNullable()
         .references('id')
         .inTable('shipping_zones')

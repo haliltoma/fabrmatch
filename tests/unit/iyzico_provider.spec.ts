@@ -8,9 +8,10 @@ import DbProviderCallStore, {
 import { InvalidWebhookSignatureError } from '#services/payments/provider'
 import { normalizePhone, validIdentityNumber } from '#services/payments/payment_service'
 import { IYZICO_TEST_CREDENTIALS, makeIyzico } from '#tests/helpers/fake_iyzico'
+import { uid } from '#tests/helpers/ids'
 
 const checkoutInput = {
-  orderId: 1,
+  orderId: uid(1),
   orderCode: 'FO-IYZ1',
   amountMinor: 12_345,
   currency: 'TRY',
@@ -215,7 +216,7 @@ test.group('iyzico adapter', () => {
     const result = await provider.approveItem({
       providerRef: 'tok_x',
       beneficiaryType: 'manufacturer',
-      beneficiaryId: 1,
+      beneficiaryId: uid(1),
       amountMinor: 100,
       currency: 'TRY',
       idempotencyKey: 'payout:9',
@@ -226,7 +227,7 @@ test.group('iyzico adapter', () => {
       () =>
         provider.registerSubMerchant({
           beneficiaryType: 'manufacturer',
-          beneficiaryId: 1,
+          beneficiaryId: uid(1),
           displayName: 'x',
         }),
       /marketplace is not enabled/
@@ -241,14 +242,14 @@ test.group('iyzico adapter', () => {
     fake.complete(providerRef)
     const { subMerchantKey } = await provider.registerSubMerchant({
       beneficiaryType: 'manufacturer',
-      beneficiaryId: 5,
+      beneficiaryId: uid(5),
       displayName: 'Maker',
     })
 
     const request = {
       providerRef,
       beneficiaryType: 'manufacturer' as const,
-      beneficiaryId: 5,
+      beneficiaryId: uid(5),
       amountMinor: 8_000,
       currency: 'TRY',
       idempotencyKey: 'payout:1',
@@ -266,7 +267,7 @@ test.group('iyzico adapter', () => {
     assert.equal(approvals(), 1)
 
     await assert.rejects(
-      () => provider.approveItem({ ...request, beneficiaryId: 404 }),
+      () => provider.approveItem({ ...request, beneficiaryId: uid(404) }),
       /No iyzico sub-merchant/
     )
   })

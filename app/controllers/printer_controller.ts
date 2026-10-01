@@ -31,7 +31,7 @@ export default class PrinterController {
     )
     const profileService = new PrintProfileService()
     const allProfiles = await profileService.list({ activeOnly: true })
-    const offered = new Map<number, number[]>()
+    const offered = new Map<string, string[]>()
     for (const p of printers) offered.set(p.id, await profileService.offeredIds(p.id))
     const printerModels = await service.listModels()
 
@@ -176,7 +176,7 @@ export default class PrinterController {
       return response.redirect().toPath('/maker/printers')
     }
 
-    const material = printer.materials.find((m) => m.id === Number(params.id))
+    const material = printer.materials.find((m) => m.id === params.id)
     if (!material) {
       session.flash('error', 'Material not found.')
       return response.redirect().toPath('/maker/printers')
@@ -201,7 +201,7 @@ export default class PrinterController {
       return response.redirect().toPath('/maker/printers')
     }
 
-    const material = printer.materials.find((m) => m.id === Number(params.id))
+    const material = printer.materials.find((m) => m.id === params.id)
     if (!material) {
       session.flash('error', 'Material not found.')
       return response.redirect().toPath('/maker/printers')

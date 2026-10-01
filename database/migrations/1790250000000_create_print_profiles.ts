@@ -4,7 +4,7 @@ import { DEFAULT_PRINT_PROFILES } from '#services/catalog/print_profile_defaults
 export default class extends BaseSchema {
   async up() {
     this.schema.createTable('print_profiles', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table.string('code', 32).notNullable().unique()
       table.string('name', 100).notNullable()
       table.enum('technology', ['FDM', 'SLA', 'SLS']).notNullable()
@@ -19,15 +19,13 @@ export default class extends BaseSchema {
 
     this.schema.createTable('printer_print_profiles', (table) => {
       table
-        .integer('printer_id')
-        .unsigned()
+        .uuid('printer_id')
         .notNullable()
         .references('id')
         .inTable('printers')
         .onDelete('CASCADE')
       table
-        .integer('print_profile_id')
-        .unsigned()
+        .uuid('print_profile_id')
         .notNullable()
         .references('id')
         .inTable('print_profiles')
@@ -37,8 +35,7 @@ export default class extends BaseSchema {
 
     this.schema.alterTable('order_items', (table) => {
       table
-        .integer('print_profile_id')
-        .unsigned()
+        .uuid('print_profile_id')
         .nullable()
         .references('id')
         .inTable('print_profiles')

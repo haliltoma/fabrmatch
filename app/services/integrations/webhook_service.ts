@@ -62,7 +62,7 @@ export default class WebhookService {
   constructor(private transport: WebhookTransport = safeTransport) {}
 
   async createEndpoint(
-    userId: number,
+    userId: string,
     rawUrl: string
   ): Promise<{ endpoint: WebhookEndpoint; secret: string }> {
     const url = validateWebhookUrl(rawUrl, { allowHttp: !app.inProduction })
@@ -81,23 +81,23 @@ export default class WebhookService {
     return { endpoint, secret }
   }
 
-  async listEndpoints(userId: number) {
+  async listEndpoints(userId: string) {
     return WebhookEndpoint.query().where('userId', userId).orderBy('id', 'asc')
   }
 
-  private async own(userId: number, id: number) {
+  private async own(userId: string, id: string) {
     const endpoint = await WebhookEndpoint.query().where('id', id).where('userId', userId).first()
     if (!endpoint) throw new WebhookError('Webhook endpoint not found')
     return endpoint
   }
 
-  async deleteEndpoint(userId: number, id: number): Promise<void> {
+  async deleteEndpoint(userId: string, id: string): Promise<void> {
     const endpoint = await this.own(userId, id)
     await endpoint.delete()
   }
 
   /** Turning an endpoint back on clears its failure streak. */
-  async setActive(userId: number, id: number, active: boolean): Promise<void> {
+  async setActive(userId: string, id: string, active: boolean): Promise<void> {
     const endpoint = await this.own(userId, id)
     endpoint.isActive = active
     endpoint.consecutiveFailures = 0
@@ -105,7 +105,7 @@ export default class WebhookService {
     await endpoint.save()
   }
 
-  async recentDeliveries(userId: number, limit = 20) {
+  async recentDeliveries(userId: string, limit = 20) {
     return WebhookDelivery.query()
       .whereIn('endpointId', WebhookEndpoint.query().select('id').where('userId', userId))
       .orderBy('id', 'desc')
@@ -122,7 +122,7 @@ export default class WebhookService {
   }
 
   private async enqueue(
-    endpointIds: number[],
+    endpointIds: string[],
     event: WebhookEvent,
     trx?: TransactionClientContract
   ) {
@@ -180,7 +180,7 @@ export default class WebhookService {
     )
   }
 
-  async sendTest(userId: number, id: number): Promise<void> {
+  async sendTest(userId: string, id: string): Promise<void> {
     const endpoint = await this.own(userId, id)
     await this.enqueue(
       [endpoint.id],

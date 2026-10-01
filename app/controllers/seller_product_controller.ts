@@ -41,11 +41,7 @@ export default class SellerProductController {
 
   async sample({ request, response, auth, params }: HttpContext) {
     const data = await request.validateUsing(sampleOrderValidator)
-    const order = await new OrderService().createSampleDraft(
-      auth.getUserOrFail(),
-      Number(params.id),
-      data
-    )
+    const order = await new OrderService().createSampleDraft(auth.getUserOrFail(), params.id, data)
     return response.redirect().toRoute('order.show', { id: order.id })
   }
 

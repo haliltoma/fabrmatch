@@ -197,7 +197,7 @@ test.group('coupons on orders', (group) => {
     const payout = new PayoutService(provider)
     await payout.release(plain.order.id)
     await payout.release(withCoupon.order.id)
-    const makerPay = async (id: number) => {
+    const makerPay = async (id: string) => {
       const rows = await Payout.query()
         .where('orderId', id)
         .where('beneficiaryType', 'manufacturer')

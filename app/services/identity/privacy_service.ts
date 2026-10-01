@@ -28,12 +28,12 @@ export type ConsentKind = 'terms' | 'privacy' | 'marketing_email'
 export default class PrivacyService {
   private encryption = new EncryptionService()
 
-  async recordConsent(userId: number, kind: ConsentKind, version: string, granted: boolean) {
+  async recordConsent(userId: string, kind: ConsentKind, version: string, granted: boolean) {
     await Consent.create({ userId, kind, version, granted })
   }
 
   /** Latest answer per kind. */
-  async currentConsents(userId: number) {
+  async currentConsents(userId: string) {
     const rows = await Consent.query().where('userId', userId).orderBy('id', 'desc')
     const latest = new Map<string, Consent>()
     for (const r of rows) if (!latest.has(r.kind)) latest.set(r.kind, r)

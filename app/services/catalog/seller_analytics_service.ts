@@ -19,7 +19,7 @@ export interface Amount {
 /** Sales and earnings for one seller; products are matched through the model file of each order line. */
 export default class SellerAnalyticsService {
   async forSeller(
-    userId: number,
+    userId: string,
     days = 30,
     now: DateTime = DateTime.now()
   ): Promise<SellerAnalytics> {

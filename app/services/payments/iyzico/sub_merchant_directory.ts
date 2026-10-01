@@ -11,7 +11,7 @@ import type {
  * marketplace product on the account, until then `details` refuses.
  */
 export default class DbSubMerchantDirectory implements SubMerchantDirectory {
-  async find(type: 'manufacturer' | 'seller', id: number) {
+  async find(type: 'manufacturer' | 'seller', id: string) {
     const row = await db
       .from('payment_sub_merchants')
       .where({ provider: 'iyzico', beneficiary_type: type, beneficiary_id: id })
@@ -20,7 +20,7 @@ export default class DbSubMerchantDirectory implements SubMerchantDirectory {
     return (row?.sub_merchant_key as string | undefined) ?? null
   }
 
-  async save(type: 'manufacturer' | 'seller', id: number, key: string) {
+  async save(type: 'manufacturer' | 'seller', id: string, key: string) {
     await db
       .table('payment_sub_merchants')
       .insert({
@@ -34,7 +34,7 @@ export default class DbSubMerchantDirectory implements SubMerchantDirectory {
       .merge(['sub_merchant_key'])
   }
 
-  async details(type: 'manufacturer' | 'seller', id: number): Promise<IyzicoSubMerchantInput> {
+  async details(type: 'manufacturer' | 'seller', id: string): Promise<IyzicoSubMerchantInput> {
     throw new DomainError(
       `Sub-merchant onboarding details for ${type} ${id} are not collected yet`,
       { status: 422 }

@@ -13,14 +13,14 @@ import { useT } from '~/lib/i18n'
 import { OrderCode } from '~/components/order_code'
 
 type Evidence = {
-  id: number
+  id: string
   note: string | null
   by: 'buyer' | 'manufacturer'
   createdAt: string | null
 }
 
 type DisputeData = {
-  id: number
+  id: string
   status: string
   reason: string
   manufacturerResponse: string | null

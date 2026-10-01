@@ -3,7 +3,7 @@ import { BaseSchema } from '@adonisjs/lucid/schema'
 export default class extends BaseSchema {
   async up() {
     this.schema.createTable('slice_estimates', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       // same model bytes + same profile → same answer, so it is computed once
       table.string('content_hash', 64).notNullable()
       table.string('profile_code', 32).notNullable()

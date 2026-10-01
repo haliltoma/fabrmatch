@@ -5,6 +5,7 @@ import ModelFile from '#models/model_file'
 import ModelFileService from '#services/files/model_file_service'
 import OrderItem from '#models/order_item'
 import { createDraftOrder, createUser } from '#tests/helpers/order_fixtures'
+import { uid } from '#tests/helpers/ids'
 
 const service = new ModelFileService()
 let counter = 0
@@ -68,7 +69,7 @@ test.group('model file versions (X-10)', (group) => {
       /already has a newer version/
     )
     await assert.rejects(() => service.register(stranger, upload(), v1.id), /not found/)
-    await assert.rejects(() => service.register(owner, upload(), 999_999), /not found/)
+    await assert.rejects(() => service.register(owner, upload(), uid(999999)), /not found/)
 
     const { file: solo } = await service.register(owner, upload())
     const same = { ...upload(), sha256: solo.sha256 }

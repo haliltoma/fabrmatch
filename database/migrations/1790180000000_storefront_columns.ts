@@ -5,8 +5,7 @@ export default class extends BaseSchema {
     // The analyzed model behind a catalog product; storefront orders are produced from it.
     this.schema.alterTable('catalog_products', (table) => {
       table
-        .integer('model_file_id')
-        .unsigned()
+        .uuid('model_file_id')
         .nullable()
         .references('id')
         .inTable('model_files')

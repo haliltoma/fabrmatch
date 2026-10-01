@@ -4,6 +4,7 @@ import AuditLog from '#models/audit_log'
 import ShippingService, { ShippingError } from '#services/shipping/shipping_service'
 import ShippingTable, { PACKAGING_GRAMS } from '#services/shipping/shipping_table'
 import { createDraftOrder, createUser } from '#tests/helpers/order_fixtures'
+import { uid } from '#tests/helpers/ids'
 
 const table = new ShippingTable([
   {
@@ -112,7 +113,7 @@ test.group('ShippingService', (group) => {
 
     await assert.rejects(() => service.setRate(first.id, -1, admin.id), ShippingError)
     await assert.rejects(() => service.setRate(first.id, 1.5, admin.id), ShippingError)
-    await assert.rejects(() => service.setRate(999999, 100, admin.id), /not found/)
+    await assert.rejects(() => service.setRate(uid(999999), 100, admin.id), /not found/)
     await service.setExtraPerKg(tr.id, 2500, admin.id)
     const changed = await service.listForAdmin()
     assert.equal(changed[0].extraPerKgMinor, 2500)

@@ -13,12 +13,12 @@ export interface LedgerLine {
   amountMinor: number
   currency?: string
   /** Owner of a `seller_wallet` line (required there, forbidden elsewhere — DB checked) */
-  walletUserId?: number
+  walletUserId?: string
 }
 
 interface PostOptions {
   transactionId?: string
-  orderId?: number | null
+  orderId?: string | null
   memo?: string
   currency?: string
   trx?: TransactionClientContract
@@ -76,8 +76,8 @@ export default class LedgerService {
   async balance(
     account: LedgerAccount,
     filter: {
-      orderId?: number
-      walletUserId?: number
+      orderId?: string
+      walletUserId?: string
       currency?: string
       trx?: TransactionClientContract
     } = {}
@@ -106,7 +106,7 @@ export default class LedgerService {
   }
 
   /** Net of every entry — must always be exactly 0. */
-  async trialBalance(filter: { orderId?: number; currency?: string } = {}): Promise<number> {
+  async trialBalance(filter: { orderId?: string; currency?: string } = {}): Promise<number> {
     const query = db.from('ledger_entries').where('currency', filter.currency ?? 'TRY')
     if (filter.orderId !== undefined) query.where('order_id', filter.orderId)
     const row = await query

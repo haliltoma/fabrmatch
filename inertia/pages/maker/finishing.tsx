@@ -8,7 +8,7 @@ import { formatMoney } from '~/lib/format'
 import { useT } from '~/lib/i18n'
 
 type Option = {
-  id: number
+  id: string
   name: string
   description: string
   priceMinor: number
@@ -20,12 +20,12 @@ export default function MakerFinishing({
   offered,
 }: {
   options: Option[]
-  offered: number[]
+  offered: string[]
 }) {
   const { t } = useT()
 
-  const [chosen, setChosen] = useState<Set<number>>(new Set(offered))
-  const toggle = (id: number) =>
+  const [chosen, setChosen] = useState<Set<string>>(new Set(offered))
+  const toggle = (id: string) =>
     setChosen((current) => {
       const next = new Set(current)
       if (next.has(id)) next.delete(id)

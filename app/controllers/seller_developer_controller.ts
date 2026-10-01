@@ -43,7 +43,7 @@ export default class SellerDeveloperController {
       newApiKey: (session.flashMessages.get('newApiKey') as string | undefined) ?? null,
       newWebhookSecret:
         (session.flashMessages.get('newWebhookSecret') as
-          { endpointId: number; secret: string } | undefined) ?? null,
+          { endpointId: string; secret: string } | undefined) ?? null,
     })
   }
 
@@ -56,7 +56,7 @@ export default class SellerDeveloperController {
   }
 
   async revokeKey({ params, auth, session, response }: HttpContext) {
-    await new ApiKeyService().revoke(auth.getUserOrFail().id, Number(params.id))
+    await new ApiKeyService().revoke(auth.getUserOrFail().id, params.id)
     session.flash('success', 'API key revoked.')
     return response.redirect().toPath(BACK)
   }
@@ -77,19 +77,19 @@ export default class SellerDeveloperController {
 
   async toggleWebhook({ params, request, auth, session, response }: HttpContext) {
     const active = request.input('active') === true || request.input('active') === 'true'
-    await new WebhookService().setActive(auth.getUserOrFail().id, Number(params.id), active)
+    await new WebhookService().setActive(auth.getUserOrFail().id, params.id, active)
     session.flash('success', active ? 'Webhook turned on.' : 'Webhook turned off.')
     return response.redirect().toPath(BACK)
   }
 
   async deleteWebhook({ params, auth, session, response }: HttpContext) {
-    await new WebhookService().deleteEndpoint(auth.getUserOrFail().id, Number(params.id))
+    await new WebhookService().deleteEndpoint(auth.getUserOrFail().id, params.id)
     session.flash('success', 'Webhook deleted.')
     return response.redirect().toPath(BACK)
   }
 
   async testWebhook({ params, auth, session, response }: HttpContext) {
-    await new WebhookService().sendTest(auth.getUserOrFail().id, Number(params.id))
+    await new WebhookService().sendTest(auth.getUserOrFail().id, params.id)
     session.flash('success', 'Test event queued. It is sent within a minute.')
     return response.redirect().toPath(BACK)
   }

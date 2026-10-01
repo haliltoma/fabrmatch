@@ -24,12 +24,7 @@ export default class extends BaseSchema {
     )
     this.schema.alterTable('ledger_entries', (table) => {
       // whose wallet a `seller_wallet` line belongs to
-      table
-        .integer('wallet_user_id')
-        .nullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('RESTRICT')
+      table.uuid('wallet_user_id').nullable().references('id').inTable('users').onDelete('RESTRICT')
       table.index(['wallet_user_id'])
     })
     this.schema.raw(
@@ -40,12 +35,7 @@ export default class extends BaseSchema {
     // a payment pays an order, or tops up a wallet — exactly one of the two
     this.schema.raw('alter table payments alter column order_id drop not null')
     this.schema.alterTable('payments', (table) => {
-      table
-        .integer('wallet_user_id')
-        .nullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('RESTRICT')
+      table.uuid('wallet_user_id').nullable().references('id').inTable('users').onDelete('RESTRICT')
     })
     this.schema.raw(
       `alter table payments add constraint payments_order_or_wallet

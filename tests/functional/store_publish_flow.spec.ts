@@ -29,7 +29,7 @@ async function seller() {
   return made
 }
 
-async function ship(orderId: number, tracking: string) {
+async function ship(orderId: string, tracking: string) {
   const { profile } = await createManufacturer()
   const printer = await createPrinter(profile)
   await ProductionJob.create({

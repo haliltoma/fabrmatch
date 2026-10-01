@@ -20,5 +20,5 @@ export const registerFileValidator = vine.create({
   storageKey: vine.string().trim().minLength(1).maxLength(512),
   format: vine.enum(['STL', '3MF', 'OBJ'] as const),
   /** set when this upload is a new version of one of the owner's models */
-  replacesFileId: vine.number().positive().withoutDecimals().optional(),
+  replacesFileId: vine.string().uuid().optional(),
 })

@@ -3,7 +3,7 @@ import type { JobOptions } from '@adonisjs/queue/types'
 import ProductImageService from '#services/catalog/product_image_service'
 
 interface Payload {
-  modelFileId: number
+  modelFileId: string
 }
 
 /** After analysis: turntable renders for the shop. Idempotent per render version. */

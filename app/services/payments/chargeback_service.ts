@@ -35,14 +35,14 @@ export default class ChargebackService {
     }))
   }
 
-  async won(id: number, adminId: number, note?: string) {
+  async won(id: string, adminId: string, note?: string) {
     const orderId = await this.close(id, 'won', adminId, note)
     // the hold is gone; the sweep would pick it up anyway, this just avoids the wait
     const { default: PayoutService } = await import('#services/payments/payout_service')
     await new PayoutService().processPending(orderId).catch(() => {})
   }
 
-  async lost(id: number, adminId: number, note?: string) {
+  async lost(id: string, adminId: string, note?: string) {
     await db.transaction(async (trx) => {
       const cb = await Chargeback.query({ client: trx }).where('id', id).forUpdate().first()
       if (!cb || cb.status !== 'open') throw new ChargebackError('Chargeback not found')
@@ -85,7 +85,7 @@ export default class ChargebackService {
         .where('currency', cb.currency)
         .orderBy('amountMinor', 'desc')
         .forUpdate()
-      const cancelled: number[] = []
+      const cancelled: string[] = []
       for (const payout of unpaid) {
         if (payout.amountMinor > remaining) continue
         payout.status = 'cancelled'
@@ -153,7 +153,7 @@ export default class ChargebackService {
     })
   }
 
-  private async close(id: number, status: 'won' | 'lost', adminId: number, note?: string) {
+  private async close(id: string, status: 'won' | 'lost', adminId: string, note?: string) {
     return db.transaction(async (trx) => {
       const cb = await Chargeback.query({ client: trx }).where('id', id).forUpdate().first()
       if (!cb || cb.status !== 'open') throw new ChargebackError('Chargeback not found')

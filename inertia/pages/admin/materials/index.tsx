@@ -10,13 +10,13 @@ import { PageHeader } from '~/components/page_header'
 import { useT } from '~/lib/i18n'
 
 type MaterialRow = {
-  id: number
+  id: string
   code: string
   name: string
   technology: 'FDM' | 'SLA' | 'SLS'
   isActive: boolean
 }
-type ColorRow = { id: number; name: string; hex: string; isActive: boolean }
+type ColorRow = { id: string; name: string; hex: string; isActive: boolean }
 
 function AddMaterial() {
   const { t } = useT()

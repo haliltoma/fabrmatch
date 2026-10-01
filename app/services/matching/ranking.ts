@@ -40,7 +40,7 @@ export function scoreCandidate(c: MatchCandidate): number {
 }
 
 function byScoreDesc(a: ScoredCandidate, b: ScoredCandidate) {
-  return b.score - a.score || a.manufacturerProfileId - b.manufacturerProfileId
+  return b.score - a.score || a.manufacturerProfileId.localeCompare(b.manufacturerProfileId)
 }
 
 export function rankCandidates(

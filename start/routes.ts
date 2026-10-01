@@ -11,6 +11,12 @@ import { middleware } from '#start/kernel'
 import { controllers } from '#generated/controllers'
 import router from '@adonisjs/core/services/router'
 
+// Every row key is a UUIDv7 (K-U): a malformed id never reaches a controller (it is a plain 404,
+// not a database error), whichever route it is on.
+router.where('id', router.matchers.uuid())
+router.where('grantId', router.matchers.uuid())
+router.where('printerId', router.matchers.uuid())
+
 router.get('/', [controllers.Home, 'show']).as('home')
 router.post('/language', [controllers.Language, 'update'])
 router.post('/currency', [controllers.Currency, 'update'])
@@ -161,12 +167,10 @@ router
 
 // Public storefront + crawler files
 router.get('/shop', [controllers.Storefront, 'index'])
-router
-  .get('/shop/:id/:slug?', [controllers.Storefront, 'show'])
-  .where('id', router.matchers.number())
+router.get('/shop/:id/:slug?', [controllers.Storefront, 'show']).where('id', router.matchers.uuid())
 router
   .post('/shop/:id/order', [controllers.Storefront, 'order'])
-  .where('id', router.matchers.number())
+  .where('id', router.matchers.uuid())
   .use([
     middleware.auth(),
     middleware.onboarding(),
@@ -175,7 +179,7 @@ router
     middleware.idempotent(),
   ])
 // Shop pictures (renders, approved maker photos), streamed from private storage
-router.get('/images/:id', [controllers.ProductImage, 'show']).where('id', router.matchers.number())
+router.get('/images/:id', [controllers.ProductImage, 'show']).where('id', router.matchers.uuid())
 router.get('/sitemap.xml', [controllers.Seo, 'sitemap'])
 router.get('/robots.txt', [controllers.Seo, 'robots'])
 router.get('/llms.txt', [controllers.Seo, 'llms'])
@@ -187,9 +191,7 @@ router
     router.get('/preferences', [controllers.Notification, 'preferences'])
     router.post('/preferences', [controllers.Notification, 'updatePreference'])
     router.post('/read-all', [controllers.Notification, 'readAll'])
-    router
-      .get('/:id/open', [controllers.Notification, 'open'])
-      .where('id', router.matchers.number())
+    router.get('/:id/open', [controllers.Notification, 'open']).where('id', router.matchers.uuid())
   })
   .prefix('/notifications')
   .use([middleware.auth()])
@@ -208,7 +210,7 @@ router
 // Orders from sellers' own shops (signature-verified per shop, R4)
 router
   .post('/webhooks/stores/:id/orders', [controllers.StoreWebhook, 'order'])
-  .where('id', router.matchers.number())
+  .where('id', router.matchers.uuid())
   .use(middleware.throttle({ name: 'store-webhook', requests: 300, duration: '1 minute' }))
 
 // Hosted payment page return (iyzico POSTs the token; outcome is read back from the provider)
@@ -219,7 +221,7 @@ router
 // Report a listing (members only)
 router
   .post('/shop/:id/report', [controllers.ContentReport, 'store'])
-  .where('id', router.matchers.number())
+  .where('id', router.matchers.uuid())
   .use([
     middleware.auth(),
     middleware.throttle({ name: 'report', requests: 10, duration: '1 hour' }),
@@ -241,7 +243,7 @@ router
       ])
   })
   .prefix('/cart')
-  .where('id', router.matchers.number())
+  .where('id', router.matchers.uuid())
   .use([middleware.auth(), middleware.onboarding()])
 
 // Orders (buyer side, any onboarded user)
@@ -282,7 +284,7 @@ router
       ])
   })
   .prefix('/orders')
-  .where('id', router.matchers.number())
+  .where('id', router.matchers.uuid())
   .use([middleware.auth(), middleware.onboarding()])
 
 router
@@ -300,7 +302,7 @@ router
       .use(middleware.throttle({ name: 'evidence-add', requests: 20, duration: '1 hour' }))
   })
   .prefix('/disputes')
-  .where('id', router.matchers.number())
+  .where('id', router.matchers.uuid())
   .use([middleware.auth(), middleware.onboarding()])
 
 // Test payment page: the fake provider's stand-in for a hosted checkout (never in production)
@@ -367,7 +369,7 @@ router
         router.post('/orders/:id/retry', [controllers.SellerStore, 'retry'])
       })
       .prefix('/stores')
-      .where('id', router.matchers.number())
+      .where('id', router.matchers.uuid())
       .use([middleware.feature({ name: 'externalStores' }), middleware.profile({ role: 'seller' })])
 
     // Prepaid balance for orders from the seller's own shop (R4-T2)
@@ -399,11 +401,11 @@ router
       .use(middleware.throttle({ name: 'seller-payout', requests: 10, duration: '1 hour' }))
     router
       .post('/payout/:id/invoice', [controllers.SellerPayout, 'invoice'])
-      .where('id', router.matchers.number())
+      .where('id', router.matchers.uuid())
       .use(middleware.throttle({ name: 'payout-invoice', requests: 30, duration: '1 hour' }))
     router
       .get('/payout/vouchers/:id', [controllers.SellerPayout, 'voucher'])
-      .where('id', router.matchers.number())
+      .where('id', router.matchers.uuid())
 
     // API keys and webhooks
     router.get('/developers', [controllers.SellerDeveloper, 'index'])
@@ -450,12 +452,12 @@ router
         middleware.verified(),
         middleware.throttle({ name: 'rfq-create', requests: 10, duration: '1 day' }),
       ])
-    router.get('/:id', [controllers.Rfq, 'show']).where('id', router.matchers.number())
+    router.get('/:id', [controllers.Rfq, 'show']).where('id', router.matchers.uuid())
     router
       .post('/:id/award', [controllers.Rfq, 'award'])
-      .where('id', router.matchers.number())
+      .where('id', router.matchers.uuid())
       .use(middleware.verified())
-    router.post('/:id/cancel', [controllers.Rfq, 'cancel']).where('id', router.matchers.number())
+    router.post('/:id/cancel', [controllers.Rfq, 'cancel']).where('id', router.matchers.uuid())
   })
   .prefix('/rfqs')
   .use([
@@ -472,7 +474,7 @@ router.get('/api/v1/openapi.json', [controllers.Api, 'openapi'])
 router
   .group(() => {
     router.get('/orders', [controllers.Api, 'orders'])
-    router.get('/orders/:id', [controllers.Api, 'order']).where('id', router.matchers.number())
+    router.get('/orders/:id', [controllers.Api, 'order']).where('id', router.matchers.uuid())
     router.get('/products', [controllers.Api, 'products'])
   })
   .prefix('/api/v1')
@@ -507,7 +509,7 @@ router
     router.post('/jobs/:id/ship', [controllers.MakerWork, 'ship'])
     router
       .post('/qc-photos/:id/offer', [controllers.MakerWork, 'offerPhoto'])
-      .where('id', router.matchers.number())
+      .where('id', router.matchers.uuid())
     router.post('/grants/:grantId/download', [controllers.MakerWork, 'download'])
     router.post('/disputes/:id/respond', [controllers.Dispute, 'respond'])
 
@@ -537,11 +539,11 @@ router
       .use(middleware.throttle({ name: 'maker-iban', requests: 10, duration: '1 hour' }))
     router
       .post('/payout/:id/invoice', [controllers.MakerPayout, 'invoice'])
-      .where('id', router.matchers.number())
+      .where('id', router.matchers.uuid())
       .use(middleware.throttle({ name: 'payout-invoice', requests: 30, duration: '1 hour' }))
     router
       .get('/payout/vouchers/:id', [controllers.MakerPayout, 'voucher'])
-      .where('id', router.matchers.number())
+      .where('id', router.matchers.uuid())
 
     // Track record and payouts
     router.get('/performance', [controllers.MakerPerformance, 'scorecard'])
@@ -591,7 +593,7 @@ router
     router.post('/queues/support/:id', [controllers.AdminQueue, 'supportAnswered'])
     router
       .post('/queues/photos/:id', [controllers.AdminQueue, 'shopPhotoDecision'])
-      .where('id', router.matchers.number())
+      .where('id', router.matchers.uuid())
 
     router.get('/materials', [controllers.AdminReferenceCatalog, 'index'])
     router.post('/materials', [controllers.AdminReferenceCatalog, 'storeMaterial'])
@@ -609,21 +611,21 @@ router
     router.post('/matching/mode', [controllers.AdminMatching, 'mode'])
     router
       .get('/matching/:id', [controllers.AdminMatching, 'show'])
-      .where('id', router.matchers.number())
+      .where('id', router.matchers.uuid())
     router
       .post('/matching/:id/offer', [controllers.AdminMatching, 'offer'])
-      .where('id', router.matchers.number())
+      .where('id', router.matchers.uuid())
 
     router.get('/orders', [controllers.AdminOrder, 'index'])
     router.get('/orders/:id', [controllers.AdminOrder, 'show'])
     router
       .post('/orders/:id/reassign', [controllers.AdminOrder, 'reassign'])
-      .where('id', router.matchers.number())
+      .where('id', router.matchers.uuid())
     router.get('/orders/:id/messages', [controllers.AdminMessage, 'show'])
 
     router
       .get('/images/:id', [controllers.ProductImage, 'adminShow'])
-      .where('id', router.matchers.number())
+      .where('id', router.matchers.uuid())
 
     router.get('/users', [controllers.AdminUser, 'index'])
     router.post('/users/:id/suspend', [controllers.AdminUser, 'suspend'])
@@ -634,10 +636,10 @@ router
     router.post('/pricing-regions', [controllers.AdminPricingRegion, 'store'])
     router
       .post('/pricing-regions/:id', [controllers.AdminPricingRegion, 'update'])
-      .where('id', router.matchers.number())
+      .where('id', router.matchers.uuid())
     router
       .post('/pricing-regions/:id/materials', [controllers.AdminPricingRegion, 'materialPrice'])
-      .where('id', router.matchers.number())
+      .where('id', router.matchers.uuid())
 
     router.get('/finishing', [controllers.AdminFinishing, 'index'])
     router.post('/finishing', [controllers.AdminFinishing, 'store'])
@@ -676,7 +678,7 @@ router
         router.post('/:id/paid', [controllers.AdminPayout, 'markPaid'])
       })
       .prefix('/payouts')
-      .where('id', router.matchers.number())
+      .where('id', router.matchers.uuid())
 
     router.get('/launch', [controllers.AdminLaunch, 'index'])
     router.get('/settings', [controllers.AdminSettings, 'index'])

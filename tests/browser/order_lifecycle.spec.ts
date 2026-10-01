@@ -25,7 +25,7 @@ async function signIn(page: Page, email: string) {
   await page.waitForURL((url) => !url.pathname.startsWith('/login'))
 }
 
-async function status(orderId: number) {
+async function status(orderId: string) {
   const order = await Order.findOrFail(orderId)
   return order.status
 }
@@ -55,14 +55,14 @@ test.group('order lifecycle (browser)', (group) => {
     await page.getByLabel('City').fill('Istanbul')
     await page.getByLabel('Postal code').fill('34710')
     await page.getByRole('button', { name: 'Continue to payment' }).click()
-    await page.waitForURL(/\/orders\/\d+$/)
-    const orderId = Number(new URL(page.url()).pathname.split('/').pop())
+    await page.waitForURL(/\/orders\/[0-9a-f-]{36}$/)
+    const orderId = new URL(page.url()).pathname.split('/').pop()!
 
     await page.getByRole('button', { name: 'Pay now' }).click()
     await page.waitForURL(/\/dev\/checkout\//)
     await page.getByRole('button', { name: 'Fill in' }).click()
     await page.getByRole('button', { name: /^Pay/ }).click()
-    await page.waitForURL(/\/orders\/\d+$/)
+    await page.waitForURL(/\/orders\/[0-9a-f-]{36}$/)
     const payment = await Payment.query().where('orderId', orderId).firstOrFail()
     assert.equal(payment.status, 'succeeded')
     // automatic matching (the test default) sent the offer to the only fitting maker

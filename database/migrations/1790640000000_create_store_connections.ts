@@ -10,9 +10,9 @@ import { BaseSchema } from '@adonisjs/lucid/schema'
 export default class extends BaseSchema {
   async up() {
     this.schema.createTable('store_connections', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table
-        .integer('seller_user_id')
+        .uuid('seller_user_id')
         .notNullable()
         .references('id')
         .inTable('users')
@@ -31,9 +31,9 @@ export default class extends BaseSchema {
     })
 
     this.schema.createTable('external_listings', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table
-        .integer('store_connection_id')
+        .uuid('store_connection_id')
         .notNullable()
         .references('id')
         .inTable('store_connections')
@@ -43,7 +43,7 @@ export default class extends BaseSchema {
       table.string('sku', 100).nullable()
       table.string('title', 300).notNullable()
       table
-        .integer('seller_product_id')
+        .uuid('seller_product_id')
         .nullable()
         .references('id')
         .inTable('seller_products')
@@ -57,16 +57,16 @@ export default class extends BaseSchema {
     })
 
     this.schema.createTable('external_orders', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table
-        .integer('store_connection_id')
+        .uuid('store_connection_id')
         .notNullable()
         .references('id')
         .inTable('store_connections')
         .onDelete('CASCADE')
       table.string('external_order_id', 100).notNullable()
       table.string('external_order_name', 100).nullable()
-      table.integer('order_id').nullable().references('id').inTable('orders').onDelete('SET NULL')
+      table.uuid('order_id').nullable().references('id').inTable('orders').onDelete('SET NULL')
       table.enu('status', ['needs_mapping', 'placed', 'ignored', 'failed']).notNullable()
       // lines as the shop sent them (variant, sku, quantity) — no customer data
       table.jsonb('lines').notNullable()

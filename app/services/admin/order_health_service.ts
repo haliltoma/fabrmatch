@@ -36,7 +36,7 @@ export default class OrderHealthService {
     return Object.fromEntries(rows.map((r) => [r.status as string, Number(r.n)]))
   }
 
-  async show(orderId: number) {
+  async show(orderId: string) {
     const order = await Order.query()
       .where('id', orderId)
       .preload('items', (i) => i.preload('modelFile'))
@@ -112,7 +112,7 @@ export default class OrderHealthService {
         meta: JSON.stringify(a.meta ?? {}),
       })),
       ledger: ledger.map((e) => ({
-        id: e.id as number,
+        id: e.id as string,
         transactionId: e.transaction_id as string,
         account: e.account as string,
         direction: e.direction as string,
@@ -122,7 +122,7 @@ export default class OrderHealthService {
       ledgerBalances: Object.fromEntries(balances),
       ledgerBalanced: trial === 0,
       payments: payments.map((p) => ({
-        id: p.id as number,
+        id: p.id as string,
         status: p.status as string,
         amountMinor: p.amount_minor as number,
         refundedMinor: p.refunded_minor as number,
@@ -134,12 +134,12 @@ export default class OrderHealthService {
         processed: !!w.processed_at,
       })),
       payouts: payouts.map((p) => ({
-        id: p.id as number,
+        id: p.id as string,
         beneficiary: p.beneficiary_type as string,
         amountMinor: p.amount_minor as number,
         status: p.status as string,
       })),
-      disputes: disputes.map((d) => ({ id: d.id as number, status: d.status as string })),
+      disputes: disputes.map((d) => ({ id: d.id as string, status: d.status as string })),
       fraudFlags: flags.map((f) => ({
         rule: f.rule as string,
         severity: f.severity as string,

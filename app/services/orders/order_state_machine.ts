@@ -35,7 +35,7 @@ export class InvalidOrderTransitionError extends DomainError {
 }
 
 interface TransitionOptions {
-  actorId?: number | null
+  actorId?: string | null
   meta?: Record<string, unknown>
   trx?: TransactionClientContract
 }
@@ -50,7 +50,7 @@ export default class OrderStateMachine {
    * updates status and writes an audit log entry — all in one transaction.
    */
   async transition(
-    orderId: number,
+    orderId: string,
     to: OrderStatus,
     options: TransitionOptions = {}
   ): Promise<Order> {

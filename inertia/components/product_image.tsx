@@ -2,7 +2,7 @@ import { useRef, useState, type PointerEvent } from 'react'
 import { useT } from '~/lib/i18n'
 
 export type ShopImage = {
-  id: number
+  id: string
   kind: 'render' | 'maker_photo'
   url: string
   width: number | null

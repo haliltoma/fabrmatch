@@ -94,7 +94,7 @@ export interface StoreAdapter {
 }
 
 /** Stable SKU for a Fabrmatch product in a material, so orders map even without a listing row. */
-export function fabrmatchSku(sellerProductId: number, material: string) {
+export function fabrmatchSku(sellerProductId: string, material: string) {
   return `FM-${sellerProductId}-${material.toUpperCase()}`
 }
 

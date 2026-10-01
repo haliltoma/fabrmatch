@@ -11,7 +11,7 @@ const MAX_LISTED = 20
  */
 export default class UserSessionService {
   async start(
-    userId: number,
+    userId: string,
     meta: { ip: string | null; userAgent: string | null }
   ): Promise<string> {
     const session = await UserSession.create({
@@ -25,7 +25,7 @@ export default class UserSessionService {
   }
 
   /** True while the session may be used. Refreshes last-seen, but not on every request. */
-  async check(sessionId: string, userId: number): Promise<boolean> {
+  async check(sessionId: string, userId: string): Promise<boolean> {
     const session = await UserSession.query()
       .where('id', sessionId)
       .where('userId', userId)
@@ -39,7 +39,7 @@ export default class UserSessionService {
     return true
   }
 
-  async list(userId: number) {
+  async list(userId: string) {
     const rows = await UserSession.query()
       .where('userId', userId)
       .whereNull('revokedAt')
@@ -54,7 +54,7 @@ export default class UserSessionService {
     }))
   }
 
-  async revoke(userId: number, sessionId: string): Promise<boolean> {
+  async revoke(userId: string, sessionId: string): Promise<boolean> {
     const revoked = await UserSession.query()
       .where('id', sessionId)
       .where('userId', userId)
@@ -65,7 +65,7 @@ export default class UserSessionService {
   }
 
   /** Everything except the session the user is on right now (or everything when `keep` is null). */
-  async revokeAll(userId: number, keep: string | null = null): Promise<number> {
+  async revokeAll(userId: string, keep: string | null = null): Promise<number> {
     const query = UserSession.query().where('userId', userId).whereNull('revokedAt')
     if (keep) query.whereNot('id', keep)
     const revoked = await query.update({ revokedAt: DateTime.now().toSQL() }).returning('id')

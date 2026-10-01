@@ -55,7 +55,7 @@ export default class MatchSuggestionService {
     })
   }
 
-  async forOrder(orderId: number) {
+  async forOrder(orderId: string) {
     const order = await Order.query()
       .where('id', orderId)
       .preload('items', (q) => q.preload('modelFile'))
@@ -110,11 +110,14 @@ export default class MatchSuggestionService {
           isNewMaker: isInExplorationPool(c, fabrmatchConfig.matching),
         }
       })
-      .sort((a, b) => b.score - a.score || a.manufacturerProfileId - b.manufacturerProfileId)
+      .sort(
+        (a, b) =>
+          b.score - a.score || a.manufacturerProfileId.localeCompare(b.manufacturerProfileId)
+      )
 
     // everyone else, with the rules they fail — closest to eligible first
     const candidateIds = new Set(candidates.map((c) => c.manufacturerProfileId))
-    const offeredStatuses = new Map<number, string>()
+    const offeredStatuses = new Map<string, string>()
     for (const m of [...order.matchOffers].reverse())
       offeredStatuses.set(m.manufacturerProfileId, m.status)
     const verdicts = open
@@ -126,7 +129,9 @@ export default class MatchSuggestionService {
     const notEligible = verdicts
       .filter((v) => !candidateIds.has(v.manufacturerProfileId))
       .sort(
-        (a, b) => blockers(a) - blockers(b) || a.manufacturerProfileId - b.manufacturerProfileId
+        (a, b) =>
+          blockers(a) - blockers(b) ||
+          a.manufacturerProfileId.localeCompare(b.manufacturerProfileId)
       )
 
     return {
@@ -178,9 +183,9 @@ export default class MatchSuggestionService {
     }
   }
 
-  private async makersById(ids: number[]) {
+  private async makersById(ids: string[]) {
     const unique = [...new Set(ids)]
-    if (unique.length === 0) return new Map<number, MakerSummary>()
+    if (unique.length === 0) return new Map<string, MakerSummary>()
     const profiles = await ManufacturerProfile.query().whereIn('id', unique).preload('user')
     return new Map(
       profiles.map((p) => [
@@ -199,7 +204,7 @@ export default class MatchSuggestionService {
 }
 
 interface MakerSummary {
-  id: number
+  id: string
   alias: string
   name: string | null
   city: string | null

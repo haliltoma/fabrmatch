@@ -35,7 +35,7 @@ export default class ModelFileService {
    */
   async getUploadUrl(
     originalName: string,
-    upload?: { userId: number; sizeBytes: number }
+    upload?: { userId: string; sizeBytes: number }
   ): Promise<{ storageKey: string; signedUrl: string }> {
     const ext = this.extractExtension(originalName)
     const format = ALLOWED_FORMATS[ext]
@@ -65,7 +65,7 @@ export default class ModelFileService {
    * Registers a browser upload: only a storage key this server presigned for this user, at the
    * same size, and only once (review fix: arbitrary keys could expose other stored objects).
    */
-  async registerUpload(user: User, data: RegisterFileData, replacesFileId?: number | null) {
+  async registerUpload(user: User, data: RegisterFileData, replacesFileId?: string | null) {
     const ok = await new UploadTicketService().consume(data.storageKey, user.id, data.sizeBytes)
     if (!ok) throw new Error('Upload not found or expired. Please upload the file again.')
     return this.register(user, data, replacesFileId)
@@ -78,7 +78,7 @@ export default class ModelFileService {
   async register(
     user: User,
     data: RegisterFileData,
-    replacesFileId?: number | null
+    replacesFileId?: string | null
   ): Promise<{ file: ModelFile; isDuplicate: boolean }> {
     if (data.sizeBytes > MAX_SIZE_BYTES) {
       throw new Error(`File too large: ${data.sizeBytes} bytes (max ${MAX_SIZE_BYTES})`)
@@ -128,16 +128,16 @@ export default class ModelFileService {
     return { file, isDuplicate: false }
   }
 
-  async findById(id: number): Promise<ModelFile | null> {
+  async findById(id: string): Promise<ModelFile | null> {
     return ModelFile.find(id)
   }
 
-  async findByIdForOwner(id: number, ownerId: number): Promise<ModelFile | null> {
+  async findByIdForOwner(id: string, ownerId: string): Promise<ModelFile | null> {
     return ModelFile.query().where('id', id).where('ownerId', ownerId).first()
   }
 
   /** The owner's models, newest first — only the latest revision of each; older ones come with it as history. */
-  async listForOwner(ownerId: number, params: { page?: number; perPage?: number } = {}) {
+  async listForOwner(ownerId: string, params: { page?: number; perPage?: number } = {}) {
     const { page, perPage } = pageParams(params)
     const paginator = await ModelFile.query()
       .where('ownerId', ownerId)
@@ -147,16 +147,16 @@ export default class ModelFileService {
       .orderBy('id', 'desc')
       .paginate(page, perPage)
     const rows = paginator.all()
-    const history = new Map<number, Array<{ id: number; revision: number; createdAt: string }>>()
+    const history = new Map<string, Array<{ id: string; revision: number; createdAt: string }>>()
     for (const file of rows) history.set(file.id, await this.olderVersions(file))
     return { rows, history, meta: pageMeta(paginator.total, page, perPage) }
   }
 
   /** Earlier revisions of a model, newest first. */
   async olderVersions(file: ModelFile) {
-    const older: Array<{ id: number; revision: number; createdAt: string }> = []
+    const older: Array<{ id: string; revision: number; createdAt: string }> = []
     let cursor = file.previousFileId
-    const seen = new Set<number>([file.id])
+    const seen = new Set<string>([file.id])
     while (cursor && !seen.has(cursor) && older.length < 50) {
       seen.add(cursor)
       const prev = await ModelFile.find(cursor)
@@ -184,10 +184,10 @@ export default class ModelFileService {
    * so the owner is not left on "scanning" forever. Run by the scheduler (RecoverStalledAnalyses).
    */
   async recoverStalled(
-    options: { now?: DateTime; dispatch?: (id: number) => Promise<void> } = {}
+    options: { now?: DateTime; dispatch?: (id: string) => Promise<void> } = {}
   ): Promise<{ requeued: number; failed: number }> {
     const now = options.now ?? DateTime.now()
-    const dispatch = options.dispatch ?? ((id: number) => this.dispatchAnalysis(id))
+    const dispatch = options.dispatch ?? ((id: string) => this.dispatchAnalysis(id))
     const stale = await ModelFile.query()
       .whereIn('analysisStatus', ['pending', 'processing'])
       .where('updatedAt', '<', now.minus({ minutes: STALLED_AFTER_MINUTES }).toJSDate())
@@ -215,7 +215,7 @@ export default class ModelFileService {
     return { requeued, failed }
   }
 
-  private async dispatchAnalysis(modelFileId: number): Promise<void> {
+  private async dispatchAnalysis(modelFileId: string): Promise<void> {
     const { default: AnalyzeModelFile } = await import('#jobs/analyze_model_file')
     await AnalyzeModelFile.dispatch({ modelFileId })
   }

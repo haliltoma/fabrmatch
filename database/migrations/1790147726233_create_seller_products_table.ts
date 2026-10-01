@@ -5,17 +5,15 @@ export default class extends BaseSchema {
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table
-        .integer('seller_profile_id')
-        .unsigned()
+        .uuid('seller_profile_id')
         .notNullable()
         .references('id')
         .inTable('seller_profiles')
         .onDelete('CASCADE')
       table
-        .integer('catalog_product_id')
-        .unsigned()
+        .uuid('catalog_product_id')
         .nullable()
         .references('id')
         .inTable('catalog_products')

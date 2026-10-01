@@ -14,7 +14,7 @@ import { useT } from '~/lib/i18n'
 import { usePage } from '@inertiajs/react'
 import { NextUp, type NextUpItem } from '~/components/next_up'
 
-type RecentJob = { id: number; code: string; status: string; dueAt: string | null }
+type RecentJob = { id: string; code: string; status: string; dueAt: string | null }
 
 function MakerDashboard({
   pendingOffers,

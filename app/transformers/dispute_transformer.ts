@@ -4,7 +4,7 @@ import OrderTransformer from '#transformers/order_transformer'
 import { maskedText } from '#services/messaging/contact_filter'
 
 /** `mask`: contact details hidden, as for the buyer and maker (only the admin sees raw text). */
-function evidenceOf(dispute: Dispute, buyerId: number | null, mask = true) {
+function evidenceOf(dispute: Dispute, buyerId: string | null, mask = true) {
   return (dispute.evidence ?? []).map((e) => ({
     id: e.id,
     note: mask ? maskedText(e.note) : e.note,

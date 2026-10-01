@@ -4,7 +4,7 @@ import redis from '@adonisjs/redis/services/main'
 const TICKET_TTL_SECONDS = 20 * 60
 
 interface Ticket {
-  userId: number
+  userId: string
   sizeBytes: number
 }
 
@@ -23,7 +23,7 @@ export default class UploadTicketService {
   }
 
   /** True when this user holds the ticket for this key and size; it is spent on success. */
-  async consume(storageKey: string, userId: number, sizeBytes: number): Promise<boolean> {
+  async consume(storageKey: string, userId: string, sizeBytes: number): Promise<boolean> {
     const raw = await redis.get(this.key(storageKey))
     if (!raw) return false
     const ticket = JSON.parse(raw) as Ticket

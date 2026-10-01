@@ -53,7 +53,7 @@ export default class UserAdminService {
   }
 
   /** Blocks sign-in and ends every session. Orders already in flight are handled from the queues. */
-  async suspend(userId: number, reason: string, adminId: number) {
+  async suspend(userId: string, reason: string, adminId: string) {
     const text = reason.trim()
     if (text.length < 5) throw new UserAdminError('Give a reason (at least 5 characters)')
     if (userId === adminId) throw new UserAdminError('You cannot suspend yourself')
@@ -79,7 +79,7 @@ export default class UserAdminService {
     await new UserSessionService().revokeAll(userId)
   }
 
-  async unsuspend(userId: number, adminId: number) {
+  async unsuspend(userId: string, adminId: string) {
     await db.transaction(async (trx) => {
       const user = await User.query({ client: trx }).where('id', userId).forUpdate().first()
       if (!user) throw new UserAdminError('User not found')

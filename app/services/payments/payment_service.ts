@@ -60,17 +60,17 @@ export function normalizePhone(value: string, country: string): string | null {
 }
 
 export type WebhookOutcome =
-  { status: 'duplicate' } | { status: 'processed'; paidOrderId: number | null }
+  { status: 'duplicate' } | { status: 'processed'; paidOrderId: string | null }
 
 interface Applied {
-  paidOrderId: number | null
+  paidOrderId: string | null
   /** Order that received money it cannot take — refunded after commit. */
-  orphanOrderId: number | null
+  orphanOrderId: string | null
   /** Event we could not apply safely: recorded for an admin instead of retried forever. */
   review?: string
 }
 
-type StartMatching = (orderId: number) => Promise<unknown>
+type StartMatching = (orderId: string) => Promise<unknown>
 
 export default class PaymentService {
   private sm = new OrderStateMachine()
@@ -117,7 +117,7 @@ export default class PaymentService {
    * pages that need the buyer's identity (iyzico) get the identity number and phone asked at the
    * pay step; the identity number goes straight to the provider and is never stored.
    */
-  async startCheckout(orderId: number, buyerId: number, payer: PayerDetails = {}) {
+  async startCheckout(orderId: string, buyerId: string, payer: PayerDetails = {}) {
     const needsIdentity = this.provider.needsBuyerIdentity === true
     const buyerEmail = await db.transaction(async (trx) => {
       const order = await Order.query({ client: trx })
@@ -218,7 +218,7 @@ export default class PaymentService {
    * Pays an order of the buyer's from their wallet balance: one transaction under a per-user
    * lock, so two orders can never spend the same money. TRY only.
    */
-  async payFromWallet(orderId: number, buyerId: number) {
+  async payFromWallet(orderId: string, buyerId: string) {
     if (salesModel() !== 'merchant_of_record') {
       throw new PaymentError('The balance is only available when Fabrmatch sells')
     }
@@ -287,7 +287,7 @@ export default class PaymentService {
    * Each chunk has an idempotency key derived from the top-up and what was already refunded on
    * it, so a retry after a crash re-sends the same request and never refunds twice.
    */
-  async refundWalletBalance(userId: number): Promise<number> {
+  async refundWalletBalance(userId: string): Promise<number> {
     let refunded = 0
     await db.transaction(async (trx) => {
       await trx.rawQuery('select pg_advisory_xact_lock(hashtext(?))', [`wallet:${userId}`])
@@ -346,7 +346,7 @@ export default class PaymentService {
   }
 
   /** Buyer, address and payout lines for a hosted page that needs them (iyzico). */
-  private buyerDetails(order: Order, buyerId: number, email: string, payer: PayerDetails) {
+  private buyerDetails(order: Order, buyerId: string, email: string, payer: PayerDetails) {
     const address = new OrderService().decryptShippingAddress(order)
     if (!address) throw new PaymentError('This order has no shipping address')
     const sellerShare = order.sellerId ? order.sellerShareMinor : 0
@@ -364,7 +364,7 @@ export default class PaymentService {
 
   private hostedPageDetails(
     address: ShippingAddress,
-    buyerId: number,
+    buyerId: string,
     email: string,
     payer: PayerDetails,
     items: NonNullable<CheckoutRequest['items']>
@@ -483,7 +483,7 @@ export default class PaymentService {
           {
             action: 'payment.needs_review',
             subjectType: 'payment',
-            subjectId: 0,
+            subjectId: null,
             meta: {
               eventId: event.eventId,
               providerRef: event.providerRef,
@@ -512,7 +512,7 @@ export default class PaymentService {
   }
 
   /** After commit: tell the buyer, count it, check for fraud, then look for a maker. */
-  private async afterPaid(orderId: number) {
+  private async afterPaid(orderId: string) {
     await this.notifier.paymentReceived(orderId)
     await this.trackPaid(orderId)
     try {
@@ -528,7 +528,7 @@ export default class PaymentService {
   }
 
   /** Funnel step "order paid", credited to the buyer's first touch. Never blocks the payment. */
-  private async trackPaid(orderId: number) {
+  private async trackPaid(orderId: string) {
     try {
       const order = await Order.findOrFail(orderId)
       const buyer = await User.findOrFail(order.buyerId)
@@ -681,11 +681,11 @@ export default class PaymentService {
 
   /** Moves escrowed money into the `refund` account: we owe it back to the buyer. */
   async recordRefundObligation(
-    orderId: number,
+    orderId: string,
     amountMinor: number,
     currency: string,
     trx: TransactionClientContract,
-    paymentId?: number
+    paymentId?: string
   ) {
     const escrow = await this.ledger.balance('buyer_escrow', { orderId, currency, trx })
     if (amountMinor > escrow) {
@@ -711,11 +711,11 @@ export default class PaymentService {
    * obligation itself, so a retry after a crash or timeout re-sends the identical request and
    * can never refund twice, even if new obligations arrived in between.
    */
-  async settleRefunds(orderId: number): Promise<number> {
+  async settleRefunds(orderId: string): Promise<number> {
     let total = 0
     const paid: Array<{ amount: number; refundedTotal: number }> = []
     await db.transaction(async (trx) => {
-      await trx.rawQuery('select pg_advisory_xact_lock(?)', [orderId])
+      await trx.rawQuery('select pg_advisory_xact_lock(hashtext(?))', [`order:${orderId}`])
 
       const credits = await trx
         .from('ledger_entries')
@@ -743,12 +743,12 @@ export default class PaymentService {
         const key = `refund:${entry.transaction_id}:${settled}`
         settled = 0
 
-        const pinned = /payment:(\d+)/.exec(entry.memo ?? '')
+        const pinned = /payment:([0-9a-f-]{36})/i.exec(entry.memo ?? '')
         const query = Payment.query({ client: trx })
           .where('orderId', orderId)
           .whereIn('status', ['succeeded', 'partially_refunded'])
           .forUpdate()
-        if (pinned) query.where('id', Number(pinned[1]))
+        if (pinned) query.where('id', pinned[1])
         const payment = await query.orderBy('id', 'asc').firstOrFail()
         if (payment.amountMinor - payment.refundedMinor < amount) {
           throw new PaymentError(`Refund ${amount} exceeds what is left on ${payment.providerRef}`)
@@ -770,7 +770,7 @@ export default class PaymentService {
           payment.refundedMinor >= payment.amountMinor ? 'refunded' : 'partially_refunded'
         await payment.useTransaction(trx).save()
         const walletOwner = toWallet ? await Order.findOrFail(orderId, { client: trx }) : null
-        const buyerId = walletOwner?.buyerId ?? 0
+        const buyerId = walletOwner?.buyerId
         await this.ledger.post(
           [
             { account: 'refund', direction: 'debit', amountMinor: amount },
@@ -813,7 +813,7 @@ export default class PaymentService {
    * Dev-only stand-in for the buyer completing 3DS at the provider: checkout, then a signed
    * `payment.succeeded` delivered through the real webhook path.
    */
-  async simulateSuccess(orderId: number, buyerId: number) {
+  async simulateSuccess(orderId: string, buyerId: string) {
     if (!(app.inDev || app.inTest) || !(this.provider instanceof FakePaymentProvider)) {
       throw new PaymentError('Payment simulation is only available with the fake provider')
     }

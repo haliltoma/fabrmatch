@@ -32,7 +32,7 @@ async function renderedShopProduct() {
 }
 
 /** A maker's job for an order, with one QC photo on it. */
-async function jobWithPhoto(orderId: number) {
+async function jobWithPhoto(orderId: string) {
   const { user, profile } = await createManufacturer()
   await new RoleService().assignRole(user, 'manufacturer')
   const printer = await createPrinter(profile)
@@ -70,7 +70,7 @@ test.group('shop pictures (R4-T6)', (group) => {
     const { product } = await renderedShopProduct()
 
     const list = await client.get('/shop').headers(inertia)
-    const card = list.body().props.items.find((i: { id: number }) => i.id === product.id)
+    const card = list.body().props.items.find((i: { id: string }) => i.id === product.id)
     assert.equal(card.image.kind, 'render')
 
     const page = await client.get(`/shop/${product.id}/desk-organizer`).headers(inertia)

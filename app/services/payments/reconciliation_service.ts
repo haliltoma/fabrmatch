@@ -10,7 +10,7 @@ export interface Discrepancy {
     | 'negative_balance'
     | 'cash_mismatch'
     | 'payout_overdue'
-  orderId: number | null
+  orderId: string | null
   detail: string
 }
 
@@ -32,7 +32,7 @@ export default class ReconciliationService {
 
     // ledger invariants (X-7): every transaction balances per currency, no account goes negative
     const unbalanced = await db.rawQuery(
-      `select transaction_id, currency, min(order_id) as order_id,
+      `select transaction_id, currency, (array_agg(order_id order by created_at))[1] as order_id,
               sum(case when direction = 'debit' then amount_minor else -amount_minor end) as net
          from ledger_entries
         group by transaction_id, currency
@@ -41,7 +41,7 @@ export default class ReconciliationService {
     for (const row of unbalanced.rows as Array<{
       transaction_id: string
       currency: string
-      order_id: number | null
+      order_id: string | null
       net: string
     }>) {
       found.push({
@@ -67,7 +67,7 @@ export default class ReconciliationService {
                        then amount_minor else -amount_minor end) < 0`
     )
     for (const row of negative.rows as Array<{
-      order_id: number
+      order_id: string
       account: string
       currency: string
       balance: string
@@ -89,7 +89,7 @@ export default class ReconciliationService {
        having sum(case when direction = 'credit' then amount_minor else -amount_minor end) < 0`
     )
     for (const row of wallets.rows as Array<{
-      wallet_user_id: number
+      wallet_user_id: string
       currency: string
       balance: string
     }>) {
@@ -115,7 +115,7 @@ export default class ReconciliationService {
         group by p.order_id`
     )
     for (const row of rows.rows as Array<{
-      order_id: number
+      order_id: string
       captured: string
       paid_out: string
       charged_back: string
@@ -139,7 +139,7 @@ export default class ReconciliationService {
           and (select coalesce(sum(case when direction = 'credit' then amount_minor else -amount_minor end), 0)
                  from ledger_entries where order_id = o.id and account = 'buyer_escrow') > 0`
     )
-    for (const row of overdue.rows as Array<{ id: number }>) {
+    for (const row of overdue.rows as Array<{ id: string }>) {
       found.push({
         kind: 'payout_overdue',
         orderId: row.id,
@@ -152,7 +152,7 @@ export default class ReconciliationService {
       await AuditLog.create({
         action: 'reconcile.discrepancy',
         subjectType: d.orderId ? 'order' : 'ledger',
-        subjectId: d.orderId ?? 0,
+        subjectId: d.orderId ?? null,
         meta: { kind: d.kind, detail: d.detail },
       })
     }

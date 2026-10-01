@@ -4,12 +4,12 @@ import vine from '@vinejs/vine'
 const CURRENCIES = ['TRY', 'USD', 'EUR', 'GBP'] as const
 
 export const createOrderValidator = vine.create({
-  modelFileId: vine.number().positive().withoutDecimals(),
+  modelFileId: vine.string().uuid(),
   material: vine.string().trim().toUpperCase().maxLength(32),
   color: vine.string().trim().toLowerCase().maxLength(32).optional(),
   quantity: vine.number().min(1).max(1000).withoutDecimals(),
   infill: vine.number().min(0.05).max(1).optional(),
-  printProfileId: vine.number().positive().withoutDecimals().optional(),
+  printProfileId: vine.string().uuid().optional(),
   finishing: vine.string().trim().toUpperCase().maxLength(32).optional(),
   finishingColour: vine.string().trim().maxLength(40).optional(),
   currency: vine.enum(CURRENCIES).optional(),
@@ -101,11 +101,11 @@ export const addressRules = () =>
   })
 
 export const cartAddValidator = vine.create({
-  modelFileId: vine.number().positive().withoutDecimals(),
+  modelFileId: vine.string().uuid(),
   material: vine.string().trim().toUpperCase().maxLength(32),
   quantity: vine.number().min(1).max(1000).withoutDecimals(),
   infill: vine.number().min(0.05).max(1).optional(),
-  printProfileId: vine.number().positive().withoutDecimals().optional(),
+  printProfileId: vine.string().uuid().optional(),
   finishing: vine.string().trim().toUpperCase().maxLength(32).optional(),
   finishingColour: vine.string().trim().maxLength(40).optional(),
   color: vine.string().trim().maxLength(40).optional(),

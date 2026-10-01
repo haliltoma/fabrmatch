@@ -233,7 +233,7 @@ export class FakeShopify {
     }
   }
 
-  connection(sellerUserId = 0) {
+  connection(sellerUserId = '00000000-0000-7000-8000-000000000000') {
     const encryption = new EncryptionService()
     return new StoreConnection().merge({
       sellerUserId,
@@ -398,7 +398,7 @@ export class FakeWoo {
     return { body, headers: { 'x-wc-webhook-signature': signature } }
   }
 
-  connection(sellerUserId = 0) {
+  connection(sellerUserId = '00000000-0000-7000-8000-000000000000') {
     const encryption = new EncryptionService()
     return new StoreConnection().merge({
       sellerUserId,
@@ -640,7 +640,7 @@ export class FakeEtsy {
     })
   }
 
-  connection(sellerUserId = 0) {
+  connection(sellerUserId = '00000000-0000-7000-8000-000000000000') {
     const encryption = new EncryptionService()
     const access = `${this.userId}.seed${++this.seq}`
     const refresh = `${this.userId}.seedrefresh${++this.seq}`

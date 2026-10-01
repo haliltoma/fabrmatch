@@ -14,6 +14,7 @@ import {
   createStorefrontProduct,
   createUser,
 } from '#tests/helpers/order_fixtures'
+import { uid } from '#tests/helpers/ids'
 
 function binaryStl(triangles = 1) {
   const buf = Buffer.alloc(84 + triangles * 50)
@@ -152,7 +153,7 @@ test.group('reports and moderation', (group) => {
       /already reported/
     )
     await assert.rejects(
-      () => service.report(reporter.id, { sellerProductId: 999999, reason: 'other' }),
+      () => service.report(reporter.id, { sellerProductId: uid(999999), reason: 'other' }),
       ContentReportError
     )
     const open = await service.listOpen()

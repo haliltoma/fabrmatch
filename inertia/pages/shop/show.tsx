@@ -18,7 +18,7 @@ import { ProductGallery, type ShopImage } from '~/components/product_image'
 import { PaintColourField, type PaintColour } from '~/components/paint_colour'
 
 type Product = {
-  id: number
+  id: string
   slug: string
   title: string
   description: string | null
@@ -46,7 +46,7 @@ type Product = {
   productionDays: number
 }
 
-function ReportListing({ productId }: { productId: number }) {
+function ReportListing({ productId }: { productId: string }) {
   const { t } = useT()
   const [open, setOpen] = useState(false)
   const [reason, setReason] = useState('weapon')
@@ -145,7 +145,7 @@ export default function ShopShow({
   }
 }) {
   const { t } = useT()
-  const { props } = usePage<{ user?: { id: number } | null; siteUrl?: string }>()
+  const { props } = usePage<{ user?: { id: string } | null; siteUrl?: string }>()
   const idem = useIdempotencyKey()
   const needsTerms = useLegalAcceptance()
   const [accepted, setAccepted] = useState(false)

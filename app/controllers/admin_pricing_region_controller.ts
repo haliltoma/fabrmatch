@@ -61,11 +61,7 @@ export default class AdminPricingRegionController {
 
   async update({ params, request, response, session, auth }: HttpContext) {
     const data = await request.validateUsing(pricingRegionUpdateValidator)
-    await new PricingRegionAdmin().update(
-      Number(params.id),
-      toChanges(data),
-      auth.getUserOrFail().id
-    )
+    await new PricingRegionAdmin().update(params.id, toChanges(data), auth.getUserOrFail().id)
     session.flash('success', 'Saved.')
     return response.redirect().toPath('/admin/pricing-regions')
   }
@@ -73,7 +69,7 @@ export default class AdminPricingRegionController {
   async materialPrice({ params, request, response, session, auth }: HttpContext) {
     const { material, price } = await request.validateUsing(pricingRegionMaterialValidator)
     await new PricingRegionAdmin().setMaterialPrice(
-      Number(params.id),
+      params.id,
       material,
       price === null ? null : Math.round(price * 100),
       auth.getUserOrFail().id

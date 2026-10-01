@@ -6,6 +6,7 @@ import ModelFile from '#models/model_file'
 import ManufacturerProfile from '#models/manufacturer_profile'
 import User from '#models/user'
 import { DateTime } from 'luxon'
+import { uid } from '#tests/helpers/ids'
 
 test.group('FileAccessService', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
@@ -139,7 +140,7 @@ test.group('FileAccessService', (group) => {
     const grant = await service.createGrant(file, profile)
 
     // Try with wrong manufacturer ID
-    const result = await service.download(grant.id, 99999)
+    const result = await service.download(grant.id, uid(99999))
     assert.property(result, 'error')
     assert.equal((result as { error: string }).error, 'Grant not found')
   })

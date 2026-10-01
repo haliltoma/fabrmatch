@@ -52,7 +52,7 @@ export default class SliceEstimateService {
 
   /** Runs the slicer unless this (file, profile) is already answered. Used by the queue job. */
   async ensure(
-    modelFileId: number,
+    modelFileId: string,
     profileCode: string
   ): Promise<'cached' | 'sliced' | 'failed' | 'disabled'> {
     if (!this.slicer) return 'disabled'

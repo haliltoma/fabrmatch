@@ -145,17 +145,17 @@ export async function createDraftOrder(
   return { buyer: owner, file, order }
 }
 
-export async function orderStatus(orderId: number) {
+export async function orderStatus(orderId: string) {
   const order = await Order.findOrFail(orderId)
   return order.status
 }
 
-export async function offerStatus(offerId: number) {
+export async function offerStatus(offerId: string) {
   const offer = await MatchOffer.findOrFail(offerId)
   return offer.status
 }
 
-export function idsOf(candidates: Array<{ manufacturerProfileId: number }>) {
+export function idsOf(candidates: Array<{ manufacturerProfileId: string }>) {
   return candidates.map((c) => c.manufacturerProfileId)
 }
 
@@ -211,22 +211,22 @@ export async function createFundedOrder(
   }
 }
 
-export async function paymentStatus(paymentId: number) {
+export async function paymentStatus(paymentId: string) {
   const payment = await Payment.findOrFail(paymentId)
   return payment.status
 }
 
-export async function orderPaymentStatus(orderId: number) {
+export async function orderPaymentStatus(orderId: string) {
   const payment = await Payment.query().where('orderId', orderId).firstOrFail()
   return payment.status
 }
 
-export async function disputeStatus(disputeId: number) {
+export async function disputeStatus(disputeId: string) {
   const dispute = await Dispute.findOrFail(disputeId)
   return dispute.status
 }
 
-export async function disputeResponse(disputeId: number) {
+export async function disputeResponse(disputeId: string) {
   const dispute = await Dispute.findOrFail(disputeId)
   return dispute.manufacturerResponse
 }
@@ -252,7 +252,7 @@ export async function createStorefrontProduct(
     isCorporate: false,
   })
 
-  let modelFileId: number | null = null
+  let modelFileId: string | null = null
   if (options.withModel !== false) {
     const file = await createAnalyzedFile(admin, options.volumeMm3 ?? 8000)
     if (options.analyzed === false) {
@@ -393,7 +393,7 @@ export async function resetDatabase() {
 }
 
 /** Every job needs a quality-check photo before it may ship. */
-export async function addQcPhoto(jobId: number) {
+export async function addQcPhoto(jobId: string) {
   return JobQcPhoto.create({
     productionJobId: jobId,
     storageKey: `qc/${jobId}/${randomUUID()}.jpg`,
@@ -403,8 +403,8 @@ export async function addQcPhoto(jobId: number) {
 /** An approved tax and bank profile for a payee (sales model B pays only approved payees). */
 export async function approvePayee(
   type: 'manufacturer' | 'seller',
-  beneficiaryId: number,
-  userId: number,
+  beneficiaryId: string,
+  userId: string,
   taxStatus: 'company' | 'sole_proprietor' | 'simple_method' | 'home_exempt' = 'company'
 ) {
   const encryption = new EncryptionService()

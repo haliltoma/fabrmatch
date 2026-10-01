@@ -51,7 +51,7 @@ export default class AdminPayoutController {
   }
 
   /** Adds the payee's legal name and IBAN (admin only) to payout rows. */
-  private async withPayee<T extends { beneficiaryType: string; beneficiaryId: number }>(rows: T[]) {
+  private async withPayee<T extends { beneficiaryType: string; beneficiaryId: string }>(rows: T[]) {
     if (rows.length === 0) return []
     const encryption = new EncryptionService()
     const profiles = await PayeeTaxProfile.query().where((q) => {
@@ -61,7 +61,7 @@ export default class AdminPayoutController {
         )
       }
     })
-    const key = (type: string, id: number) => `${type}:${id}`
+    const key = (type: string, id: string) => `${type}:${id}`
     const byPayee = new Map(profiles.map((p) => [key(p.beneficiaryType, p.beneficiaryId), p]))
     return rows.map((row) => {
       const profile = byPayee.get(key(row.beneficiaryType, row.beneficiaryId))
@@ -80,12 +80,7 @@ export default class AdminPayoutController {
 
   async reviewProfile({ request, params, auth, response, session }: HttpContext) {
     const { decision, reason } = await request.validateUsing(decisionValidator)
-    await this.payees.review(
-      auth.getUserOrFail().id,
-      Number(params.id),
-      decision === 'approve',
-      reason
-    )
+    await this.payees.review(auth.getUserOrFail().id, params.id, decision === 'approve', reason)
     session.flash(
       'success',
       decision === 'approve' ? 'Details approved.' : 'Sent back to the payee.'
@@ -97,7 +92,7 @@ export default class AdminPayoutController {
     const { decision, reason } = await request.validateUsing(decisionValidator)
     await this.documents.reviewInvoice(
       auth.getUserOrFail().id,
-      Number(params.id),
+      params.id,
       decision === 'approve',
       reason
     )
@@ -110,27 +105,27 @@ export default class AdminPayoutController {
 
   async markPaid({ request, params, auth, response, session }: HttpContext) {
     const { reference } = await request.validateUsing(paidValidator)
-    await new PayoutService().markPaid(auth.getUserOrFail().id, Number(params.id), reference)
+    await new PayoutService().markPaid(auth.getUserOrFail().id, params.id, reference)
     session.flash('success', 'Payout marked as paid.')
     return response.redirect().toPath('/admin/payouts')
   }
 
   /** The payee's tax or exemption certificate. */
   async profileDocument({ params, response }: HttpContext) {
-    const file = await this.payees.document(Number(params.id))
+    const file = await this.payees.document(params.id)
     if (!file) return response.notFound()
     return this.sendFile(response, file)
   }
 
   /** The invoice a payee uploaded. `params.id` is the document id. */
   async invoiceFile({ params, response }: HttpContext) {
-    const file = await this.documents.file(Number(params.id))
+    const file = await this.documents.file(params.id)
     if (!file) return response.notFound()
     return this.sendFile(response, file)
   }
 
   async voucher({ params, response }: HttpContext) {
-    const html = await this.documents.voucherHtml(Number(params.id), null)
+    const html = await this.documents.voucherHtml(params.id, null)
     if (!html) return response.notFound()
     return response.header('content-type', 'text/html; charset=utf-8').send(html)
   }

@@ -4,6 +4,7 @@ import ModelFile from '#models/model_file'
 import StorefrontService, { slugify, unitPriceFor } from '#services/storefront/storefront_service'
 import OrderService, { OrderInputError } from '#services/orders/order_service'
 import { TR_ADDRESS, createStorefrontProduct, createUser } from '#tests/helpers/order_fixtures'
+import { uid } from '#tests/helpers/ids'
 
 const shop = new StorefrontService()
 
@@ -36,7 +37,7 @@ test.group('StorefrontService: visibility', (group) => {
       items.map((i) => i.id),
       [visible.product.id]
     )
-    assert.isNull(await shop.find(999_999))
+    assert.isNull(await shop.find(uid(999999)))
   })
 
   test('find() returns per-material prices and never exposes internal fields', async ({
@@ -210,7 +211,7 @@ test.group('OrderService.createStorefrontDraft', (group) => {
       )
     }
     await assert.rejects(
-      () => service.createStorefrontDraft(buyer, 999_999, { ...base, material: 'PLA' }),
+      () => service.createStorefrontDraft(buyer, uid(999999), { ...base, material: 'PLA' }),
       OrderInputError as never
     )
   })

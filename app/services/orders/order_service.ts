@@ -37,19 +37,19 @@ export interface ShippingAddress {
 }
 
 export interface CreateDraftInput {
-  modelFileId: number
+  modelFileId: string
   material: string
   technology?: PrinterTechnology
   color?: string | null
   quantity: number
   infill?: number
   /** Named quality preset; sets technology, infill and print-time factor. */
-  printProfileId?: number | null
+  printProfileId?: string | null
   finishing?: string | null
   finishingColour?: string | null
   shippingAddress: ShippingAddress
   channel?: OrderChannel
-  sellerId?: number | null
+  sellerId?: string | null
   sellerMarginBps?: number
   /** buyer's currency; TRY unless an admin enabled others */
   currency?: string
@@ -102,7 +102,7 @@ export default class OrderService {
       items: Array<Omit<CreateDraftInput, 'shippingAddress'>>
       shippingAddress: ShippingAddress
       channel?: OrderChannel
-      sellerId?: number | null
+      sellerId?: string | null
       sellerMarginBps?: number
       currency?: string
       couponCode?: string
@@ -125,7 +125,7 @@ export default class OrderService {
    */
   async createStorefrontDraft(
     buyer: User,
-    productId: number,
+    productId: string,
     input: Pick<
       CreateDraftInput,
       | 'material'
@@ -175,7 +175,7 @@ export default class OrderService {
    */
   async createSampleDraft(
     seller: User,
-    sellerProductId: number,
+    sellerProductId: string,
     input: Pick<CreateDraftInput, 'material' | 'color' | 'shippingAddress'>
   ): Promise<Order> {
     const product = await SellerProduct.query()
@@ -209,7 +209,7 @@ export default class OrderService {
   async createExternalDraft(
     seller: User,
     lines: Array<{
-      sellerProductId: number
+      sellerProductId: string
       material: string
       color: string | null
       scalePercent: number | null
@@ -274,7 +274,7 @@ export default class OrderService {
     input: {
       shippingAddress: ShippingAddress
       channel?: OrderChannel
-      sellerId?: number | null
+      sellerId?: string | null
       sellerMarginBps?: number
       minMakerTier?: number
       currency?: string
@@ -367,7 +367,7 @@ export default class OrderService {
     return JSON.parse(this.encryption.decrypt(order.shippingAddressEnc)) as ShippingAddress
   }
 
-  async findForBuyer(orderId: number, buyerId: number): Promise<Order | null> {
+  async findForBuyer(orderId: string, buyerId: string): Promise<Order | null> {
     return Order.query()
       .where('id', orderId)
       .where('buyerId', buyerId)
@@ -376,7 +376,7 @@ export default class OrderService {
       .first()
   }
 
-  async listForBuyer(buyerId: number, params: { page?: number; perPage?: number } = {}) {
+  async listForBuyer(buyerId: string, params: { page?: number; perPage?: number } = {}) {
     const { page, perPage } = pageParams(params)
     const paginator = await Order.query()
       .where('buyerId', buyerId)
@@ -392,7 +392,7 @@ export default class OrderService {
    * Rows carry no buyer or manufacturer identity — callers must use `OrderTransformer.forSeller`.
    */
   async listForSeller(
-    sellerUserId: number,
+    sellerUserId: string,
     params: { page?: number; perPage?: number; status?: OrderStatus } = {}
   ) {
     const { page, perPage } = pageParams(params)
@@ -407,7 +407,7 @@ export default class OrderService {
   }
 
   /** Status history from the audit log — safe for buyers (no actor or manufacturer data). */
-  async timeline(orderId: number): Promise<Array<{ status: OrderStatus; at: string }>> {
+  async timeline(orderId: string): Promise<Array<{ status: OrderStatus; at: string }>> {
     const logs = await AuditLog.query()
       .where('subjectType', 'order')
       .where('subjectId', orderId)
@@ -416,7 +416,7 @@ export default class OrderService {
     return logs.map((l) => ({ status: l.meta.to as OrderStatus, at: l.createdAt.toISO()! }))
   }
 
-  async cancelByBuyer(orderId: number, buyerId: number): Promise<Order> {
+  async cancelByBuyer(orderId: string, buyerId: string): Promise<Order> {
     await this.assertBuyer(orderId, buyerId)
     return this.cancelWithRefund(orderId, { actorId: buyerId, by: 'buyer' })
   }
@@ -427,9 +427,9 @@ export default class OrderService {
    * the provider refund runs after commit and is retried by the `SettleRefunds` sweep.
    */
   async cancelWithRefund(
-    orderId: number,
+    orderId: string,
     who: {
-      actorId: number | null
+      actorId: string | null
       by: 'buyer' | 'system' | 'admin'
       /** cancel only while the order is still in this status (checked under the row lock) */
       onlyFrom?: OrderStatus
@@ -496,7 +496,7 @@ export default class OrderService {
   }
 
   /** Dev-only stand-in for the payment provider (Faz 5): draft → awaiting_payment → paid. */
-  async simulatePayment(orderId: number, buyerId: number): Promise<void> {
+  async simulatePayment(orderId: string, buyerId: string): Promise<void> {
     await this.assertBuyer(orderId, buyerId)
     const sm = new OrderStateMachine()
     await db.transaction(async (trx) => {
@@ -505,7 +505,7 @@ export default class OrderService {
     })
   }
 
-  private async assertBuyer(orderId: number, buyerId: number) {
+  private async assertBuyer(orderId: string, buyerId: string) {
     const order = await Order.find(orderId)
     if (!order || order.buyerId !== buyerId) throw new OrderInputError('Order not found')
   }

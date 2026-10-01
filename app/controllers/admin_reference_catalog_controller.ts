@@ -51,7 +51,7 @@ export default class AdminReferenceCatalogController {
   async toggleMaterial({ params, request, response, auth }: HttpContext) {
     const { isActive } = await request.validateUsing(toggleValidator)
     await new ReferenceCatalogService().setMaterialActive(
-      Number(params.id),
+      params.id,
       isActive,
       auth.getUserOrFail().id
     )
@@ -60,11 +60,7 @@ export default class AdminReferenceCatalogController {
 
   async toggleColor({ params, request, response, auth }: HttpContext) {
     const { isActive } = await request.validateUsing(toggleValidator)
-    await new ReferenceCatalogService().setColorActive(
-      Number(params.id),
-      isActive,
-      auth.getUserOrFail().id
-    )
+    await new ReferenceCatalogService().setColorActive(params.id, isActive, auth.getUserOrFail().id)
     return response.redirect().toPath(BACK)
   }
 }

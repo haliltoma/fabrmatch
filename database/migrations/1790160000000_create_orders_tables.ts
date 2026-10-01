@@ -18,26 +18,14 @@ const ORDER_STATUSES = [
 export default class extends BaseSchema {
   async up() {
     this.schema.createTable('orders', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
       table.string('code', 16).notNullable().unique()
       table
         .enu('channel', ['storefront', 'shopify', 'etsy', 'rfq', 'direct'])
         .notNullable()
         .defaultTo('direct')
-      table
-        .integer('buyer_id')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('RESTRICT')
-      table
-        .integer('seller_id')
-        .unsigned()
-        .nullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('RESTRICT')
+      table.uuid('buyer_id').notNullable().references('id').inTable('users').onDelete('RESTRICT')
+      table.uuid('seller_id').nullable().references('id').inTable('users').onDelete('RESTRICT')
       table.enu('status', ORDER_STATUSES).notNullable().defaultTo('draft')
       table.string('currency', 3).notNullable().defaultTo('TRY')
       table.integer('subtotal_minor').notNullable().defaultTo(0)
@@ -58,17 +46,10 @@ export default class extends BaseSchema {
     })
 
     this.schema.createTable('order_items', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
+      table.uuid('order_id').notNullable().references('id').inTable('orders').onDelete('CASCADE')
       table
-        .integer('order_id')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('orders')
-        .onDelete('CASCADE')
-      table
-        .integer('model_file_id')
-        .unsigned()
+        .uuid('model_file_id')
         .notNullable()
         .references('id')
         .inTable('model_files')
@@ -88,28 +69,15 @@ export default class extends BaseSchema {
     })
 
     this.schema.createTable('production_jobs', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
+      table.uuid('order_id').notNullable().references('id').inTable('orders').onDelete('CASCADE')
       table
-        .integer('order_id')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('orders')
-        .onDelete('CASCADE')
-      table
-        .integer('manufacturer_profile_id')
-        .unsigned()
+        .uuid('manufacturer_profile_id')
         .notNullable()
         .references('id')
         .inTable('manufacturer_profiles')
         .onDelete('RESTRICT')
-      table
-        .integer('printer_id')
-        .unsigned()
-        .nullable()
-        .references('id')
-        .inTable('printers')
-        .onDelete('SET NULL')
+      table.uuid('printer_id').nullable().references('id').inTable('printers').onDelete('SET NULL')
       table
         .enu('status', ['accepted', 'printing', 'produced', 'shipped', 'delivered', 'cancelled'])
         .notNullable()
@@ -134,28 +102,15 @@ export default class extends BaseSchema {
     )
 
     this.schema.createTable('match_offers', (table) => {
-      table.increments('id')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
+      table.uuid('order_id').notNullable().references('id').inTable('orders').onDelete('CASCADE')
       table
-        .integer('order_id')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('orders')
-        .onDelete('CASCADE')
-      table
-        .integer('manufacturer_profile_id')
-        .unsigned()
+        .uuid('manufacturer_profile_id')
         .notNullable()
         .references('id')
         .inTable('manufacturer_profiles')
         .onDelete('CASCADE')
-      table
-        .integer('printer_id')
-        .unsigned()
-        .nullable()
-        .references('id')
-        .inTable('printers')
-        .onDelete('SET NULL')
+      table.uuid('printer_id').nullable().references('id').inTable('printers').onDelete('SET NULL')
       table.date('slot_date').nullable()
       table.integer('round').notNullable()
       table.float('score').notNullable().defaultTo(0)
@@ -174,17 +129,11 @@ export default class extends BaseSchema {
     })
 
     this.schema.createTable('audit_logs', (table) => {
-      table.increments('id')
-      table
-        .integer('actor_id')
-        .unsigned()
-        .nullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('SET NULL')
+      table.uuid('id').primary().defaultTo(this.raw('uuid_generate_v7()'))
+      table.uuid('actor_id').nullable().references('id').inTable('users').onDelete('SET NULL')
       table.string('action', 64).notNullable()
       table.string('subject_type', 64).notNullable()
-      table.integer('subject_id').notNullable()
+      table.uuid('subject_id').nullable()
       table.jsonb('meta').notNullable().defaultTo('{}')
       table.timestamp('created_at').notNullable()
 

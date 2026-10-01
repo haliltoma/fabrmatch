@@ -7,7 +7,7 @@ import { ProductThumb, type ShopImage } from '~/components/product_image'
 import { useT } from '~/lib/i18n'
 
 export type HomeProduct = {
-  id: number
+  id: string
   slug: string
   title: string
   materials: string[]

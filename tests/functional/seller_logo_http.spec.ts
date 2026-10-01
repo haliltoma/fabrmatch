@@ -68,7 +68,7 @@ test.group('seller logo on the packing card (R4-T13)', (group) => {
 
     await upload(await file('logo.png', PNG))
     profile = await SellerProfile.findByOrFail('userId', shop.sellerUser.id)
-    assert.match(profile.logoKey ?? '', /^branding\/\d+\/.+\.png$/)
+    assert.match(profile.logoKey ?? '', /^branding\/[0-9a-f-]{36}\/.+\.png$/)
 
     const page = await client.get('/seller/branding').headers(inertia).loginAs(shop.sellerUser)
     assert.isTrue(page.body().props.hasLogo)

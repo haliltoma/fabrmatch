@@ -14,17 +14,17 @@ import { EmptyState } from '~/components/empty_state'
 import { useT } from '~/lib/i18n'
 
 type ProductData = {
-  id: number
+  id: string
   title: string
   description: string | null
   currency: string
   marginBps: number
   status: string
-  catalogProduct: { id: number; title: string } | null
+  catalogProduct: { id: string; title: string } | null
 }
 
 type CatalogOption = {
-  id: number
+  id: string
   title: string
   allowedMaterials: string[]
 }
@@ -41,7 +41,7 @@ function MarginPreview({
   catalogProductId,
   marginPercent,
 }: {
-  catalogProductId: number | null
+  catalogProductId: string | null
   marginPercent: string
 }) {
   const { t } = useT()
@@ -96,7 +96,7 @@ function MarginPreview({
   )
 }
 
-function SampleOrderForm({ productId, onClose }: { productId: number; onClose: () => void }) {
+function SampleOrderForm({ productId, onClose }: { productId: string; onClose: () => void }) {
   const { t } = useT()
 
   const [a, setA] = useState({
@@ -195,7 +195,7 @@ function AddProductForm({
   function onCatalogChange(catId: string) {
     form.setData('catalogProductId', catId)
     if (catId) {
-      const cat = catalogProducts.find((c) => c.id === Number(catId))
+      const cat = catalogProducts.find((c) => c.id === catId)
       if (cat) form.setData('title', cat.title)
     }
   }
@@ -271,7 +271,7 @@ function AddProductForm({
         </p>
       </div>
       <MarginPreview
-        catalogProductId={form.data.catalogProductId ? Number(form.data.catalogProductId) : null}
+        catalogProductId={form.data.catalogProductId || null}
         marginPercent={form.data.marginPercent}
       />
       <Button type="submit" disabled={form.processing}>
@@ -297,7 +297,7 @@ export default function SellerProductsIndex({
   const { t } = useT()
 
   const [showAdd, setShowAdd] = useState(false)
-  const [sampleFor, setSampleFor] = useState<number | null>(null)
+  const [sampleFor, setSampleFor] = useState<string | null>(null)
 
   return (
     <div className="space-y-6">

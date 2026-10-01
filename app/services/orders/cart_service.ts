@@ -15,9 +15,9 @@ const MAX_LINES = 20
 const MAX_QUANTITY = 1000
 
 export interface CartLineInput {
-  modelFileId: number
+  modelFileId: string
   material: string
-  printProfileId?: number | null
+  printProfileId?: string | null
   finishing?: string | null
   /** paint colour for a finishing that needs one */
   finishingColour?: string | null
@@ -83,7 +83,7 @@ export default class CartService {
     })
   }
 
-  async setQuantity(user: User, itemId: number, quantity: number) {
+  async setQuantity(user: User, itemId: string, quantity: number) {
     if (!Number.isInteger(quantity) || quantity < 1 || quantity > MAX_QUANTITY) {
       throw new CartError(`Quantity must be between 1 and ${MAX_QUANTITY}`)
     }
@@ -93,11 +93,11 @@ export default class CartService {
     await item.save()
   }
 
-  async remove(user: User, itemId: number) {
+  async remove(user: User, itemId: string) {
     await CartItem.query().where('id', itemId).where('userId', user.id).delete()
   }
 
-  async count(userId: number): Promise<number> {
+  async count(userId: string): Promise<number> {
     const row = await CartItem.query().where('userId', userId).sum('quantity as n').first()
     return Number(row?.$extras.n ?? 0)
   }

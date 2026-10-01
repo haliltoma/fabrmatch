@@ -12,7 +12,7 @@ export interface ProductReviews {
  * shown without any buyer or maker identity (business rule 1). Only completed orders count.
  */
 export default class ReviewService {
-  async forListing(sellerProductId: number, limit = 5): Promise<ProductReviews> {
+  async forListing(sellerProductId: string, limit = 5): Promise<ProductReviews> {
     const base = () =>
       db
         .from('production_jobs as pj')
@@ -52,7 +52,7 @@ export default class ReviewService {
    * How many times this listing was bought and paid for (cancelled and unpaid orders excluded).
    * Shown on the product page as social proof once it reaches SOLD_COUNT_MIN.
    */
-  async soldCount(sellerProductId: number): Promise<number> {
+  async soldCount(sellerProductId: string): Promise<number> {
     const row = await db
       .from('orders as o')
       .join('order_items as oi', 'oi.order_id', 'o.id')

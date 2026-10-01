@@ -54,14 +54,14 @@ export default class SellerProductService {
     await product.save()
   }
 
-  async listForProfile(profileId: number): Promise<SellerProduct[]> {
+  async listForProfile(profileId: string): Promise<SellerProduct[]> {
     return SellerProduct.query()
       .where('sellerProfileId', profileId)
       .preload('catalogProduct')
       .orderBy('createdAt', 'desc')
   }
 
-  async findForProfile(productId: number, profileId: number): Promise<SellerProduct | null> {
+  async findForProfile(productId: string, profileId: string): Promise<SellerProduct | null> {
     return SellerProduct.query()
       .where('id', productId)
       .where('sellerProfileId', profileId)

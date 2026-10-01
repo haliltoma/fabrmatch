@@ -117,7 +117,7 @@ export default class GrowthService {
         where mp.status = 'active' and mp.created_at >= ?`,
       [now.minus({ days: cohortDays }).toSQL()!]
     )
-    const rows = result.rows as Array<{ id: number; created_at: Date; ready_at: Date | null }>
+    const rows = result.rows as Array<{ id: string; created_at: Date; ready_at: Date | null }>
     const ready = rows.filter((r) => r.ready_at !== null)
     const withinTarget = ready.filter(
       (r) =>

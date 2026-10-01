@@ -5,7 +5,7 @@ import Order from '#models/order'
 import RoleService from '#services/identity/role_service'
 import { TR_ADDRESS, createStorefrontProduct, createUser } from '#tests/helpers/order_fixtures'
 
-async function orderCount(buyerId: number) {
+async function orderCount(buyerId: string) {
   const row = await Order.query().where('buyerId', buyerId).count('* as n').first()
   return Number(row?.$extras.n ?? 0)
 }

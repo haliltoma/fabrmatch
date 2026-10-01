@@ -5,7 +5,7 @@ import ModelFile from '#models/model_file'
 import { createCatalogProductValidator, updateCatalogProductValidator } from '#validators/catalog'
 
 /** Storefront orders are produced from this file, so it must be analyzed, printable and the admin's own. */
-async function usableModelFile(fileId: number, adminId: number) {
+async function usableModelFile(fileId: string, adminId: string) {
   const file = await ModelFile.query()
     .where('id', fileId)
     .where('ownerId', adminId)

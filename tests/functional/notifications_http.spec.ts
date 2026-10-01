@@ -4,16 +4,17 @@ import Notification from '#models/notification'
 import NotificationService from '#services/notifications/notification_service'
 import RoleService from '#services/identity/role_service'
 import { createUser } from '#tests/helpers/order_fixtures'
+import { uid } from '#tests/helpers/ids'
 
 const INERTIA = { 'x-inertia': 'true', 'x-inertia-version': '1', 'accept': 'application/json' }
 const service = new NotificationService()
 
-async function seed(userId: number, key: string) {
+async function seed(userId: string, key: string) {
   await service.notify({
     userId,
     type: 'order_cancelled',
     role: 'buyer',
-    context: { code: `FO-${key}`, orderId: 7 },
+    context: { code: `FO-${key}`, orderId: uid(7) },
     eventKey: `http:${key}`,
   })
   return Notification.query().where('userId', userId).where('eventKey', `http:${key}`).firstOrFail()
@@ -52,7 +53,7 @@ test.group('notification endpoints', (group) => {
 
     const ok = await client.get(`/notifications/${mine.id}/open`).loginAs(me).redirects(0)
     ok.assertStatus(302)
-    assert.equal(ok.header('location'), '/orders/7')
+    assert.equal(ok.header('location'), `/orders/${uid(7)}`)
     const mineAfter = await Notification.findOrFail(mine.id)
     assert.isNotNull(mineAfter.readAt)
 

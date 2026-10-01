@@ -5,8 +5,8 @@ import AuditSearchService from '#services/admin/audit_search_service'
 const validator = vine.create({
   action: vine.string().trim().maxLength(80).optional(),
   subjectType: vine.string().trim().maxLength(40).optional(),
-  subjectId: vine.number().withoutDecimals().min(0).optional(),
-  actorId: vine.number().withoutDecimals().min(1).optional(),
+  subjectId: vine.string().uuid().optional(),
+  actorId: vine.string().uuid().optional(),
   from: vine.string().trim().maxLength(10).optional(),
   to: vine.string().trim().maxLength(10).optional(),
   page: vine.number().withoutDecimals().min(1).optional(),
