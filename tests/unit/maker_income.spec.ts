@@ -1,10 +1,7 @@
 import { test } from '@japa/runner'
 import { estimateMakerIncome } from '#services/pricing/maker_income'
-import {
-  DEFAULT_HOURLY_RATE_MINOR,
-  DEFAULT_MANUFACTURER_PROFIT_BPS,
-  GRAMS_PER_PRINT_HOUR,
-} from '#services/pricing/price_engine'
+import { GRAMS_PER_PRINT_HOUR, referenceCostProfile } from '#services/pricing/price_engine'
+import { makerCost } from '#services/pricing/maker_cost'
 
 test.group('maker income estimator (M1-T4)', () => {
   test('one printer, 10 h a day, 40% busy, 0.50 TRY/g', ({ assert }) => {
@@ -15,10 +12,11 @@ test.group('maker income estimator (M1-T4)', () => {
       pricePerGramMinor: 50,
     })
     assert.equal(e.printHoursPerMonth, 120)
-    const material = Math.ceil(GRAMS_PER_PRINT_HOUR * 50)
-    const perHour = Math.ceil(
-      (material + DEFAULT_HOURLY_RATE_MINOR) * (1 + DEFAULT_MANUFACTURER_PROFIT_BPS / 10_000)
-    )
+    // one print hour of the reference maker (admin settings), material at the visitor's price
+    const perHour = makerCost(
+      { ...referenceCostProfile(50), setupMinor: 0 },
+      { grams: GRAMS_PER_PRINT_HOUR, minutes: 60 }
+    ).floorMinor
     assert.equal(e.perPrintHourMinor, perHour)
     assert.equal(e.monthlyMinor, perHour * 120)
     assert.equal(e.gramsPerMonth, 120 * GRAMS_PER_PRINT_HOUR)
@@ -34,7 +32,7 @@ test.group('maker income estimator (M1-T4)', () => {
       pricePerGramMinor: 60,
     })
     assert.approximately(
-      base.materialMinor + base.machineMinor + base.profitMinor,
+      base.materialMinor + base.machineMinor + base.allowanceMinor + base.profitMinor,
       base.monthlyMinor,
       2
     )

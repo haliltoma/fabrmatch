@@ -4,8 +4,10 @@ import {
   calculatePrice,
   estimateGrams,
   estimatePrintMinutes,
+  referenceCostProfile,
   type PriceInput,
 } from '#services/pricing/price_engine'
+import { makerCost } from '#services/pricing/maker_cost'
 
 test.group('PriceEngine', () => {
   test('estimateGrams for PLA 20mm cube (8000 mm³)', ({ assert }) => {
@@ -146,7 +148,7 @@ test.group('PriceEngine', () => {
       quantity: 1,
       sellerMarginBps: 2000,
       commissionBps: 500, // 5%
-      manufacturerProfitBps: 2000, // 20%
+      costProfile: { ...referenceCostProfile(50), profitBps: 2000 },
     })
 
     // Lower commission = lower total vs default 10%
@@ -159,6 +161,25 @@ test.group('PriceEngine', () => {
     })
 
     assert.isBelow(result.platformCommissionMinor, defaultResult.platformCommissionMinor)
+  })
+
+  test('the maker share is the reference maker of the admin settings (Paket V)', ({ assert }) => {
+    const result = calculatePrice({
+      volumeMm3: 8000,
+      material: 'PLA',
+      pricePerGramMinor: 50,
+      quantity: 1,
+      sellerMarginBps: 0,
+      estGrams: 100,
+      estPrintMinutes: 300,
+    })
+    const expected = makerCost(referenceCostProfile(50), { grams: 100, minutes: 300 })
+    assert.equal(result.manufacturerShareMinor, expected.floorMinor)
+    // the share pays cost plus at least the minimum profit
+    assert.isAtLeast(
+      result.manufacturerShareMinor,
+      Math.floor((expected.costMinor * (10_000 + fabrmatchConfig.makerPay.minProfitBps)) / 10_000)
+    )
   })
 
   test('default commission comes from config/fabrmatch.ts (single source of truth)', ({

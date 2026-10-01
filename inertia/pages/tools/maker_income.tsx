@@ -14,6 +14,7 @@ type Estimate = {
   perPrintHourMinor: number
   materialMinor: number
   machineMinor: number
+  allowanceMinor: number
   profitMinor: number
   monthlyMinor: number
 }
@@ -158,6 +159,12 @@ function MakerIncome({
                     <dt className="text-ink-600">{t('Machine time')}</dt>
                     <dd>
                       <Price minor={estimate.machineMinor} />
+                    </dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-ink-600">{t('Allowance for failed prints')}</dt>
+                    <dd>
+                      <Price minor={estimate.allowanceMinor} />
                     </dd>
                   </div>
                   <div className="flex justify-between">

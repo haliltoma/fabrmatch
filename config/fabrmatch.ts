@@ -70,11 +70,22 @@ const fabrmatchConfig = {
     homeExemptAnnualCapMinor: 190_000_000,
   },
   pricing: {
-    commissionBps: 1500,
+    // Paket V (docs/PAKET_V_TARTISMA.md): makers earn cost + 25–30 %, so the platform takes 10 %
+    commissionBps: 1000,
     // buffer added to the mid rate so a rate move between pricing and payout does not cost us
     fxMarginBps: 300,
     // a stored rate older than this is not used to price an order
     fxMaxAgeHours: 72,
+  },
+  // Paket V: what a maker earns (cost × (1 + profit)) and the reference maker the platform prices
+  // with until makers' own cost profiles take over. All editable in /admin/settings.
+  makerPay: {
+    minProfitBps: 2500,
+    maxProfitBps: 3000,
+    referenceHourlyRateMinor: 5000,
+    referenceSetupMinor: 0,
+    referenceWasteBps: 1000,
+    referenceFailureBps: 500,
   },
 }
 

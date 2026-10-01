@@ -921,6 +921,27 @@ export const tr: Record<string, string> = {
   'How it adds up': 'Nasıl toplanıyor',
   'Material at your price': 'Senin fiyatınla malzeme',
   'Machine time': 'Makine süresi',
+  'Maker pay': 'Üretici ödemesi',
+  'Maker profit: minimum': 'Üretici kârı: en az',
+  'Every maker earns at least this on top of their own costs. Makers can raise their own profit up to the maximum below.':
+    'Her üretici kendi maliyetinin üstüne en az bu kadar kazanır. Üretici kendi kârını aşağıdaki en yüksek değere kadar artırabilir.',
+  'Maker profit: maximum': 'Üretici kârı: en çok',
+  'The highest profit a maker can choose. A higher profit means fewer orders fit their price.':
+    'Bir üreticinin seçebileceği en yüksek kâr. Kâr yükseldikçe fiyatına uyan sipariş azalır.',
+  'Reference maker: machine hour': 'Referans üretici: makine saati',
+  'Power, wear and paying off the printer, per print hour. Prices use the reference maker until makers enter their own costs.':
+    'Baskı saati başına elektrik, aşınma ve yazıcının kendini amorti etmesi. Üreticiler kendi maliyetlerini girene kadar fiyatlar referans üreticiyle hesaplanır.',
+  'Reference maker: setup per print job': 'Referans üretici: baskı işi başına hazırlık',
+  'Preparing the print, removing supports and packing, once per order line.':
+    'Baskıyı hazırlama, destekleri temizleme ve paketleme; sipariş satırı başına bir kez.',
+  'Reference maker: material waste': 'Referans üretici: malzeme firesi',
+  'Extra material lost to purging, brims and supports.':
+    'Temizleme, kenar (brim) ve desteklerle kaybedilen ek malzeme.',
+  'Reference maker: failed prints': 'Referans üretici: başarısız baskılar',
+  'Failed prints': 'Başarısız baskılar',
+  'Share of prints that fail and are printed again; the cost is spread over the good ones.':
+    'Başarısız olup yeniden basılan baskıların payı; maliyeti başarılı baskılara dağıtılır.',
+  'Allowance for failed prints': 'Başarısız baskı payı',
   'Your margin': 'Marjın',
   'Your share': 'Payın',
   'Per print hour that is': 'Baskı saati başına bu',
@@ -1167,6 +1188,8 @@ export const tr: Record<string, string> = {
   'provider ref {v2} · event {ref} · {when}': 'sağlayıcı ref. {v2} · olay {ref} · {when}',
   'Nothing was completed, paid out or refunded in {month}.':
     '{month} ayında tamamlanan, ödenen veya iade edilen bir şey yok.',
+  'Default {defaultValue}': 'Varsayılan {defaultValue}',
+  '{value}%': '%{value}',
   'Default {defaultValue} · allowed {min}–{max}':
     'Varsayılan {defaultValue} · izin verilen {min}–{max}',
   'Tüm yazılar': 'Tüm yazılar',
@@ -1573,12 +1596,11 @@ export const tr: Record<string, string> = {
 
   // admin settings (server-supplied)
   'Dispute rate below': 'İtiraz oranı şunun altında',
-  'Platform commission (basis points)': 'Platform komisyonu (baz puan)',
-  '1500 = 15%. Applies to new quotes only; orders already priced keep their fee.':
-    '1500 = %15. Yalnızca yeni tekliflere uygulanır; fiyatlanmış siparişler kendi payını korur.',
-  'Foreign-currency buffer (basis points)': 'Yabancı para tamponu (baz puan)',
-  '300 = 3%. Added to the exchange rate when a buyer pays in USD, EUR or GBP.':
-    '300 = %3. Alıcı USD, EUR veya GBP ile ödediğinde kura eklenir.',
+  'Applies to new quotes only; orders already priced keep their fee.':
+    'Yalnızca yeni tekliflere uygulanır; fiyatlanmış siparişler kendi payını korur.',
+  'Foreign-currency buffer': 'Yabancı para tamponu',
+  'Added to the exchange rate when a buyer pays in USD, EUR or GBP.':
+    'Alıcı USD, EUR veya GBP ile ödediğinde kura eklenir.',
   'Exchange rate: longest age (hours)': 'Döviz kuru: en uzun yaş (saat)',
   'Orders in a foreign currency are refused when the stored rate is older than this.':
     'Saklanan kur bundan eskiyse yabancı para birimindeki siparişler reddedilir.',
@@ -1614,44 +1636,42 @@ export const tr: Record<string, string> = {
     '2. kademe için gereken teslim edilmiş iş (daha uzun, sınırsız dosya erişimi).',
   'Trusted tier: average rating': 'Güvenilir kademe: ortalama puan',
   'Buyer rating (1–5) needed for tier 2.': '2. kademe için gereken alıcı puanı (1–5).',
-  'New makers: largest order (minor units)': 'Yeni üreticiler: en büyük sipariş (kuruş)',
-  '150000 = 1,500.00 TRY. Bigger orders wait for a verified maker.':
-    '150000 = 1.500,00 TRY. Daha büyük siparişler doğrulanmış bir üreticiyi bekler.',
-  'Verified makers: largest order (minor units)':
-    'Doğrulanmış üreticiler: en büyük sipariş (kuruş)',
+  'New makers: largest order': 'Yeni üreticiler: en büyük sipariş',
+  'Bigger orders wait for a verified maker.':
+    'Daha büyük siparişler doğrulanmış bir üreticiyi bekler.',
+  'Verified makers: largest order': 'Doğrulanmış üreticiler: en büyük sipariş',
   'Orders above this need a trusted (tier 2) maker.':
     'Bunun üzerindeki siparişler güvenilir (2. kademe) bir üretici gerektirir.',
-  'Trusted makers: largest order (minor units)': 'Güvenilir üreticiler: en büyük sipariş (kuruş)',
+  'Trusted makers: largest order': 'Güvenilir üreticiler: en büyük sipariş',
   'Orders above this go to partners (tier 3) only.':
     'Bunun üzerindeki siparişler yalnızca ortaklara (3. kademe) gider.',
   'New account window (hours)': 'Yeni hesap süresi (saat)',
   'Accounts younger than this are "new" for the high-value rule.':
     'Bundan genç hesaplar yüksek tutar kuralı için "yeni" sayılır.',
-  'New account: largest order without review (minor units)':
-    'Yeni hesap: incelemesiz en büyük sipariş (kuruş)',
+  'New account: largest order without review': 'Yeni hesap: incelemesiz en büyük sipariş',
   'Bigger orders from a new account wait for manual review before matching.':
     'Yeni bir hesabın daha büyük siparişleri eşleşmeden önce elle inceleme bekler.',
   'Orders per hour before a review flag': 'İnceleme bayrağı öncesi saatlik sipariş',
   'One buyer paying for this many orders in an hour is flagged.':
     'Bir alıcının bir saatte bu kadar sipariş ödemesi işaretlenir.',
   'Feature: shop integrations (Etsy, Shopify)': 'Özellik: mağaza entegrasyonları (Etsy, Shopify)',
-  '1 shows the feature, 0 hides it everywhere.': '1 özelliği gösterir, 0 her yerde gizler.',
+  'On shows the feature, off hides it everywhere.':
+    'Açık özelliği gösterir, kapalı her yerde gizler.',
   'Feature: quote requests (RFQ)': 'Özellik: fiyat talepleri (RFQ)',
   'Feature: cross-border orders': 'Özellik: sınır ötesi siparişler',
   'Feature: pay in USD': 'Özellik: USD ile ödeme',
-  '1 lets buyers pay in USD. Only turn on when the payment provider settles it.':
-    '1, alıcıların USD ile ödemesine izin verir. Yalnızca ödeme sağlayıcı bunu kapatıyorsa aç.',
+  'Lets buyers pay in USD. Only turn on when the payment provider settles it.':
+    'Alıcıların USD ile ödemesine izin verir. Yalnızca ödeme sağlayıcı bunu kapatıyorsa aç.',
   'Feature: pay in EUR': 'Özellik: EUR ile ödeme',
-  '1 lets buyers pay in EUR. Only turn on when the payment provider settles it.':
-    '1, alıcıların EUR ile ödemesine izin verir. Yalnızca ödeme sağlayıcı bunu kapatıyorsa aç.',
+  'Lets buyers pay in EUR. Only turn on when the payment provider settles it.':
+    'Alıcıların EUR ile ödemesine izin verir. Yalnızca ödeme sağlayıcı bunu kapatıyorsa aç.',
   'Feature: pay in GBP': 'Özellik: GBP ile ödeme',
-  '1 lets buyers pay in GBP. Only turn on when the payment provider settles it.':
-    '1, alıcıların GBP ile ödemesine izin verir. Yalnızca ödeme sağlayıcı bunu kapatıyorsa aç.',
-  'Invite reward per person (minor units, TRY)': 'Kişi başı davet ödülü (kuruş, TRY)',
-  '5000 = 50.00 TRY coupon for the friend and for the member who invited them. The platform fee of the order still caps the discount.':
-    '5000 = arkadaş ve davet eden üye için 50,00 TRY kupon. İndirim yine siparişin platform payıyla sınırlıdır.',
-  'Invite reward: friend’s first order at least (minor units)':
-    'Davet ödülü: arkadaşın ilk siparişi en az (kuruş)',
+  'Lets buyers pay in GBP. Only turn on when the payment provider settles it.':
+    'Alıcıların GBP ile ödemesine izin verir. Yalnızca ödeme sağlayıcı bunu kapatıyorsa aç.',
+  'Invite reward per person': 'Kişi başı davet ödülü',
+  'A coupon of this amount for the friend and for the member who invited them. The platform fee of the order still caps the discount.':
+    'Arkadaş ve davet eden üye için bu tutarda kupon. İndirim yine siparişin platform payıyla sınırlıdır.',
+  'Invite reward: friend’s first order at least': 'Davet ödülü: arkadaşın ilk siparişi en az',
   'Rewards are paid only when the friend’s first completed order reaches this total.':
     'Ödüller yalnızca arkadaşın ilk tamamlanan siparişi bu toplama ulaşınca verilir.',
   'Invite rewards one member can earn': 'Bir üyenin kazanabileceği davet ödülü sayısı',
@@ -1661,7 +1681,7 @@ export const tr: Record<string, string> = {
   'How long a reward coupon stays valid after it is issued.':
     'Bir ödül kuponunun verildikten sonra ne kadar geçerli kaldığı.',
   'Feature: invite a friend': 'Özellik: arkadaşını davet et',
-  '1 turns the program on. Publish the terms first.': '1 programı açar. Önce şartları yayınla.',
+  'Turns the program on. Publish the terms first.': 'Programı açar. Önce şartları yayınla.',
   'Invite rewards': 'Davet ödülleri',
   'Referral': 'Davet',
   'Admins must turn on two-factor authentication before using the admin panel.':
@@ -2254,7 +2274,7 @@ export const tr: Record<string, string> = {
   'This maker is no longer eligible for the order': 'Bu üretici artık bu sipariş için uygun değil',
   'An offer is already out for this order': 'Bu sipariş için zaten gönderilmiş bir teklif var',
   'This order is not waiting for a maker': 'Bu sipariş üretici beklemiyor',
-  'Automatic matching (0 = off, 1 = on)': 'Otomatik eşleştirme (0 = kapalı, 1 = açık)',
+  'Automatic matching': 'Otomatik eşleştirme',
   'Off: every paid order waits in Matching until an admin picks the maker. On: offers go out by score.':
     'Kapalı: ödenen her sipariş, admin üreticiyi seçene kadar Eşleştirme sayfasında bekler. Açık: teklifler puana göre gider.',
   'Automatic matching is on. Waiting orders got their offers.':
@@ -2528,13 +2548,12 @@ export const tr: Record<string, string> = {
   'submitted': 'gönderildi',
   'Payouts and tax': 'Ödemeler ve vergi',
   'Payout details and invoices': 'Ödeme bilgileri ve faturalar',
-  'Withholding on home producers (basis points)': 'Evde üretenlerden tevkifat (baz puan)',
-  '200 = 2%. Income tax Fabrmatch withholds on the expense voucher of a maker with the home-production exemption (GVK 94/13). Confirm the rate with the accountant.':
-    "200 = %2. Fabrmatch'in evde üretim muafiyetli üreticinin gider pusulasında kestiği gelir vergisi (GVK 94/13). Oranı mali müşavirle teyit edin.",
-  'Home-production exemption: yearly limit (minor units, TRY)':
-    'Evde üretim muafiyeti: yıllık sınır (kuruş, TRY)',
-  '190000000 = 1,900,000 TRY (2026, GVK 9/6). Payouts that would take a home producer past it this calendar year stop and wait for an admin.':
-    '190000000 = 1.900.000 TRY (2026, GVK 9/6). Evde üreteni bu takvim yılında sınırın üstüne çıkaracak ödemeler durur ve yönetici bekler.',
+  'Withholding on home producers': 'Evde üretenlerden tevkifat',
+  'Income tax Fabrmatch withholds on the expense voucher of a maker with the home-production exemption (GVK 94/13). Confirm the rate with the accountant.':
+    "Fabrmatch'in evde üretim muafiyetli üreticinin gider pusulasında kestiği gelir vergisi (GVK 94/13). Oranı mali müşavirle teyit edin.",
+  'Home-production exemption: yearly limit': 'Evde üretim muafiyeti: yıllık sınır',
+  'The 2026 limit under GVK 9/6. Payouts that would take a home producer past it this calendar year stop and wait for an admin.':
+    "GVK 9/6'ya göre 2026 sınırı. Evde üreteni bu takvim yılında sınırın üstüne çıkaracak ödemeler durur ve yönetici bekler.",
   'Saved. An admin checks your details before the next payout.':
     'Kaydedildi. Bir sonraki ödemeden önce bilgileriniz kontrol edilecek.',
   'Invoice sent. We check it and add the payout to the next transfer.':

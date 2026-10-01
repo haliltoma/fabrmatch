@@ -1,4 +1,5 @@
 import fabrmatchConfig from '#config/fabrmatch'
+import { makerCost, type CostProfile } from '#services/pricing/maker_cost'
 
 /**
  * Pure price calculation engine — no I/O, no side effects.
@@ -19,11 +20,21 @@ const MATERIAL_DENSITY: Record<string, number> = {
 /** Default infill ratio (0-1) — first version uses heuristic */
 const DEFAULT_INFILL = 0.2
 
-/** Default manufacturer hourly rate in minor units (kuruş) */
-export const DEFAULT_HOURLY_RATE_MINOR = 5000 // 50 TL/h
-
-/** Default manufacturer profit margin (basis points) */
-export const DEFAULT_MANUFACTURER_PROFIT_BPS = 1500 // 15%
+/**
+ * The reference maker: the costs the platform prices with (admin settings → Maker pay). Material
+ * comes from the pricing region's price per gram; the rest is the same everywhere.
+ */
+export function referenceCostProfile(pricePerGramMinor: number): CostProfile {
+  const pay = fabrmatchConfig.makerPay
+  return {
+    materialCostPerKgMinor: pricePerGramMinor * 1000,
+    hourlyRateMinor: pay.referenceHourlyRateMinor,
+    setupMinor: pay.referenceSetupMinor,
+    wasteBps: pay.referenceWasteBps,
+    failureBps: pay.referenceFailureBps,
+    profitBps: pay.minProfitBps,
+  }
+}
 
 /** Default estimated shipping cost in minor units */
 const DEFAULT_SHIPPING_MINOR = 5000 // 50 TL
@@ -38,8 +49,8 @@ export interface PriceInput {
   /** measured by the slicer; replaces the volume-based heuristic when present */
   estGrams?: number
   infill?: number
-  manufacturerHourlyRateMinor?: number
-  manufacturerProfitBps?: number
+  /** the maker's costs; default: the reference maker for `pricePerGramMinor` */
+  costProfile?: CostProfile
   commissionBps?: number
   shippingMinor?: number
   /** post-processing per unit (TRY minor): the maker's work, so it is part of their share and earns the fee */
@@ -107,9 +118,7 @@ export function calculatePrice(input: PriceInput): PriceBreakdown {
     quantity,
     sellerMarginBps,
     infill,
-    manufacturerHourlyRateMinor = DEFAULT_HOURLY_RATE_MINOR,
-    manufacturerProfitBps = DEFAULT_MANUFACTURER_PROFIT_BPS,
-    // single source of truth: config/fabrmatch.ts (later the admin settings table)
+    // single source of truth: config/fabrmatch.ts, overridden from /admin/settings
     commissionBps = fabrmatchConfig.pricing.commissionBps,
     shippingMinor = DEFAULT_SHIPPING_MINOR,
     finishingMinor = 0,
@@ -118,16 +127,16 @@ export function calculatePrice(input: PriceInput): PriceBreakdown {
   const estGrams = input.estGrams ?? estimateGrams(volumeMm3, material, infill)
   const estPrintMinutes = input.estPrintMinutes ?? estimatePrintMinutes(estGrams)
 
-  // Material cost = est_grams × price_per_gram (minor units)
-  const materialCostMinor = Math.ceil(estGrams * pricePerGramMinor)
-
-  // Machine cost = est_print_minutes × hourly_rate / 60
-  const machineCostMinor = Math.ceil((estPrintMinutes * manufacturerHourlyRateMinor) / 60)
-
-  // Manufacturer share = (material + machine) × (1 + profit_margin)
-  const rawManufacturerShare = materialCostMinor + machineCostMinor
-  const manufacturerShareMinor =
-    Math.ceil(rawManufacturerShare * (1 + manufacturerProfitBps / 10_000)) + finishingMinor
+  // Manufacturer share = what the maker is paid per unit: cost × (1 + profit) + finishing
+  // (maker_cost.ts); setup is once per line, so each unit carries its part
+  const profile = input.costProfile ?? referenceCostProfile(pricePerGramMinor)
+  const cost = makerCost(
+    { ...profile, setupMinor: Math.ceil(profile.setupMinor / quantity) },
+    { grams: estGrams, minutes: estPrintMinutes, finishingMinor }
+  )
+  const materialCostMinor = cost.materialMinor
+  const machineCostMinor = cost.machineMinor
+  const manufacturerShareMinor = cost.floorMinor
 
   // Platform commission = manufacturer_share × commission_bps / 10000
   const platformCommissionMinor = Math.ceil((manufacturerShareMinor * commissionBps) / 10_000)

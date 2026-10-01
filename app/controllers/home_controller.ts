@@ -7,11 +7,7 @@ import GrowthService from '#services/growth/growth_service'
 import type { Attribution } from '#services/growth/attribution'
 import HomeStatsService from '#services/growth/home_stats_service'
 import MaterialPageService from '#services/marketing/material_page_service'
-import {
-  DEFAULT_HOURLY_RATE_MINOR,
-  DEFAULT_MANUFACTURER_PROFIT_BPS,
-  GRAMS_PER_PRINT_HOUR,
-} from '#services/pricing/price_engine'
+import { incomeRules } from '#services/pricing/maker_income'
 import { FAQ, faqParams } from '#services/support/faq'
 import PricingRegionService, { type BrowseTerms } from '#services/pricing/pricing_region_service'
 import { visitorCountry } from '#services/pricing/visitor_country'
@@ -46,11 +42,7 @@ export default class HomeController {
       guides: posts
         .slice(0, 3)
         .map((p) => ({ slug: p.slug, title: p.title, description: p.description, date: p.date })),
-      incomeRules: {
-        gramsPerHour: GRAMS_PER_PRINT_HOUR,
-        hourlyRateMinor: DEFAULT_HOURLY_RATE_MINOR,
-        profitBps: DEFAULT_MANUFACTURER_PROFIT_BPS,
-      },
+      incomeRules: incomeRules(),
       products: shop.items.map((p) => ({
         id: p.id,
         slug: p.slug,

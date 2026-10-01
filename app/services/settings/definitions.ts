@@ -1,8 +1,24 @@
 export interface SettingDefinition {
   key: string
-  group: 'pricing' | 'matching' | 'orders' | 'trust' | 'fraud' | 'flags' | 'referral' | 'payouts'
+  group:
+    | 'pricing'
+    | 'makerPay'
+    | 'matching'
+    | 'orders'
+    | 'trust'
+    | 'fraud'
+    | 'flags'
+    | 'referral'
+    | 'payouts'
   label: string
   help: string
+  /**
+   * How the admin screen shows and takes the value; it is always stored as the number below.
+   * percent: stored in basis points, typed as a percent (2500 → 25 %). money: stored in TRY minor
+   * units, typed in lira. toggle: 0 = off, 1 = on. choice: one of `choices`. Default: number.
+   */
+  kind?: 'number' | 'percent' | 'money' | 'toggle' | 'choice'
+  choices?: Array<{ value: number; label: string }>
   min: number
   max: number
   integer: boolean
@@ -12,18 +28,20 @@ export interface SettingDefinition {
 export const SETTING_DEFINITIONS: SettingDefinition[] = [
   {
     key: 'pricing.commissionBps',
+    kind: 'percent',
     group: 'pricing',
-    label: 'Platform commission (basis points)',
-    help: '1500 = 15%. Applies to new quotes only; orders already priced keep their fee.',
+    label: 'Platform commission',
+    help: 'Applies to new quotes only; orders already priced keep their fee.',
     min: 0,
     max: 5000,
     integer: true,
   },
   {
     key: 'pricing.fxMarginBps',
+    kind: 'percent',
     group: 'pricing',
-    label: 'Foreign-currency buffer (basis points)',
-    help: '300 = 3%. Added to the exchange rate when a buyer pays in USD, EUR or GBP.',
+    label: 'Foreign-currency buffer',
+    help: 'Added to the exchange rate when a buyer pays in USD, EUR or GBP.',
     min: 0,
     max: 2000,
     integer: true,
@@ -38,9 +56,70 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
     integer: true,
   },
   {
+    key: 'makerPay.minProfitBps',
+    group: 'makerPay',
+    kind: 'percent',
+    label: 'Maker profit: minimum',
+    help: 'Every maker earns at least this on top of their own costs. Makers can raise their own profit up to the maximum below.',
+    min: 0,
+    max: 10_000,
+    integer: true,
+  },
+  {
+    key: 'makerPay.maxProfitBps',
+    group: 'makerPay',
+    kind: 'percent',
+    label: 'Maker profit: maximum',
+    help: 'The highest profit a maker can choose. A higher profit means fewer orders fit their price.',
+    min: 0,
+    max: 10_000,
+    integer: true,
+  },
+  {
+    key: 'makerPay.referenceHourlyRateMinor',
+    group: 'makerPay',
+    kind: 'money',
+    label: 'Reference maker: machine hour',
+    help: 'Power, wear and paying off the printer, per print hour. Prices use the reference maker until makers enter their own costs.',
+    min: 0,
+    max: 1_000_000,
+    integer: true,
+  },
+  {
+    key: 'makerPay.referenceSetupMinor',
+    group: 'makerPay',
+    kind: 'money',
+    label: 'Reference maker: setup per print job',
+    help: 'Preparing the print, removing supports and packing, once per order line.',
+    min: 0,
+    max: 1_000_000,
+    integer: true,
+  },
+  {
+    key: 'makerPay.referenceWasteBps',
+    group: 'makerPay',
+    kind: 'percent',
+    label: 'Reference maker: material waste',
+    help: 'Extra material lost to purging, brims and supports.',
+    min: 0,
+    max: 5000,
+    integer: true,
+  },
+  {
+    key: 'makerPay.referenceFailureBps',
+    group: 'makerPay',
+    kind: 'percent',
+    label: 'Reference maker: failed prints',
+    help: 'Share of prints that fail and are printed again; the cost is spread over the good ones.',
+    min: 0,
+    max: 5000,
+    integer: true,
+  },
+  {
     key: 'matching.autoOffer',
+    kind: 'toggle',
     group: 'matching',
-    label: 'Automatic matching (0 = off, 1 = on)',
+    label: 'Automatic matching',
     help: 'Off: every paid order waits in Matching until an admin picks the maker. On: offers go out by score.',
     min: 0,
     max: 1,
@@ -147,17 +226,19 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
   },
   {
     key: 'trust.tier0MaxOrderMinor',
+    kind: 'money',
     group: 'trust',
-    label: 'New makers: largest order (minor units)',
-    help: '150000 = 1,500.00 TRY. Bigger orders wait for a verified maker.',
+    label: 'New makers: largest order',
+    help: 'Bigger orders wait for a verified maker.',
     min: 1000,
     max: 1_000_000_000,
     integer: true,
   },
   {
     key: 'trust.tier1MaxOrderMinor',
+    kind: 'money',
     group: 'trust',
-    label: 'Verified makers: largest order (minor units)',
+    label: 'Verified makers: largest order',
     help: 'Orders above this need a trusted (tier 2) maker.',
     min: 1000,
     max: 1_000_000_000,
@@ -165,8 +246,9 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
   },
   {
     key: 'trust.tier2MaxOrderMinor',
+    kind: 'money',
     group: 'trust',
-    label: 'Trusted makers: largest order (minor units)',
+    label: 'Trusted makers: largest order',
     help: 'Orders above this go to partners (tier 3) only.',
     min: 1000,
     max: 1_000_000_000,
@@ -183,8 +265,9 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
   },
   {
     key: 'fraud.newAccountMaxOrderMinor',
+    kind: 'money',
     group: 'fraud',
-    label: 'New account: largest order without review (minor units)',
+    label: 'New account: largest order without review',
     help: 'Bigger orders from a new account wait for manual review before matching.',
     min: 1000,
     max: 1_000_000_000,
@@ -201,71 +284,79 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
   },
   {
     key: 'flags.externalStores',
+    kind: 'toggle',
     group: 'flags',
     label: 'Feature: shop integrations (Etsy, Shopify)',
-    help: '1 shows the feature, 0 hides it everywhere.',
+    help: 'On shows the feature, off hides it everywhere.',
     min: 0,
     max: 1,
     integer: true,
   },
   {
     key: 'flags.rfq',
+    kind: 'toggle',
     group: 'flags',
     label: 'Feature: quote requests (RFQ)',
-    help: '1 shows the feature, 0 hides it everywhere.',
+    help: 'On shows the feature, off hides it everywhere.',
     min: 0,
     max: 1,
     integer: true,
   },
   {
     key: 'flags.crossBorder',
+    kind: 'toggle',
     group: 'flags',
     label: 'Feature: cross-border orders',
-    help: '1 shows the feature, 0 hides it everywhere.',
+    help: 'On shows the feature, off hides it everywhere.',
     min: 0,
     max: 1,
     integer: true,
   },
   {
     key: 'flags.currencyUsd',
+    kind: 'toggle',
     group: 'flags',
     label: 'Feature: pay in USD',
-    help: '1 lets buyers pay in USD. Only turn on when the payment provider settles it.',
+    help: 'Lets buyers pay in USD. Only turn on when the payment provider settles it.',
     min: 0,
     max: 1,
     integer: true,
   },
   {
     key: 'flags.currencyEur',
+    kind: 'toggle',
     group: 'flags',
     label: 'Feature: pay in EUR',
-    help: '1 lets buyers pay in EUR. Only turn on when the payment provider settles it.',
+    help: 'Lets buyers pay in EUR. Only turn on when the payment provider settles it.',
     min: 0,
     max: 1,
     integer: true,
   },
   {
     key: 'flags.currencyGbp',
+    kind: 'toggle',
     group: 'flags',
     label: 'Feature: pay in GBP',
-    help: '1 lets buyers pay in GBP. Only turn on when the payment provider settles it.',
+    help: 'Lets buyers pay in GBP. Only turn on when the payment provider settles it.',
     min: 0,
     max: 1,
     integer: true,
   },
   {
     key: 'referral.rewardMinor',
+    kind: 'money',
     group: 'referral',
-    label: 'Invite reward per person (minor units, TRY)',
-    help: '5000 = 50.00 TRY coupon for the friend and for the member who invited them. The platform fee of the order still caps the discount.',
+    label: 'Invite reward per person',
+    help: 'A coupon of this amount for the friend and for the member who invited them. The platform fee of the order still caps the discount.',
     min: 100,
     max: 1_000_000,
     integer: true,
   },
   {
     key: 'referral.minOrderMinor',
+    kind: 'money',
     group: 'referral',
-    label: 'Invite reward: friend’s first order at least (minor units)',
+    label: 'Invite reward: friend’s first order at least',
     help: 'Rewards are paid only when the friend’s first completed order reaches this total.',
     min: 0,
     max: 10_000_000,
@@ -291,27 +382,30 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
   },
   {
     key: 'flags.referrals',
+    kind: 'toggle',
     group: 'flags',
     label: 'Feature: invite a friend',
-    help: '1 turns the program on. Publish the terms first.',
+    help: 'Turns the program on. Publish the terms first.',
     min: 0,
     max: 1,
     integer: true,
   },
   {
     key: 'payouts.homeExemptWithholdingBps',
+    kind: 'percent',
     group: 'payouts',
-    label: 'Withholding on home producers (basis points)',
-    help: '200 = 2%. Income tax Fabrmatch withholds on the expense voucher of a maker with the home-production exemption (GVK 94/13). Confirm the rate with the accountant.',
+    label: 'Withholding on home producers',
+    help: 'Income tax Fabrmatch withholds on the expense voucher of a maker with the home-production exemption (GVK 94/13). Confirm the rate with the accountant.',
     min: 0,
     max: 2000,
     integer: true,
   },
   {
     key: 'payouts.homeExemptAnnualCapMinor',
+    kind: 'money',
     group: 'payouts',
-    label: 'Home-production exemption: yearly limit (minor units, TRY)',
-    help: '190000000 = 1,900,000 TRY (2026, GVK 9/6). Payouts that would take a home producer past it this calendar year stop and wait for an admin.',
+    label: 'Home-production exemption: yearly limit',
+    help: 'The 2026 limit under GVK 9/6. Payouts that would take a home producer past it this calendar year stop and wait for an admin.',
     min: 0,
     max: 2_000_000_000,
     integer: true,

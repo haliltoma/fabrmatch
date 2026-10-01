@@ -1,10 +1,5 @@
 import { test } from '@japa/runner'
-import { estimateMakerIncome } from '#services/pricing/maker_income'
-import {
-  DEFAULT_HOURLY_RATE_MINOR,
-  DEFAULT_MANUFACTURER_PROFIT_BPS,
-  GRAMS_PER_PRINT_HOUR,
-} from '#services/pricing/price_engine'
+import { estimateMakerIncome, incomeRules } from '#services/pricing/maker_income'
 
 test.group('home income calculator', () => {
   test('the browser formula matches the server formula', async ({ assert }) => {
@@ -18,14 +13,10 @@ test.group('home income calculator', () => {
     const { monthlyIncomeMinor } = (await import(url)) as {
       monthlyIncomeMinor: (
         input: Input,
-        rules: { gramsPerHour: number; hourlyRateMinor: number; profitBps: number }
+        rules: ReturnType<typeof incomeRules>
       ) => { monthlyMinor: number }
     }
-    const rules = {
-      gramsPerHour: GRAMS_PER_PRINT_HOUR,
-      hourlyRateMinor: DEFAULT_HOURLY_RATE_MINOR,
-      profitBps: DEFAULT_MANUFACTURER_PROFIT_BPS,
-    }
+    const rules = incomeRules()
     for (const input of [
       { printers: 1, hoursPerDay: 6, busyPercent: 40, pricePerGramMinor: 60 },
       { printers: 3, hoursPerDay: 10, busyPercent: 75, pricePerGramMinor: 45 },
