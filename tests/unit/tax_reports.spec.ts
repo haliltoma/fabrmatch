@@ -80,7 +80,11 @@ test.group('Tax reports (R7-T7)', (group) => {
     assert.include(lines[1], '10000000146')
     assert.include(lines[1], b.order.code)
     assert.include(lines[1], minorToDecimal(voucher.withholdingMinor))
-    assert.include(lines[1], ',2.00,')
+    // the rate is read back from the two rounded amounts: 2 % within a kuruş of rounding
+    const cells = lines[1].split(',')
+    const [gross, ratePercent, withheld] = cells.slice(-4, -1).map(Number)
+    assert.approximately(ratePercent, 2, 0.02)
+    assert.approximately(withheld, (gross * 2) / 100, 0.01)
 
     const purchases = await reports.purchaseInvoicesCsv(period)
     assert.include(purchases, 'MKR2026000000001')

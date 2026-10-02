@@ -51,6 +51,8 @@ export interface PriceInput {
   infill?: number
   /** the maker's costs; default: the reference maker for `pricePerGramMinor` */
   costProfile?: CostProfile
+  /** the maker share per unit when the market already fixed it (Paket V budget); finishing included */
+  manufacturerShareMinor?: number
   commissionBps?: number
   shippingMinor?: number
   /** post-processing per unit (TRY minor): the maker's work, so it is part of their share and earns the fee */
@@ -136,7 +138,7 @@ export function calculatePrice(input: PriceInput): PriceBreakdown {
   )
   const materialCostMinor = cost.materialMinor
   const machineCostMinor = cost.machineMinor
-  const manufacturerShareMinor = cost.floorMinor
+  const manufacturerShareMinor = input.manufacturerShareMinor ?? cost.floorMinor
 
   // Platform commission = manufacturer_share × commission_bps / 10000
   const platformCommissionMinor = Math.ceil((manufacturerShareMinor * commissionBps) / 10_000)

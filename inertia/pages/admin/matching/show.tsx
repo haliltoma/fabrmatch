@@ -119,6 +119,11 @@ function reasonText(r: Reason, t: ReturnType<typeof useT>['t']): string {
         price: money(r.price),
         reference: money(r.reference),
       })
+    case 'price_above_budget':
+      return t('Their price for this order is {price} TRY, above the {budget} TRY it pays', {
+        price: money(r.price),
+        budget: money(r.budget),
+      })
     case 'no_capacity':
       return t('Needs {need} min free in {days} days, best day has {free} min', {
         need: String(r.neededMinutes),

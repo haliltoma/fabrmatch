@@ -69,7 +69,8 @@ test.group('eligibility explainer', (group) => {
     assert.include(codes(of(noCapacity.profile.id)), 'no_capacity')
     assert.include(codes(of(tiny.profile.id)), 'too_small')
     assert.include(codes(of(petgOnly.profile.id)), 'material_missing')
-    assert.include(codes(of(pricey.profile.id)), 'price_above_reference')
+    // a market-priced order (Paket V): their own price for the whole order is above its budget
+    assert.include(codes(of(pricey.profile.id)), 'price_above_budget')
     assert.include(codes(of(noPrinter.profile.id)), 'no_printer')
     assert.isTrue(of(noPrinter.profile.id)!.blocked)
     assert.include(codes(of(idle.profile.id)), 'no_active_printer')

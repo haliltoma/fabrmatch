@@ -117,7 +117,14 @@ export default class PayoutService {
     })
     const platformFee = order.platformFeeMinor
     const sellerShare = order.sellerId ? order.sellerShareMinor : 0
-    const manufacturerShare = escrow - platformFee - sellerShare
+    const makersPart = escrow - platformFee - sellerShare
+    // Paket V (K-V3): a maker who accepted their own price is paid that plus shipping; what the
+    // fixed price left above it is the platform's (a refund comes out of that part first)
+    const spread =
+      job.agreedPayMinor === null
+        ? 0
+        : Math.max(0, makersPart - (job.agreedPayMinor + order.shippingMinor))
+    const manufacturerShare = makersPart - spread
     if (escrow <= 0 || manufacturerShare < 0) {
       throw new PayoutError(
         `Escrow ${escrow} cannot cover fee ${platformFee} + seller ${sellerShare}`
@@ -125,8 +132,10 @@ export default class PayoutService {
     }
 
     if (this.model === 'merchant_of_record') {
+      // model B: the spread stays in our own result (`platform_fee`), its VAT included
       const needInvoice = await this.allocateAsSeller(order, trx, {
         escrow,
+        spread,
         manufacturer: { id: job.manufacturerProfileId, share: manufacturerShare },
         seller:
           sellerShare > 0 && order.sellerId ? { id: order.sellerId, share: sellerShare } : null,
@@ -152,6 +161,15 @@ export default class PayoutService {
                 account: 'seller_payable' as const,
                 direction: 'credit' as const,
                 amountMinor: sellerShare,
+              },
+            ]
+          : []),
+        ...(spread > 0
+          ? [
+              {
+                account: 'platform_spread' as const,
+                direction: 'credit' as const,
+                amountMinor: spread,
               },
             ]
           : []),
@@ -199,7 +217,7 @@ export default class PayoutService {
         action: 'payout.allocated',
         subjectType: 'order',
         subjectId: orderId,
-        meta: { escrow, platformFee, sellerShare, manufacturerShare },
+        meta: { escrow, platformFee, sellerShare, manufacturerShare, spread },
       },
       { client: trx }
     )
@@ -219,6 +237,8 @@ export default class PayoutService {
     trx: TransactionClientContract,
     input: {
       escrow: number
+      /** Paket V: the maker share left above the accepting maker's price, for the record */
+      spread: number
       manufacturer: { id: string; share: number }
       seller: { id: string; share: number } | null
     }
@@ -318,6 +338,7 @@ export default class PayoutService {
         meta: {
           model: 'merchant_of_record',
           escrow: input.escrow,
+          spread: input.spread,
           outputVat,
           inputVat,
           withheld,

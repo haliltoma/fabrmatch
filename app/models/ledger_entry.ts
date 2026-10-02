@@ -17,6 +17,8 @@ export type LedgerAccount =
   | 'seller_wallet'
   /** What a lost chargeback cost the platform beyond escrow and unpaid payouts (debit-normal) */
   | 'chargeback_loss'
+  /** Paket V: the fixed price above the accepting maker's own price, kept by the platform */
+  | 'platform_spread'
 
 export type LedgerDirection = 'debit' | 'credit'
 

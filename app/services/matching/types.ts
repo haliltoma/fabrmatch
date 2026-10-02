@@ -9,6 +9,8 @@ export interface MatchCandidate {
   onTimeRate: number | null
   activeJobs: number
   sameCity: boolean
+  /** Paket V: what this maker is paid for the order (their own floor, TRY); null = legacy order */
+  makerPayMinor: number | null
 }
 
 export interface ScoredCandidate extends MatchCandidate {

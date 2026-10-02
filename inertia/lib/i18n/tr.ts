@@ -984,6 +984,8 @@ export const tr: Record<string, string> = {
   'Shipping is paid to you on top. The platform fee is added to the buyer’s price, not taken from yours.':
     'Kargo ayrıca sana ödenir. Platform payı alıcının fiyatına eklenir, seninkinden düşülmez.',
   'Your costs are saved.': 'Maliyetlerin kaydedildi.',
+  'Their price for this order is {price} TRY, above the {budget} TRY it pays':
+    'Bu sipariş için fiyatı {price} TRY, siparişin ödediği {budget} TRY tutarının üstünde',
   'Allowance for failed prints': 'Başarısız baskı payı',
   'Your margin': 'Marjın',
   'Your share': 'Payın',

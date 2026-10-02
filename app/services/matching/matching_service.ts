@@ -22,6 +22,7 @@ import { productionDaysForOrder } from '#services/orders/production_window'
 import FileAccessService from '#services/files/file_access_service'
 import type { MatchingEffects } from '#services/matching/matching_effects'
 import QueueMatchingEffects from '#services/matching/matching_effects'
+import { convertMinor } from '#services/pricing/fx'
 
 export class OfferError extends DomainError {}
 
@@ -185,6 +186,8 @@ export default class MatchingService {
           round: order.matchingRound,
           score: selection.candidate.score,
           isExploration: selection.isExploration,
+          // Paket V: the maker sees and is paid their own price for the order
+          makerPayMinor: selection.candidate.makerPayMinor,
           status: 'pending',
           expiresAt: DateTime.now().plus({ minutes: cfg.offerTtlMinutes }),
         },
@@ -248,13 +251,21 @@ export default class MatchingService {
       const { ranked } = rankCandidates(candidates, this.rng, cfg)
       const chosen = ranked.find((c) => c.manufacturerProfileId === manufacturerProfileId)
 
-      let target: { printerId: string; slotDate: DateTime; score: number; unmet: string[] }
+      // makerPayMinor: absent for an override (the admin chose a maker outside the rules: the order's share)
+      let target: {
+        printerId: string
+        slotDate: DateTime
+        score: number
+        unmet: string[]
+        makerPayMinor?: number | null
+      }
       if (chosen) {
         target = {
           printerId: chosen.printerId,
           slotDate: DateTime.fromISO(chosen.slotDate),
           score: chosen.score,
           unmet: [],
+          makerPayMinor: chosen.makerPayMinor,
         }
       } else {
         if (!options.allowOverride) {
@@ -283,6 +294,7 @@ export default class MatchingService {
           score: target.score,
           isExploration: false,
           adminOverride: !chosen,
+          makerPayMinor: target.makerPayMinor ?? null,
           status: 'pending',
           expiresAt: DateTime.now().plus({ minutes: cfg.offerTtlMinutes }),
         },
@@ -415,6 +427,13 @@ export default class MatchingService {
           // remembered so a cancel, reassign or reprint can give the hours back
           capacitySlotId: slot?.id ?? null,
           reservedMinutes: slot ? minutes : null,
+          // Paket V (K-V3): the parts pay the maker accepted, in the order's currency
+          agreedPayMinor:
+            offer.makerPayMinor === null
+              ? null
+              : order.fxRateNano === null
+                ? offer.makerPayMinor
+                : convertMinor(offer.makerPayMinor, BigInt(order.fxRateNano)),
         },
         { client: trx }
       )

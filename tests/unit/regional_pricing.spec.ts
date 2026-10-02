@@ -171,10 +171,11 @@ test.group('regional pricing: regions and orders (P2)', (group) => {
     const base = referencePriceFor('PLA')!.pricePerGramMinor
     const { profile } = await createManufacturer({ country: 'DE', city: 'Berlin' })
     const printer = await createPrinter(profile, { material: 'PLA' })
-    // dearer than the base reference, within an EU reference 50% higher
+    // material at 4× the base reference: their price for the order is far above what an order at
+    // the base reference pays (Paket V: the whole floor must fit the order's maker budget)…
     await PrinterMaterial.query()
       .where('printerId', printer.id)
-      .update({ materialCostPerKgMinor: (base + Math.floor(base / 4)) * 1000 })
+      .update({ materialCostPerKgMinor: base * 4 * 1000 })
     const address = {
       fullName: 'Max Muster',
       line1: 'Hauptstr. 1',
@@ -191,7 +192,8 @@ test.group('regional pricing: regions and orders (P2)', (group) => {
       printer.id
     )
 
-    await PricingRegion.query().where('code', 'EU').update({ referenceMultiplierBps: 15_000 })
+    // …but within an EU region whose reference material is 5× the base
+    await PricingRegion.query().where('code', 'EU').update({ referenceMultiplierBps: 50_000 })
     const regional = await createDraftOrder(undefined, { shippingAddress: address })
     const after = await new EligibilityService().findCandidates(regional.order)
     assert.include(

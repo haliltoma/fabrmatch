@@ -54,6 +54,16 @@ export function estimateMakerIncome(input: MakerIncomeInput): MakerIncomeEstimat
 
 /** The reference maker as the browser twin (inertia/lib/income.ts) needs it. */
 export function incomeRules() {
-  const { materialCostPerKgMinor: _material, ...profile } = referenceCostProfile(0)
-  return { gramsPerHour: GRAMS_PER_PRINT_HOUR, profile: { ...profile, setupMinor: 0 } }
+  const reference = referenceCostProfile(0)
+  return {
+    gramsPerHour: GRAMS_PER_PRINT_HOUR,
+    // material comes from the visitor's own price per gram
+    profile: {
+      hourlyRateMinor: reference.hourlyRateMinor,
+      setupMinor: 0,
+      wasteBps: reference.wasteBps,
+      failureBps: reference.failureBps,
+      profitBps: reference.profitBps,
+    },
+  }
 }

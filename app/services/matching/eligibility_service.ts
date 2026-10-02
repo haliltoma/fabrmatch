@@ -9,6 +9,8 @@ import PricingRegionService from '#services/pricing/pricing_region_service'
 import type { MatchCandidate } from '#services/matching/types'
 import MakerStatsService from '#services/manufacturing/maker_stats_service'
 import { productionDaysForOrder } from '#services/orders/production_window'
+import { costsOf, orderFloor, orderWorkLines, type WorkLine } from '#services/pricing/maker_market'
+import type { MakerCosts } from '#services/manufacturing/maker_cost_profile_service'
 
 type Dims = [number, number, number]
 
@@ -64,6 +66,29 @@ function supportsItem(
           references?.get(item.material.toUpperCase())
         )) &&
       (!item.color || m.colors.some((c) => c.toLowerCase() === item.color!.toLowerCase()))
+  )
+}
+
+/** A maker's price for the order on one printer (its own material costs), TRY; null = cannot. */
+export function printerFloor(
+  printer: {
+    manufacturerProfileId: string
+    materials: Array<{ material: string; materialCostPerKgMinor: number }>
+  },
+  costs: MakerCosts,
+  lines: WorkLine[]
+): number | null {
+  const materialCostPerKg = new Map<string, number>()
+  for (const m of printer.materials) {
+    const code = m.material.toUpperCase()
+    const current = materialCostPerKg.get(code)
+    if (current === undefined || m.materialCostPerKgMinor < current) {
+      materialCostPerKg.set(code, m.materialCostPerKgMinor)
+    }
+  }
+  return orderFloor(
+    { manufacturerProfileId: printer.manufacturerProfileId, costs, materialCostPerKg },
+    lines
   )
 }
 
@@ -130,6 +155,10 @@ export default class EligibilityService {
       awardedTo = awarded.maker
     }
 
+    // Paket V: an order priced on the market checks each maker's own floor against its budget
+    // (below); an older order keeps the price-per-gram cap; an RFQ's price is the awarded bid
+    const budget = order.channel === 'rfq' ? null : order.makerBudgetMinor
+    const checkGramPrice = order.channel !== 'rfq' && budget === null
     const references = await orderReferences(
       order,
       items.map((i) => i.material)
@@ -147,7 +176,7 @@ export default class EligibilityService {
               (d) => (d * (item.scalePercent ?? 100)) / 100
             ) as Dims,
             build
-          ) && supportsItem(printer, item, order.channel !== 'rfq', references)
+          ) && supportsItem(printer, item, checkGramPrice, references)
         )
       })
     })
@@ -197,6 +226,20 @@ export default class EligibilityService {
       }
     }
 
+    // Paket V: a printer fits a market-priced order when its maker's own price for the whole order,
+    // with that printer's material costs, is within the order's maker budget
+    const pay = new Map<string, number>()
+    if (budget !== null && eligible.length > 0) {
+      const lines = orderWorkLines({ fxRateNano: order.fxRateNano, items })
+      const costs = await costsOf([...new Set(eligible.map((p) => p.manufacturerProfileId))])
+      for (let i = eligible.length - 1; i >= 0; i--) {
+        const printer = eligible[i]
+        const floor = printerFloor(printer, costs.get(printer.manufacturerProfileId)!, lines)
+        if (floor === null || floor > budget) eligible.splice(i, 1)
+        else pay.set(printer.id, floor)
+      }
+    }
+
     // One candidate per manufacturer: the printer with the earliest free slot.
     const best = new Map<string, Printer>()
     for (const p of eligible) {
@@ -227,6 +270,7 @@ export default class EligibilityService {
         onTimeRate: s && s.shipped > 0 ? s.onTime / s.shipped : null,
         activeJobs: s?.active ?? 0,
         sameCity: !!buyerCity && profile.city?.trim().toLocaleLowerCase('tr') === buyerCity,
+        makerPayMinor: pay.get(printer.id) ?? null,
       }
     })
   }

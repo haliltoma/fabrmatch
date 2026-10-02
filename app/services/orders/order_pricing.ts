@@ -18,6 +18,14 @@ import type { RoundingRule } from '#services/pricing/pricing_region_defaults'
 import SliceEstimateService from '#services/slicing/slice_estimate_service'
 import { splitGross, taxRateFor } from '#services/tax/tax'
 import ShippingService from '#services/shipping/shipping_service'
+import { makerBudget } from '#services/pricing/maker_budget'
+import MakerCostProfileService from '#services/manufacturing/maker_cost_profile_service'
+import {
+  budgetRules,
+  marketMakers,
+  orderFloor,
+  type WorkLine,
+} from '#services/pricing/maker_market'
 import { bboxOf } from '#services/shipping/shipping_table'
 
 export class OrderInputError extends DomainError {}
@@ -97,6 +105,10 @@ export interface PricedOrder {
   fx: LockedRate | null
   /** The pricing region whose rules priced the order (from the delivery country). */
   pricingRegionId: string
+  /** Paket V: what the order pays makers in all, TRY; a maker whose own price fits is offered it */
+  makerBudgetMinor: number
+  /** Paket V: the range a quote shows (buyer currency, before a coupon); `makers` = 0 → no market */
+  priceRange: { lowMinor: number; highMinor: number; makers: number }
 }
 
 /**
@@ -249,52 +261,109 @@ export async function priceOrder(input: {
   const shares = weights.map((w) => Math.floor((parcel.minor * w) / totalWeight))
   shares[0] += parcel.minor - shares.reduce((a, b) => a + b, 0)
 
-  const tryItems: PricedItem[] = prepared.map((p, i) => {
-    const quantity = p.item.quantity
-    const perUnitShipping = Math.ceil(shares[i] / quantity)
-    const breakdown = calculatePrice({
-      volumeMm3: p.volumeMm3,
-      material: p.item.material,
-      pricePerGramMinor: p.reference,
-      commissionBps: region.commissionBps ?? undefined,
-      quantity,
-      sellerMarginBps: input.sellerMarginBps ?? 0,
-      infill: p.infill,
-      estGrams: p.sliced ? p.gramsPerUnit : undefined,
-      shippingMinor: perUnitShipping,
-      finishingMinor: p.finishing?.priceMinor ?? 0,
-      estPrintMinutes: p.sliced
-        ? p.sliced.printMinutes
-        : Math.ceil(estimatePrintMinutes(p.gramsPerUnit) * p.timeFactor),
+  const unitMinutes = (p: {
+    sliced: { printMinutes: number } | null
+    gramsPerUnit: number
+    timeFactor: number
+  }) =>
+    p.sliced
+      ? p.sliced.printMinutes
+      : Math.ceil(estimatePrintMinutes(p.gramsPerUnit) * p.timeFactor)
+
+  // fixes the element type for the closures below (`prepared` was built by push)
+  const lineInputs = [...prepared]
+  // unitShares: the maker share per unit when the market fixed it; none = the reference maker
+  const buildItems = (unitShares?: number[]): PricedItem[] =>
+    lineInputs.map((p, i) => {
+      const quantity = p.item.quantity
+      const perUnitShipping = Math.ceil(shares[i] / quantity)
+      const breakdown = calculatePrice({
+        volumeMm3: p.volumeMm3,
+        material: p.item.material,
+        pricePerGramMinor: p.reference,
+        commissionBps: region.commissionBps ?? undefined,
+        quantity,
+        sellerMarginBps: input.sellerMarginBps ?? 0,
+        infill: p.infill,
+        estGrams: p.sliced ? p.gramsPerUnit : undefined,
+        shippingMinor: perUnitShipping,
+        finishingMinor: p.finishing?.priceMinor ?? 0,
+        estPrintMinutes: unitMinutes(p),
+        manufacturerShareMinor: unitShares?.[i],
+      })
+      return {
+        scalePercent: p.scalePercent,
+        modelFileId: p.file.id,
+        technology: p.technology,
+        printProfileId: p.profile?.id ?? null,
+        finishingCode: p.finishing?.code ?? null,
+        finishingColour: p.finishingColour,
+        finishingName: p.finishing?.name ?? null,
+        finishingMinor: breakdown.finishingMinor,
+        material: p.item.material.toUpperCase(),
+        color: p.item.color ?? null,
+        quantity,
+        estGrams: Math.ceil(breakdown.estGrams),
+        estPrintMinutes:
+          (p.sliced
+            ? p.sliced.printMinutes
+            : Math.ceil(estimatePrintMinutes(breakdown.estGrams) * p.timeFactor)) * quantity,
+        unitCostMinor: breakdown.unitPriceMinor,
+        manufacturerShareMinor: breakdown.manufacturerShareMinor,
+        shippingMinor: breakdown.shippingMinor * quantity,
+        platformCommissionMinor: breakdown.platformCommissionMinor * quantity,
+        sellerMarginMinor: breakdown.sellerMarginMinor * quantity,
+      }
     })
-    return {
-      scalePercent: p.scalePercent,
-      modelFileId: p.file.id,
-      technology: p.technology,
-      printProfileId: p.profile?.id ?? null,
-      finishingCode: p.finishing?.code ?? null,
-      finishingColour: p.finishingColour,
-      finishingName: p.finishing?.name ?? null,
-      finishingMinor: breakdown.finishingMinor,
-      material: p.item.material.toUpperCase(),
-      color: p.item.color ?? null,
-      quantity,
-      estGrams: Math.ceil(breakdown.estGrams),
-      estPrintMinutes:
-        (p.sliced
-          ? p.sliced.printMinutes
-          : Math.ceil(estimatePrintMinutes(breakdown.estGrams) * p.timeFactor)) * quantity,
-      unitCostMinor: breakdown.unitPriceMinor,
-      manufacturerShareMinor: breakdown.manufacturerShareMinor,
-      shippingMinor: breakdown.shippingMinor * quantity,
-      platformCommissionMinor: breakdown.platformCommissionMinor * quantity,
-      sellerMarginMinor: breakdown.sellerMarginMinor * quantity,
-    }
+
+  // Paket V (K-V1): price at what the makers who could print it ask, not one platform rate
+  const referenceItems = buildItems()
+  const shareOf = (list: PricedItem[]) =>
+    list.reduce((a, i) => a + i.manufacturerShareMinor * i.quantity, 0)
+  const referenceTotal = shareOf(referenceItems)
+  const lines: WorkLine[] = lineInputs.map((p) => ({
+    material: p.item.material.toUpperCase(),
+    // as the order item stores it (whole grams), so matching computes the very same floors
+    grams: Math.ceil(p.gramsPerUnit) * p.item.quantity,
+    minutes: unitMinutes(p) * p.item.quantity,
+    finishingMinor: (p.finishing?.priceMinor ?? 0) * p.item.quantity,
+  }))
+  const market = await marketMakers({
+    country: input.country,
+    technology: prepared[0].technology,
+    materials: lines.map((l) => l.material),
   })
+  const floors = market.map((m) => orderFloor(m, lines)).filter((f): f is number => f !== null)
+  // the reference maker as matching will see it (whole grams, setup once per line), so a maker
+  // with the reference costs always fits an order priced without a market
+  const referenceFloor = orderFloor(
+    {
+      manufacturerProfileId: 'reference',
+      costs: new MakerCostProfileService().defaults(),
+      materialCostPerKg: new Map(
+        lineInputs.map((p) => [p.item.material.toUpperCase(), p.reference * 1000])
+      ),
+    },
+    lines
+  )
+  const budget = makerBudget(floors, Math.max(referenceTotal, referenceFloor ?? 0), budgetRules())
+  const itemsAt = (target: number) =>
+    target === referenceTotal
+      ? referenceItems
+      : buildItems(
+          referenceItems.map((i) =>
+            Math.ceil((i.manufacturerShareMinor * target) / Math.max(referenceTotal, 1))
+          )
+        )
+  const tryItems = itemsAt(budget.budgetMinor)
 
   const currency = (input.currency ?? BASE_CURRENCY).toUpperCase()
   const fx = currency === BASE_CURRENCY ? null : await new FxService().lock(currency)
-  const items = roundItems(fx ? convertItems(tryItems, fx.rateE9) : tryItems, region.rounding)
+  const priced = (list: PricedItem[]) =>
+    roundItems(fx ? convertItems(list, fx.rateE9) : list, region.rounding)
+  const items = priced(tryItems)
+  const listTotalOf = (list: PricedItem[]) =>
+    priced(list).reduce((a, i) => a + i.unitCostMinor * i.quantity, 0)
   const sumOf = (list: PricedItem[], pick: (i: PricedItem) => number) =>
     list.reduce((a, i) => a + pick(i), 0)
   const sum = (pick: (i: PricedItem) => number) => sumOf(items, pick)
@@ -346,5 +415,11 @@ export async function priceOrder(input: {
     baseTotalMinor,
     fx,
     pricingRegionId: region.id,
+    makerBudgetMinor: shareOf(tryItems),
+    priceRange: {
+      lowMinor: Math.min(listTotalOf(itemsAt(budget.lowMinor)), listTotal),
+      highMinor: Math.max(listTotalOf(itemsAt(budget.highMinor)), listTotal),
+      makers: budget.makers,
+    },
   }
 }

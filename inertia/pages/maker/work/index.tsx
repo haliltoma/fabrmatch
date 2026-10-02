@@ -28,6 +28,8 @@ type OfferItem = {
 }
 
 type OfferData = {
+  /** what this maker is paid for the parts (order currency); null = the order's maker share */
+  payMinor: number | null
   id: string
   round: number
   status: string
@@ -203,7 +205,10 @@ function OfferCard({ offer }: { offer: OfferData }) {
           <div>
             <p className="text-xs text-ink-600">{t('Your payout')}</p>
             <p className="text-lg font-semibold text-ink-900">
-              {formatMoney(offer.order.manufacturerShareMinor, offer.order.currency)}
+              {formatMoney(
+                offer.payMinor ?? offer.order.manufacturerShareMinor,
+                offer.order.currency
+              )}
             </p>
           </div>
           <div className="flex gap-2">

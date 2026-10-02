@@ -86,6 +86,15 @@ const fabrmatchConfig = {
     referenceSetupMinor: 0,
     referenceWasteBps: 1000,
     referenceFailureBps: 500,
+    // the fixed price pays enough for this share of the makers who could print the order
+    quoteCoverageBps: 7500,
+    // the range a quote shows: the makers' prices at these two points of the market
+    quoteRangeLowBps: 2000,
+    quoteRangeHighBps: 8000,
+    // fewer makers than this: no market, price at the reference maker (or the dearest maker)…
+    quoteMinMakers: 3,
+    // …and the range reaches this far above it
+    quoteFallbackBandBps: 1500,
   },
 }
 

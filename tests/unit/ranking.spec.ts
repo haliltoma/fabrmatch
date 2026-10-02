@@ -22,6 +22,7 @@ function candidate(id: number, overrides: Partial<MatchCandidate> = {}): MatchCa
     onTimeRate: 0.95,
     activeJobs: 2,
     sameCity: false,
+    makerPayMinor: null,
     ...overrides,
   }
 }

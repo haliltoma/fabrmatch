@@ -732,7 +732,7 @@ export class MarketingEventSchema extends BaseModel {
 }
 
 export class MatchOfferSchema extends BaseModel {
-  static $columns = ['adminOverride', 'createdAt', 'expiresAt', 'id', 'isExploration', 'manufacturerProfileId', 'orderId', 'printerId', 'respondedAt', 'round', 'score', 'slotDate', 'status', 'updatedAt'] as const
+  static $columns = ['adminOverride', 'createdAt', 'expiresAt', 'id', 'isExploration', 'makerPayMinor', 'manufacturerProfileId', 'orderId', 'printerId', 'respondedAt', 'round', 'score', 'slotDate', 'status', 'updatedAt'] as const
   $columns = MatchOfferSchema.$columns
   @column()
   declare adminOverride: boolean
@@ -744,6 +744,8 @@ export class MatchOfferSchema extends BaseModel {
   declare id: string
   @column()
   declare isExploration: boolean
+  @column()
+  declare makerPayMinor: number | null
   @column()
   declare manufacturerProfileId: string
   @column()
@@ -941,7 +943,7 @@ export class OrderMessageSchema extends BaseModel {
 }
 
 export class OrderSchema extends BaseModel {
-  static $columns = ['baseTotalMinor', 'buyerId', 'channel', 'code', 'completedAt', 'createdAt', 'currency', 'deliveredAt', 'discountMinor', 'fxRateId', 'fxRateNano', 'id', 'matchingRound', 'platformFeeMinor', 'pricingRegionId', 'requiredTrustTier', 'sellerId', 'sellerShareMinor', 'shipCountry', 'shippingAddressEnc', 'shippingMinor', 'status', 'subtotalMinor', 'taxMinor', 'taxRateBps', 'totalMinor', 'updatedAt'] as const
+  static $columns = ['baseTotalMinor', 'buyerId', 'channel', 'code', 'completedAt', 'createdAt', 'currency', 'deliveredAt', 'discountMinor', 'fxRateId', 'fxRateNano', 'id', 'makerBudgetMinor', 'matchingRound', 'platformFeeMinor', 'pricingRegionId', 'requiredTrustTier', 'sellerId', 'sellerShareMinor', 'shipCountry', 'shippingAddressEnc', 'shippingMinor', 'status', 'subtotalMinor', 'taxMinor', 'taxRateBps', 'totalMinor', 'updatedAt'] as const
   $columns = OrderSchema.$columns
   @column()
   declare baseTotalMinor: number
@@ -967,6 +969,8 @@ export class OrderSchema extends BaseModel {
   declare fxRateNano: bigint | number | null
   @column({ isPrimary: true })
   declare id: string
+  @column()
+  declare makerBudgetMinor: number | null
   @column()
   declare matchingRound: number
   @column()
@@ -1391,10 +1395,12 @@ export class ProductImageSchema extends BaseModel {
 }
 
 export class ProductionJobSchema extends BaseModel {
-  static $columns = ['acceptedAt', 'cancelReason', 'capacitySlotId', 'carrier', 'createdAt', 'dueAt', 'id', 'manufacturerProfileId', 'orderId', 'printerId', 'producedAt', 'rating', 'reservedMinutes', 'reviewComment', 'shippedAt', 'status', 'trackingNumber', 'updatedAt'] as const
+  static $columns = ['acceptedAt', 'agreedPayMinor', 'cancelReason', 'capacitySlotId', 'carrier', 'createdAt', 'dueAt', 'id', 'manufacturerProfileId', 'orderId', 'printerId', 'producedAt', 'rating', 'reservedMinutes', 'reviewComment', 'shippedAt', 'status', 'trackingNumber', 'updatedAt'] as const
   $columns = ProductionJobSchema.$columns
   @column.dateTime()
   declare acceptedAt: DateTime
+  @column()
+  declare agreedPayMinor: number | null
   @column()
   declare cancelReason: string | null
   @column()

@@ -314,6 +314,7 @@ export default class OrderService {
           fxRateNano: priced.fx?.rateE9 ?? null,
           baseTotalMinor: priced.baseTotalMinor,
           pricingRegionId: priced.pricingRegionId,
+          makerBudgetMinor: priced.makerBudgetMinor,
           subtotalMinor: priced.subtotalMinor,
           shippingMinor: priced.shippingMinor,
           totalMinor: priced.totalMinor,

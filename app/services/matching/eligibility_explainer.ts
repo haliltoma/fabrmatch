@@ -8,9 +8,12 @@ import {
   fitsBuildVolume,
   makerPriceFits,
   orderReferences,
+  printerFloor,
 } from '#services/matching/eligibility_service'
 import { referencePriceFor } from '#services/pricing/reference_prices'
 import { productionDaysForOrder } from '#services/orders/production_window'
+import { costsOf, orderWorkLines, type WorkLine } from '#services/pricing/maker_market'
+import type { MakerCosts } from '#services/manufacturing/maker_cost_profile_service'
 
 /**
  * Why a maker is not offered an order. Each code is one rule of `EligibilityService.findCandidates`,
@@ -34,6 +37,8 @@ export type Reason =
   | { code: 'material_missing'; material: string }
   | { code: 'colour_missing'; material: string; colour: string }
   | { code: 'price_above_reference'; material: string; price: number; reference: number }
+  /** Paket V: the maker's own price for the order on this printer is above the order's budget (TRY) */
+  | { code: 'price_above_budget'; price: number; budget: number }
   | { code: 'no_capacity'; neededMinutes: number; bestFreeMinutes: number; days: number }
   | { code: 'print_profile_missing' }
 
@@ -99,7 +104,11 @@ export default class EligibilityExplainer {
     const days = await productionDaysForOrder({ id: order.id, channel: order.channel, items })
     const to = now.plus({ days }).toISODate()!
     const offered = options.offeredStatuses ?? new Map<string, string>()
-    const checkPrice = order.channel !== 'rfq'
+    // the same split as the matcher: market-priced orders check the maker's floor against the
+    // budget, older orders the price per gram, RFQ orders nothing (the bid is the price)
+    const budget = order.channel === 'rfq' ? null : order.makerBudgetMinor
+    const checkPrice = order.channel !== 'rfq' && budget === null
+    const lines = budget === null ? [] : orderWorkLines({ fxRateNano: order.fxRateNano, items })
     const references = await orderReferences(
       order,
       items.map((i) => i.material)
@@ -117,6 +126,8 @@ export default class EligibilityExplainer {
       .orderBy('id', 'asc')
 
     const awardedTo = order.channel === 'rfq' ? await this.rfqAwardee(order.id) : null
+    const costs =
+      budget === null ? new Map<string, MakerCosts>() : await costsOf(profiles.map((p) => p.id))
     const printerProfiles = await this.printerProfiles(profiles.flatMap((p) => p.printers))
     const finishings = await this.finishings(profiles.map((p) => p.id))
     const printerCounts = await this.printerCounts(profiles.map((p) => p.id))
@@ -172,6 +183,9 @@ export default class EligibilityExplainer {
           offeredProfiles: printerProfiles.get(printer.id),
           days,
           references,
+          budget,
+          lines,
+          costs: costs.get(profile.id),
         }),
       }))
 
@@ -205,6 +219,9 @@ export default class EligibilityExplainer {
       offeredProfiles: Set<string> | undefined
       days: number
       references: Map<string, number | null>
+      budget: number | null
+      lines: WorkLine[]
+      costs: MakerCosts | undefined
     }
   ): Reason[] {
     const reasons: Reason[] = []
@@ -245,6 +262,12 @@ export default class EligibilityExplainer {
 
     if (!ctx.wantedProfiles.every((id) => ctx.offeredProfiles?.has(id))) {
       reasons.push({ code: 'print_profile_missing' })
+    }
+    if (ctx.budget !== null && ctx.costs) {
+      const floor = printerFloor(printer, ctx.costs, ctx.lines)
+      if (floor !== null && floor > ctx.budget) {
+        reasons.push({ code: 'price_above_budget', price: floor, budget: ctx.budget })
+      }
     }
     return reasons
   }
