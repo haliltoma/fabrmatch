@@ -157,3 +157,23 @@ Kullanıcı: _"bu ayarlamalar default olarak bu önerdiğin değerler olsun anca
 
 - **V1:** `maker_cost.ts` tek formül; yazıcı malzemesi kg başına maliyet; `maker_cost_profiles`; üretici paneli **Maliyetlerin** sayfası (canlı "bu baskıdan ne kazanırım").
 - **V2:** sipariş, teslimat ülkesindeki üreticilerin kendi tabanlarından fiyatlanır (`maker_budget.ts`, `maker_market.ts`); bütçe TRY olarak siparişte (`orders.maker_budget_minor`); teklif yalnız tabanı sığana, tutarı teklifte (`match_offers.maker_pay_minor`); kabulde işe yazılır (`production_jobs.agreed_pay_minor`); ödemede üretici taban + kargo alır, fark **`platform_spread`** defter hesabına (model B'de platform payının içinde, denetim kaydında ayrı). Hızlı fiyat ve dosya teklif sayfası aralığı gösterir; dosya teklifi artık siparişle aynı hesabı (`priceOrder`) kullanır. Admin "neden eşleşmedi" yeni nedeni gösterir (`price_above_budget`). Eski ve RFQ siparişleri eski kurallarla devam eder.
+
+## 8. V7 Trendyol / Hepsiburada — araştırma ve beklenen kararlar (2026-10-02)
+
+Kod yazılmadı: iki pazar yeri de bizim bugünkü kargo ve ürün akışımızdan farklı çalışıyor ve gerçek bir satıcı test hesabı olmadan adaptör ancak tahminle yazılabilir (CLAUDE.md: bilmediğin API'yi uydurma).
+
+**Trendyol (resmi dokümandan):**
+
+- Sipariş paketleri: `GET https://apigw.trendyol.com/integration/order/sellers/{sellerId}/v2/orders` (Basic auth, satıcının API anahtarı/sırrı; sayfa başına en çok 200; son 1 ay). Paket alanları: `shipmentPackageId`, `orderNumber`, `status`, `cargoTrackingNumber`, `cargoProviderName`, `shipmentAddress{firstName,lastName,address1,city,district,postalCode,countryCode,phone}`, `lines[{lineId,productName,stockCode,barcode,quantity,lineUnitPrice}]`.
+- **Kargo:** kendi takip numaranı bildirme servisi (`updateTrackingNumber`) kapatıldı; paket, `getShipmentPackages`'ın döndürdüğü **Trendyol `cargoTrackingNumber`'ı** ile Trendyol'un anlaşmalı kargosuna teslim edilmeli. → Üretici Trendyol'un barkodunu basıp o kargoya vermeli; bizim "üretici kendi kargosuyla gönderir + takip numarasını girer" akışımıza uymuyor.
+- **Ürün:** zorunlu `barcode`, `brandId` (Trendyol'da kayıtlı marka), `categoryId` + kategoriye özel zorunlu `attributes`, `vatRate`, `cargoCompanyId`, en fazla 8 HTTPS görsel; ürünler **onaydan** geçer. V1 ürün servisi **15 Ekim 2026**'da kapanıyor → V2.
+
+**Hepsiburada:** satıcı panelinde _Entegrasyon → Entegratör Bilgileri_'nden Mağaza ID + API bilgisi; Basic auth + Mağaza ID'li User-Agent; listeleme `listing-external.hepsiburada.com`, sipariş/paket `oms-external.hepsiburada.com`, kategori `mpop.hepsiburada.com`. Kargo etiketi de pazar yerinin anlaşmalı kargosundan gelir.
+
+**Beklenen kararlar (K-V7):**
+
+1. **Pazar yeri kargosu:** üretici pazar yerinin etiketini/barkodunu basıp onun kargosuna mı versin (iş ekranına "pazar yeri etiketi" adımı), yoksa bu kanallar şimdilik kapalı mı kalsın?
+2. **Marka ve kategori:** satıcının Trendyol'da onaylı markası şart; kategori + zorunlu özellik eşleme ekranı yapılacak mı (her kategori için farklı alanlar)?
+3. **Test hesabı:** gerçek bir Trendyol (stage) ve Hepsiburada satıcı hesabıyla uçtan uca deneme.
+
+Kaynaklar: [Trendyol getShipmentPackages](https://developers.trendyol.com/v2.0/docs/get-order-packages-getshipmentpackages), [Trendyol ürün aktarma](https://developers.trendyol.com/docs/%C3%BCr%C3%BCn-aktarma-v2createproducts), [Trendyol takip numarası güncelleme](https://developers.trendyol.com/v3.0/docs/4-update-tracking-number), [Hepsiburada geliştirici portalı](https://developers.hepsiburada.com/hepsiburada/reference/listing-fiyat-g%C3%BCncelleme), [Hepsiburada API rehberi](https://www.zunapro.com/turkey/en/blog/hepsiburada-integration-api-guide-seller-manual).
