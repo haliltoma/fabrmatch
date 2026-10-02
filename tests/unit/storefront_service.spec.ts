@@ -3,7 +3,14 @@ import testUtils from '@adonisjs/core/services/test_utils'
 import ModelFile from '#models/model_file'
 import StorefrontService, { slugify, unitPriceFor } from '#services/storefront/storefront_service'
 import OrderService, { OrderInputError } from '#services/orders/order_service'
-import { TR_ADDRESS, createStorefrontProduct, createUser } from '#tests/helpers/order_fixtures'
+import {
+  TR_ADDRESS,
+  createManufacturer,
+  createPrinter,
+  createStorefrontProduct,
+  createUser,
+} from '#tests/helpers/order_fixtures'
+import MakerCostProfileService from '#services/manufacturing/maker_cost_profile_service'
 import { uid } from '#tests/helpers/ids'
 
 const shop = new StorefrontService()
@@ -187,6 +194,33 @@ test.group('OrderService.createStorefrontDraft', (group) => {
     assert.equal(order.totalMinor, order.subtotalMinor + order.shippingMinor)
     assert.isAbove(order.shippingMinor, 0)
     assert.equal(order.status, 'draft')
+  })
+
+  test('the shop price is the price the order is charged (Paket V: the makers market)', async ({
+    assert,
+  }) => {
+    // a market of four makers whose prices differ: the order is priced on it, so must the shop be
+    const costs = new MakerCostProfileService()
+    for (const hourly of [1000, 2000, 3000, 4000]) {
+      const maker = await createManufacturer()
+      await createPrinter(maker.profile)
+      await costs.save(maker.profile.id, {
+        ...costs.defaults(),
+        hourlyRateMinor: hourly,
+      })
+    }
+    const { product } = await createStorefrontProduct({ materials: ['PLA'], marginBps: 2000 })
+    const detail = await shop.find(product.id)
+    const shown = detail!.options.find(
+      (o) => o.material === 'PLA' && o.scalePercent === 100 && o.finishing === null
+    )!
+    const order = await new OrderService().createStorefrontDraft(
+      await createUser('buyer'),
+      product.id,
+      { material: 'PLA', quantity: 1, shippingAddress: TR_ADDRESS }
+    )
+    await order.load('items')
+    assert.equal(order.items[0].unitCostMinor, shown.unitPriceMinor)
   })
 
   test('rejects unavailable products and materials outside the allow-list', async ({ assert }) => {

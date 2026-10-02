@@ -1,6 +1,7 @@
+import { marketBudget, marketsFor } from '#services/pricing/maker_market'
 import { roundUnitMinor, type BrowseTerms } from '#services/pricing/pricing_region_service'
 import CatalogProduct from '#models/catalog_product'
-import { calculatePrice, estimateGrams } from '#services/pricing/price_engine'
+import { calculatePrice, estimateGrams, estimatePrintMinutes } from '#services/pricing/price_engine'
 import { referencePriceFor } from '#services/pricing/reference_prices'
 import ShippingService from '#services/shipping/shipping_service'
 import { bboxOf } from '#services/shipping/shipping_table'
@@ -36,6 +37,7 @@ export default class MarginPreviewService {
     if (!product || !file || !file.volumeMm3 || file.analysisStatus !== 'done') return []
 
     const shipping = await new ShippingService().table()
+    const markets = await marketsFor(terms?.country ?? 'TR', product.allowedMaterials)
     const options: MarginOption[] = []
     for (const raw of product.allowedMaterials) {
       const material = raw.toUpperCase()
@@ -43,7 +45,7 @@ export default class MarginPreviewService {
         ? terms.referenceFor(material)
         : (referencePriceFor(material)?.pricePerGramMinor ?? null)
       if (reference === null) continue
-      const breakdown = calculatePrice({
+      const base = {
         volumeMm3: file.volumeMm3,
         material,
         pricePerGramMinor: reference,
@@ -56,7 +58,24 @@ export default class MarginPreviewService {
           bboxMm: bboxOf(file),
           quantity: 1,
         }),
-      })
+      }
+      // the maker share the shop and the order will use (Paket V: the makers' market)
+      const grams = estimateGrams(file.volumeMm3, material)
+      const share = marketBudget({
+        market: markets.get(material) ?? [],
+        lines: [
+          {
+            material,
+            grams: Math.ceil(grams),
+            minutes: estimatePrintMinutes(grams),
+            finishingMinor: 0,
+          },
+        ],
+        referenceShareMinor: calculatePrice(base).manufacturerShareMinor,
+        referencePerGram: new Map([[material, reference]]),
+        delivery: { city: null, country: terms?.country ?? 'TR' },
+      }).budgetMinor
+      const breakdown = calculatePrice({ ...base, manufacturerShareMinor: share })
       // the region's rounding lifts the buyer price; the surplus is platform fee, not the seller's
       const buyerPriceMinor = roundUnitMinor(breakdown.unitPriceMinor, terms?.rounding ?? 'none')
       options.push({

@@ -18,14 +18,7 @@ import type { RoundingRule } from '#services/pricing/pricing_region_defaults'
 import SliceEstimateService from '#services/slicing/slice_estimate_service'
 import { splitGross, taxRateFor } from '#services/tax/tax'
 import ShippingService from '#services/shipping/shipping_service'
-import { makerBudget } from '#services/pricing/maker_budget'
-import MakerCostProfileService from '#services/manufacturing/maker_cost_profile_service'
-import {
-  budgetRules,
-  marketMakers,
-  orderFloor,
-  type WorkLine,
-} from '#services/pricing/maker_market'
+import { marketBudget, marketMakers, type WorkLine } from '#services/pricing/maker_market'
 import { bboxOf } from '#services/shipping/shipping_table'
 
 export class OrderInputError extends DomainError {}
@@ -357,23 +350,13 @@ export async function priceOrder(input: {
     technology: prepared[0].technology,
     materials: lines.map((l) => l.material),
   })
-  const delivery = { city: input.city ?? null, country: input.country }
-  const floors = market
-    .map((m) => orderFloor(m, lines, delivery))
-    .filter((f): f is number => f !== null)
-  // the reference maker as matching will see it (whole grams, setup once per line), so a maker
-  // with the reference costs always fits an order priced without a market
-  const referenceFloor = orderFloor(
-    {
-      manufacturerProfileId: 'reference',
-      costs: new MakerCostProfileService().defaults(),
-      materialCostPerKg: new Map(
-        lineInputs.map((p) => [p.item.material.toUpperCase(), p.reference * 1000])
-      ),
-    },
-    lines
-  )
-  const budget = makerBudget(floors, Math.max(referenceTotal, referenceFloor ?? 0), budgetRules())
+  const budget = marketBudget({
+    market,
+    lines,
+    referenceShareMinor: referenceTotal,
+    referencePerGram: new Map(lineInputs.map((p) => [p.item.material.toUpperCase(), p.reference])),
+    delivery: { city: input.city ?? null, country: input.country },
+  })
   const itemsAt = (target: number) =>
     target === referenceTotal
       ? referenceItems

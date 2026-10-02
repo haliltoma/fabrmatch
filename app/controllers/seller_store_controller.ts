@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import { marketsFor } from '#services/pricing/maker_market'
 import app from '@adonisjs/core/services/app'
 import vine from '@vinejs/vine'
 import ModelFile from '#models/model_file'
@@ -91,14 +92,37 @@ export default class SellerStoreController {
     )
     const fileOf = new Map(files.map((f) => [f.id, f]))
     const shipping = await new ShippingService().table()
+    // the makers' market in Türkiye: the cost here is what the seller will really pay per order
+    const markets = await marketsFor(
+      'TR',
+      products.flatMap((p) => p.catalogProduct?.allowedMaterials ?? [])
+    )
     /** What one piece costs the seller (no margin, delivery in Türkiye) and a suggested shop price. */
     const pricesFor = (product: SellerProduct) => {
       const file = fileOf.get(product.catalogProduct?.modelFileId ?? '')
       if (!file) return []
       const atCost = Object.create(product, { marginBps: { value: 0 } }) as SellerProduct
       return product.catalogProduct.allowedMaterials.flatMap((material) => {
-        const cost = unitPriceFor(atCost, file, material.toUpperCase(), shipping)
-        const suggested = unitPriceFor(product, file, material.toUpperCase(), shipping)
+        const cost = unitPriceFor(
+          atCost,
+          file,
+          material.toUpperCase(),
+          shipping,
+          100,
+          0,
+          undefined,
+          markets
+        )
+        const suggested = unitPriceFor(
+          product,
+          file,
+          material.toUpperCase(),
+          shipping,
+          100,
+          0,
+          undefined,
+          markets
+        )
         return cost === null || suggested === null
           ? []
           : [{ material: material.toUpperCase(), costMinor: cost, suggestedMinor: suggested }]

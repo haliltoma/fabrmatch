@@ -4,7 +4,8 @@ import ProductImageService, { type ShopImage } from '#services/catalog/product_i
 import db from '@adonisjs/lucid/services/db'
 import SellerProduct from '#models/seller_product'
 import type ModelFile from '#models/model_file'
-import { calculatePrice, estimateGrams } from '#services/pricing/price_engine'
+import { calculatePrice, estimateGrams, estimatePrintMinutes } from '#services/pricing/price_engine'
+import { marketBudget, marketsFor, type Markets } from '#services/pricing/maker_market'
 import ShippingService from '#services/shipping/shipping_service'
 import { bboxOf, type default as ShippingTable } from '#services/shipping/shipping_table'
 import { referencePriceFor } from '#services/pricing/reference_prices'
@@ -89,7 +90,9 @@ export function unitPriceFor(
   shipping?: ShippingTable,
   scalePercent = 100,
   finishingMinor = 0,
-  terms?: BrowseTerms
+  terms?: BrowseTerms,
+  /** Paket V: the makers per material where it is delivered; without, the reference maker */
+  markets?: Markets
 ): number | null {
   const reference = terms
     ? terms.referenceFor(material)
@@ -105,7 +108,7 @@ export function unitPriceFor(
     bboxMm: bbox ?? null,
     quantity: 1,
   })
-  const unit = calculatePrice({
+  const base = {
     volumeMm3,
     material,
     pricePerGramMinor: reference,
@@ -114,7 +117,27 @@ export function unitPriceFor(
     shippingMinor,
     finishingMinor,
     commissionBps: terms?.commissionBps,
-  }).unitPriceMinor
+  }
+  // the same maker share an order will have (order_pricing.ts), so the shop price holds at checkout
+  const market = markets?.get(material.toUpperCase())
+  const grams = estimateGrams(volumeMm3, material)
+  const share = market
+    ? marketBudget({
+        market,
+        lines: [
+          {
+            material: material.toUpperCase(),
+            grams: Math.ceil(grams),
+            minutes: estimatePrintMinutes(grams),
+            finishingMinor,
+          },
+        ],
+        referenceShareMinor: calculatePrice(base).manufacturerShareMinor,
+        referencePerGram: new Map([[material.toUpperCase(), reference]]),
+        delivery: { city: null, country: terms?.country ?? 'TR' },
+      }).budgetMinor
+    : undefined
+  const unit = calculatePrice({ ...base, manufacturerShareMinor: share }).unitPriceMinor
   return roundUnitMinor(unit, terms?.rounding ?? 'none')
 }
 
@@ -170,11 +193,15 @@ export default class StorefrontService {
 
     const rows = await query
     const shipping = await new ShippingService().table()
+    const markets = await marketsFor(
+      filters.terms?.country ?? 'TR',
+      rows.flatMap((p) => p.catalogProduct.allowedMaterials)
+    )
     const images = await new ProductImageService().forModelFiles(
       rows.flatMap((p) => (p.catalogProduct.modelFileId ? [p.catalogProduct.modelFileId] : []))
     )
     let cards = rows.flatMap((p) => {
-      const card = this.toCard(p, shipping, images, filters.material, filters.terms)
+      const card = this.toCard(p, shipping, images, filters.material, filters.terms, markets)
       return card ? [card] : []
     })
 
@@ -219,10 +246,14 @@ export default class StorefrontService {
       .first()
     if (!product) return null
     const shipping = await new ShippingService().table()
+    const markets = await marketsFor(
+      terms?.country ?? 'TR',
+      product.catalogProduct.allowedMaterials
+    )
     const images = await new ProductImageService().forModelFiles(
       product.catalogProduct.modelFileId ? [product.catalogProduct.modelFileId] : []
     )
-    const card = this.toCard(product, shipping, images, undefined, terms)
+    const card = this.toCard(product, shipping, images, undefined, terms, markets)
     const file = product.catalogProduct.modelFile
     if (!card || !file) return null
 
@@ -240,7 +271,8 @@ export default class StorefrontService {
             shipping,
             scalePercent,
             f?.priceMinor ?? 0,
-            terms
+            terms,
+            markets
           )
           return unitPriceMinor === null
             ? []
@@ -283,14 +315,18 @@ export default class StorefrontService {
     shipping: ShippingTable,
     images: Map<string, ShopImage[]>,
     preferredMaterial?: string,
-    terms?: BrowseTerms
+    terms?: BrowseTerms,
+    markets?: Markets
   ): StorefrontCard | null {
     const catalog = product.catalogProduct
     const file = catalog.modelFile
     if (!file) return null
     const materials = catalog.allowedMaterials.map((m) => m.toUpperCase())
     const prices = materials
-      .map((m) => ({ m, price: unitPriceFor(product, file, m, shipping, 100, 0, terms) }))
+      .map((m) => ({
+        m,
+        price: unitPriceFor(product, file, m, shipping, 100, 0, terms, markets),
+      }))
       .filter((x): x is { m: string; price: number } => x.price !== null)
     if (prices.length === 0) return null
 

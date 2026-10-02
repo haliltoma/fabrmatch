@@ -11,14 +11,7 @@ import {
 } from '#services/pricing/price_engine'
 import { referencePriceFor, REFERENCE_PRICES } from '#services/pricing/reference_prices'
 import ShippingService from '#services/shipping/shipping_service'
-import { makerBudget } from '#services/pricing/maker_budget'
-import {
-  budgetRules,
-  marketMakers,
-  orderFloor,
-  type MarketMaker,
-} from '#services/pricing/maker_market'
-import MakerCostProfileService from '#services/manufacturing/maker_cost_profile_service'
+import { marketBudget, marketMakers, type MarketMaker } from '#services/pricing/maker_market'
 
 export interface QuickQuote {
   volumeCm3: number
@@ -132,8 +125,6 @@ export async function quickQuoteFromFile(input: {
   })
   const country = input.terms?.country ?? 'TR'
   const rounding = input.terms?.rounding ?? 'none'
-  const rules = budgetRules()
-  const referenceCosts = new MakerCostProfileService().defaults()
 
   /**
    * One material at every offered quantity, priced like an order (order_pricing.ts): the makers
@@ -165,22 +156,13 @@ export async function quickQuoteFromFile(input: {
         },
       ]
       // no address yet: each maker's price as for another city, so the quote is not too low
-      const floors = market
-        .map((m) => orderFloor(m, lines, { city: null, country }))
-        .filter((f): f is number => f !== null)
-      const referenceFloor = orderFloor(
-        {
-          manufacturerProfileId: 'reference',
-          costs: referenceCosts,
-          materialCostPerKg: new Map([[key, regional(key)! * 1000]]),
-        },
-        lines
-      )!
-      const budget = makerBudget(
-        floors,
-        Math.max(atReference.manufacturerShareMinor * quantity, referenceFloor),
-        rules
-      )
+      const budget = marketBudget({
+        market,
+        lines,
+        referenceShareMinor: atReference.manufacturerShareMinor * quantity,
+        referencePerGram: new Map([[key, regional(key)!]]),
+        delivery: { city: null, country },
+      })
       const perUnitShipping = table.perUnitMinor({
         country,
         gramsPerUnit: g,

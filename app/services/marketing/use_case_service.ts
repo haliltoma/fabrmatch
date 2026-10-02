@@ -1,5 +1,6 @@
+import { marketBudget, marketsFor } from '#services/pricing/maker_market'
 import { roundUnitMinor, type BrowseTerms } from '#services/pricing/pricing_region_service'
-import { calculatePrice, estimateGrams } from '#services/pricing/price_engine'
+import { calculatePrice, estimateGrams, estimatePrintMinutes } from '#services/pricing/price_engine'
 import { referencePriceFor } from '#services/pricing/reference_prices'
 import ShippingService from '#services/shipping/shipping_service'
 import MaterialPageService, {
@@ -64,9 +65,13 @@ export interface UseCasePage {
 export default class UseCaseService {
   /** `terms`: the visitor's pricing region (P2); without it, delivery in Türkiye at base prices. */
   async list(terms?: BrowseTerms): Promise<UseCasePage[]> {
-    const [materials, shipping] = await Promise.all([
+    const [materials, shipping, markets] = await Promise.all([
       new MaterialPageService().list(),
       new ShippingService().table(),
+      marketsFor(
+        terms?.country ?? 'TR',
+        USE_CASES.map((u) => u.material)
+      ),
     ])
     return USE_CASES.map((u) => {
       const reference = terms
@@ -74,7 +79,7 @@ export default class UseCaseService {
         : referencePriceFor(u.material)!.pricePerGramMinor
       const grams = estimateGrams(u.example.volumeMm3, u.material)
       const prices = u.quantities.map((quantity) => {
-        const breakdown = calculatePrice({
+        const base = {
           volumeMm3: u.example.volumeMm3,
           material: u.material,
           pricePerGramMinor: reference,
@@ -87,6 +92,26 @@ export default class UseCaseService {
             bboxMm: u.example.bboxMm,
             quantity,
           }),
+        }
+        // priced like an order of this many pieces (Paket V: the makers' market)
+        const material = u.material.toUpperCase()
+        const total = marketBudget({
+          market: markets.get(material) ?? [],
+          lines: [
+            {
+              material,
+              grams: Math.ceil(grams) * quantity,
+              minutes: estimatePrintMinutes(grams) * quantity,
+              finishingMinor: 0,
+            },
+          ],
+          referenceShareMinor: calculatePrice(base).manufacturerShareMinor * quantity,
+          referencePerGram: new Map([[material, reference]]),
+          delivery: { city: null, country: terms?.country ?? 'TR' },
+        }).budgetMinor
+        const breakdown = calculatePrice({
+          ...base,
+          manufacturerShareMinor: Math.ceil(total / quantity),
         })
         const perPieceMinor = roundUnitMinor(breakdown.unitPriceMinor, terms?.rounding ?? 'none')
         return { quantity, totalMinor: perPieceMinor * quantity, perPieceMinor }

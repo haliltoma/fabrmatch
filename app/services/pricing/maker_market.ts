@@ -1,6 +1,7 @@
 import db from '@adonisjs/lucid/services/db'
 import fabrmatchConfig from '#config/fabrmatch'
-import type { BudgetRules } from '#services/pricing/maker_budget'
+import { makerBudget, type BudgetRules, type MakerBudget } from '#services/pricing/maker_budget'
+import Material from '#models/material'
 import { toBaseMinor } from '#services/pricing/fx'
 import { makerCost } from '#services/pricing/maker_cost'
 import MakerCostProfileService, {
@@ -169,4 +170,56 @@ export function orderWorkLines(order: {
     minutes: i.estPrintMinutes,
     finishingMinor: (rate ? toBaseMinor(i.finishingMinor, rate) : i.finishingMinor) * i.quantity,
   }))
+}
+
+/** Makers per material code, fetched once for a page that prices many products (V6). */
+export type Markets = Map<string, MarketMaker[]>
+
+/** The market for each material where it is delivered; the technology comes from the catalogue. */
+export async function marketsFor(country: string, materials: string[]): Promise<Markets> {
+  const codes = [...new Set(materials.map((m) => m.toUpperCase()))]
+  const catalogued = await Material.query().whereIn('code', codes).select('code', 'technology')
+  const technology = new Map(catalogued.map((m) => [m.code.toUpperCase(), m.technology]))
+  const result: Markets = new Map()
+  for (const code of codes) {
+    result.set(
+      code,
+      await marketMakers({ country, technology: technology.get(code) ?? 'FDM', materials: [code] })
+    )
+  }
+  return result
+}
+
+/**
+ * The maker budget of a piece of work (Paket V, K-V1): what the makers who could print it ask,
+ * never below the reference maker (whole grams, setup once per line, like matching computes it).
+ * The one place order pricing, quotes, the shop and the seller's shop prices get it from.
+ */
+export function marketBudget(input: {
+  market: MarketMaker[]
+  lines: WorkLine[]
+  /** the reference maker's share for the same work, as the price engine computed it */
+  referenceShareMinor: number
+  /** material code → the region's reference price per gram */
+  referencePerGram: Map<string, number>
+  delivery?: Delivery
+}): MakerBudget {
+  const floors = input.market
+    .map((m) => orderFloor(m, input.lines, input.delivery))
+    .filter((f): f is number => f !== null)
+  const referenceFloor = orderFloor(
+    {
+      manufacturerProfileId: 'reference',
+      costs: new MakerCostProfileService().defaults(),
+      materialCostPerKg: new Map(
+        [...input.referencePerGram].map(([code, perGram]) => [code.toUpperCase(), perGram * 1000])
+      ),
+    },
+    input.lines
+  )
+  return makerBudget(
+    floors,
+    Math.max(input.referenceShareMinor, referenceFloor ?? 0),
+    budgetRules()
+  )
 }
