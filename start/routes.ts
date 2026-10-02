@@ -490,15 +490,29 @@ router
 // OpenAPI document of the seller API (public, no key)
 router.get('/api/v1/openapi.json', [controllers.Api, 'openapi'])
 
-// Public seller API (bearer key, read-only)
+// Public seller API (bearer key)
 router
   .group(() => {
     router.get('/orders', [controllers.Api, 'orders'])
     router.get('/orders/:id', [controllers.Api, 'order']).where('id', router.matchers.uuid())
     router.get('/products', [controllers.Api, 'products'])
+    router.get('/products/:id', [controllers.Api, 'product']).where('id', router.matchers.uuid())
+    router.get('/catalog/options', [controllers.Api, 'catalogOptions'])
   })
   .prefix('/api/v1')
   .use(middleware.apiKey())
+
+// W4: the seller's own website quotes, orders and cancels (key scope read_write)
+router
+  .group(() => {
+    router.post('/quotes', [controllers.Api, 'quote'])
+    router.post('/orders', [controllers.Api, 'createOrder'])
+    router
+      .post('/orders/:id/cancel', [controllers.Api, 'cancelOrder'])
+      .where('id', router.matchers.uuid())
+  })
+  .prefix('/api/v1')
+  .use(middleware.apiKey({ write: true }))
 
 // Manufacturer panel
 router

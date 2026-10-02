@@ -122,7 +122,7 @@ export function colourCode(name: string) {
 export interface StoreAdapter {
   readonly provider: StoreConnection['provider']
   /** Order channel the platform's orders are recorded under */
-  readonly channel: 'shopify' | 'etsy' | 'woocommerce' | 'wix'
+  readonly channel: 'shopify' | 'etsy' | 'woocommerce' | 'wix' | 'api'
   /** Proves the credentials work; returns what the shop calls itself and its currency. */
   verify(connection: StoreConnection): Promise<{ shopName: string; currency: string | null }>
   /** Subscribes the shop's paid orders to our endpoint (safe to call again). */

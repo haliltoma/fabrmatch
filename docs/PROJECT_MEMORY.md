@@ -280,6 +280,7 @@
 
 ## Log
 
+- **2026-10-02** — W4: satıcının kendi sitesi için yazma API'si (katalog seçenekleri, ürün varyant/maliyet/görsel, teklif, sipariş, iptal; anahtar kapsamı read/read_write), webhook olayları order.created/shipped/cancelled. Düzeltilen: API POST'ları CSRF'e takılıyordu; mağaza siparişlerinde webhook gitmiyordu. 1063 test.
 - **2026-10-02** — W3: mağazaya malzeme × renk × boyut varyantları (en çok 100), renk başına render, SKU `FM-<anahtar>-<MALZEME>-<RENK>-<YÜZDE>` (eski 3 parçalı SKU geçerli). 1058 test.
 - **2026-10-02** — W1+W2: satıcı kendi yüklediği modelden ürün yapar (sahibine özel katalog satırı, yalnız kendi mağazalarında satma seçeneği), ürün kartında mockup galerisi + ZIP + düzenleme + mağaza durumu. Kritik: gerçek yüklemeler bigint `size_bytes` yüzünden analizde reddediliyordu, düzeltildi. 1049 test.
 - **2026-10-02** — Paket W açıldı (Printify modeli; inceleme: Playwright 5 rol ≈460 sayfa + kod). W0: developers sayfası satıcı panelinde, /maker/work mobil taşma, marj tamsayı + para birimi listeden, Woo açıklaması kaçışlı. 1043 test.

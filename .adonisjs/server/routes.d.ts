@@ -164,6 +164,11 @@ export type ScannedRoutes = {
     'api.orders': { paramsTuple?: []; params?: {} }
     'api.order': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'api.products': { paramsTuple?: []; params?: {} }
+    'api.product': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'api.catalog_options': { paramsTuple?: []; params?: {} }
+    'api.quote': { paramsTuple?: []; params?: {} }
+    'api.create_order': { paramsTuple?: []; params?: {} }
+    'api.cancel_order': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_dashboard.index': { paramsTuple?: []; params?: {} }
     'printer.index': { paramsTuple?: []; params?: {} }
     'printer.store': { paramsTuple?: []; params?: {} }
@@ -364,6 +369,8 @@ export type ScannedRoutes = {
     'api.orders': { paramsTuple?: []; params?: {} }
     'api.order': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'api.products': { paramsTuple?: []; params?: {} }
+    'api.product': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'api.catalog_options': { paramsTuple?: []; params?: {} }
     'maker_dashboard.index': { paramsTuple?: []; params?: {} }
     'printer.index': { paramsTuple?: []; params?: {} }
     'maker_work.index': { paramsTuple?: []; params?: {} }
@@ -491,6 +498,8 @@ export type ScannedRoutes = {
     'api.orders': { paramsTuple?: []; params?: {} }
     'api.order': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'api.products': { paramsTuple?: []; params?: {} }
+    'api.product': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'api.catalog_options': { paramsTuple?: []; params?: {} }
     'maker_dashboard.index': { paramsTuple?: []; params?: {} }
     'printer.index': { paramsTuple?: []; params?: {} }
     'maker_work.index': { paramsTuple?: []; params?: {} }
@@ -622,6 +631,9 @@ export type ScannedRoutes = {
     'rfq.store': { paramsTuple?: []; params?: {} }
     'rfq.award': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'rfq.cancel': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'api.quote': { paramsTuple?: []; params?: {} }
+    'api.create_order': { paramsTuple?: []; params?: {} }
+    'api.cancel_order': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'printer.store': { paramsTuple?: []; params?: {} }
     'printer.toggle_active': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'printer.set_profiles': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

@@ -23,7 +23,23 @@ export type OrderStatus =
   | 'cancelled'
 
 export type OrderChannel =
-  'storefront' | 'shopify' | 'etsy' | 'woocommerce' | 'wix' | 'rfq' | 'direct' | 'sample'
+  'storefront' | 'shopify' | 'etsy' | 'woocommerce' | 'wix' | 'api' | 'rfq' | 'direct' | 'sample'
+
+/** Orders from the seller's own shops and website: the seller is the buyer, `sellerId` is empty. */
+export const OWN_CHANNELS: readonly OrderChannel[] = [
+  'shopify',
+  'etsy',
+  'woocommerce',
+  'wix',
+  'api',
+]
+
+/** The seller an order belongs to: who earns its margin, or who ordered it from their own shop. */
+export function sellerOf(order: { sellerId: string | null; buyerId: string; channel: string }) {
+  return (
+    order.sellerId ?? (OWN_CHANNELS.includes(order.channel as OrderChannel) ? order.buyerId : null)
+  )
+}
 
 export default class Order extends OrderSchema {
   declare status: OrderStatus

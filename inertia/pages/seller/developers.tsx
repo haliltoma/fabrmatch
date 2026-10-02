@@ -15,6 +15,7 @@ type Key = {
   id: string
   name: string
   prefix: string
+  scope: 'read' | 'read_write'
   lastUsedAt: string | null
   revoked: boolean
   createdAt: string
@@ -59,6 +60,7 @@ function Secret({ title, note, value }: { title: string; note: string; value: st
 function KeysCard({ keys }: { keys: Key[] }) {
   const { t } = useT()
   const [name, setName] = useState('')
+  const [scope, setScope] = useState<Key['scope']>('read')
   return (
     <Card>
       <CardHeader>
@@ -66,7 +68,9 @@ function KeysCard({ keys }: { keys: Key[] }) {
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-ink-700">
-          {t('Read your orders and products from your own systems. Keys are read-only.')}{' '}
+          {t(
+            'Connect your own website or systems: read your products, pictures and orders, and (with an ordering key) place orders we print and ship.'
+          )}{' '}
           <a href="/api/v1/openapi.json" className="font-medium text-heat-700 underline">
             {t('API reference (OpenAPI)')}
           </a>
@@ -79,7 +83,11 @@ function KeysCard({ keys }: { keys: Key[] }) {
               <li key={k.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                 <div>
                   <p className="font-medium text-ink-900">
-                    {k.name} {k.revoked && <Badge variant="secondary">{t('Revoked')}</Badge>}
+                    {k.name}{' '}
+                    <Badge variant={k.scope === 'read_write' ? 'accent' : 'outline'}>
+                      {k.scope === 'read_write' ? t('Reads and orders') : t('Read only')}
+                    </Badge>{' '}
+                    {k.revoked && <Badge variant="secondary">{t('Revoked')}</Badge>}
                   </p>
                   <p className="tabular font-mono text-xs text-ink-600">{k.prefix}…</p>
                   <p className="text-xs text-ink-600">
@@ -109,7 +117,11 @@ function KeysCard({ keys }: { keys: Key[] }) {
           className="flex flex-wrap items-end gap-3 border-t border-line pt-4"
           onSubmit={(e) => {
             e.preventDefault()
-            router.post('/seller/developers/keys', { name }, { onSuccess: () => setName('') })
+            router.post(
+              '/seller/developers/keys',
+              { name, scope },
+              { onSuccess: () => setName('') }
+            )
           }}
         >
           <div className="min-w-56 flex-1 space-y-1">
@@ -120,6 +132,18 @@ function KeysCard({ keys }: { keys: Key[] }) {
               placeholder={t('e.g. Warehouse system')}
               onChange={(e) => setName(e.target.value)}
             />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="key-scope">{t('What it may do')}</Label>
+            <select
+              id="key-scope"
+              className="flex h-10 rounded-md border border-line bg-paper-raised px-3 text-sm"
+              value={scope}
+              onChange={(e) => setScope(e.target.value as Key['scope'])}
+            >
+              <option value="read">{t('Read only')}</option>
+              <option value="read_write">{t('Read and place orders')}</option>
+            </select>
           </div>
           <Button type="submit" disabled={name.trim().length < 2}>
             {t('Create key')}
@@ -140,7 +164,9 @@ function WebhooksCard({ endpoints }: { endpoints: Endpoint[] }) {
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-ink-700">
-          {t('We send a signed POST to your URL whenever the status of one of your sales changes.')}
+          {t(
+            'We send a signed POST to your URL when an order from your shop or site is placed, changes status, ships or is cancelled, and when one of your sales changes.'
+          )}
         </p>
         {endpoints.length === 0 ? (
           <p className="text-ink-700">{t('No webhook endpoints yet.')}</p>
@@ -248,6 +274,32 @@ function DeliveriesCard({ deliveries }: { deliveries: Delivery[] }) {
   )
 }
 
+const READ_ENDPOINTS = [
+  ['GET /api/v1/products', 'your products: variants, what each costs you, colours, pictures'],
+  ['GET /api/v1/products/:id', 'one product'],
+  ['GET /api/v1/catalog/options', 'materials and colours'],
+  ['GET /api/v1/orders?source=own', 'orders from your shops and website'],
+  ['GET /api/v1/orders', 'sales in the Fabrmatch shop'],
+  ['GET /api/v1/orders/:id', 'one order, with its tracking once shipped'],
+] as const
+
+const WRITE_ENDPOINTS = [
+  ['POST /api/v1/quotes', 'what lines would cost you'],
+  ['POST /api/v1/orders', 'place an order we print and ship to your customer'],
+  ['POST /api/v1/orders/:id/cancel', 'cancel before a maker starts'],
+] as const
+
+const ORDER_EXAMPLE = `curl -X POST https://YOUR-DOMAIN/api/v1/orders \\
+  -H "Authorization: Bearer fmk_…" -H "Content-Type: application/json" \\
+  -d '{
+    "externalId": "web-1042",
+    "lines": [{ "productId": "…", "material": "PLA",
+                "color": "Black", "scalePercent": 100, "quantity": 1 }],
+    "shippingAddress": { "fullName": "Ada Yılmaz", "line1": "Atatürk Cd. 1",
+      "city": "İstanbul", "postalCode": "34000", "country": "TR",
+      "phone": "+905551112233" }
+  }'`
+
 function DocsCard() {
   const { t } = useT()
   return (
@@ -265,18 +317,39 @@ function DocsCard() {
         >
           {`curl -H "Authorization: Bearer fmk_…" \\\n  https://YOUR-DOMAIN/api/v1/orders`}
         </pre>
+        <p className="font-medium text-ink-900">{t('Read (any key)')}</p>
         <ul className="list-disc space-y-1 pl-5">
-          <li>
-            <code className="font-mono">GET /api/v1/orders</code> ·{' '}
-            <code className="font-mono">?page=</code> · <code className="font-mono">?status=</code>
-          </li>
-          <li>
-            <code className="font-mono">GET /api/v1/orders/:id</code>
-          </li>
-          <li>
-            <code className="font-mono">GET /api/v1/products</code>
-          </li>
+          {READ_ENDPOINTS.map(([path, what]) => (
+            <li key={path}>
+              <code className="font-mono">{path}</code> · {t(what)}
+            </li>
+          ))}
         </ul>
+        <p className="font-medium text-ink-900">{t('Order (a key that can place orders)')}</p>
+        <ul className="list-disc space-y-1 pl-5">
+          {WRITE_ENDPOINTS.map(([path, what]) => (
+            <li key={path}>
+              <code className="font-mono">{path}</code> · {t(what)}
+            </li>
+          ))}
+        </ul>
+        <pre
+          tabIndex={0}
+          aria-label={t('Example order')}
+          className="overflow-x-auto rounded-md bg-paper-sunken p-3 font-mono text-xs text-ink-900 focus-visible:outline-2 focus-visible:outline-heat-500"
+        >
+          {ORDER_EXAMPLE}
+        </pre>
+        <p>
+          {t(
+            'Send the same externalId again and you get the same order back: retrying is safe. Orders are paid from your balance when it covers them; otherwise pay them in your panel. Production starts once paid.'
+          )}
+        </p>
+        <p>
+          {t(
+            'Webhook events: order.created, order.status_changed, order.shipped (with the tracking number, to tell your customer) and order.cancelled.'
+          )}
+        </p>
         <p>
           {t(
             'Webhook requests carry a Fabrmatch-Signature header: t=<unix seconds>,v1=<hex HMAC-SHA256 of "<t>.<raw body>" with your signing secret>. Reject requests older than five minutes and answer with a 2xx status. Events can arrive more than once and out of order; use the event id to ignore repeats.'

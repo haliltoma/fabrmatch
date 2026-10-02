@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from 'node:crypto'
 import DomainError from '#exceptions/domain_error'
 import { DateTime } from 'luxon'
-import ApiKey from '#models/api_key'
+import ApiKey, { type ApiKeyScope } from '#models/api_key'
 import User from '#models/user'
 import RoleService from '#services/identity/role_service'
 
@@ -15,7 +15,11 @@ export const hashKey = (key: string) => createHash('sha256').update(key).digest(
 
 export default class ApiKeyService {
   /** The full key is returned once; only its hash is stored. */
-  async create(userId: string, name: string): Promise<{ key: string; record: ApiKey }> {
+  async create(
+    userId: string,
+    name: string,
+    scope: ApiKeyScope = 'read'
+  ): Promise<{ key: string; record: ApiKey }> {
     const active = await ApiKey.query().where('userId', userId).whereNull('revokedAt')
     if (active.length >= MAX_ACTIVE_KEYS) {
       throw new ApiKeyError(`You can have at most ${MAX_ACTIVE_KEYS} active API keys`)
@@ -26,6 +30,7 @@ export default class ApiKeyService {
       name: name.trim(),
       prefix: key.slice(0, KEY_PREFIX.length + 6),
       keyHash: hashKey(key),
+      scope,
     })
     return { key, record }
   }

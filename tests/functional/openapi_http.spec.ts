@@ -5,7 +5,7 @@ import OrderService from '#services/orders/order_service'
 import OrderStateMachine from '#services/orders/order_state_machine'
 import ApiKeyService from '#services/integrations/api_key_service'
 import WebhookService from '#services/integrations/webhook_service'
-import { ORDER_SCHEMA, PRODUCT_SCHEMA } from '#services/integrations/openapi'
+import { API_ORDER_SCHEMA, ORDER_SCHEMA, PRODUCT_SCHEMA } from '#services/integrations/openapi'
 import { TR_ADDRESS, createStorefrontProduct, createUser } from '#tests/helpers/order_fixtures'
 
 /** Keys of an object, sorted, for comparing against a schema. */
@@ -19,8 +19,22 @@ test.group('OpenAPI document (R4-T12)', (group) => {
     response.assertStatus(200)
     const doc = response.body()
     assert.equal(doc.openapi, '3.1.0')
-    assert.sameMembers(Object.keys(doc.paths), ['/orders', '/orders/{id}', '/products'])
-    assert.sameMembers(Object.keys(doc.webhooks), ['order.status_changed', 'webhook.test'])
+    assert.sameMembers(Object.keys(doc.paths), [
+      '/orders',
+      '/orders/{id}',
+      '/orders/{id}/cancel',
+      '/products',
+      '/products/{id}',
+      '/catalog/options',
+      '/quotes',
+    ])
+    assert.sameMembers(Object.keys(doc.webhooks), [
+      'order.status_changed',
+      'order.created',
+      'order.shipped',
+      'order.cancelled',
+      'webhook.test',
+    ])
     assert.match(doc.servers[0].url, /\/api\/v1$/)
     assert.equal(doc.components.securitySchemes.apiKey.scheme, 'bearer')
   })
@@ -50,8 +64,14 @@ test.group('OpenAPI document (R4-T12)', (group) => {
     assert.deepEqual(keysOf(sent.items[0]), ['color', 'material', 'quantity'])
     assert.deepEqual(keysOf(orders.body().meta), ['page', 'pages', 'perPage', 'total'])
 
+    const one = await client.get(`/api/v1/orders/${order.id}`).headers(auth)
+    assert.deepEqual(keysOf(one.body().data), keysOf(API_ORDER_SCHEMA.properties))
+
     const products = await client.get('/api/v1/products').headers(auth)
     assert.deepEqual(keysOf(products.body().data[0]), keysOf(PRODUCT_SCHEMA.properties))
+    for (const required of PRODUCT_SCHEMA.required) {
+      assert.property(products.body().data[0], required)
+    }
 
     const docResponse = await client.get('/api/v1/openapi.json')
     const doc = docResponse.body()

@@ -218,7 +218,7 @@ export default class OrderService {
       quantity: number
     }>,
     shippingAddress: ShippingAddress,
-    channel: 'shopify' | 'etsy' | 'woocommerce' | 'wix'
+    channel: 'shopify' | 'etsy' | 'woocommerce' | 'wix' | 'api'
   ): Promise<Order> {
     const items = []
     for (const line of lines) {

@@ -5,7 +5,7 @@ import logger from '@adonisjs/core/services/logger'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import { DateTime } from 'luxon'
 import db from '@adonisjs/lucid/services/db'
-import type Order from '#models/order'
+import { sellerOf, type default as Order } from '#models/order'
 import WebhookDelivery from '#models/webhook_delivery'
 import WebhookEndpoint from '#models/webhook_endpoint'
 import EncryptionService from '#services/identity/encryption_service'
@@ -22,7 +22,13 @@ const RETENTION_DAYS = 30
 /** Wait before attempt 2, 3, … (attempt 1 is immediate). */
 const BACKOFF_MINUTES = [1, 5, 30, 120, 360, 720, 1440]
 
-export type WebhookEventType = 'order.status_changed' | 'webhook.test'
+export type WebhookEventType =
+  | 'order.status_changed'
+  // W4: the moments a seller's own website acts on
+  | 'order.created'
+  | 'order.shipped'
+  | 'order.cancelled'
+  | 'webhook.test'
 
 export interface WebhookEvent {
   id: string
@@ -152,32 +158,87 @@ export default class WebhookService {
     from: string,
     trx: TransactionClientContract
   ): Promise<void> {
-    if (!order.sellerId) return
+    const sellerId = sellerOf(order)
+    if (!sellerId) return
     const endpoints = await WebhookEndpoint.query({ client: trx })
-      .where('userId', order.sellerId)
+      .where('userId', sellerId)
       .where('isActive', true)
     if (endpoints.length === 0) return
+    const ids = endpoints.map((e) => e.id)
+    const payload = await this.orderPayload(order, trx)
+    await this.enqueue(
+      ids,
+      this.newEvent('order.status_changed', { previousStatus: from, order: payload }),
+      trx
+    )
+    // W4: the two changes a seller's site must act on get their own event
+    if (order.status === 'shipped') {
+      await this.enqueue(ids, this.newEvent('order.shipped', { order: payload }), trx)
+    }
+    if (order.status === 'cancelled') {
+      await this.enqueue(ids, this.newEvent('order.cancelled', { order: payload }), trx)
+    }
+  }
+
+  /** W4: a shop or API order was placed for the seller (once per order). */
+  async enqueueOrderCreated(order: Order): Promise<void> {
+    const sellerId = sellerOf(order)
+    if (!sellerId) return
+    const endpoints = await WebhookEndpoint.query()
+      .where('userId', sellerId)
+      .where('isActive', true)
+    if (endpoints.length === 0) return
+    await db.transaction(async (trx) => {
+      await this.enqueue(
+        endpoints.map((e) => e.id),
+        this.newEvent('order.created', { order: await this.orderPayload(order, trx) }),
+        trx
+      )
+    })
+  }
+
+  /**
+   * What the seller's systems get about an order: our id and code, their own id for it (shop or
+   * API orders), status, money they earn, lines and, once shipped, the tracking. Never the buyer
+   * or the maker (business rule 1).
+   */
+  private async orderPayload(order: Order, trx: TransactionClientContract) {
     const items = await trx
       .from('order_items')
       .where('order_id', order.id)
       .orderBy('id', 'asc')
-      .select('material', 'color', 'quantity')
-    const event = this.newEvent('order.status_changed', {
-      previousStatus: from,
-      order: {
-        id: order.id,
-        code: order.code,
-        status: order.status,
-        currency: order.currency,
-        earnMinor: order.sellerShareMinor,
-        items: items.map((i) => ({ material: i.material, color: i.color, quantity: i.quantity })),
-      },
-    })
-    await this.enqueue(
-      endpoints.map((e) => e.id),
-      event,
-      trx
-    )
+      .select('material', 'color', 'scale_percent', 'quantity')
+    const external = await trx
+      .from('external_orders')
+      .where('order_id', order.id)
+      .select('external_order_id')
+      .first()
+    const job = await trx
+      .from('production_jobs')
+      .where('order_id', order.id)
+      .whereNotNull('tracking_number')
+      .orderBy('created_at', 'desc')
+      .select('carrier', 'tracking_number')
+      .first()
+    return {
+      id: order.id,
+      code: order.code,
+      externalId: (external?.external_order_id as string | undefined) ?? null,
+      channel: order.channel,
+      status: order.status,
+      currency: order.currency,
+      totalMinor: order.totalMinor,
+      earnMinor: order.sellerShareMinor,
+      items: items.map((i) => ({
+        material: i.material,
+        color: i.color,
+        scalePercent: i.scale_percent ?? 100,
+        quantity: i.quantity,
+      })),
+      tracking: job
+        ? { carrier: job.carrier as string | null, number: job.tracking_number as string }
+        : null,
+    }
   }
 
   async sendTest(userId: string, id: string): Promise<void> {

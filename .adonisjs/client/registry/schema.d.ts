@@ -1898,7 +1898,7 @@ export interface Registry {
       body: {}
       paramsTuple: []
       params: {}
-      query: ExtractQueryForGet<InferInput<(typeof import('#validators/order').sellerOrdersQueryValidator)>>
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/order').sellerOrdersQueryValidator)>|InferInput<(typeof import('#validators/api').apiOrderSourceValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/api_controller').default['orders']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/api_controller').default['orders']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
@@ -1925,6 +1925,66 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/api_controller').default['products']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/api_controller').default['products']>>>
+    }
+  }
+  'api.product': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/products/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/api_controller').default['product']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/api_controller').default['product']>>>
+    }
+  }
+  'api.catalog_options': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/catalog/options'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/api_controller').default['catalogOptions']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/api_controller').default['catalogOptions']>>>
+    }
+  }
+  'api.quote': {
+    methods: ["POST"]
+    pattern: '/api/v1/quotes'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/api').apiQuoteValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/api').apiQuoteValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/api_controller').default['quote']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/api_controller').default['quote']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'api.create_order': {
+    methods: ["POST"]
+    pattern: '/api/v1/orders'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/api').apiOrderValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/api').apiOrderValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/api_controller').default['createOrder']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/api_controller').default['createOrder']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'api.cancel_order': {
+    methods: ["POST"]
+    pattern: '/api/v1/orders/:id/cancel'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/api_controller').default['cancelOrder']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/api_controller').default['cancelOrder']>>>
     }
   }
   'maker_dashboard.index': {

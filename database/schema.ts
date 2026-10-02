@@ -8,7 +8,7 @@ import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
 export class ApiKeySchema extends BaseModel {
-  static $columns = ['createdAt', 'id', 'keyHash', 'lastUsedAt', 'name', 'prefix', 'revokedAt', 'userId'] as const
+  static $columns = ['createdAt', 'id', 'keyHash', 'lastUsedAt', 'name', 'prefix', 'revokedAt', 'scope', 'userId'] as const
   $columns = ApiKeySchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -24,6 +24,8 @@ export class ApiKeySchema extends BaseModel {
   declare prefix: string
   @column.dateTime()
   declare revokedAt: DateTime | null
+  @column()
+  declare scope: string
   @column()
   declare userId: string
 }

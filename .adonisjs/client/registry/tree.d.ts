@@ -253,6 +253,11 @@ export interface ApiDefinition {
     orders: typeof routes['api.orders']
     order: typeof routes['api.order']
     products: typeof routes['api.products']
+    product: typeof routes['api.product']
+    catalogOptions: typeof routes['api.catalog_options']
+    quote: typeof routes['api.quote']
+    createOrder: typeof routes['api.create_order']
+    cancelOrder: typeof routes['api.cancel_order']
   }
   makerDashboard: {
     index: typeof routes['maker_dashboard.index']

@@ -30,6 +30,7 @@ import {
   type PublishVariant as AdapterVariant,
 } from '#services/integrations/stores/store_adapter'
 import Color from '#models/color'
+import WebhookService from '#services/integrations/webhook_service'
 import type CatalogProduct from '#models/catalog_product'
 import type ModelFile from '#models/model_file'
 import { shopifyDomain } from '#services/integrations/stores/shopify_adapter'
@@ -79,10 +80,12 @@ export default class StoreService {
   private encryption = new EncryptionService()
   private notifier = new OrderNotifier()
 
+  /** The seller's shops (their website's hidden API connection is not one). */
   async connections(seller: User) {
     return StoreConnection.query()
       .where('sellerUserId', seller.id)
       .where('status', 'active')
+      .whereNot('provider', 'api')
       .orderBy('id', 'asc')
   }
 
@@ -92,9 +95,36 @@ export default class StoreService {
       .where('id', connectionId)
       .where('sellerUserId', seller.id)
       .where('status', 'active')
+      .whereNot('provider', 'api')
       .first()
     if (!connection) throw new StoreError('Shop not found', { status: 404 })
     return connection
+  }
+
+  /**
+   * W4: the hidden connection the seller's own website orders through (one per seller, made on
+   * first use). Its orders go through the same once-per-external-id import as shop orders.
+   */
+  async apiConnection(seller: User) {
+    const externalShopId = `api-${seller.id}`
+    await db
+      .table('store_connections')
+      .insert({
+        seller_user_id: seller.id,
+        provider: 'api',
+        shop_name: 'Your website (API)',
+        external_shop_id: externalShopId,
+        currency: 'TRY',
+        status: 'active',
+        created_at: new Date(),
+        updated_at: new Date(),
+      })
+      .onConflict(['provider', 'external_shop_id'])
+      .ignore()
+    return StoreConnection.query()
+      .where('provider', 'api')
+      .where('externalShopId', externalShopId)
+      .firstOrFail()
   }
 
   /**
@@ -805,6 +835,9 @@ export default class StoreService {
       )
       order.merge({ orderId: created.id, status: 'placed', error: null })
       await order.save()
+      await new WebhookService().enqueueOrderCreated(created).catch((error) => {
+        logger.warn({ msg: 'order.created webhook not queued', id: created.id, error })
+      })
       // Printify-style: paid from the seller's balance at once when there is enough
       if (await this.autoPay(seller, created)) {
         await this.notifier.storeOrder(

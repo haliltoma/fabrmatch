@@ -6,6 +6,7 @@ import ShopifyAdapter from '#services/integrations/stores/shopify_adapter'
 import WooCommerceAdapter from '#services/integrations/stores/woocommerce_adapter'
 import EtsyAdapter, { etsyConfigured } from '#services/integrations/stores/etsy_adapter'
 import WixAdapter, { wixConfigured } from '#services/integrations/stores/wix_adapter'
+import ApiStoreAdapter from '#services/integrations/stores/api_store_adapter'
 import type { StoreAdapter } from '#services/integrations/stores/store_adapter'
 
 const overrides = new Map<StoreProvider, StoreAdapter>()
@@ -33,6 +34,8 @@ export function storeAdapter(provider: StoreProvider): StoreAdapter {
     case 'wix':
       if (!wixConfigured()) throw new DomainError('Wix is not set up on Fabrmatch yet')
       return new WixAdapter()
+    case 'api':
+      return new ApiStoreAdapter()
   }
 }
 

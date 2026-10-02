@@ -60,6 +60,10 @@ const shieldConfig = defineConfig({
       '/payments/return',
       '/webhooks/stores/:id/orders',
       '/webhooks/wix',
+      // W4: the seller API authenticates with a bearer key only (no session, no cookies)
+      '/api/v1/quotes',
+      '/api/v1/orders',
+      '/api/v1/orders/:id/cancel',
     ],
 
     /**

@@ -3528,4 +3528,30 @@ export const tr: Record<string, string> = {
   '{n} variants in your shop': 'Mağazanda {n} varyant',
   'Give every variant a colour, or none of them': 'Her varyanta bir renk ver ya da hiçbirine verme',
   'Set a price for every variant': 'Her varyant için fiyat gir',
+  'Connect your own website or systems: read your products, pictures and orders, and (with an ordering key) place orders we print and ship.':
+    'Kendi siteni ya da sistemlerini bağla: ürünlerini, görsellerini ve siparişlerini oku; sipariş anahtarıyla bizim basıp göndereceğimiz siparişler ver.',
+  'Reads and orders': 'Okur ve sipariş verir',
+  'Read only': 'Yalnız okur',
+  'What it may do': 'Yetkisi',
+  'Read and place orders': 'Okusun ve sipariş versin',
+  'Read (any key)': 'Okuma (her anahtar)',
+  'Order (a key that can place orders)': 'Sipariş (sipariş verebilen anahtar)',
+  'Example order': 'Örnek sipariş',
+  'Send the same externalId again and you get the same order back: retrying is safe. Orders are paid from your balance when it covers them; otherwise pay them in your panel. Production starts once paid.':
+    "Aynı externalId'yi yeniden gönderirsen aynı siparişi geri alırsın: tekrar denemek güvenlidir. Bakiyen yetiyorsa siparişler bakiyeden ödenir; yetmiyorsa panelinden öde. Üretim ödemeden sonra başlar.",
+  'Webhook events: order.created, order.status_changed, order.shipped (with the tracking number, to tell your customer) and order.cancelled.':
+    'Webhook olayları: order.created, order.status_changed, order.shipped (müşterine iletmen için takip numarasıyla) ve order.cancelled.',
+  'your products: variants, what each costs you, colours, pictures':
+    'ürünlerin: varyantlar, her birinin sana maliyeti, renkler, görseller',
+  'one product': 'tek ürün',
+  'materials and colours': 'malzemeler ve renkler',
+  'orders from your shops and website': 'mağazalarından ve sitenden gelen siparişler',
+  'sales in the Fabrmatch shop': 'Fabrmatch mağazasındaki satışların',
+  'one order, with its tracking once shipped': 'tek sipariş, kargolanınca takip numarasıyla',
+  'what lines would cost you': 'satırların sana maliyeti',
+  'place an order we print and ship to your customer':
+    'müşterine basıp göndereceğimiz bir sipariş ver',
+  'cancel before a maker starts': 'üretici başlamadan iptal et',
+  'We send a signed POST to your URL when an order from your shop or site is placed, changes status, ships or is cancelled, and when one of your sales changes.':
+    'Mağazandan ya da sitenden gelen bir sipariş verildiğinde, durumu değiştiğinde, kargolandığında ya da iptal edildiğinde ve satışlarından biri değiştiğinde adresine imzalı bir POST göndeririz.',
 }

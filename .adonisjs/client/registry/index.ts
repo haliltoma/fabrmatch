@@ -966,6 +966,36 @@ const routes = {
     tokens: [{"old":"/api/v1/products","type":0,"val":"api","end":""},{"old":"/api/v1/products","type":0,"val":"v1","end":""},{"old":"/api/v1/products","type":0,"val":"products","end":""}],
     types: placeholder as Registry['api.products']['types'],
   },
+  'api.product': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/products/:id',
+    tokens: [{"old":"/api/v1/products/:id","type":0,"val":"api","end":""},{"old":"/api/v1/products/:id","type":0,"val":"v1","end":""},{"old":"/api/v1/products/:id","type":0,"val":"products","end":""},{"old":"/api/v1/products/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['api.product']['types'],
+  },
+  'api.catalog_options': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/catalog/options',
+    tokens: [{"old":"/api/v1/catalog/options","type":0,"val":"api","end":""},{"old":"/api/v1/catalog/options","type":0,"val":"v1","end":""},{"old":"/api/v1/catalog/options","type":0,"val":"catalog","end":""},{"old":"/api/v1/catalog/options","type":0,"val":"options","end":""}],
+    types: placeholder as Registry['api.catalog_options']['types'],
+  },
+  'api.quote': {
+    methods: ["POST"],
+    pattern: '/api/v1/quotes',
+    tokens: [{"old":"/api/v1/quotes","type":0,"val":"api","end":""},{"old":"/api/v1/quotes","type":0,"val":"v1","end":""},{"old":"/api/v1/quotes","type":0,"val":"quotes","end":""}],
+    types: placeholder as Registry['api.quote']['types'],
+  },
+  'api.create_order': {
+    methods: ["POST"],
+    pattern: '/api/v1/orders',
+    tokens: [{"old":"/api/v1/orders","type":0,"val":"api","end":""},{"old":"/api/v1/orders","type":0,"val":"v1","end":""},{"old":"/api/v1/orders","type":0,"val":"orders","end":""}],
+    types: placeholder as Registry['api.create_order']['types'],
+  },
+  'api.cancel_order': {
+    methods: ["POST"],
+    pattern: '/api/v1/orders/:id/cancel',
+    tokens: [{"old":"/api/v1/orders/:id/cancel","type":0,"val":"api","end":""},{"old":"/api/v1/orders/:id/cancel","type":0,"val":"v1","end":""},{"old":"/api/v1/orders/:id/cancel","type":0,"val":"orders","end":""},{"old":"/api/v1/orders/:id/cancel","type":1,"val":"id","end":""},{"old":"/api/v1/orders/:id/cancel","type":0,"val":"cancel","end":""}],
+    types: placeholder as Registry['api.cancel_order']['types'],
+  },
   'maker_dashboard.index': {
     methods: ["GET","HEAD"],
     pattern: '/maker',

@@ -19,6 +19,7 @@ export default class SellerDeveloperController {
         id: k.id,
         name: k.name,
         prefix: k.prefix,
+        scope: k.scope,
         lastUsedAt: k.lastUsedAt?.toISO() ?? null,
         revoked: !!k.revokedAt,
         createdAt: k.createdAt.toISO()!,
@@ -48,8 +49,8 @@ export default class SellerDeveloperController {
   }
 
   async createKey({ request, auth, session, response }: HttpContext) {
-    const { name } = await request.validateUsing(apiKeyValidator)
-    const { key } = await new ApiKeyService().create(auth.getUserOrFail().id, name)
+    const { name, scope } = await request.validateUsing(apiKeyValidator)
+    const { key } = await new ApiKeyService().create(auth.getUserOrFail().id, name, scope)
     session.flash('newApiKey', key)
     session.flash('success', 'API key created. Copy it now — it will not be shown again.')
     return response.redirect().toPath(BACK)
