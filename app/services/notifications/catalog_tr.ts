@@ -291,6 +291,18 @@ export const TEMPLATES_TR: Record<NotificationType, Template> = {
           body: `${c.productTitle ?? 'Bir ürün'}, istediğin gibi marjını koruyan yeni bir fiyat aldı.`,
           link: '/seller/stores',
         }
+      case 'cancelled_in_shop':
+        return {
+          title: `${c.code ?? 'Sipariş'} iptal edildi; ${shopOrder} mağazasında da iptal ettik`,
+          body: 'Hiçbir üretici zamanında basamadı. Müşterine mağazanda iade yapıldı, bize ödediğin tutar da iade ediliyor.',
+          link: toOrder,
+        }
+      case 'cancel_in_shop':
+        return {
+          title: `Lütfen ${c.code ?? 'siparişi'} ${shopOrder} mağazanda iptal et`,
+          body: `Hiçbir üretici zamanında basamadı ve bize ödediğin tutarı iade ettik. ${c.reason ? `Mağazanda iptal edemedik (${c.reason}). ` : 'Mağazan bizim iptal etmemize izin vermiyor. '}Müşterin için orada iptal edip iade et.`,
+          link: toOrder,
+        }
       case 'waiting_for_maker':
         return {
           title: `${shopOrder} mağazasından gelen ${c.code ?? 'sipariş'} hâlâ üretici bekliyor`,

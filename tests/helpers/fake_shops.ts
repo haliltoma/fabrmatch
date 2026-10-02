@@ -29,6 +29,8 @@ export class FakeShopify {
   >()
   fulfillmentOrders = new Map<string, Array<{ id: string; status: string }>>()
   fulfillments: Array<{ orderId: string; number: string; company: string }> = []
+  /** orders cancelled through the API (V6) */
+  cancelled: string[] = []
   /** variants per GraphQL page (Shopify: 250; tests lower it to exercise the cursor) */
   pageSize = 250
   private seq = 1000
@@ -164,6 +166,12 @@ export class FakeShopify {
       const orderId = variables.id.split('/').pop()
       const nodes = this.fulfillmentOrders.get(orderId)
       return json(200, { data: { order: nodes ? { fulfillmentOrders: { nodes } } : null } })
+    }
+    if (query.includes('orderCancel(')) {
+      this.cancelled.push(variables.orderId.split('/').pop())
+      return json(200, {
+        data: { orderCancel: { job: { id: 'gid://shopify/Job/1' }, orderCancelUserErrors: [] } },
+      })
     }
     if (query.includes('fulfillmentCreate(')) {
       const f = variables.fulfillment

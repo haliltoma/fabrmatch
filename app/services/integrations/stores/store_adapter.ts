@@ -85,6 +85,11 @@ export interface StoreAdapter {
   ): Promise<StoreEvent | null>
   /** Platforms without order webhooks (Etsy): paid orders and cancellations since `since`. */
   pollOrders?(connection: StoreConnection, since: DateTime): Promise<StoreEvent[]>
+  /**
+   * Paket V (V6): cancels the shop's order (and refunds its customer) when we cancelled ours.
+   * Absent on platforms with no API for it (Etsy): the seller is asked to do it in the shop.
+   */
+  cancelOrder?(connection: StoreConnection, externalOrderId: string, reason: string): Promise<void>
   /** Marks the order shipped in the shop with our tracking; must be safe to repeat. */
   pushFulfillment(
     connection: StoreConnection,

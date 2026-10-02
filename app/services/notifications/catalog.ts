@@ -72,6 +72,8 @@ export interface NotificationContext {
     | 'price_thin'
     | 'price_updated'
     | 'waiting_for_maker'
+    | 'cancelled_in_shop'
+    | 'cancel_in_shop'
   shopOrder?: string | null
   /** V6: the shop product (and material) a price note is about */
   productTitle?: string | null
@@ -368,6 +370,18 @@ const TEMPLATES: Record<NotificationType, Template> = {
           title: `Prices updated in ${shopOrder}`,
           body: `${c.productTitle ?? 'A product'} has a new price that keeps your margin, as you asked.`,
           link: '/seller/stores',
+        }
+      case 'cancelled_in_shop':
+        return {
+          title: `${c.code ?? 'An order'} was cancelled; we cancelled it in ${shopOrder} too`,
+          body: 'No maker could print it in time. Your customer is refunded in your shop, and what you paid us is refunded too.',
+          link: toOrder,
+        }
+      case 'cancel_in_shop':
+        return {
+          title: `Please cancel ${c.code ?? 'an order'} in ${shopOrder}`,
+          body: `No maker could print it in time and we refunded what you paid us. ${c.reason ? `We could not cancel it in your shop (${c.reason}). ` : 'Your shop has no way for us to cancel it. '}Cancel and refund it there for your customer.`,
+          link: toOrder,
         }
       case 'waiting_for_maker':
         return {

@@ -253,6 +253,14 @@ export default class WooCommerceAdapter implements StoreAdapter {
   }
 
   /** Customer-visible note with the tracking, then "completed"; skipped if already completed. */
+  async cancelOrder(connection: StoreConnection, externalOrderId: string, reason: string) {
+    await this.call(connection, 'POST', `/orders/${externalOrderId}/notes`, {
+      note: reason,
+      customer_note: true,
+    })
+    await this.call(connection, 'PUT', `/orders/${externalOrderId}`, { status: 'cancelled' })
+  }
+
   async pushFulfillment(
     connection: StoreConnection,
     externalOrderId: string,

@@ -6,6 +6,7 @@ import DomainError from '#exceptions/domain_error'
 import AuditLog from '#models/audit_log'
 import ExternalListing from '#models/external_listing'
 import ExternalOrder from '#models/external_order'
+import Order from '#models/order'
 import ProductionJob from '#models/production_job'
 import SellerProduct from '#models/seller_product'
 import StoreConnection from '#models/store_connection'
@@ -492,7 +493,9 @@ export default class StoreService {
       .preload('order')
       .first()
     if (!external || external.shopCancelledAt) return
+    // saved first: our cancel below must not try to cancel the shop's order back (V6)
     external.shopCancelledAt = DateTime.now()
+    await external.save()
 
     const shopOrder = external.externalOrderName ?? externalOrderId
     const order = external.order
@@ -521,6 +524,50 @@ export default class StoreService {
         `store:${external.id}:cancel-late`
       )
     }
+  }
+
+  /**
+   * Paket V (V6): we cancelled an order that came from a seller's shop (nobody could print it, or
+   * an admin did): the shop's order is cancelled and its customer refunded there too. A platform
+   * without an API for it (Etsy) gets a note to the seller instead. Never throws.
+   */
+  async orderCancelledHere(orderId: string) {
+    const external = await ExternalOrder.query()
+      .where('orderId', orderId)
+      .preload('storeConnection')
+      .first()
+    if (!external || external.shopCancelledAt || external.shopCancelStatus !== 'none') return
+    const connection = external.storeConnection
+    const shopOrder = external.externalOrderName ?? external.externalOrderId
+    const adapter = storeAdapter(connection.provider)
+    const reason =
+      'Fabrmatch could not have this order printed in time and has refunded it. Sorry for the trouble.'
+    let status: 'done' | 'manual' | 'failed' = 'manual'
+    let error: string | null = null
+    if (adapter.cancelOrder) {
+      try {
+        await adapter.cancelOrder(connection, external.externalOrderId, reason)
+        status = 'done'
+      } catch (e) {
+        status = 'failed'
+        error = (e as Error).message.slice(0, 300)
+        logger.warn({ msg: 'shop order cancel failed', externalOrderId: external.id, error })
+      }
+    }
+    external.merge({ shopCancelStatus: status, shopCancelError: error })
+    await external.save()
+    const order = await Order.find(orderId)
+    await this.notifier.storeOrder(
+      connection.sellerUserId,
+      {
+        storeStep: status === 'done' ? 'cancelled_in_shop' : 'cancel_in_shop',
+        shopOrder,
+        code: order?.code,
+        orderId,
+        reason: error,
+      },
+      `store:${external.id}:cancelled-here`
+    )
   }
 
   async importOrder(connection: StoreConnection, incoming: IncomingOrder) {

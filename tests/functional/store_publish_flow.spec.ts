@@ -13,10 +13,12 @@ import ShopifyAdapter from '#services/integrations/stores/shopify_adapter'
 import WooCommerceAdapter from '#services/integrations/stores/woocommerce_adapter'
 import { setStoreAdapter } from '#services/integrations/stores/store_registry'
 import StoreService from '#services/integrations/stores/store_service'
+import OrderService from '#services/orders/order_service'
 import {
   createManufacturer,
   createPrinter,
   createStorefrontProduct,
+  orderStatus,
 } from '#tests/helpers/order_fixtures'
 import { FakeShopify, FakeWoo } from '#tests/helpers/fake_shops'
 import { fabrmatchSku } from '#services/integrations/stores/store_adapter'
@@ -199,6 +201,51 @@ test.group('Printify-style shops: connect → publish → paid order → trackin
     ])
     await external.refresh()
     assert.equal(external.fulfillmentStatus, 'pushed')
+  })
+
+  test('Shopify: an order we cancel is cancelled in the shop; a shop cancel is not sent back', async ({
+    client,
+    assert,
+  }) => {
+    const { sellerUser, product } = await seller()
+    const stores = new StoreService()
+    const { connection } = await stores.connect(sellerUser, {
+      provider: 'shopify',
+      shopUrl: 'test-shop',
+      apiKey: shopify.clientId,
+      apiSecret: shopify.clientSecret,
+    })
+    await stores.publish(sellerUser, connection.id, product.id, [
+      { material: 'PLA', priceMinor: 34_900 },
+    ])
+    const listing = await ExternalListing.query()
+      .where('storeConnectionId', connection.id)
+      .where('material', 'PLA')
+      .firstOrFail()
+    const path = `/webhooks/stores/${connection.id}/orders`
+    for (const id of [6601, 6602]) {
+      const delivery = shopify.paidOrder({
+        id,
+        name: `#${id}`,
+        lines: [{ variantId: listing.externalVariantId, sku: listing.sku!, quantity: 1 }],
+      })
+      await client.post(path).headers(delivery.headers).json(JSON.parse(delivery.body))
+    }
+
+    // nobody could print it: we cancel, and so does the shop (its customer is refunded there)
+    const ours = await ExternalOrder.findByOrFail('externalOrderId', '6601')
+    await new OrderService().cancelWithRefund(ours.orderId!, { actorId: null, by: 'system' })
+    await ours.refresh()
+    assert.deepEqual(shopify.cancelled, ['6601'])
+    assert.equal(ours.shopCancelStatus, 'done')
+
+    // the customer cancelled in the shop: we follow, but do not cancel it back
+    const theirs = await ExternalOrder.findByOrFail('externalOrderId', '6602')
+    await stores.shopCancelled(connection, '6602')
+    await theirs.refresh()
+    assert.equal(await orderStatus(theirs.orderId!), 'cancelled')
+    assert.deepEqual(shopify.cancelled, ['6601'])
+    assert.equal(theirs.shopCancelStatus, 'none')
   })
 
   test('Shopify: an expired token is replaced before the call', async ({ assert }) => {

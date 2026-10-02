@@ -19,7 +19,8 @@ export const SHOPIFY_API_VERSION = '2026-07'
 /** Scopes the seller's app needs (shown on the connect form). */
 export const SHOPIFY_SCOPES = [
   'write_products',
-  'read_orders',
+  // write: we cancel a shop order when no maker could print it (V6)
+  'write_orders',
   'read_merchant_managed_fulfillment_orders',
   'write_merchant_managed_fulfillment_orders',
 ]
@@ -250,6 +251,30 @@ export default class ShopifyAdapter implements StoreAdapter {
   }
 
   /** Closes the order's open fulfillment orders with our tracking; nothing open = already done. */
+  async cancelOrder(connection: StoreConnection, externalOrderId: string, reason: string) {
+    const data = await this.graphql<{
+      orderCancel: { orderCancelUserErrors: Array<{ message: string }> } | null
+    }>(
+      connection,
+      `mutation orderCancel($orderId: ID!, $reason: OrderCancelReason!, $refund: Boolean!, $restock: Boolean!, $notifyCustomer: Boolean, $staffNote: String) {
+        orderCancel(orderId: $orderId, reason: $reason, refund: $refund, restock: $restock, notifyCustomer: $notifyCustomer, staffNote: $staffNote) {
+          job { id }
+          orderCancelUserErrors { field message }
+        }
+      }`,
+      {
+        orderId: gid('Order', externalOrderId),
+        reason: 'OTHER',
+        refund: true,
+        restock: false,
+        notifyCustomer: true,
+        staffNote: reason.slice(0, 250),
+      }
+    )
+    const errors = data.orderCancel?.orderCancelUserErrors ?? []
+    if (errors.length > 0) throw new StoreApiError(`Shopify: ${errors[0].message}`)
+  }
+
   async pushFulfillment(
     connection: StoreConnection,
     externalOrderId: string,

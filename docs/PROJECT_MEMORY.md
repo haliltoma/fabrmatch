@@ -280,6 +280,8 @@
 
 ## Log
 
+- **2026-10-02** — Paket V V6: mağaza fiyat takibi (izle/otomatik), üretici gecikmesi bildirimi, Shopify/Woo geri iptal (Etsy: satıcıya not), vitrin ve satıcı fiyatları pazar fiyatıyla; U7 kalıntısı SKU eşitleme hatası düzeltildi. Açık: ölçek/renk varyantları. 1025 test.
+
 - **2026-10-02** — Paket V V5: üreticinin başka şehre teslim ek ücreti (admin üst sınırı %30), fiyatlama ve eşleştirmede alıcının şehri. 1017 test.
 
 - **2026-10-02** — Paket V V4: kur tamponu + yukarı yuvarlama ayrı `fx_gain` defter hesabı, parçalar orta kurla; bölge para modu + bölge tamponu; raporlarda fark payı ve kur geliri. 1014 test.

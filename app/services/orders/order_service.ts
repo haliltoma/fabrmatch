@@ -475,6 +475,13 @@ export default class OrderService {
     await this.payments.settleRefunds(orderId).catch((error) => {
       logger.error({ msg: 'refund after cancel deferred to sweep', orderId, error: error.message })
     })
+    // Paket V (V6): an order from a seller's shop is cancelled in the shop too
+    if (['shopify', 'etsy', 'woocommerce'].includes(order.channel)) {
+      const { default: StoreService } = await import('#services/integrations/stores/store_service')
+      await new StoreService().orderCancelledHere(orderId).catch((error) => {
+        logger.error({ msg: 'shop cancel after our cancel failed', orderId, error: error.message })
+      })
+    }
     return order
   }
 
