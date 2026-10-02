@@ -35,19 +35,18 @@ type MaterialOption = {
   technology: string | null
 }
 
+/** Per unit unless named total; the same pricing as the order (Paket V: the makers' market). */
 type PriceBreakdown = {
   estGrams: number
-  materialCostMinor: number
-  machineCostMinor: number
   manufacturerShareMinor: number
   finishingMinor: number
   platformCommissionMinor: number
   shippingMinor: number
-  baseCostMinor: number
-  sellerMarginMinor: number
   unitPriceMinor: number
   totalPriceMinor: number
   currency: string
+  /** what the order comes to with the cheaper and the dearer makers (total, delivered) */
+  range: { lowMinor: number; highMinor: number; makers: number }
 }
 
 function QuotePage({
@@ -433,14 +432,6 @@ function QuotePage({
                 <span>{t('Estimated weight')}</span>
                 <span>{breakdown.estGrams.toFixed(2)} g</span>
               </div>
-              <div className="flex justify-between text-ink-600">
-                <span>{t('Material cost')}</span>
-                <span>{formatPrice(breakdown.materialCostMinor, breakdown.currency)}</span>
-              </div>
-              <div className="flex justify-between text-ink-600">
-                <span>{t('Machine cost')}</span>
-                <span>{formatPrice(breakdown.machineCostMinor, breakdown.currency)}</span>
-              </div>
               {breakdown.finishingMinor > 0 && (
                 <div className="flex justify-between text-ink-600">
                   <span>{t('Finishing')}</span>
@@ -448,7 +439,7 @@ function QuotePage({
                 </div>
               )}
               <div className="flex justify-between text-ink-600">
-                <span>{t('Manufacturer share (incl. finishing)')}</span>
+                <span>{t('Maker, for material and print time')}</span>
                 <span>{formatPrice(breakdown.manufacturerShareMinor, breakdown.currency)}</span>
               </div>
               <div className="flex justify-between text-ink-600">
@@ -458,10 +449,6 @@ function QuotePage({
               <div className="flex justify-between text-ink-600">
                 <span>{t('Shipping (est.)')}</span>
                 <span>{formatPrice(breakdown.shippingMinor, breakdown.currency)}</span>
-              </div>
-              <div className="flex justify-between text-ink-600">
-                <span>{t('Seller margin')}</span>
-                <span>{formatPrice(breakdown.sellerMarginMinor, breakdown.currency)}</span>
               </div>
               <div className="border-t border-line pt-2" />
               <div className="flex justify-between font-medium">
@@ -482,6 +469,19 @@ function QuotePage({
                   <span>{formatPrice(breakdown.totalPriceMinor, breakdown.currency)}</span>
                 </div>
               )}
+              <p className="text-xs text-ink-600">
+                {breakdown.range.makers >= 3
+                  ? t(
+                      'Depending on the maker, this order comes to {low} to {high}. Your price pays most of them, so it is taken quickly.',
+                      {
+                        low: formatPrice(breakdown.range.lowMinor, breakdown.currency),
+                        high: formatPrice(breakdown.range.highMinor, breakdown.currency),
+                      }
+                    )
+                  : t(
+                      'Priced at our reference maker until enough makers print this nearby. This is the price you pay.'
+                    )}
+              </p>
               <ChargeNote />
             </div>
           </CardContent>

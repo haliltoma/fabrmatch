@@ -100,7 +100,12 @@ test.group('maker income tool over HTTP', () => {
 import { writeFile, mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { ensureReferenceCatalog } from '#tests/helpers/order_fixtures'
+import {
+  createManufacturer,
+  createPrinter,
+  ensureReferenceCatalog,
+} from '#tests/helpers/order_fixtures'
+import MakerCostProfileService from '#services/manufacturing/maker_cost_profile_service'
 
 function cubeStl(): Buffer {
   const quad = (a: number[], b: number[], c: number[], d: number[]) => [
@@ -167,6 +172,43 @@ test.group('quick quote (M2-T1)', (group) => {
 
     const after = await import('#models/model_file').then((m) => m.default.query().count('* as n'))
     assert.equal(after[0].$extras.n, before[0].$extras.n, 'no ModelFile row was created')
+  })
+
+  test('the price sits inside the range the makers who print it ask (Paket V)', async ({
+    client,
+    assert,
+  }) => {
+    // four PLA makers in Türkiye, the same but for their machine hour
+    for (const hourly of [1000, 1500, 2000, 9000]) {
+      const maker = await createManufacturer()
+      await createPrinter(maker.profile, { material: 'PLA' })
+      await new MakerCostProfileService().save(maker.profile.id, {
+        hourlyRateMinor: hourly,
+        setupMinor: 0,
+        wasteBps: 1000,
+        failureBps: 500,
+        profitBps: 2500,
+      })
+    }
+    const dir = await mkdtemp(join(tmpdir(), 'qq-'))
+    const path = join(dir, 'cube.stl')
+    await writeFile(path, cubeStl())
+    const response = await client
+      .post('/tools/quick-quote')
+      .withCsrfToken()
+      .header('accept', 'application/json')
+      .file('model', path)
+      .fields({ material: 'PLA' })
+    assert.equal(response.status(), 200, JSON.stringify(response.body()))
+    const pla = response
+      .body()
+      .quote.options.find((o: { material: string }) => o.material === 'PLA')
+    assert.equal(pla.makers, 4)
+    for (const line of pla.totals) {
+      assert.isAtMost(line.lowMinor, line.totalMinor)
+      assert.isAtLeast(line.highMinor, line.totalMinor)
+    }
+    assert.isBelow(pla.totals[0].lowMinor, pla.totals[0].highMinor, 'four makers make a range')
   })
 
   test('an OBJ gets the same price as the same shape in STL', async ({ client, assert }) => {

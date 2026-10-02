@@ -986,6 +986,29 @@ export const tr: Record<string, string> = {
   'Your costs are saved.': 'Maliyetlerin kaydedildi.',
   'Their price for this order is {price} TRY, above the {budget} TRY it pays':
     'Bu sipariş için fiyatı {price} TRY, siparişin ödediği {budget} TRY tutarının üstünde',
+  'Depending on the maker, this print comes to {low} to {high} delivered. Your price pays most of them, so it is taken quickly.':
+    'Üreticiye göre bu baskı teslim dahil {low} ile {high} arası tutuyor. Fiyatın çoğuna yetiyor, bu yüzden hızlı alınır.',
+  'An estimate from our reference maker; a maker nearby may ask up to {high}. The price you pay is fixed at checkout.':
+    'Referans üreticimize göre bir tahmin; yakındaki bir üretici {high} tutarına kadar isteyebilir. Ödeyeceğin fiyat ödeme adımında sabitlenir.',
+  'Fixed price: makers it pays enough': 'Sabit fiyat: yeteceği üretici payı',
+  'The price the buyer pays is set so that this share of the makers who could print the order earn their own price or more. Higher: more makers can take it, buyers pay a little more.':
+    'Alıcının ödediği fiyat, siparişi basabilecek üreticilerin bu kadarının kendi fiyatını ya da fazlasını kazanacağı şekilde belirlenir. Yükseldikçe daha çok üretici alabilir, alıcı biraz daha fazla öder.',
+  'Price range: low end': 'Fiyat aralığı: alt uç',
+  'The instant quote shows a range; its low end is the makers’ price at this point of the market (20% = cheaper than four in five).':
+    'Anında fiyat bir aralık gösterir; alt ucu, pazarın bu noktasındaki üretici fiyatıdır (%20 = beşte dördünden ucuz).',
+  'Price range: high end': 'Fiyat aralığı: üst uç',
+  'The high end of the range. The fixed price always sits inside the range.':
+    'Aralığın üst ucu. Sabit fiyat her zaman aralığın içinde kalır.',
+  'Fewest makers for a market price': 'Pazar fiyatı için en az üretici',
+  'With fewer makers able to print an order, it is priced at the reference maker, raised up to the band below for a dearer one.':
+    'Siparişi basabilecek üretici bundan azsa fiyat referans üreticiye göre belirlenir (aşağıdaki bant kadar daha pahalı bir üreticiye de yeter).',
+  'Price range with few makers': 'Az üreticide fiyat aralığı',
+  'Without a market, the range runs from the price to this much above it.':
+    'Pazar yokken aralık fiyattan bu kadar yukarısına uzanır.',
+  'Depending on the maker, this order comes to {low} to {high}. Your price pays most of them, so it is taken quickly.':
+    'Üreticiye göre bu sipariş {low} ile {high} arası tutuyor. Fiyatın çoğuna yetiyor, bu yüzden hızlı alınır.',
+  'Priced at our reference maker until enough makers print this nearby. This is the price you pay.':
+    'Yakında bunu basan yeterli üretici olana kadar referans üreticimize göre fiyatlandı. Ödeyeceğin fiyat budur.',
   'Allowance for failed prints': 'Başarısız baskı payı',
   'Your margin': 'Marjın',
   'Your share': 'Payın',

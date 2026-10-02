@@ -34,7 +34,14 @@ type Option = {
   partMinor: number
   makerMinor: number
   platformMinor: number
-  totals: Array<{ quantity: number; totalMinor: number; shippingMinor: number }>
+  totals: Array<{
+    quantity: number
+    totalMinor: number
+    shippingMinor: number
+    lowMinor: number
+    highMinor: number
+  }>
+  makers: number
 }
 type Quote = {
   volumeCm3: number
@@ -44,6 +51,52 @@ type Quote = {
   warnings: string[]
   options: Option[]
   security: { checks: ScanCheck[]; engine: 'signatures' | 'clamav' }
+}
+
+/**
+ * Paket V: what makers ask for this print, low to high, and where the price sits. The price is
+ * set so that most of them fit; without enough makers it is our reference maker's estimate.
+ */
+function PriceRange({
+  line,
+  makers,
+  currency,
+}: {
+  line: { totalMinor: number; lowMinor: number; highMinor: number }
+  makers: number
+  currency: string
+}) {
+  const { t } = useT()
+  const span = Math.max(line.highMinor - line.lowMinor, 1)
+  const at = Math.min(Math.max((line.totalMinor - line.lowMinor) / span, 0), 1) * 100
+  return (
+    <div className="mt-4">
+      <div className="relative h-1.5 rounded-full bg-paper/25" aria-hidden>
+        <span
+          className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-ink-900 bg-lime"
+          style={{ left: `${at}%` }}
+        />
+      </div>
+      <div className="mt-2 flex justify-between text-xs tabular-nums text-ink-200">
+        <span>{formatPrice(line.lowMinor, currency)}</span>
+        <span>{formatPrice(line.highMinor, currency)}</span>
+      </div>
+      <p className="mt-1 text-sm text-ink-200">
+        {makers >= 3
+          ? t(
+              'Depending on the maker, this print comes to {low} to {high} delivered. Your price pays most of them, so it is taken quickly.',
+              {
+                low: formatPrice(line.lowMinor, currency),
+                high: formatPrice(line.highMinor, currency),
+              }
+            )
+          : t(
+              'An estimate from our reference maker; a maker nearby may ask up to {high}. The price you pay is fixed at checkout.',
+              { high: formatPrice(line.highMinor, currency) }
+            )}
+      </p>
+    </div>
+  )
 }
 
 const MAX_BYTES = 15 * 1024 * 1024
@@ -428,6 +481,7 @@ function QuickQuote({
                     })}`}
                 </p>
                 <ChargeNote className="mt-1 !text-ink-200" />
+                <PriceRange line={line} makers={option.makers} currency={quote.currency} />
               </div>
 
               <div className="space-y-5 p-6">

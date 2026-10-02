@@ -149,7 +149,7 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
     key: 'makerPay.quoteMinMakers',
     group: 'makerPay',
     label: 'Fewest makers for a market price',
-    help: 'With fewer makers able to print an order, it is priced at the reference maker (or the dearest of them, if more), so every one of them can take it.',
+    help: 'With fewer makers able to print an order, it is priced at the reference maker, raised up to the band below for a dearer one.',
     min: 1,
     max: 50,
     integer: true,

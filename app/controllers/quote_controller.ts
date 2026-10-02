@@ -1,18 +1,13 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import ModelFileService from '#services/files/model_file_service'
-import { calculatePrice, estimateGrams } from '#services/pricing/price_engine'
-import ShippingService from '#services/shipping/shipping_service'
-import { bboxOf } from '#services/shipping/shipping_table'
 import { REFERENCE_PRICES, referencePriceFor } from '#services/pricing/reference_prices'
-import FinishingService from '#services/catalog/finishing_service'
 import PrintProfileService from '#services/catalog/print_profile_service'
-import { estimatePrintMinutes } from '#services/pricing/price_engine'
-import { slicedNumbers } from '#services/orders/order_pricing'
+import FinishingService from '#services/catalog/finishing_service'
+import { priceOrder } from '#services/orders/order_pricing'
 import GrowthService from '#services/growth/growth_service'
 import EtaService from '#services/orders/eta_service'
 import Material from '#models/material'
 import { quoteValidator } from '#validators/quote'
-import PricingRegionService, { roundUnitMinor } from '#services/pricing/pricing_region_service'
 import { visitorCountry } from '#services/pricing/visitor_country'
 
 export default class QuoteController {
@@ -89,54 +84,43 @@ export default class QuoteController {
       return response.badRequest({ error: 'File not analyzed or not found' })
     }
 
-    // region rules (P2) for the chosen delivery country, else the visitor's likely one
+    // the same pricing as the order this quote turns into (Paket V: the makers' market)
     const country = data.country ?? visitorCountry({ request })
-    const terms = await new PricingRegionService().termsFor(country)
-    const regionalReference = terms.referenceFor(data.material)
-    if (!referencePriceFor(data.material) || regionalReference === null) {
+    if (!referencePriceFor(data.material)) {
       return response.badRequest({ error: `Unknown material: ${data.material}` })
     }
+    // a bad option (finishing, profile) is a DomainError: the shared handler answers 422
+    const priced = await priceOrder({
+      items: [
+        {
+          file,
+          material: data.material,
+          quantity: data.quantity,
+          infill: data.infill,
+          printProfileId: data.printProfileId ?? null,
+          finishing: data.finishing ?? null,
+        },
+      ],
+      country,
+      hasSeller: false,
+    })
+    const item = priced.items[0]
+    const breakdown = {
+      estGrams: item.estGrams,
+      manufacturerShareMinor: item.manufacturerShareMinor,
+      finishingMinor: item.finishingMinor,
+      platformCommissionMinor: item.platformCommissionMinor / item.quantity,
+      shippingMinor: item.shippingMinor / item.quantity,
+      unitPriceMinor: item.unitCostMinor,
+      totalPriceMinor: priced.totalMinor,
+      currency: priced.currency,
+      range: priced.priceRange,
+    }
 
+    const unitMinutes = Math.ceil(item.estPrintMinutes / item.quantity)
     const profile = data.printProfileId
       ? await new PrintProfileService().resolveForOrder(data.printProfileId)
       : null
-    const finishing = await new FinishingService().resolve(data.finishing, data.material)
-    const infill = profile ? profile.infillPercent / 100 : data.infill
-    const timeFactor = (profile?.timeFactorBps ?? 10_000) / 10_000
-    const sliced = await slicedNumbers(file, profile, data.material)
-    const gramsPerUnit =
-      sliced?.gramsPerUnit ?? estimateGrams(file.volumeMm3, data.material, infill)
-    const unitMinutes =
-      sliced?.printMinutes ?? Math.ceil(estimatePrintMinutes(gramsPerUnit) * timeFactor)
-    const shipping = await new ShippingService().table()
-    const shippingMinor = shipping.perUnitMinor({
-      country,
-      gramsPerUnit,
-      bboxMm: bboxOf(file),
-      quantity: data.quantity,
-    })
-    const raw = calculatePrice({
-      shippingMinor,
-      commissionBps: terms.commissionBps,
-      volumeMm3: file.volumeMm3,
-      material: data.material,
-      pricePerGramMinor: regionalReference,
-      quantity: data.quantity,
-      sellerMarginBps: 2000, // Default 20% — will come from seller profile
-      infill,
-      estGrams: sliced ? gramsPerUnit : undefined,
-      estPrintMinutes: unitMinutes,
-      finishingMinor: finishing?.priceMinor ?? 0,
-    })
-    // the region's rounding lifts the unit price; the difference is platform commission
-    const unitPriceMinor = roundUnitMinor(raw.unitPriceMinor, terms.rounding)
-    const breakdown = {
-      ...raw,
-      platformCommissionMinor: raw.platformCommissionMinor + unitPriceMinor - raw.unitPriceMinor,
-      unitPriceMinor,
-      totalPriceMinor: unitPriceMinor * data.quantity,
-    }
-
     const printMinutes = unitMinutes * data.quantity
     const eta = await new EtaService().estimate({
       technology: profile?.technology ?? 'FDM',

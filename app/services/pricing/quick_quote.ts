@@ -11,6 +11,14 @@ import {
 } from '#services/pricing/price_engine'
 import { referencePriceFor, REFERENCE_PRICES } from '#services/pricing/reference_prices'
 import ShippingService from '#services/shipping/shipping_service'
+import { makerBudget } from '#services/pricing/maker_budget'
+import {
+  budgetRules,
+  marketMakers,
+  orderFloor,
+  type MarketMaker,
+} from '#services/pricing/maker_market'
+import MakerCostProfileService from '#services/manufacturing/maker_cost_profile_service'
 
 export interface QuickQuote {
   volumeCm3: number
@@ -40,8 +48,20 @@ export interface QuickQuoteOption {
   partMinor: number
   makerMinor: number
   platformMinor: number
-  /** delivered total for each offered quantity (shipping is per parcel, shared by the pieces) */
-  totals: Array<{ quantity: number; totalMinor: number; shippingMinor: number }>
+  /**
+   * Delivered total for each offered quantity (shipping is per parcel, shared by the pieces), and
+   * the range makers ask for it (Paket V): the total is what the order will cost, fixed so that
+   * most makers' prices fit inside it.
+   */
+  totals: Array<{
+    quantity: number
+    totalMinor: number
+    shippingMinor: number
+    lowMinor: number
+    highMinor: number
+  }>
+  /** makers who print this material where it is delivered (0 = priced at the reference maker) */
+  makers: number
 }
 
 export const QUICK_QUOTE_QUANTITIES = [1, 2, 5, 10]
@@ -110,17 +130,88 @@ export async function quickQuoteFromFile(input: {
     bboxMm: bbox,
     quantity: 1,
   })
-  const breakdown: PriceBreakdown = calculatePrice({
-    volumeMm3: analysis.volumeMm3,
-    material,
-    pricePerGramMinor: regional(material)!,
-    quantity: 1,
-    sellerMarginBps: 0,
-    shippingMinor,
-    commissionBps: input.terms?.commissionBps,
-  })
+  const country = input.terms?.country ?? 'TR'
   const rounding = input.terms?.rounding ?? 'none'
-  const unitPriceMinor = roundUnitMinor(breakdown.unitPriceMinor, rounding)
+  const rules = budgetRules()
+  const referenceCosts = new MakerCostProfileService().defaults()
+
+  /**
+   * One material at every offered quantity, priced like an order (order_pricing.ts): the makers
+   * who print it in the delivery country set the maker share; without three of them, the
+   * reference maker does.
+   */
+  const priceOption = (key: string, market: MarketMaker[]) => {
+    const g = estimateGrams(analysis.volumeMm3, key)
+    const minutes = estimatePrintMinutes(g)
+    const base = {
+      volumeMm3: analysis.volumeMm3,
+      material: key,
+      pricePerGramMinor: regional(key)!,
+      quantity: 1,
+      sellerMarginBps: 0,
+      shippingMinor: 0,
+      commissionBps: input.terms?.commissionBps,
+    }
+    const atReference = calculatePrice(base)
+    const unitAt = (shareTotal: number, quantity: number) =>
+      calculatePrice({ ...base, manufacturerShareMinor: Math.ceil(shareTotal / quantity) })
+    const atQuantity = (quantity: number) => {
+      const lines = [
+        {
+          material: key,
+          grams: Math.ceil(g) * quantity,
+          minutes: minutes * quantity,
+          finishingMinor: 0,
+        },
+      ]
+      const floors = market.map((m) => orderFloor(m, lines)).filter((f): f is number => f !== null)
+      const referenceFloor = orderFloor(
+        {
+          manufacturerProfileId: 'reference',
+          costs: referenceCosts,
+          materialCostPerKg: new Map([[key, regional(key)! * 1000]]),
+        },
+        lines
+      )!
+      const budget = makerBudget(
+        floors,
+        Math.max(atReference.manufacturerShareMinor * quantity, referenceFloor),
+        rules
+      )
+      const perUnitShipping = table.perUnitMinor({
+        country,
+        gramsPerUnit: g,
+        bboxMm: bbox,
+        quantity,
+      })
+      const delivered = (shareTotal: number) =>
+        roundUnitMinor(unitAt(shareTotal, quantity).unitPriceMinor + perUnitShipping, rounding) *
+        quantity
+      const totalMinor = delivered(budget.budgetMinor)
+      return {
+        budget,
+        part: unitAt(budget.budgetMinor, quantity),
+        line: {
+          quantity,
+          shippingMinor: perUnitShipping * quantity,
+          totalMinor,
+          lowMinor: Math.min(delivered(budget.lowMinor), totalMinor),
+          highMinor: Math.max(delivered(budget.highMinor), totalMinor),
+        },
+      }
+    }
+    const lines = QUICK_QUOTE_QUANTITIES.map(atQuantity)
+    return { grams: g, minutes, single: lines[0], lines }
+  }
+
+  const priced = new Map<string, ReturnType<typeof priceOption>>()
+  for (const key of FDM_MATERIALS) {
+    const market = await marketMakers({ country, technology: 'FDM', materials: [key] })
+    priced.set(key, priceOption(key, market))
+  }
+  const chosen = priced.get(material)!
+  const breakdown: PriceBreakdown = chosen.single.part
+  const unitPriceMinor = roundUnitMinor(breakdown.unitPriceMinor + shippingMinor, rounding)
 
   return {
     volumeCm3: Math.round(analysis.volumeMm3 / 100) / 10,
@@ -129,45 +220,24 @@ export async function quickQuoteFromFile(input: {
     grams: breakdown.estGrams,
     printMinutes: estimatePrintMinutes(grams),
     unitPriceMinor,
-    shippingMinor: breakdown.shippingMinor,
+    shippingMinor,
     totalMinor: unitPriceMinor,
     currency: breakdown.currency,
-    country: input.terms?.country ?? 'TR',
+    country,
     warnings: analysis.dfmIssues.filter((i) => i.level !== 'info').map((i) => i.message),
     security: { checks: verdict.checks, engine: verdict.engine },
     options: FDM_MATERIALS.map((key) => {
-      const ref = REFERENCE_PRICES[key]
-      const g = estimateGrams(analysis.volumeMm3, key)
-      const part = calculatePrice({
-        volumeMm3: analysis.volumeMm3,
-        material: key,
-        pricePerGramMinor: regional(key)!,
-        quantity: 1,
-        sellerMarginBps: 0,
-        shippingMinor: 0,
-        commissionBps: input.terms?.commissionBps,
-      })
+      const option = priced.get(key)!
       return {
         material: key,
-        label: ref.label,
-        grams: part.estGrams,
-        printMinutes: estimatePrintMinutes(g),
-        partMinor: part.unitPriceMinor,
-        makerMinor: part.manufacturerShareMinor,
-        platformMinor: part.platformCommissionMinor,
-        totals: QUICK_QUOTE_QUANTITIES.map((quantity) => {
-          const perUnit = table.perUnitMinor({
-            country: input.terms?.country ?? 'TR',
-            gramsPerUnit: g,
-            bboxMm: bbox,
-            quantity,
-          })
-          return {
-            quantity,
-            shippingMinor: perUnit * quantity,
-            totalMinor: roundUnitMinor(part.unitPriceMinor + perUnit, rounding) * quantity,
-          }
-        }),
+        label: REFERENCE_PRICES[key].label,
+        grams: option.single.part.estGrams,
+        printMinutes: option.minutes,
+        partMinor: option.single.part.unitPriceMinor,
+        makerMinor: option.single.part.manufacturerShareMinor,
+        platformMinor: option.single.part.platformCommissionMinor,
+        totals: option.lines.map((l) => l.line),
+        makers: option.single.budget.makers,
       }
     }),
   }

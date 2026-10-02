@@ -138,3 +138,22 @@ Uygun üreticilerin tabanları: A 225, B 205, C 240, D 260.
 5. **Trendyol/Hepsiburada:** satıcı kendi API anahtarıyla mı bağlansın, yoksa entegratör kaydı mı yapılsın? (Trendyol satıcı paneli API anahtarı verir; Hepsiburada entegratör onayı ister.)
 6. **Geçiş:** üretici kârını %15'ten %25'e çıkarmak bugünkü fiyatları yükseltir. Komisyon mu düşsün (%15 → %10), alıcı fiyatı mı artsın, yoksa ikisi arası mı?
 7. **Dış mağaza fiyatı:** satıcının mağazadaki fiyatı sabit kalır, Fabrmatch'in üretim fiyatı ise değişebilir. Satıcı kendi kârını mı korusun (fiyat senkronu), yoksa yalnız uyarı mı alsın?
+
+## 7. V0 kararları — varsayılan değerler (2026-10-02)
+
+Kullanıcı: _"bu ayarlamalar default olarak bu önerdiğin değerler olsun ancak admin bunu tamamıyla ayarlanabilir bir yeri olması gerekiyor … değiştirmek için koda gerek yok"_. Bu yüzden her cevap bir **varsayılandır**. Sayısal olanların hepsi `/admin/settings → Üretici ödemesi` grubunda (yüzde, TL ve seçim olarak girilir, her değişiklik denetim kaydına yazılır); bölgeye ait olanlar `/admin/pricing-regions` altında.
+
+| #   | Soru                              | Varsayılan                                                                                                                                                       | Nerede değişir                               |
+| --- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| 1   | Sabit fiyat kaç üreticiye yetsin? | **%75** (dörtte üç). Aralık %20–%80 noktaları. En az **3** üretici; az üreticide referans üretici, daha pahalı biri için **%15** bant                            | Ayarlar → Üretici ödemesi                    |
+| 2   | Maliyet girmeyen üretici          | **Referans üreticinin** maliyetleriyle eşleşir (makine saati 50 TL, hazırlık 0, fire %10, başarısız baskı %5, kâr = asgari); sayfasında "henüz girmedin" uyarısı | Ayarlar → Üretici ödemesi (referans üretici) |
+| 3   | Karşı teklif                      | **Admin** onaylar, **2 saat**; süre dolarsa sıradaki üretici (V3'te yapılacak)                                                                                   | V3 ile ayara gelecek                         |
+| 4   | Kur                               | Çevrimli bölgelerde **%3 tampon** + bölgenin yuvarlaması (,99 / tam) (V4)                                                                                        | Ayarlar → Fiyat + bölge ekranı               |
+| 5   | Trendyol/Hepsiburada              | **Satıcının kendi API anahtarı** (V7)                                                                                                                            | —                                            |
+| 6   | Kâr %15 → %25                     | **Komisyon %15 → %10**, üretici kârı en az **%25**, en çok **%30**                                                                                               | Ayarlar → Fiyat / Üretici ödemesi            |
+| 7   | Dış mağaza fiyatı                 | Maliyet ya da kur değişince **satıcıya uyarı**; otomatik güncelleme ayarla açılır (V6)                                                                           | V6 ile ayara gelecek                         |
+
+**Uygulanan (2026-10-02):**
+
+- **V1:** `maker_cost.ts` tek formül; yazıcı malzemesi kg başına maliyet; `maker_cost_profiles`; üretici paneli **Maliyetlerin** sayfası (canlı "bu baskıdan ne kazanırım").
+- **V2:** sipariş, teslimat ülkesindeki üreticilerin kendi tabanlarından fiyatlanır (`maker_budget.ts`, `maker_market.ts`); bütçe TRY olarak siparişte (`orders.maker_budget_minor`); teklif yalnız tabanı sığana, tutarı teklifte (`match_offers.maker_pay_minor`); kabulde işe yazılır (`production_jobs.agreed_pay_minor`); ödemede üretici taban + kargo alır, fark **`platform_spread`** defter hesabına (model B'de platform payının içinde, denetim kaydında ayrı). Hızlı fiyat ve dosya teklif sayfası aralığı gösterir; dosya teklifi artık siparişle aynı hesabı (`priceOrder`) kullanır. Admin "neden eşleşmedi" yeni nedeni gösterir (`price_above_budget`). Eski ve RFQ siparişleri eski kurallarla devam eder.
