@@ -28,6 +28,10 @@ export default class SellerProduct extends BaseModel {
   @column()
   declare marginBps: number
 
+  /** Shown and sold in the Fabrmatch shop; false = only in the seller's own shops and site */
+  @column()
+  declare shopListed: boolean
+
   @column()
   declare minMakerTier: number
 

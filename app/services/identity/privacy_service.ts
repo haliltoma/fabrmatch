@@ -295,6 +295,11 @@ export default class PrivacyService {
         .from('model_files')
         .where('owner_id', user.id)
         .update({ original_name: 'deleted-file' })
+      // their own designs (W1) are deleted with the files: nothing can be sold from them any more
+      await trx
+        .from('catalog_products')
+        .where('owner_user_id', user.id)
+        .update({ is_active: false })
 
       await AuditLog.create(
         {

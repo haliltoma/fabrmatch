@@ -22,6 +22,7 @@ type ProductData = {
   modelFileId: string | null
   categoryId: string | null
   tags: string[]
+  sellerDesign: boolean
 }
 
 type ModelFileOption = { id: string; name: string }
@@ -230,6 +231,7 @@ export default function AdminCatalogIndex({
                   <p className="text-sm text-ink-600">/{product.slug}</p>
                 </div>
                 <div className="flex items-center gap-2">
+                  {product.sellerDesign && <Badge variant="outline">{t('Seller design')}</Badge>}
                   <Badge variant={product.isActive ? 'success' : 'secondary'}>
                     {product.isActive ? t('Active') : t('Inactive')}
                   </Badge>

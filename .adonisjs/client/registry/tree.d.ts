@@ -183,7 +183,9 @@ export interface ApiDefinition {
   sellerProduct: {
     index: typeof routes['seller_product.index']
     store: typeof routes['seller_product.store']
+    storeDesign: typeof routes['seller_product.store_design']
     update: typeof routes['seller_product.update']
+    images: typeof routes['seller_product.images']
     setStatus: typeof routes['seller_product.set_status']
     sample: typeof routes['seller_product.sample']
   }

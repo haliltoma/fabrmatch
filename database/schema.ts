@@ -115,7 +115,7 @@ export class CartItemSchema extends BaseModel {
 }
 
 export class CatalogProductSchema extends BaseModel {
-  static $columns = ['allowedMaterials', 'allowedScales', 'categoryId', 'createdAt', 'description', 'id', 'isActive', 'modelFileId', 'slug', 'tags', 'title', 'updatedAt'] as const
+  static $columns = ['allowedMaterials', 'allowedScales', 'categoryId', 'createdAt', 'description', 'id', 'isActive', 'modelFileId', 'ownerUserId', 'slug', 'tags', 'title', 'updatedAt'] as const
   $columns = CatalogProductSchema.$columns
   @column()
   declare allowedMaterials: any
@@ -133,6 +133,8 @@ export class CatalogProductSchema extends BaseModel {
   declare isActive: boolean
   @column()
   declare modelFileId: string | null
+  @column()
+  declare ownerUserId: string | null
   @column()
   declare slug: string
   @column()
@@ -1562,7 +1564,7 @@ export class RfqSchema extends BaseModel {
 }
 
 export class SellerProductSchema extends BaseModel {
-  static $columns = ['catalogProductId', 'createdAt', 'currency', 'description', 'id', 'marginBps', 'minMakerTier', 'searchVector', 'sellerProfileId', 'status', 'title', 'updatedAt'] as const
+  static $columns = ['catalogProductId', 'createdAt', 'currency', 'description', 'id', 'marginBps', 'minMakerTier', 'searchVector', 'sellerProfileId', 'shopListed', 'status', 'title', 'updatedAt'] as const
   $columns = SellerProductSchema.$columns
   @column()
   declare catalogProductId: string | null
@@ -1582,6 +1584,8 @@ export class SellerProductSchema extends BaseModel {
   declare searchVector: string | null
   @column()
   declare sellerProfileId: string
+  @column()
+  declare shopListed: boolean
   @column()
   declare status: string
   @column()

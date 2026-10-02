@@ -3453,4 +3453,70 @@ export const tr: Record<string, string> = {
   // admin coupons
   '{percent}% off items': 'Ürünlerde %{percent} indirim',
   '{amount} off': '{amount} indirim',
+  // seller products: own designs and pictures (Paket W)
+  'Higher levels mean fewer makers can take your orders. You never see who prints.':
+    'Yüksek seviye, siparişini alabilecek üretici sayısını azaltır. Kimin bastığını hiçbir zaman görmezsin.',
+  'Also sell it in the Fabrmatch shop': 'Fabrmatch mağazasında da sat',
+  'Off: it sells only through your own shops, your site and the API.':
+    'Kapalıysa yalnız kendi mağazaların, siten ve API üzerinden satılır.',
+  'Upload your 3D model first. Once its check has finished it can become a product here.':
+    'Önce 3D modelini yükle. Kontrolü bitince burada ürüne çevirebilirsin.',
+  'Only checked, printable files of yours are listed. The file itself stays private.':
+    'Yalnız kontrolü bitmiş, basılabilir dosyaların listelenir. Dosyanın kendisi gizli kalır.',
+  'Materials buyers can choose': 'Alıcının seçebileceği malzemeler',
+  'Extra sizes (the original size is always offered)':
+    'Ek boyutlar (orijinal boyut her zaman sunulur)',
+  'None': 'Yok',
+  'Tags (comma separated)': 'Etiketler (virgülle ayır)',
+  'lamp, home, gift': 'lamba, ev, hediye',
+  'This is my own design, or I have a licence to sell prints of it. Reported copies are taken down.':
+    'Bu benim tasarımım ya da baskısını satma lisansım var. Şikâyet edilen kopyalar kaldırılır.',
+  'Create product': 'Ürünü oluştur',
+  'The catalogue is empty for now.': 'Katalog şimdilik boş.',
+  'Design from the catalogue': 'Katalogdan tasarım',
+  'Leave empty to use the catalogue text': 'Katalog metnini kullanmak için boş bırak',
+  'Where the design comes from': 'Tasarımın kaynağı',
+  'My own design': 'Kendi tasarımım',
+  'A model you uploaded': 'Yüklediğin bir model',
+  'Fabrmatch catalogue': 'Fabrmatch kataloğu',
+  'A ready-made design': 'Hazır bir tasarım',
+  'Changes reach your own shops when you publish the product there again.':
+    'Değişiklikler, ürünü mağazanda yeniden yayınladığında oraya geçer.',
+  'Save changes': 'Değişiklikleri kaydet',
+  'Pictures are made from the model a minute after its check. Look again shortly.':
+    'Görseller, model kontrolünden bir dakika sonra hazırlanır. Birazdan tekrar bak.',
+  'Renders of your model on a transparent background. Use them on your own site: download them, or link the address (it stays the same).':
+    'Modelinin şeffaf arka planlı render görselleri. Kendi sitende kullan: indir ya da adresine bağlantı ver (adres değişmez).',
+  '{title}, picture {n}': '{title}, görsel {n}',
+  'Download picture {n}': '{n}. görseli indir',
+  'Copy the address of picture {n}': '{n}. görselin adresini kopyala',
+  'Address copied': 'Adres kopyalandı',
+  'Could not copy; open the picture and copy its address':
+    'Kopyalanamadı; görseli açıp adresini kopyala',
+  'Download all ({n})': 'Hepsini indir ({n})',
+  'Pictures of {title}': '{title} görselleri',
+  'Your design': 'Senin tasarımın',
+  'From the catalogue: {title}': 'Katalogdan: {title}',
+  '{v2}% margin on each order': 'Her siparişte %{v2} marj',
+  'Not on sale yet': 'Henüz satışta değil',
+  'In the Fabrmatch shop': 'Fabrmatch mağazasında',
+  'Only in your own shops': 'Yalnız kendi mağazalarında',
+  'On sale in:': 'Satışta:',
+  'Edit': 'Düzenle',
+  'Put on sale': 'Satışa çıkar',
+  'Restore as draft': 'Taslak olarak geri al',
+  'Turn your own models or catalogue designs into products. Sell them in the Fabrmatch shop, your own shops and your site; we print and ship every order.':
+    'Kendi modellerini ya da katalog tasarımlarını ürüne çevir. Fabrmatch mağazasında, kendi mağazalarında ve sitende sat; her siparişi biz basıp gönderiyoruz.',
+  'Upload your own model or pick a catalogue design, set your margin, and sell it wherever you sell.':
+    'Kendi modelini yükle ya da katalogdan bir tasarım seç, marjını belirle ve nerede satıyorsan orada sat.',
+  'Edit {title}': '{title} düzenle',
+  'Product created. Its pictures are ready in a minute.':
+    'Ürün oluşturuldu. Görselleri bir dakika içinde hazır.',
+  'File not found': 'Dosya bulunamadı',
+  'This file was blocked and cannot be sold': 'Bu dosya engellendi, satılamaz',
+  'Wait until the file check has finished': 'Dosya kontrolü bitene kadar bekle',
+  'This model cannot be printed as it is; fix it and upload again':
+    'Bu model olduğu gibi basılamıyor; düzeltip yeniden yükle',
+  'You already made a product from this file': 'Bu dosyadan zaten bir ürün oluşturdun',
+  'Seller design': 'Satıcı tasarımı',
 }

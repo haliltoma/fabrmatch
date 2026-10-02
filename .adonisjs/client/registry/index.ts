@@ -876,11 +876,23 @@ const routes = {
     tokens: [{"old":"/seller/products","type":0,"val":"seller","end":""},{"old":"/seller/products","type":0,"val":"products","end":""}],
     types: placeholder as Registry['seller_product.store']['types'],
   },
+  'seller_product.store_design': {
+    methods: ["POST"],
+    pattern: '/seller/products/design',
+    tokens: [{"old":"/seller/products/design","type":0,"val":"seller","end":""},{"old":"/seller/products/design","type":0,"val":"products","end":""},{"old":"/seller/products/design","type":0,"val":"design","end":""}],
+    types: placeholder as Registry['seller_product.store_design']['types'],
+  },
   'seller_product.update': {
     methods: ["PUT"],
     pattern: '/seller/products/:id',
     tokens: [{"old":"/seller/products/:id","type":0,"val":"seller","end":""},{"old":"/seller/products/:id","type":0,"val":"products","end":""},{"old":"/seller/products/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['seller_product.update']['types'],
+  },
+  'seller_product.images': {
+    methods: ["GET","HEAD"],
+    pattern: '/seller/products/:id/images.zip',
+    tokens: [{"old":"/seller/products/:id/images.zip","type":0,"val":"seller","end":""},{"old":"/seller/products/:id/images.zip","type":0,"val":"products","end":""},{"old":"/seller/products/:id/images.zip","type":1,"val":"id","end":""},{"old":"/seller/products/:id/images.zip","type":0,"val":"images.zip","end":""}],
+    types: placeholder as Registry['seller_product.images']['types'],
   },
   'seller_product.set_status': {
     methods: ["POST"],

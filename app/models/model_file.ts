@@ -43,7 +43,8 @@ export default class ModelFile extends BaseModel {
   @column()
   declare format: ModelFileFormat
 
-  @column()
+  // bigint column: the driver returns a string, which never equals the uploaded size
+  @column({ consume: (value: string | number) => Number(value) })
   declare sizeBytes: number
 
   @column({ columnName: 'sha256' })

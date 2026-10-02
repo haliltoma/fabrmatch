@@ -44,6 +44,10 @@ export default class CatalogProduct extends BaseModel {
   @column()
   declare isActive: boolean
 
+  /** Paket W: the seller whose own design this is; null = platform catalogue */
+  @column()
+  declare ownerUserId: string | null
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

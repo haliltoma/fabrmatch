@@ -65,6 +65,7 @@ export default class HomeController {
   private async marginSamples(terms?: BrowseTerms) {
     const products = await CatalogProduct.query()
       .where('isActive', true)
+      .whereNull('ownerUserId')
       .orderBy('id', 'asc')
       .limit(12)
     const preview = new MarginPreviewService()

@@ -149,7 +149,9 @@ export type ScannedRoutes = {
     'seller_developer.delete_webhook': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_developer.test_webhook': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_product.store': { paramsTuple?: []; params?: {} }
+    'seller_product.store_design': { paramsTuple?: []; params?: {} }
     'seller_product.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'seller_product.images': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_product.set_status': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_product.sample': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'rfq.index': { paramsTuple?: []; params?: {} }
@@ -354,6 +356,7 @@ export type ScannedRoutes = {
     'seller_payout.show': { paramsTuple?: []; params?: {} }
     'seller_payout.voucher': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_developer.index': { paramsTuple?: []; params?: {} }
+    'seller_product.images': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'rfq.index': { paramsTuple?: []; params?: {} }
     'rfq.create': { paramsTuple?: []; params?: {} }
     'rfq.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -480,6 +483,7 @@ export type ScannedRoutes = {
     'seller_payout.show': { paramsTuple?: []; params?: {} }
     'seller_payout.voucher': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_developer.index': { paramsTuple?: []; params?: {} }
+    'seller_product.images': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'rfq.index': { paramsTuple?: []; params?: {} }
     'rfq.create': { paramsTuple?: []; params?: {} }
     'rfq.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -612,6 +616,7 @@ export type ScannedRoutes = {
     'seller_developer.toggle_webhook': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_developer.test_webhook': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_product.store': { paramsTuple?: []; params?: {} }
+    'seller_product.store_design': { paramsTuple?: []; params?: {} }
     'seller_product.set_status': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_product.sample': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'rfq.store': { paramsTuple?: []; params?: {} }

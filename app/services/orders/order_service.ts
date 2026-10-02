@@ -143,6 +143,8 @@ export default class OrderService {
     const product = await SellerProduct.query()
       .where('id', productId)
       .where('status', 'active')
+      // sold only in the seller's own shops (W1): not buyable through the Fabrmatch shop
+      .where('shopListed', true)
       .preload('sellerProfile')
       .preload('catalogProduct')
       .first()

@@ -15,12 +15,17 @@ const analyticsValidator = vine.create({
 })
 
 export default class SellerInsightController {
-  async marginPreview({ request, response }: HttpContext) {
+  async marginPreview({ request, response, auth }: HttpContext) {
     const { catalogProductId, marginBps } = await request.validateUsing(previewValidator)
     // what buyers where the seller browses from would pay (their region's rules, P2)
     const terms = await new PricingRegionService().termsFor(visitorCountry({ request }))
     return response.json({
-      options: await new MarginPreviewService().preview(catalogProductId, marginBps, terms),
+      options: await new MarginPreviewService().preview(
+        catalogProductId,
+        marginBps,
+        terms,
+        auth.getUserOrFail().id
+      ),
     })
   }
 

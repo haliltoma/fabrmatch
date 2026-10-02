@@ -280,6 +280,7 @@
 
 ## Log
 
+- **2026-10-02** — W1+W2: satıcı kendi yüklediği modelden ürün yapar (sahibine özel katalog satırı, yalnız kendi mağazalarında satma seçeneği), ürün kartında mockup galerisi + ZIP + düzenleme + mağaza durumu. Kritik: gerçek yüklemeler bigint `size_bytes` yüzünden analizde reddediliyordu, düzeltildi. 1049 test.
 - **2026-10-02** — Paket W açıldı (Printify modeli; inceleme: Playwright 5 rol ≈460 sayfa + kod). W0: developers sayfası satıcı panelinde, /maker/work mobil taşma, marj tamsayı + para birimi listeden, Woo açıklaması kaçışlı. 1043 test.
 - **2026-10-02** — Kaydırırken boş kalan bölümler düzeltildi: SSR'da `opacity:0` gelen scroll animasyonları yalnız negatif marjlı in-view ile açılıyordu (hızlı kaydırma/geri dönüş/sayfa sonu boş kalıyordu). Ortak `useRevealed` (görünür olunca ya da geçilince açılır), kısa gecikmeler, JS'siz `<noscript>` yedeği. Ana sayfada sıçramadan sonra gizli kalan metin bloğu 9 → 0.
 - **2026-10-02** — Paket V V8 Wix adaptörü (fake Wix ile uçtan uca): Catalog V3 yayın, JWT webhook, imzalı instance ile bağlanma, kargo/iptal geri yazımı; WooCommerce/Wix iptalinde satıcıya iade bildirimi. Canlı için Wix uygulama kaydı gerekli (tasks.md V8). 1041 test.

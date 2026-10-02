@@ -23,6 +23,8 @@ import {
 
 const listValidator = vine.create({
   shop: vine.string().uuid().optional(),
+  // the products page's "Publish to my shop" (W2)
+  product: vine.string().uuid().optional(),
 })
 
 const connectValidator = vine.create({
@@ -83,7 +85,7 @@ export default class SellerStoreController {
 
   async index({ inertia, auth, request }: HttpContext) {
     const seller = auth.getUserOrFail()
-    const { shop } = await request.validateUsing(listValidator)
+    const { shop, product: preselect } = await request.validateUsing(listValidator)
     const connections = await this.stores.connections(seller)
     const current = connections.find((c) => c.id === shop) ?? connections[0] ?? null
     const resolver = app.container.createResolver()
@@ -135,6 +137,7 @@ export default class SellerStoreController {
       })
     }
     return inertia.render('seller/stores', {
+      preselectProductId: preselect ?? null,
       testShops: app.inDev || app.inTest,
       shopifyScopes: SHOPIFY_SCOPES,
       etsyAvailable: etsyConfigured(),

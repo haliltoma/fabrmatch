@@ -79,7 +79,8 @@ test.group('multi-currency', (group) => {
     const locked = await fx.lock('USD')
     assert.equal(locked.rateE9, 20_000_000n)
     assert.equal(locked.bufferBps, 300)
-    assert.equal((await fx.lock('USD', 500)).bufferBps, 500, "a region's own buffer wins")
+    const regional = await fx.lock('USD', 500)
+    assert.equal(regional.bufferBps, 500, "a region's own buffer wins")
   })
 
   test('a USD price keeps every invariant of a TRY price and remembers the TRY value', async ({

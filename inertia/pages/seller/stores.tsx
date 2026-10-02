@@ -474,13 +474,18 @@ function PublishForm({
   connection,
   products,
   listings,
+  preselect,
 }: {
   connection: Connection
   products: Product[]
   listings: Listing[]
+  preselect: string | null
 }) {
   const { t } = useT()
-  const [productId, setProductId] = useState<string | null>(products[0]?.id ?? null)
+  // "Publish to my shop" on the products page links here with ?product=<id>
+  const [productId, setProductId] = useState<string | null>(
+    products.find((p) => p.id === preselect)?.id ?? products[0]?.id ?? null
+  )
   const product = products.find((p) => p.id === productId) ?? null
   const publishedPrice = (material: string) =>
     listings.find((l) => l.published && l.sellerProductId === productId && l.material === material)
@@ -691,6 +696,7 @@ export default function SellerStores({
   listings,
   orders,
   products,
+  preselectProductId,
 }: {
   testShops: boolean
   shopifyScopes: string[]
@@ -703,6 +709,7 @@ export default function SellerStores({
   listings: Listing[]
   orders: ExternalOrder[]
   products: Product[]
+  preselectProductId: string | null
 }) {
   const { t } = useT()
   const current = connections.find((c) => c.id === currentId) ?? null
@@ -791,7 +798,12 @@ export default function SellerStores({
               <CardTitle>{t('Publish a product to {shop}', { shop: current.shopName })}</CardTitle>
             </CardHeader>
             <CardContent>
-              <PublishForm connection={current} products={products} listings={listings} />
+              <PublishForm
+                connection={current}
+                products={products}
+                listings={listings}
+                preselect={preselectProductId}
+              />
             </CardContent>
           </Card>
 

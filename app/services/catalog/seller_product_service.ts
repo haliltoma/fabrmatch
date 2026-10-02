@@ -8,35 +8,30 @@ interface CreateSellerProductData {
   currency?: string
   marginBps?: number
   minMakerTier?: number
+  shopListed?: boolean
 }
 
 export default class SellerProductService {
   async createFromCatalog(
     profile: SellerProfile,
     catalogProduct: CatalogProduct,
-    data: { currency?: string; marginBps?: number; minMakerTier?: number }
+    data: {
+      title?: string
+      description?: string | null
+      currency?: string
+      marginBps?: number
+      minMakerTier?: number
+    }
   ): Promise<SellerProduct> {
     return SellerProduct.create({
       sellerProfileId: profile.id,
       catalogProductId: catalogProduct.id,
-      title: catalogProduct.title,
-      description: catalogProduct.description,
+      // the seller names it for their own buyers; the catalogue's text is the default
+      title: data.title?.trim() || catalogProduct.title,
+      description: data.description?.trim() || catalogProduct.description,
       currency: data.currency ?? 'TRY',
       marginBps: data.marginBps ?? profile.defaultMarginBps,
       minMakerTier: data.minMakerTier ?? 0,
-    })
-  }
-
-  async createCustom(
-    profile: SellerProfile,
-    data: CreateSellerProductData
-  ): Promise<SellerProduct> {
-    return SellerProduct.create({
-      sellerProfileId: profile.id,
-      title: data.title,
-      description: data.description ?? null,
-      currency: data.currency ?? 'TRY',
-      marginBps: data.marginBps ?? profile.defaultMarginBps,
     })
   }
 

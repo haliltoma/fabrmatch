@@ -432,9 +432,22 @@ router
     router
       .post('/products', [controllers.SellerProduct, 'store'])
       .use(middleware.profile({ role: 'seller' }))
+    // W1: a product from the seller's own uploaded model
+    router
+      .post('/products/design', [controllers.SellerProduct, 'storeDesign'])
+      .use([
+        middleware.profile({ role: 'seller' }),
+        middleware.throttle({ name: 'seller-design', requests: 30, duration: '1 hour' }),
+      ])
     router
       .put('/products/:id', [controllers.SellerProduct, 'update'])
       .use(middleware.profile({ role: 'seller' }))
+    router
+      .get('/products/:id/images.zip', [controllers.SellerProduct, 'images'])
+      .where('id', router.matchers.uuid())
+      .use(
+        middleware.throttle({ name: 'product-images-zip', requests: 30, duration: '10 minutes' })
+      )
     router
       .post('/products/:id/status', [controllers.SellerProduct, 'setStatus'])
       .use(middleware.profile({ role: 'seller' }))

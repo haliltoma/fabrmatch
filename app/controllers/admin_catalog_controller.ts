@@ -37,6 +37,8 @@ export default class AdminCatalogController {
         modelFileId: p.modelFileId,
         categoryId: p.categoryId,
         tags: p.tags ?? [],
+        // W1: a seller's own design (only they can sell it); admins can still retire it
+        sellerDesign: p.ownerUserId !== null,
       })),
       categories: categoryRows.map((c) => ({
         id: c.id,

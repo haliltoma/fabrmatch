@@ -16,6 +16,7 @@ import type PayoutTransformer from '#transformers/payout_transformer'
 import type PricingRegionTransformer from '#transformers/pricing_region_transformer'
 import type ProductionJobTransformer from '#transformers/production_job_transformer'
 import type RfqTransformer from '#transformers/rfq_transformer'
+import type SellerProductCardTransformer from '#transformers/seller_product_card_transformer'
 import type SellerProductTransformer from '#transformers/seller_product_transformer'
 import type StoreTransformer from '#transformers/store_transformer'
 import type UserTransformer from '#transformers/user_transformer'
@@ -61,6 +62,10 @@ export namespace Data {
   export type Rfq = InferData<RfqTransformer>
   export namespace Rfq {
     export type Variants = InferVariants<RfqTransformer>
+  }
+  export type SellerProductCard = InferData<SellerProductCardTransformer>
+  export namespace SellerProductCard {
+    export type Variants = InferVariants<SellerProductCardTransformer>
   }
   export type SellerProduct = InferData<SellerProductTransformer>
   export namespace SellerProduct {

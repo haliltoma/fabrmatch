@@ -1747,6 +1747,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_product_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'seller_product.store_design': {
+    methods: ["POST"]
+    pattern: '/seller/products/design'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/seller_product').createSellerDesignValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/seller_product').createSellerDesignValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_product_controller').default['storeDesign']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_product_controller').default['storeDesign']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'seller_product.update': {
     methods: ["PUT"]
     pattern: '/seller/products/:id'
@@ -1757,6 +1769,18 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/seller_product').updateSellerProductValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_product_controller').default['update']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_product_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'seller_product.images': {
+    methods: ["GET","HEAD"]
+    pattern: '/seller/products/:id/images.zip'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_product_controller').default['images']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_product_controller').default['images']>>>
     }
   }
   'seller_product.set_status': {

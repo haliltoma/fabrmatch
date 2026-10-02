@@ -280,7 +280,7 @@ export async function scanUpload(
   }
 
   if (expected?.sha256 || expected?.sizeBytes) {
-    if (expected.sizeBytes && expected.sizeBytes !== buffer.length) {
+    if (expected.sizeBytes && Number(expected.sizeBytes) !== buffer.length) {
       return { ...verdict, ok: false, reason: 'The stored file does not match the upload' }
     }
     if (expected.sha256) {

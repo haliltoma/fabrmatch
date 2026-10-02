@@ -73,8 +73,17 @@ export default class CatalogService {
     return CatalogProduct.query().orderBy('title', 'asc')
   }
 
+  /** The platform catalogue every seller can list (sellers' own designs are not in it). */
   async listActive(): Promise<CatalogProduct[]> {
-    return CatalogProduct.query().where('isActive', true).orderBy('title', 'asc')
+    return CatalogProduct.query()
+      .where('isActive', true)
+      .whereNull('ownerUserId')
+      .orderBy('title', 'asc')
+  }
+
+  /** A platform catalogue entry by id; a seller's own design is never returned here. */
+  async findPlatform(id: string): Promise<CatalogProduct | null> {
+    return CatalogProduct.query().where('id', id).whereNull('ownerUserId').first()
   }
 
   async findById(id: string): Promise<CatalogProduct | null> {

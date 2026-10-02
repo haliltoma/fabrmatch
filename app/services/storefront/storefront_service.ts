@@ -149,6 +149,7 @@ export default class StorefrontService {
   private visible() {
     return SellerProduct.query()
       .where('seller_products.status', 'active')
+      .where('seller_products.shop_listed', true)
       .join('catalog_products', 'catalog_products.id', 'seller_products.catalog_product_id')
       .join('model_files', 'model_files.id', 'catalog_products.model_file_id')
       .where('catalog_products.is_active', true)
@@ -232,7 +233,7 @@ export default class StorefrontService {
          join catalog_products cp on cp.id = sp.catalog_product_id
          join model_files mf on mf.id = cp.model_file_id
          join categories c on c.id = cp.category_id
-        where sp.status = 'active' and cp.is_active and c.is_active
+        where sp.status = 'active' and sp.shop_listed and cp.is_active and c.is_active
           and mf.analysis_status = 'done' and mf.is_printable and mf.blocked_at is null
         order by c.name`
     )

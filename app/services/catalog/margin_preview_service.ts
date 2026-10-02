@@ -25,12 +25,18 @@ export default class MarginPreviewService {
   async preview(
     catalogProductId: string,
     marginBps: number,
-    terms?: BrowseTerms
+    terms?: BrowseTerms,
+    viewerId: string | null = null
   ): Promise<MarginOption[]> {
     if (!Number.isInteger(marginBps) || marginBps < 0 || marginBps > MAX_MARGIN_BPS) return []
     const product = await CatalogProduct.query()
       .where('id', catalogProductId)
       .where('isActive', true)
+      // the platform catalogue, or the viewer's own design (W1)
+      .where((q) => {
+        q.whereNull('ownerUserId')
+        if (viewerId) q.orWhere('ownerUserId', viewerId)
+      })
       .preload('modelFile')
       .first()
     const file = product?.modelFile
