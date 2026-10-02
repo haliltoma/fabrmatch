@@ -165,7 +165,15 @@ function PriceWatch({ connection, listings }: { connection: Connection; listings
   )
 }
 
-function MappingRow({ listing, products }: { listing: Listing; products: Product[] }) {
+function MappingRow({
+  listing,
+  products,
+  colours,
+}: {
+  listing: Listing
+  products: Product[]
+  colours: Colour[]
+}) {
   const { t } = useT()
   const [productId, setProductId] = useState<string | null>(listing.sellerProductId)
   const product = products.find((p) => p.id === productId) ?? null
@@ -233,12 +241,24 @@ function MappingRow({ listing, products }: { listing: Listing; products: Product
       </div>
       <div className="space-y-1">
         <Label htmlFor={id('color')}>{t('Colour')}</Label>
-        <Input
+        <select
           id={id('color')}
+          className={selectClass}
           disabled={!product}
           value={color}
           onChange={(e) => setColor(e.target.value)}
-        />
+        >
+          <option value="">{t('Any / none')}</option>
+          {/* a colour stored before the list existed stays choosable */}
+          {color && !colours.some((c) => c.name === color) && (
+            <option value={color}>{color}</option>
+          )}
+          {colours.map((c) => (
+            <option key={c.name} value={c.name}>
+              {t(c.name)}
+            </option>
+          ))}
+        </select>
       </div>
       <div className="space-y-1">
         <Label htmlFor={id('scale')}>{t('Size')}</Label>
@@ -957,7 +977,9 @@ export default function SellerStores({
               {listings.length === 0 ? (
                 <p className="text-sm text-ink-600">{t('No products in this shop yet.')}</p>
               ) : (
-                listings.map((l) => <MappingRow key={l.id} listing={l} products={products} />)
+                listings.map((l) => (
+                  <MappingRow key={l.id} listing={l} products={products} colours={colours} />
+                ))
               )}
             </CardContent>
           </Card>

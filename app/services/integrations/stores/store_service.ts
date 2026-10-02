@@ -588,12 +588,16 @@ export default class StoreService {
     if (!(catalog.allowedScales ?? [100]).includes(scale)) {
       throw new StoreError('That size is not offered for this product')
     }
-    listing.merge({
-      sellerProductId: product.id,
-      material,
-      color: mapping.color?.trim() || null,
-      scalePercent: scale,
-    })
+    // a colour from our list (its canonical name), or none: makers print what the list names
+    let color: string | null = null
+    if (mapping.color?.trim()) {
+      const wanted = mapping.color.trim().toLowerCase()
+      const active = await Color.query().where('isActive', true)
+      const match = active.find((c) => c.name.toLowerCase() === wanted)
+      if (!match) throw new StoreError(`Unknown colour: ${mapping.color.trim()}`)
+      color = match.name
+    }
+    listing.merge({ sellerProductId: product.id, material, color, scalePercent: scale })
     await listing.save()
     await AuditLog.create({
       actorId: seller.id,

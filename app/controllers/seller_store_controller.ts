@@ -215,7 +215,10 @@ export default class SellerStoreController {
       data.categoryId ?? null
     )
     session.flash('success', 'Published to your shop.')
-    return response.redirect().toPath(`/seller/stores?shop=${params.id}`)
+    // stay on the product just published
+    return response
+      .redirect()
+      .toPath(`/seller/stores?shop=${params.id}&product=${data.sellerProductId}`)
   }
 
   /** Takes a product off sale in this shop (kept there as a draft). */

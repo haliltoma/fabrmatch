@@ -280,6 +280,7 @@
 
 ## Log
 
+- **2026-10-02** — W6: Printify akışı uçtan uca tarayıcı testi (tasarım → mağaza → renkli sipariş → takip). Bağlama ekranında renk listeden seçiliyor, sunucu doğruluyor. 1067 test.
 - **2026-10-02** — W5: satıcı ürün akışı (CSV/JSON, Google Merchant sütunları) gizli adresle; developers sayfasında aç/yenile/kapat + ürün sayfası şablonu. 1067 test.
 - **2026-10-02** — W4: satıcının kendi sitesi için yazma API'si (katalog seçenekleri, ürün varyant/maliyet/görsel, teklif, sipariş, iptal; anahtar kapsamı read/read_write), webhook olayları order.created/shipped/cancelled. Düzeltilen: API POST'ları CSRF'e takılıyordu; mağaza siparişlerinde webhook gitmiyordu. 1063 test.
 - **2026-10-02** — W3: mağazaya malzeme × renk × boyut varyantları (en çok 100), renk başına render, SKU `FM-<anahtar>-<MALZEME>-<RENK>-<YÜZDE>` (eski 3 parçalı SKU geçerli). 1058 test.

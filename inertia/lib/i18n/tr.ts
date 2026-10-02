@@ -3572,4 +3572,5 @@ export const tr: Record<string, string> = {
   'Product links saved.': 'Ürün bağlantıları kaydedildi.',
   'Put {id} where the product id goes': 'Ürün kimliğinin geleceği yere {id} yaz',
   'Use a public https address': 'Herkese açık bir https adresi kullan',
+  'Any / none': 'Herhangi / yok',
 }
