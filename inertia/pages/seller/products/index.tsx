@@ -246,7 +246,9 @@ function DesignForm({
   materials,
   categories,
   onClose,
+  preselect,
 }: {
+  preselect: string | null
   files: DesignFile[]
   materials: MaterialOption[]
   categories: CategoryOption[]
@@ -254,7 +256,7 @@ function DesignForm({
 }) {
   const { t } = useT()
   const [data, setData] = useState({
-    modelFileId: files[0]?.id ?? '',
+    modelFileId: preselect ?? files[0]?.id ?? '',
     title: '',
     description: '',
     materials: materials.some((m) => m.code === 'PLA') ? ['PLA'] : [],
@@ -527,7 +529,9 @@ function AddProduct({
   materials,
   categories,
   onClose,
+  preselect,
 }: {
+  preselect: string | null
   catalogProducts: CatalogOption[]
   files: DesignFile[]
   materials: MaterialOption[]
@@ -566,7 +570,13 @@ function AddProduct({
         ))}
       </div>
       {source === 'design' ? (
-        <DesignForm files={files} materials={materials} categories={categories} onClose={onClose} />
+        <DesignForm
+          preselect={preselect}
+          files={files}
+          materials={materials}
+          categories={categories}
+          onClose={onClose}
+        />
       ) : (
         <CatalogForm catalogProducts={catalogProducts} onClose={onClose} />
       )}
@@ -950,7 +960,9 @@ export default function SellerProductsIndex({
   designFiles,
   materials,
   categories,
+  openDesign,
 }: {
+  openDesign: string | null
   products: ProductData[]
   catalogProducts: CatalogOption[]
   designFiles: DesignFile[]
@@ -960,7 +972,7 @@ export default function SellerProductsIndex({
   const { t } = useT()
   const { externalStoresEnabled } = usePage<{ externalStoresEnabled?: boolean }>().props
 
-  const [showAdd, setShowAdd] = useState(false)
+  const [showAdd, setShowAdd] = useState(openDesign !== null)
   const [editing, setEditing] = useState<ProductData | null>(null)
   const [pictures, setPictures] = useState<ProductData | null>(null)
   const [sampleFor, setSampleFor] = useState<ProductData | null>(null)
@@ -1005,6 +1017,7 @@ export default function SellerProductsIndex({
             <DialogTitle>{t('Add product')}</DialogTitle>
           </DialogHeader>
           <AddProduct
+            preselect={openDesign}
             catalogProducts={catalogProducts}
             files={designFiles}
             materials={materials}

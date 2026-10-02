@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import vine from '@vinejs/vine'
 import app from '@adonisjs/core/services/app'
 import db from '@adonisjs/lucid/services/db'
 import drive from '@adonisjs/drive/services/main'
@@ -20,9 +21,12 @@ import {
   updateSellerProductValidator,
 } from '#validators/seller_product'
 
+const indexValidator = vine.create({ design: vine.string().uuid().optional() })
+
 export default class SellerProductController {
-  async index({ inertia, auth }: HttpContext) {
+  async index({ inertia, auth, request }: HttpContext) {
     const user = auth.getUserOrFail()
+    const { design } = await request.validateUsing(indexValidator)
     await user.load('sellerProfile')
 
     const products = await new SellerProductService().listForProfile(user.sellerProfile.id)
@@ -105,6 +109,8 @@ export default class SellerProductController {
       })),
       materials: materials.map((m) => ({ code: m.code.toUpperCase(), name: m.name })),
       categories: categories.map((c) => ({ id: c.id, name: c.name })),
+      // "Sell it" on the files page: open the form on that model (only one of the seller's own)
+      openDesign: files.some((f) => f.id === design) ? design! : null,
     })
   }
 

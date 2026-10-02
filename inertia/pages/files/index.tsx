@@ -1,11 +1,20 @@
 import { useState, useCallback, lazy, Suspense } from 'react'
-import { router } from '@inertiajs/react'
+import { router, usePage } from '@inertiajs/react'
 import { Link } from '@adonisjs/inertia/react'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog'
-import { Upload, FileBox, Loader2, Eye, Calculator, ShieldAlert, ShieldCheck } from 'lucide-react'
+import {
+  Upload,
+  FileBox,
+  Loader2,
+  Eye,
+  Calculator,
+  ShieldAlert,
+  ShieldCheck,
+  Store,
+} from 'lucide-react'
 import { PageHeader } from '~/components/page_header'
 import { Pagination, type PageMeta } from '~/components/pagination'
 import { EmptyState } from '~/components/empty_state'
@@ -24,6 +33,7 @@ type FileData = {
   analysisStatus: string
   blockedReason: string | null
   isPrintable: boolean | null
+  isProduct: boolean
   volumeMm3: number | null
   bboxXMm: number | null
   bboxYMm: number | null
@@ -278,6 +288,7 @@ function UploadDialog({
 function FilesIndex({ files, meta }: { files: FileData[]; meta: PageMeta }) {
   const { t } = useT()
 
+  const { hasShop } = usePage<{ hasShop?: boolean }>().props
   const [showUpload, setShowUpload] = useState(false)
   const scanning = files.some(
     (f) => f.analysisStatus === 'pending' || f.analysisStatus === 'processing'
@@ -397,8 +408,17 @@ function FilesIndex({ files, meta }: { files: FileData[]; meta: PageMeta }) {
                   )}
                   <span>{formatDate(f.createdAt)}</span>
                 </div>
-                <div className="mt-2 flex gap-2">
+                <div className="mt-2 flex flex-wrap gap-2">
                   <PreviewButton fileId={f.id} format={f.format} />
+                  {/* W1: the Printify step, from a checked model straight to a product */}
+                  {hasShop && f.analysisStatus === 'done' && f.isPrintable && !f.isProduct && (
+                    <Link href={`/seller/products?design=${f.id}`}>
+                      <Button variant="ghost" size="sm">
+                        <Store className="mr-1 h-3 w-3" />
+                        {t('Sell it')}
+                      </Button>
+                    </Link>
+                  )}
                   {f.analysisStatus === 'done' && f.volumeMm3 !== null && (
                     <Link href={`/files/${f.id}/quote`}>
                       <Button variant="ghost" size="sm">

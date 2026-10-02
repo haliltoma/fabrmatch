@@ -62,10 +62,11 @@ test.group('Printify flow: own design → shop → order → tracking (browser)'
     await page.waitForURL((url) => !url.pathname.startsWith('/login'))
     const origin = page.url().split('/').slice(0, 3).join('/')
 
-    // 1. own design → product
-    await page.goto(`${origin}/seller/products`)
-    await page.getByRole('button', { name: 'Add product' }).first().click()
-    await page.getByLabel('Your model').selectOption(file.id)
+    // 1. own design → product, starting from the uploaded file ("Sell it")
+    await page.goto(`${origin}/files`)
+    await page.getByRole('button', { name: 'Sell it' }).click()
+    await page.waitForURL((url) => url.pathname === '/seller/products')
+    assert.equal(await page.getByLabel('Your model').inputValue(), file.id)
     await page.locator('#design-title').fill('Lattice lamp')
     await page.getByLabel('PETG').check()
     await page.getByText('This is my own design').click()

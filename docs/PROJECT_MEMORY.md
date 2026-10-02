@@ -280,6 +280,7 @@
 
 ## Log
 
+- **2026-10-02** — Son tarama (5 rol, ~460 sayfa): /files mobil taşma düzeltildi; dosya kartında "Sat" (henüz ürün olmayan basılabilir dosya → ürün formu o dosyayla açık). 1071 test.
 - **2026-10-02** — W7 güvenlik incelemesi: yayında senkron renk render'ı (olay döngüsü kilidi) → bütçe + iş; pazar yeri satışlarında takip numarası satıcıya gitmiyor; API siparişi/iptali hangi anahtarla denetim kaydında; bilinmeyen kategori 422. Açık: K-W1 nodemailer (ana sürüm, kullanıcı kararı). Paket W bitti. 1071 test.
 - **2026-10-02** — W6: Printify akışı uçtan uca tarayıcı testi (tasarım → mağaza → renkli sipariş → takip). Bağlama ekranında renk listeden seçiliyor, sunucu doğruluyor. 1067 test.
 - **2026-10-02** — W5: satıcı ürün akışı (CSV/JSON, Google Merchant sütunları) gizli adresle; developers sayfasında aç/yenile/kapat + ürün sayfası şablonu. 1067 test.

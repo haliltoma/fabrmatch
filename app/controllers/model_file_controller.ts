@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import drive from '@adonisjs/drive/services/main'
+import db from '@adonisjs/lucid/services/db'
 import ModelFileService from '#services/files/model_file_service'
 import { getUploadUrlValidator, registerFileValidator } from '#validators/model_file'
 import { pageQueryValidator } from '#validators/order'
@@ -15,6 +16,19 @@ export default class ModelFileController {
     } = await new ModelFileService().listForOwner(user.id, {
       page,
     })
+    // W1: which of these already are the seller's products (the rest can still become one)
+    const used =
+      files.length === 0
+        ? []
+        : await db
+            .from('catalog_products')
+            .where('owner_user_id', user.id)
+            .whereIn(
+              'model_file_id',
+              files.map((f) => f.id)
+            )
+            .select('model_file_id')
+    const isProduct = new Set(used.map((r) => r.model_file_id as string))
 
     return inertia.render('files/index', {
       meta,
@@ -32,6 +46,7 @@ export default class ModelFileController {
         bboxZMm: f.bboxZMm,
         triangleCount: f.triangleCount,
         revision: f.revision,
+        isProduct: isProduct.has(f.id),
         olderVersions: history.get(f.id) ?? [],
         createdAt: f.createdAt.toISO() ?? '',
       })),
