@@ -289,6 +289,7 @@ export default class OrderService {
       coupon: coupon ?? undefined,
       items: lines,
       country: input.shippingAddress.country,
+      city: input.shippingAddress.city,
       hasSeller: !!input.sellerId,
       sellerMarginBps: input.sellerMarginBps,
       currency,

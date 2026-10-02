@@ -86,6 +86,8 @@ export interface MakerVerdict {
 interface ExplainOptions {
   offeredStatuses?: Map<string, string>
   now?: DateTime
+  /** V5: the buyer's city, for the makers' distance surcharge (as the matcher gets it) */
+  buyerCity?: string | null
 }
 
 /**
@@ -186,6 +188,10 @@ export default class EligibilityExplainer {
           budget,
           lines,
           costs: costs.get(profile.id),
+          where: {
+            maker: { city: profile.city, country: profile.country },
+            delivery: { city: options.buyerCity ?? null, country: order.shipCountry },
+          },
         }),
       }))
 
@@ -222,6 +228,7 @@ export default class EligibilityExplainer {
       budget: number | null
       lines: WorkLine[]
       costs: MakerCosts | undefined
+      where: Parameters<typeof printerFloor>[3]
     }
   ): Reason[] {
     const reasons: Reason[] = []
@@ -264,7 +271,7 @@ export default class EligibilityExplainer {
       reasons.push({ code: 'print_profile_missing' })
     }
     if (ctx.budget !== null && ctx.costs) {
-      const floor = printerFloor(printer, ctx.costs, ctx.lines)
+      const floor = printerFloor(printer, ctx.costs, ctx.lines, ctx.where)
       if (floor !== null && floor > ctx.budget) {
         reasons.push({ code: 'price_above_budget', price: floor, budget: ctx.budget })
       }

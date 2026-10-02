@@ -116,6 +116,16 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
     integer: true,
   },
   {
+    key: 'makerPay.maxDistanceBps',
+    group: 'makerPay',
+    kind: 'percent',
+    label: 'Maker distance surcharge: maximum',
+    help: 'The most a maker may add to their price for an order delivered to another city. Their nearer orders stay cheaper.',
+    min: 0,
+    max: 10_000,
+    integer: true,
+  },
+  {
     key: 'makerPay.quoteCoverageBps',
     group: 'makerPay',
     kind: 'percent',

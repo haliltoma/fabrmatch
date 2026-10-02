@@ -18,6 +18,8 @@ type Costs = {
   wasteBps: number
   failureBps: number
   profitBps: number
+  otherCityBps: number
+  abroadBps: number
 }
 
 /** A rate in basis points as the maker types it: "10" or "7,5" (percent). */
@@ -65,7 +67,7 @@ export default function MakerCosts({
 }: {
   costs: Costs & { saved: boolean }
   defaults: Costs
-  limits: { minBps: number; maxBps: number }
+  limits: { minBps: number; maxBps: number; maxDistanceBps: number }
   materials: Array<{ material: string; costPerKgMinor: number }>
 }) {
   const { t } = useT()
@@ -75,6 +77,7 @@ export default function MakerCosts({
   const [waste, setWaste] = useState(percentText(costs.wasteBps))
   const [failure, setFailure] = useState(percentText(costs.failureBps))
   const [profit, setProfit] = useState(percentText(costs.profitBps))
+  const [otherCity, setOtherCity] = useState(percentText(costs.otherCityBps))
 
   // the example job: a palm-sized part, editable so the maker can try their own typical print
   const [material, setMaterial] = useState(materials[0]?.material ?? '')
@@ -85,9 +88,12 @@ export default function MakerCosts({
   const wasteBps = parseMoneyToMinor(waste)
   const failureBps = parseMoneyToMinor(failure)
   const profitBps = parseMoneyToMinor(profit)
+  const otherCityBps = parseMoneyToMinor(otherCity)
+  const distanceOk = otherCityBps !== null && otherCityBps <= limits.maxDistanceBps
   const profitOk = profitBps !== null && profitBps >= limits.minBps && profitBps <= limits.maxBps
   const failureOk = failureBps !== null && failureBps < 10_000
-  const ready = hourly !== null && setup !== null && wasteBps !== null && failureOk && profitOk
+  const ready =
+    hourly !== null && setup !== null && wasteBps !== null && failureOk && profitOk && distanceOk
 
   const gramsN = Number(grams.replace(',', '.'))
   const hoursN = Number(hours.replace(',', '.'))
@@ -115,6 +121,9 @@ export default function MakerCosts({
       wasteBps,
       failureBps,
       profitBps,
+      otherCityBps,
+      // abroad stays as saved until cross-border production opens (K-K)
+      abroadBps: costs.abroadBps,
     })
   }
 
@@ -209,6 +218,23 @@ export default function MakerCosts({
                   })}
                 </p>
               )}
+              <PercentField
+                id="other-city"
+                label={t('Delivery to another city')}
+                help={t(
+                  'Added to your price when the buyer is not in your city, up to {max}%. Orders in your own city stay as they are.',
+                  { max: formatNumber(limits.maxDistanceBps / 100) }
+                )}
+                value={otherCity}
+                onChange={setOtherCity}
+              />
+              {!distanceOk && (
+                <p className="text-sm text-danger" role="alert">
+                  {t('A distance surcharge must be between 0% and {max}%', {
+                    max: formatNumber(limits.maxDistanceBps / 100),
+                  })}
+                </p>
+              )}
               <p className="text-xs text-ink-600">
                 {t('Material prices are set per printer, on the Printers page.')}
               </p>
@@ -286,6 +312,16 @@ export default function MakerCosts({
                     {formatMoney(example.floorMinor)}
                   </dd>
                 </div>
+                {otherCityBps !== null && otherCityBps > 0 && (
+                  <div className="flex justify-between gap-3 text-ink-700">
+                    <dt>{t('Delivered to another city')}</dt>
+                    <dd className="tabular-nums">
+                      {formatMoney(
+                        Math.ceil((example.floorMinor * (10_000 + otherCityBps)) / 10_000)
+                      )}
+                    </dd>
+                  </div>
+                )}
               </dl>
             ) : (
               <p className="text-sm text-ink-600">

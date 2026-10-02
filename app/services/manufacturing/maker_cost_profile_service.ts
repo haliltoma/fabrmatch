@@ -11,6 +11,10 @@ export interface MakerCosts {
   wasteBps: number
   failureBps: number
   profitBps: number
+  /** V5: added to their price for an order delivered to another city */
+  otherCityBps: number
+  /** V5: the same for abroad (stored; used once cross-border production opens, K-K) */
+  abroadBps: number
 }
 
 /** The limits a maker's profit must stay within, from /admin/settings → Maker pay. */
@@ -32,6 +36,8 @@ export default class MakerCostProfileService {
       wasteBps: pay.referenceWasteBps,
       failureBps: pay.referenceFailureBps,
       profitBps: pay.minProfitBps,
+      otherCityBps: 0,
+      abroadBps: 0,
     }
   }
 
@@ -47,15 +53,34 @@ export default class MakerCostProfileService {
       wasteBps: row.wasteBps,
       failureBps: row.failureBps,
       profitBps: Math.min(Math.max(row.profitBps, minBps), maxBps),
+      otherCityBps: Math.min(row.otherCityBps, fabrmatchConfig.makerPay.maxDistanceBps),
+      abroadBps: Math.min(row.abroadBps, fabrmatchConfig.makerPay.maxDistanceBps),
       saved: true,
     }
   }
 
-  async save(manufacturerProfileId: string, costs: MakerCosts): Promise<MakerCostProfile> {
+  /** The distance surcharges are optional here: absent means none. */
+  async save(
+    manufacturerProfileId: string,
+    input: Omit<MakerCosts, 'otherCityBps' | 'abroadBps'> &
+      Partial<Pick<MakerCosts, 'otherCityBps' | 'abroadBps'>>
+  ): Promise<MakerCostProfile> {
+    const costs: MakerCosts = { otherCityBps: 0, abroadBps: 0, ...input }
     const { minBps, maxBps } = profitLimits()
     if (costs.profitBps < minBps || costs.profitBps > maxBps) {
       throw new MakerCostProfileError(
         `Your profit must be between ${minBps / 100}% and ${maxBps / 100}%`
+      )
+    }
+    const maxDistance = fabrmatchConfig.makerPay.maxDistanceBps
+    if (
+      costs.otherCityBps < 0 ||
+      costs.abroadBps < 0 ||
+      costs.otherCityBps > maxDistance ||
+      costs.abroadBps > maxDistance
+    ) {
+      throw new MakerCostProfileError(
+        `A distance surcharge must be between 0% and ${maxDistance / 100}%`
       )
     }
     if (costs.failureBps >= 10_000) {

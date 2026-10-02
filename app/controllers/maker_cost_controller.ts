@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import fabrmatchConfig from '#config/fabrmatch'
 import PrinterMaterial from '#models/printer_material'
 import MakerCostProfileService, {
   profitLimits,
@@ -26,7 +27,7 @@ export default class MakerCostController {
     return inertia.render('maker/costs', {
       costs: await service.forMaker(profileId),
       defaults: service.defaults(),
-      limits: profitLimits(),
+      limits: { ...profitLimits(), maxDistanceBps: fabrmatchConfig.makerPay.maxDistanceBps },
       materials: [...perMaterial.entries()].map(([material, costPerKgMinor]) => ({
         material,
         costPerKgMinor,

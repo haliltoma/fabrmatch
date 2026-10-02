@@ -1052,6 +1052,15 @@ export const tr: Record<string, string> = {
   'Empty = the global FX buffer in Settings.': "Boş = Ayarlar'daki genel kur tamponu.",
   'Kept from the fixed price (spread)': 'Sabit fiyattan kalan (fark payı)',
   'FX gain': 'Kur geliri',
+  'Delivery to another city': 'Başka şehre teslim',
+  'Added to your price when the buyer is not in your city, up to {max}%. Orders in your own city stay as they are.':
+    'Alıcı senin şehrinde değilse fiyatına eklenir, en fazla %{max}. Kendi şehrindeki siparişler olduğu gibi kalır.',
+  'A distance surcharge must be between 0% and {max}%':
+    'Mesafe ek ücreti %0 ile %{max} arasında olmalı',
+  'Maker distance surcharge: maximum': 'Üretici mesafe ek ücreti: en çok',
+  'The most a maker may add to their price for an order delivered to another city. Their nearer orders stay cheaper.':
+    'Bir üreticinin başka şehre teslim edilen sipariş için fiyatına ekleyebileceği en yüksek oran. Yakındaki siparişleri daha ucuz kalır.',
+  'Delivered to another city': 'Başka şehre teslimde',
   'Allowance for failed prints': 'Başarısız baskı payı',
   'Your margin': 'Marjın',
   'Your share': 'Payın',

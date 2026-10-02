@@ -131,7 +131,7 @@ export default class MatchSuggestionService {
     for (const m of [...order.matchOffers].reverse())
       offeredStatuses.set(m.manufacturerProfileId, m.status)
     const verdicts = open
-      ? await new EligibilityExplainer().explain(order, { offeredStatuses })
+      ? await new EligibilityExplainer().explain(order, { offeredStatuses, buyerCity: city })
       : []
     const blockers = (v: (typeof verdicts)[number]) =>
       v.reasons.length +

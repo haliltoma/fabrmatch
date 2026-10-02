@@ -99,6 +99,8 @@ const fabrmatchConfig = {
     quoteMinMakers: 3,
     // …and the range reaches this far above it
     quoteFallbackBandBps: 1500,
+    // V5: the most a maker may add for sending to another city (or abroad, once K-K opens)
+    maxDistanceBps: 3000,
   },
 }
 

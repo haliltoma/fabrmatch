@@ -7,6 +7,8 @@ export const makerCostsValidator = vine.create({
   wasteBps: vine.number().withoutDecimals().min(0).max(5000),
   failureBps: vine.number().withoutDecimals().min(0).max(5000),
   profitBps: vine.number().withoutDecimals().min(0).max(10_000),
+  otherCityBps: vine.number().withoutDecimals().min(0).max(10_000).optional(),
+  abroadBps: vine.number().withoutDecimals().min(0).max(10_000).optional(),
 })
 
 /** Paket V (V3): what a maker asks instead of the offer, minor units of the order's currency. */

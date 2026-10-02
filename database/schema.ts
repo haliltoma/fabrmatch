@@ -646,8 +646,10 @@ export class LedgerEntrySchema extends BaseModel {
 }
 
 export class MakerCostProfileSchema extends BaseModel {
-  static $columns = ['createdAt', 'failureBps', 'hourlyRateMinor', 'id', 'manufacturerProfileId', 'profitBps', 'setupMinor', 'updatedAt', 'wasteBps'] as const
+  static $columns = ['abroadBps', 'createdAt', 'failureBps', 'hourlyRateMinor', 'id', 'manufacturerProfileId', 'otherCityBps', 'profitBps', 'setupMinor', 'updatedAt', 'wasteBps'] as const
   $columns = MakerCostProfileSchema.$columns
+  @column()
+  declare abroadBps: number
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column()
@@ -658,6 +660,8 @@ export class MakerCostProfileSchema extends BaseModel {
   declare id: string
   @column()
   declare manufacturerProfileId: string
+  @column()
+  declare otherCityBps: number
   @column()
   declare profitBps: number
   @column()

@@ -183,6 +183,8 @@ function scaleBbox(bbox: [number, number, number] | null, percent: number) {
 export async function priceOrder(input: {
   items: PricingItemInput[]
   country: string
+  /** V5: the delivery city, for makers' distance surcharges; unknown = priced as another city */
+  city?: string | null
   hasSeller: boolean
   sellerMarginBps?: number
   /** Buyer's currency; TRY (default) or one an admin has enabled. The rate is locked here. */
@@ -355,7 +357,10 @@ export async function priceOrder(input: {
     technology: prepared[0].technology,
     materials: lines.map((l) => l.material),
   })
-  const floors = market.map((m) => orderFloor(m, lines)).filter((f): f is number => f !== null)
+  const delivery = { city: input.city ?? null, country: input.country }
+  const floors = market
+    .map((m) => orderFloor(m, lines, delivery))
+    .filter((f): f is number => f !== null)
   // the reference maker as matching will see it (whole grams, setup once per line), so a maker
   // with the reference costs always fits an order priced without a market
   const referenceFloor = orderFloor(

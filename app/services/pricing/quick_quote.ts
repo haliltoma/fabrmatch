@@ -164,7 +164,10 @@ export async function quickQuoteFromFile(input: {
           finishingMinor: 0,
         },
       ]
-      const floors = market.map((m) => orderFloor(m, lines)).filter((f): f is number => f !== null)
+      // no address yet: each maker's price as for another city, so the quote is not too low
+      const floors = market
+        .map((m) => orderFloor(m, lines, { city: null, country }))
+        .filter((f): f is number => f !== null)
       const referenceFloor = orderFloor(
         {
           manufacturerProfileId: 'reference',

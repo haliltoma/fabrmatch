@@ -9,7 +9,13 @@ import PricingRegionService from '#services/pricing/pricing_region_service'
 import type { MatchCandidate } from '#services/matching/types'
 import MakerStatsService from '#services/manufacturing/maker_stats_service'
 import { productionDaysForOrder } from '#services/orders/production_window'
-import { costsOf, orderFloor, orderWorkLines, type WorkLine } from '#services/pricing/maker_market'
+import {
+  costsOf,
+  orderFloor,
+  orderWorkLines,
+  type Delivery,
+  type WorkLine,
+} from '#services/pricing/maker_market'
 import type { MakerCosts } from '#services/manufacturing/maker_cost_profile_service'
 
 type Dims = [number, number, number]
@@ -76,7 +82,9 @@ export function printerFloor(
     materials: Array<{ material: string; materialCostPerKgMinor: number }>
   },
   costs: MakerCosts,
-  lines: WorkLine[]
+  lines: WorkLine[],
+  /** V5: where the maker is and where the order goes, for their distance surcharge */
+  where?: { maker: { city: string | null; country: string }; delivery: Delivery }
 ): number | null {
   const materialCostPerKg = new Map<string, number>()
   for (const m of printer.materials) {
@@ -87,8 +95,15 @@ export function printerFloor(
     }
   }
   return orderFloor(
-    { manufacturerProfileId: printer.manufacturerProfileId, costs, materialCostPerKg },
-    lines
+    {
+      manufacturerProfileId: printer.manufacturerProfileId,
+      city: where?.maker.city ?? null,
+      country: where?.maker.country ?? null,
+      costs,
+      materialCostPerKg,
+    },
+    lines,
+    where?.delivery
   )
 }
 
@@ -234,7 +249,13 @@ export default class EligibilityService {
       const costs = await costsOf([...new Set(eligible.map((p) => p.manufacturerProfileId))])
       for (let i = eligible.length - 1; i >= 0; i--) {
         const printer = eligible[i]
-        const floor = printerFloor(printer, costs.get(printer.manufacturerProfileId)!, lines)
+        const floor = printerFloor(printer, costs.get(printer.manufacturerProfileId)!, lines, {
+          maker: {
+            city: printer.manufacturerProfile.city,
+            country: printer.manufacturerProfile.country,
+          },
+          delivery: { city: options.buyerCity ?? null, country: order.shipCountry },
+        })
         if (floor === null || floor > budget) eligible.splice(i, 1)
         else pay.set(printer.id, floor)
       }

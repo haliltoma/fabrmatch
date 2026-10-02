@@ -19,16 +19,43 @@ export interface WorkLine {
 /** A maker who could print an order, with what their material costs them. */
 export interface MarketMaker {
   manufacturerProfileId: string
+  /** where they work, for the distance surcharge (V5); absent = treated as another city */
+  city?: string | null
+  country?: string | null
   costs: MakerCosts
   /** material code → the cheapest spool they entered for it, per kg */
   materialCostPerKg: Map<string, number>
 }
 
+/** Where an order goes: the maker's distance surcharge depends on it (V5). */
+export interface Delivery {
+  /** null = not known yet (a quote): priced as another city, so the price is not too low */
+  city: string | null
+  country: string
+}
+
+const sameCity = (a: string | null | undefined, b: string | null | undefined) =>
+  !!a && !!b && a.trim().toLocaleLowerCase('tr') === b.trim().toLocaleLowerCase('tr')
+
+/** The maker's surcharge for this delivery, in basis points (V5, K-V5). */
+export function distanceBps(maker: MarketMaker, delivery: Delivery | undefined): number {
+  if (!delivery) return 0
+  if (maker.country && maker.country.toUpperCase() !== delivery.country.toUpperCase()) {
+    return maker.costs.abroadBps
+  }
+  return sameCity(maker.city, delivery.city) ? 0 : maker.costs.otherCityBps
+}
+
 /**
  * What a maker is paid for the whole order (Paket V): their own costs and profit, line by line,
- * setup once per line. Null when they do not print one of the materials.
+ * setup once per line, plus their distance surcharge for this delivery (V5). Null when they do not
+ * print one of the materials.
  */
-export function orderFloor(maker: MarketMaker, lines: WorkLine[]): number | null {
+export function orderFloor(
+  maker: MarketMaker,
+  lines: WorkLine[],
+  delivery?: Delivery
+): number | null {
   let total = 0
   for (const line of lines) {
     const perKg = maker.materialCostPerKg.get(line.material.toUpperCase())
@@ -38,7 +65,8 @@ export function orderFloor(maker: MarketMaker, lines: WorkLine[]): number | null
       { grams: line.grams, minutes: line.minutes, finishingMinor: line.finishingMinor }
     ).floorMinor
   }
-  return total
+  const surcharge = distanceBps(maker, delivery)
+  return surcharge === 0 ? total : Math.ceil((total * (10_000 + surcharge)) / 10_000)
 }
 
 /** Costs of the given makers; a maker who has not entered theirs is the reference maker. */
@@ -58,6 +86,8 @@ export async function costsOf(profileIds: string[]): Promise<Map<string, MakerCo
       wasteBps: r.waste_bps,
       failureBps: r.failure_bps,
       profitBps: Math.min(Math.max(r.profit_bps, minBps), maxBps),
+      otherCityBps: Math.min(r.other_city_bps, fabrmatchConfig.makerPay.maxDistanceBps),
+      abroadBps: Math.min(r.abroad_bps, fabrmatchConfig.makerPay.maxDistanceBps),
     })
   }
   return result
@@ -85,20 +115,23 @@ export async function marketMakers(input: {
     .where('p.technology', input.technology)
     // material codes are stored as the catalogue writes them (upper case)
     .whereIn('pm.material', materials)
-    .groupBy('mp.id', 'pm.material')
-    .select('mp.id as maker', 'pm.material')
+    .groupBy('mp.id', 'mp.city', 'mp.country', 'pm.material')
+    .select('mp.id as maker', 'mp.city', 'mp.country', 'pm.material')
     .min('pm.material_cost_per_kg_minor as cost')
 
   const byMaker = new Map<string, Map<string, number>>()
+  const where = new Map<string, { city: string | null; country: string | null }>()
   for (const r of rows) {
     const map = byMaker.get(r.maker) ?? new Map<string, number>()
     map.set(String(r.material), Number(r.cost))
     byMaker.set(r.maker, map)
+    where.set(r.maker, { city: r.city ?? null, country: r.country ?? null })
   }
   const complete = [...byMaker].filter(([, map]) => materials.every((m) => map.has(m)))
   const costs = await costsOf(complete.map(([id]) => id))
   return complete.map(([id, map]) => ({
     manufacturerProfileId: id,
+    ...where.get(id)!,
     costs: costs.get(id)!,
     materialCostPerKg: map,
   }))
