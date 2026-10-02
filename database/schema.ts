@@ -1599,7 +1599,7 @@ export class SellerProductSchema extends BaseModel {
 }
 
 export class SellerProfileSchema extends BaseModel {
-  static $columns = ['brandMessage', 'brandName', 'businessName', 'createdAt', 'defaultMarginBps', 'id', 'isCorporate', 'logoContentType', 'logoKey', 'status', 'taxIdEnc', 'updatedAt', 'userId', 'walletAutoPay'] as const
+  static $columns = ['brandMessage', 'brandName', 'businessName', 'createdAt', 'defaultMarginBps', 'feedLinkTemplate', 'feedTokenEnc', 'feedTokenHash', 'id', 'isCorporate', 'logoContentType', 'logoKey', 'status', 'taxIdEnc', 'updatedAt', 'userId', 'walletAutoPay'] as const
   $columns = SellerProfileSchema.$columns
   @column()
   declare brandMessage: string | null
@@ -1611,6 +1611,12 @@ export class SellerProfileSchema extends BaseModel {
   declare createdAt: DateTime
   @column()
   declare defaultMarginBps: number
+  @column()
+  declare feedLinkTemplate: string | null
+  @column()
+  declare feedTokenEnc: string | null
+  @column()
+  declare feedTokenHash: string | null
   @column({ isPrimary: true })
   declare id: string
   @column()

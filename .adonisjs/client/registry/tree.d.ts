@@ -240,6 +240,12 @@ export interface ApiDefinition {
     deleteWebhook: typeof routes['seller_developer.delete_webhook']
     testWebhook: typeof routes['seller_developer.test_webhook']
   }
+  productFeed: {
+    rotate: typeof routes['product_feed.rotate']
+    turnOff: typeof routes['product_feed.turn_off']
+    link: typeof routes['product_feed.link']
+    show: typeof routes['product_feed.show']
+  }
   rfq: {
     index: typeof routes['rfq.index']
     create: typeof routes['rfq.create']

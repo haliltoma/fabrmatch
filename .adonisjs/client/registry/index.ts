@@ -870,6 +870,24 @@ const routes = {
     tokens: [{"old":"/seller/developers/webhooks/:id/test","type":0,"val":"seller","end":""},{"old":"/seller/developers/webhooks/:id/test","type":0,"val":"developers","end":""},{"old":"/seller/developers/webhooks/:id/test","type":0,"val":"webhooks","end":""},{"old":"/seller/developers/webhooks/:id/test","type":1,"val":"id","end":""},{"old":"/seller/developers/webhooks/:id/test","type":0,"val":"test","end":""}],
     types: placeholder as Registry['seller_developer.test_webhook']['types'],
   },
+  'product_feed.rotate': {
+    methods: ["POST"],
+    pattern: '/seller/developers/feed',
+    tokens: [{"old":"/seller/developers/feed","type":0,"val":"seller","end":""},{"old":"/seller/developers/feed","type":0,"val":"developers","end":""},{"old":"/seller/developers/feed","type":0,"val":"feed","end":""}],
+    types: placeholder as Registry['product_feed.rotate']['types'],
+  },
+  'product_feed.turn_off': {
+    methods: ["POST"],
+    pattern: '/seller/developers/feed/off',
+    tokens: [{"old":"/seller/developers/feed/off","type":0,"val":"seller","end":""},{"old":"/seller/developers/feed/off","type":0,"val":"developers","end":""},{"old":"/seller/developers/feed/off","type":0,"val":"feed","end":""},{"old":"/seller/developers/feed/off","type":0,"val":"off","end":""}],
+    types: placeholder as Registry['product_feed.turn_off']['types'],
+  },
+  'product_feed.link': {
+    methods: ["POST"],
+    pattern: '/seller/developers/feed/link',
+    tokens: [{"old":"/seller/developers/feed/link","type":0,"val":"seller","end":""},{"old":"/seller/developers/feed/link","type":0,"val":"developers","end":""},{"old":"/seller/developers/feed/link","type":0,"val":"feed","end":""},{"old":"/seller/developers/feed/link","type":0,"val":"link","end":""}],
+    types: placeholder as Registry['product_feed.link']['types'],
+  },
   'seller_product.store': {
     methods: ["POST"],
     pattern: '/seller/products',
@@ -941,6 +959,12 @@ const routes = {
     pattern: '/rfqs/:id/cancel',
     tokens: [{"old":"/rfqs/:id/cancel","type":0,"val":"rfqs","end":""},{"old":"/rfqs/:id/cancel","type":1,"val":"id","end":""},{"old":"/rfqs/:id/cancel","type":0,"val":"cancel","end":""}],
     types: placeholder as Registry['rfq.cancel']['types'],
+  },
+  'product_feed.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/feeds/:token/:file',
+    tokens: [{"old":"/feeds/:token/:file","type":0,"val":"feeds","end":""},{"old":"/feeds/:token/:file","type":1,"val":"token","end":""},{"old":"/feeds/:token/:file","type":1,"val":"file","end":""}],
+    types: placeholder as Registry['product_feed.show']['types'],
   },
   'api.openapi': {
     methods: ["GET","HEAD"],

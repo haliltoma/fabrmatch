@@ -3554,4 +3554,22 @@ export const tr: Record<string, string> = {
   'cancel before a maker starts': 'üretici başlamadan iptal et',
   'We send a signed POST to your URL when an order from your shop or site is placed, changes status, ships or is cancelled, and when one of your sales changes.':
     'Mağazandan ya da sitenden gelen bir sipariş verildiğinde, durumu değiştiğinde, kargolandığında ya da iptal edildiğinde ve satışlarından biri değiştiğinde adresine imzalı bir POST göndeririz.',
+  'Product feed': 'Ürün akışı',
+  'Your active products as a CSV or JSON file, one row per material and size, with prices (cost plus your margin) and our pictures. Import it into your own site, Google Merchant Center or another marketplace; it stays up to date.':
+    "Satıştaki ürünlerin CSV ya da JSON dosyası olarak; her malzeme ve boyut bir satır, fiyatlar (maliyet artı marjın) ve görsellerimizle. Kendi sitene, Google Merchant Center'a ya da başka bir pazar yerine aktar; hep güncel kalır.",
+  'Anyone with the address can read the feed. Make a new one if it leaked.':
+    'Adresi bilen herkes akışı okuyabilir. Sızdıysa yenisini oluştur.',
+  'Make a new address? The old one stops working.':
+    'Yeni adres oluşturulsun mu? Eskisi çalışmayı bırakır.',
+  'New address': 'Yeni adres',
+  'Turn on the feed': 'Akışı aç',
+  'Product page on your site': 'Sitendeki ürün sayfası',
+  'Where each product lives on your site; {id} becomes the product id. Empty: the Fabrmatch shop page, when the product is listed there.':
+    'Her ürünün sitendeki adresi; {id} ürün kimliğine dönüşür. Boşsa: ürün orada listeleniyorsa Fabrmatch mağaza sayfası.',
+  'New feed address made. The old one no longer works.':
+    'Yeni akış adresi oluşturuldu. Eskisi artık çalışmıyor.',
+  'Product feed turned off.': 'Ürün akışı kapatıldı.',
+  'Product links saved.': 'Ürün bağlantıları kaydedildi.',
+  'Put {id} where the product id goes': 'Ürün kimliğinin geleceği yere {id} yaz',
+  'Use a public https address': 'Herkese açık bir https adresi kullan',
 }

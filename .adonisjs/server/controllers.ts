@@ -66,6 +66,7 @@ export const controllers = {
   PaymentReturn: () => import('#controllers/payment_return_controller'),
   PaymentWebhook: () => import('#controllers/payment_webhook_controller'),
   Printer: () => import('#controllers/printer_controller'),
+  ProductFeed: () => import('#controllers/product_feed_controller'),
   ProductImage: () => import('#controllers/product_image_controller'),
   Quote: () => import('#controllers/quote_controller'),
   Rfq: () => import('#controllers/rfq_controller'),

@@ -2,12 +2,18 @@ import type { HttpContext } from '@adonisjs/core/http'
 import ApiKeyService from '#services/integrations/api_key_service'
 import WebhookService from '#services/integrations/webhook_service'
 import { apiKeyValidator, webhookEndpointValidator } from '#validators/developer'
+import ProductFeedService from '#services/integrations/product_feed_service'
+import env from '#start/env'
 
 const BACK = '/seller/developers'
 
 export default class SellerDeveloperController {
   async index({ inertia, auth, session }: HttpContext) {
-    const userId = auth.getUserOrFail().id
+    const user = auth.getUserOrFail()
+    const userId = user.id
+    await user.load('sellerProfile')
+    const feedToken = user.sellerProfile ? new ProductFeedService().token(user.sellerProfile) : null
+    const base = env.get('APP_URL').replace(/\/$/, '')
     const webhooks = new WebhookService()
     const [keys, endpoints, deliveries] = await Promise.all([
       new ApiKeyService().list(userId),
@@ -41,6 +47,12 @@ export default class SellerDeveloperController {
         lastError: d.lastError,
         createdAt: d.createdAt.toISO()!,
       })),
+      // W5: the product feed's addresses (the token is the seller's own secret)
+      feed: {
+        csvUrl: feedToken ? `${base}/feeds/${feedToken}/products.csv` : null,
+        jsonUrl: feedToken ? `${base}/feeds/${feedToken}/products.json` : null,
+        linkTemplate: user.sellerProfile?.feedLinkTemplate ?? null,
+      },
       newApiKey: (session.flashMessages.get('newApiKey') as string | undefined) ?? null,
       newWebhookSecret:
         (session.flashMessages.get('newWebhookSecret') as

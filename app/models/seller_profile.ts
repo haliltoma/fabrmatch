@@ -47,6 +47,17 @@ export default class SellerProfile extends BaseModel {
   @column()
   declare status: ProfileStatus
 
+  /** W5: the product feed's secret, looked up by hash; kept encrypted to show the address again */
+  @column({ serializeAs: null })
+  declare feedTokenHash: string | null
+
+  @column({ serializeAs: null })
+  declare feedTokenEnc: string | null
+
+  /** W5: where each product lives on the seller's own site, with `{id}` for the product */
+  @column()
+  declare feedLinkTemplate: string | null
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

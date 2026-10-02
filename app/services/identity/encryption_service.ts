@@ -19,6 +19,7 @@ export const ENCRYPTED_COLUMNS: Array<{ table: string; column: string }> = [
   { table: 'payee_tax_profiles', column: 'address_enc' },
   { table: 'payee_tax_profiles', column: 'iban_enc' },
   { table: 'payee_tax_profiles', column: 'tax_number_enc' },
+  { table: 'seller_profiles', column: 'feed_token_enc' },
   { table: 'seller_profiles', column: 'tax_id_enc' },
   { table: 'store_connections', column: 'access_token_enc' },
   { table: 'store_connections', column: 'api_key_enc' },

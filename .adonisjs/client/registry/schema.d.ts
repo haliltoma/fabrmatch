@@ -1735,6 +1735,42 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_developer_controller').default['testWebhook']>>>
     }
   }
+  'product_feed.rotate': {
+    methods: ["POST"]
+    pattern: '/seller/developers/feed'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/product_feed_controller').default['rotate']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/product_feed_controller').default['rotate']>>>
+    }
+  }
+  'product_feed.turn_off': {
+    methods: ["POST"]
+    pattern: '/seller/developers/feed/off'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/product_feed_controller').default['turnOff']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/product_feed_controller').default['turnOff']>>>
+    }
+  }
+  'product_feed.link': {
+    methods: ["POST"]
+    pattern: '/seller/developers/feed/link'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/product_feed_controller').default['link']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/product_feed_controller').default['link']>>>
+    }
+  }
   'seller_product.store': {
     methods: ["POST"]
     pattern: '/seller/products'
@@ -1877,6 +1913,18 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/rfq_controller').default['cancel']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rfq_controller').default['cancel']>>>
+    }
+  }
+  'product_feed.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/feeds/:token/:file'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { token: ParamValue; file: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/product_feed_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/product_feed_controller').default['show']>>>
     }
   }
   'api.openapi': {

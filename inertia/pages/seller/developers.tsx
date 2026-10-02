@@ -37,7 +37,9 @@ type Delivery = {
   lastError: string | null
   createdAt: string
 }
+type Feed = { csvUrl: string | null; jsonUrl: string | null; linkTemplate: string | null }
 type Props = {
+  feed: Feed
   keys: Key[]
   endpoints: Endpoint[]
   deliveries: Delivery[]
@@ -300,6 +302,90 @@ const ORDER_EXAMPLE = `curl -X POST https://YOUR-DOMAIN/api/v1/orders \\
       "phone": "+905551112233" }
   }'`
 
+/** W5: the products as a feed any site or marketplace imports (Google Merchant columns). */
+function FeedCard({ feed }: { feed: Feed }) {
+  const { t } = useT()
+  const [template, setTemplate] = useState(feed.linkTemplate ?? '')
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t('Product feed')}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4 text-sm text-ink-700">
+        <p>
+          {t(
+            'Your active products as a CSV or JSON file, one row per material and size, with prices (cost plus your margin) and our pictures. Import it into your own site, Google Merchant Center or another marketplace; it stays up to date.'
+          )}
+        </p>
+        {feed.csvUrl ? (
+          <>
+            {[feed.csvUrl, feed.jsonUrl!].map((url) => (
+              <p
+                key={url}
+                className="tabular break-all rounded-md bg-paper-sunken px-3 py-2 font-mono text-xs text-ink-900 select-all"
+              >
+                {url}
+              </p>
+            ))}
+            <p className="text-xs text-ink-600">
+              {t('Anyone with the address can read the feed. Make a new one if it leaked.')}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  if (window.confirm(t('Make a new address? The old one stops working.'))) {
+                    router.post('/seller/developers/feed')
+                  }
+                }}
+              >
+                {t('New address')}
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => router.post('/seller/developers/feed/off')}
+              >
+                {t('Turn off')}
+              </Button>
+            </div>
+          </>
+        ) : (
+          <Button size="sm" onClick={() => router.post('/seller/developers/feed')}>
+            {t('Turn on the feed')}
+          </Button>
+        )}
+        <form
+          className="flex flex-wrap items-end gap-3 border-t border-line pt-4"
+          onSubmit={(e) => {
+            e.preventDefault()
+            router.post('/seller/developers/feed/link', { template: template || null })
+          }}
+        >
+          <div className="min-w-56 flex-1 space-y-1">
+            <Label htmlFor="feed-link">{t('Product page on your site')}</Label>
+            <Input
+              id="feed-link"
+              value={template}
+              placeholder="https://myshop.com/products/{id}"
+              onChange={(e) => setTemplate(e.target.value)}
+            />
+            <p className="text-xs text-ink-600">
+              {t(
+                'Where each product lives on your site; {id} becomes the product id. Empty: the Fabrmatch shop page, when the product is listed there.'
+              )}
+            </p>
+          </div>
+          <Button type="submit" variant="outline">
+            {t('Save')}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  )
+}
+
 function DocsCard() {
   const { t } = useT()
   return (
@@ -362,6 +448,7 @@ function DocsCard() {
 }
 
 export default function Developers({
+  feed,
   keys,
   endpoints,
   deliveries,
@@ -392,6 +479,7 @@ export default function Developers({
       <KeysCard keys={keys} />
       <WebhooksCard endpoints={endpoints} />
       <DeliveriesCard deliveries={deliveries} />
+      <FeedCard feed={feed} />
       <DocsCard />
     </div>
   )

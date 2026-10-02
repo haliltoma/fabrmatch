@@ -426,6 +426,10 @@ router
         router
           .post('/webhooks/:id/test', [controllers.SellerDeveloper, 'testWebhook'])
           .use(middleware.throttle({ name: 'webhook-test', requests: 10, duration: '1 hour' }))
+        // W5: the product feed
+        router.post('/feed', [controllers.ProductFeed, 'rotate'])
+        router.post('/feed/off', [controllers.ProductFeed, 'turnOff'])
+        router.post('/feed/link', [controllers.ProductFeed, 'link'])
       })
       .prefix('/developers')
       .use(middleware.verified())
@@ -486,6 +490,13 @@ router
     middleware.role({ role: 'seller' }),
     middleware.feature({ name: 'rfq' }),
   ])
+
+// W5: a seller's product feed for any site or marketplace (secret address, no session)
+router
+  .get('/feeds/:token/:file', [controllers.ProductFeed, 'show'])
+  .where('token', /^fmf_[0-9a-f]{48}$/)
+  .where('file', /^products\.(csv|json)$/)
+  .use(middleware.throttle({ name: 'product-feed', requests: 120, duration: '1 hour' }))
 
 // OpenAPI document of the seller API (public, no key)
 router.get('/api/v1/openapi.json', [controllers.Api, 'openapi'])
