@@ -121,3 +121,13 @@ export function fabrmatchSku(sellerProductId: string, material: string) {
 export function decimalPrice(minor: number) {
   return `${Math.floor(minor / 100)}.${String(minor % 100).padStart(2, '0')}`
 }
+
+/** Seller text as shop HTML: escaped, line breaks kept (shops render descriptions as HTML). */
+export function descriptionHtml(text: string) {
+  return text
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll('\n', '<br>')
+}

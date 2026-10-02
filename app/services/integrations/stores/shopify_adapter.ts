@@ -6,6 +6,7 @@ import {
   StoreApiError,
   StoreWebhookSignatureError,
   decimalPrice,
+  descriptionHtml,
   type StoreEvent,
   type PublishInput,
   type PublishResult,
@@ -149,7 +150,7 @@ export default class ShopifyAdapter implements StoreAdapter {
         ...(existingProductId ? { identifier: { id: gid('Product', existingProductId) } } : {}),
         input: {
           title: input.title,
-          descriptionHtml: escapeHtml(input.description).replaceAll('\n', '<br>'),
+          descriptionHtml: descriptionHtml(input.description),
           status: 'ACTIVE',
           productOptions: [
             { name: 'Material', values: input.variants.map((v) => ({ name: v.material })) },
@@ -409,8 +410,4 @@ interface ShopifyOrder {
     country_code?: string
     phone?: string | null
   } | null
-}
-
-function escapeHtml(text: string) {
-  return text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
 }

@@ -6,6 +6,7 @@ import {
   StoreApiError,
   StoreWebhookSignatureError,
   decimalPrice,
+  descriptionHtml,
   type StoreEvent,
   type PublishInput,
   type PublishResult,
@@ -147,7 +148,7 @@ export default class WooCommerceAdapter implements StoreAdapter {
       name: input.title,
       type: 'variable',
       status: 'publish',
-      description: input.description,
+      description: descriptionHtml(input.description),
       images: input.imageUrls.map((src) => ({ src })),
       attributes: [
         {

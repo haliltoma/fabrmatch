@@ -471,10 +471,12 @@ function FileDownloads({ files }: { files: JobData['files'] }) {
           size="sm"
           disabled={!file.isValid || file.downloadsLeft === 0}
           onClick={() => downloadGrant(file.grantId)}
+          className="h-auto min-h-8 max-w-full justify-start whitespace-normal py-1.5 text-left"
+          title={file.label}
         >
-          <Download className="mr-1.5 h-3.5 w-3.5" />
-          {file.label}
-          <span className="ml-1.5 text-xs text-ink-600">
+          <Download className="mr-1.5 h-3.5 w-3.5 shrink-0" />
+          <span className="min-w-0 break-all">{file.label}</span>
+          <span className="ml-1.5 shrink-0 text-xs text-ink-600">
             {t('{downloadsLeft} left · {date}', {
               downloadsLeft: file.downloadsLeft,
               date: formatDate(file.expiresAt),

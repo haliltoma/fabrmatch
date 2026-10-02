@@ -9,6 +9,7 @@ import { PageHeader } from '~/components/page_header'
 import { StatusBadge } from '~/components/status_badge'
 import { formatDateTime } from '~/lib/format'
 import { useT } from '~/lib/i18n'
+import { sellerNav } from '~/lib/nav'
 
 type Key = {
   id: string
@@ -296,7 +297,7 @@ export default function Developers({
 }: Props) {
   const { t } = useT()
   return (
-    <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
+    <div className="max-w-3xl space-y-6">
       <PageHeader
         title={t('Developers')}
         description={t('API keys and webhooks for your own systems.')}
@@ -322,3 +323,6 @@ export default function Developers({
     </div>
   )
 }
+
+Developers.layout = 'dashboard'
+Developers.dashboardProps = { navItems: sellerNav, title: 'Seller' }
