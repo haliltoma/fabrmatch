@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { Link } from '@adonisjs/inertia/react'
-import { motion, useInView, useReducedMotion } from 'motion/react'
+import { motion, useReducedMotion } from 'motion/react'
+import { useRevealed } from '~/lib/use_revealed'
 import {
   ArrowRight,
   BadgeCheck,
@@ -77,10 +78,10 @@ export function AfterYouPay({ confirmDays }: { confirmDays: number }) {
   const { t } = useT()
   const reduce = useReducedMotion() ?? false
   const ref = useRef<HTMLOListElement>(null)
-  const seen = useInView(ref, { once: true, margin: '-100px' })
+  const seen = useRevealed(ref)
   const on = reduce || seen
   const last = STEPS.length - 1
-  const stepDelay = (i: number) => (reduce ? 0 : 0.2 + i * 0.35)
+  const stepDelay = (i: number) => (reduce ? 0 : 0.1 + i * 0.18)
 
   return (
     <section

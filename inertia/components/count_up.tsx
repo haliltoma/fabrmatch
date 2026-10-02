@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { animate, useInView, useReducedMotion } from 'motion/react'
+import { animate, useReducedMotion } from 'motion/react'
+import { useRevealed } from '~/lib/use_revealed'
 
 /**
  * A real number that counts up when it scrolls into view and eases to a new value when it changes.
@@ -16,7 +17,7 @@ export function CountUp({
 }) {
   const ref = useRef<HTMLSpanElement>(null)
   const reduce = useReducedMotion()
-  const inView = useInView(ref, { once: true, margin: '-40px' })
+  const inView = useRevealed(ref)
   const [shown, setShown] = useState(value)
   const current = useRef(value)
   const started = useRef(false)

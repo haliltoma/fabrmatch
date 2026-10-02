@@ -13,6 +13,12 @@
         } catch (e) {}
       })()
     </script>
+    {{-- scroll-in animations start hidden in the server HTML; without JS they would never show --}}
+    <noscript>
+      <style>
+        [style*="opacity:0"] { opacity: 1 !important; transform: none !important; }
+      </style>
+    </noscript>
 
     @viteReactRefresh()
     @vite(['inertia/app.tsx'])

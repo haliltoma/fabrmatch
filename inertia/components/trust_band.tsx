@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useInView, useReducedMotion } from 'motion/react'
+import { useRevealed } from '~/lib/use_revealed'
 import {
   ArrowUp,
   Camera,
@@ -81,7 +82,7 @@ export function TrustBand() {
   const still = useReducedMotion() ?? false
   const ref = useRef<HTMLOListElement>(null)
   const inView = useInView(ref, { margin: '-100px' })
-  const seen = useInView(ref, { once: true, margin: '-100px' })
+  const seen = useRevealed(ref)
   const [active, setActive] = useState(0)
 
   useEffect(() => {

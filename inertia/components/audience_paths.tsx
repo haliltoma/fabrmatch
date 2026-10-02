@@ -1,8 +1,10 @@
+import { useRef } from 'react'
 import { Link } from '@adonisjs/inertia/react'
 import { motion, useReducedMotion } from 'motion/react'
 import { ArrowDown, ArrowRight, Package, Printer, Store, type LucideIcon } from 'lucide-react'
 import { Button } from '~/components/ui/button'
 import { useT } from '~/lib/i18n'
+import { useRevealed } from '~/lib/use_revealed'
 
 interface Path {
   id: 'buyer' | 'seller' | 'maker'
@@ -56,7 +58,17 @@ const PATHS: Path[] = [
 ]
 
 /** A crossed-out chore; the line draws across once the card is on screen. */
-function Skipped({ text, delay, still }: { text: string; delay: number; still: boolean }) {
+function Skipped({
+  text,
+  delay,
+  still,
+  seen,
+}: {
+  text: string
+  delay: number
+  still: boolean
+  seen: boolean
+}) {
   const { t } = useT()
   return (
     <li className="flex items-center gap-2 text-sm text-ink-700">
@@ -67,8 +79,7 @@ function Skipped({ text, delay, still }: { text: string; delay: number; still: b
           aria-hidden
           className="absolute top-1/2 right-0 left-0 h-px origin-left bg-ink-500"
           initial={still ? false : { scaleX: 0 }}
-          whileInView={{ scaleX: 1 }}
-          viewport={{ once: true, margin: '-60px' }}
+          animate={seen ? { scaleX: 1 } : undefined}
           transition={{ duration: 0.35, ease: 'easeOut', delay }}
         />
       </span>
@@ -84,6 +95,8 @@ function Skipped({ text, delay, still }: { text: string; delay: number; still: b
 export function AudiencePaths() {
   const { t } = useT()
   const still = useReducedMotion() ?? false
+  const list = useRef<HTMLUListElement>(null)
+  const seen = useRevealed(list)
   return (
     <section aria-labelledby="paths-title" className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
       <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-3">
@@ -98,13 +111,12 @@ export function AudiencePaths() {
         </p>
       </div>
 
-      <ul className="mt-10 grid gap-5 lg:grid-cols-3">
+      <ul ref={list} className="mt-10 grid gap-5 lg:grid-cols-3">
         {PATHS.map((path, i) => (
           <motion.li
             key={path.id}
             initial={still ? false : { opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
+            animate={seen ? { opacity: 1, y: 0 } : undefined}
             transition={{ duration: 0.3, ease: 'easeOut', delay: still ? 0 : i * 0.08 }}
             className="flex flex-col rounded-[10px] border-2 border-b-[5px] border-ink-900 bg-paper-raised"
           >
@@ -128,7 +140,13 @@ export function AudiencePaths() {
               </p>
               <ul className="mt-2 space-y-1.5" aria-label={t('You won’t need')}>
                 {path.skip.map((s, j) => (
-                  <Skipped key={s} text={s} still={still} delay={0.3 + i * 0.1 + j * 0.15} />
+                  <Skipped
+                    key={s}
+                    text={s}
+                    still={still}
+                    seen={seen}
+                    delay={0.3 + i * 0.1 + j * 0.15}
+                  />
                 ))}
               </ul>
 

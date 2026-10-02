@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Link } from '@adonisjs/inertia/react'
 import { AnimatePresence, motion, useInView, useReducedMotion } from 'motion/react'
+import { useRevealed } from '~/lib/use_revealed'
 import { ArrowRight, Plus } from 'lucide-react'
 import { Part, PartIcon, type ShapeKind } from '~/components/print_parts'
 import { useT } from '~/lib/i18n'
@@ -258,7 +259,7 @@ export function PrintedAround() {
   const reduce = useReducedMotion() ?? false
   const roomRef = useRef<HTMLDivElement>(null)
   const inView = useInView(roomRef, { margin: '-120px' })
-  const printed = useInView(roomRef, { once: true, margin: '-120px' })
+  const printed = useRevealed(roomRef)
   const [active, setActive] = useState(0)
   const [touched, setTouched] = useState(false)
 
