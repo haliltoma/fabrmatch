@@ -2,7 +2,7 @@
 
 > Bu dosya **aktif iş listesidir**: sırayla ilerlenir, biten görev işaretlenir. Gerekçeler: `docs/GAP_ANALYSIS.md`.
 > Faz kayıtları/log: `docs/PROJECT_MEMORY.md` · Tasarım: `docs/DESIGN.md` · Skill rehberi: `docs/DESIGN_SKILLS.md`.
-> Son güncelleme: 2026-09-26
+> Son güncelleme: 2026-10-02 (Paket W eklendi)
 
 ## Nasıl çalışılır (kural)
 
@@ -480,6 +480,29 @@ Tartışma, araştırma, örnek hesap ve açık sorular: **`docs/PAKET_V_TARTISM
   - Canlıya almak için (kullanıcı): dev.wix.com'da uygulama aç → OAuth sayfasından app id/secret; izinler: Wix Stores ürün okuma/yazma, eCommerce sipariş okuma/yönetme; Webhooks: Order Approved, Order Canceled, App Removed → `<APP_URL>/webhooks/wix`, public key → `WIX_PUBLIC_KEY`; dashboard sayfası (external) → `<APP_URL>/seller/stores/wix/connect`.
 - [ ] **V9 · Amazon (SP-API)** · P3 · K-V6 · ⏸ geliştirici kaydı + kargo SLA kararı.
 - [ ] **V10 · eBay** · P3 · K-V6 · ⏸ geliştirici hesabı.
+
+## Paket W — Printify modeli: satıcı kendi tasarımını ürüne çevirir, kendi sitesinde/mağazasında satar (2026-10-02)
+
+Kullanıcı isteği 2026-10-02: "tam olarak Printify gibi" — satıcı ürününü ve kataloğunu bizde hazırlar, görselleri bizden alır ve API ya da mağaza entegrasyonuyla kendi sitesinde yayınlar; buna aykırı bir akış kalmasın.
+
+İnceleme (2026-10-02, Playwright 5 rol × masaüstü/390 px ≈ 460 sayfa + kod okuma; skill: `find-skills`, `api-and-interface-design`, `security-and-hardening`, `webapp-testing`) bulguları:
+
+- **Ana açık:** satıcı yalnız admin kataloğundaki ürünleri listeleyebiliyor; kendi yüklediği 3D modeli ürüne çeviremiyor (Printify'ın "tasarımını yükle" adımı yok). Katalogsuz "özel ürün" yolu modelsiz ürün üretiyor: ne vitrinde satılır ne mağazaya yayınlanır.
+- Ürünler sayfasında görsel/mockup, düzenleme ve "nerede yayında" yok; görseller indirilemiyor, adresi kopyalanamıyor.
+- Mağazaya yayında yalnız malzeme varyantı var; renk ve boyut yok (V6 kalanı). Bağlama ekranında renk serbest metin.
+- Public API salt-okunur: satıcının **kendi yazdığı sitesi** sipariş gönderemiyor, fiyat soramıyor, katalog seçeneklerini ve ürün görsellerini çekemiyor (Printify "Custom integration / API store" karşılığı yok). Webhook yalnız `order.status_changed`.
+- Hatalar: `/seller/developers` satıcı paneli yerine genel düzende · `/maker/work` 390 px'te 165 px yatay taşma · `marginBps` ondalık kabul ediyor (tamsayı kuralı) · ürün `currency` herhangi 3 harf · WooCommerce'e açıklama kaçışsız HTML gidiyor.
+
+Sıra: W1 → W2 → W3 → W4 → W5 → W6 → W7; W0 hemen. Her görev ayrı commit + push.
+
+- [ ] **W0 · İnceleme düzeltmeleri** · P1 — developers sayfası `dashboard` düzeni; `/maker/work` mobil taşma; `marginBps` tamsayı; para birimi izinli listeden; Woo açıklaması kaçışlı. Bitti: testler + 390 px ekran görüntüsü.
+- [ ] **W1 · Kendi tasarımından ürün** · P0 — `/files`'taki taranmış, basılabilir, engelsiz **kendi** modelinden ürün: başlık, açıklama, kategori, etiket, izinli malzeme/ölçek, marj, tier. `catalog_products.owner_user_id` (boş = platform kataloğu); satıcıya ait katalog satırı başka satıcıya listelenmez, ürün aktifse vitrinde satılır, render kuyruğa girer. Katalogsuz modelsiz ürün yolu kalkar. Kural 4: dosya üreticiye yine yalnız sipariş grant'ıyla gider. Test: sahiplik (başkasının dosyası 404), engelli/analiz bitmemiş dosya reddi, başka satıcının katalog listesinde görünmeme.
+- [ ] **W2 · Ürün kartı: mockup, düzenle, yayın durumu** · P1 — ürün listesinde ilk görsel, galeri (tüm açılar), tek tek indir + hepsi ZIP, herkese açık görsel adresini kopyala; düzenleme formu (başlık, açıklama, marj, tier); hangi mağazada yayında + "Mağazaya yayınla" kısayolu.
+- [ ] **W3 · Renk ve boyut varyantları + renkli mockup** · P1 · V6 kalanı — yayında malzeme × renk × boyut seçimi (en çok 100 varyant), fiyat malzeme+boyut başına; SKU `FM-<anahtar>-<MALZEME>-<RENK>-<BOYUT>` ≤ 32; Shopify/Woo/Etsy/Wix/test adaptörlerinde çok seçenekli varyant; içe aktarmada renk/boyut eşlemeye geçer; bağlama ekranında renk seçim kutusu. Render renk başına (renk hex'iyle) ve varyant görseli olarak gönderilir. Sözleşme testi genişler.
+- [ ] **W4 · Yazma API'si: kendi sitesi olan satıcı (API mağazası)** · P0 — anahtar kapsamı (`read` / `read_write`); `GET /api/v1/catalog/options` (malzeme, renk, ölçek, ülke), `GET /api/v1/products/:id` (varyantlar, varyant başına üretim maliyeti, mockup adresleri), `POST /api/v1/quotes` (satırlar + ülke → maliyet), `POST /api/v1/orders` (`external_id` + `Idempotency-Key` ile tek kez; satırlar ürün+malzeme+renk+ölçek; adres şifreli; kanal `api`; model B'de cüzdandan otomatik öde, yetmezse ödeme bekler), `POST /api/v1/orders/:id/cancel` (üretime girmeden). Webhook olayları: `order.created`, `order.shipped` (takip no), `order.cancelled` + mevcut. OpenAPI + developers sayfası örnekleri güncellenir. Kural 1: yanıtlarda üretici kimliği yok (test).
+- [ ] **W5 · Ürün akışı (feed) her site için** · P2 — satıcı başına gizli anahtarlı `GET /feeds/<token>.csv|.json` (Google Merchant uyumlu sütunlar: id, title, description, link, image_link, additional_image_link, price, availability, material, color, size); anahtar yenilenebilir; yalnız aktif ürünler, kimliksiz.
+- [ ] **W6 · Uçtan uca Playwright: Printify akışı** · P1 — tarayıcı testi: satıcı tasarım yükler → ürün → mockup görünür → test mağazasına renkli varyantlarla yayın → test mağazası siparişi → cüzdandan ödeme → üretici kargolar → takip no mağazaya döner; API akışı functional testte (anahtar → teklif → sipariş → webhook).
+- [ ] **W7 · Güvenlik incelemesi (entegrasyon yüzeyi)** · P1 — yeni uçlarda IDOR, anahtar kapsamı, hız sınırı, Idempotency-Key çakışması, feed token tahmini, görsel adreslerinde SSRF, mağazaya giden metinlerde kaçış; `security-and-hardening` + `trailofbits-differential-review` ile. Bulgular burada, düzeltmeler testli.
 
 ## Karar defteri (bekleyenler)
 
