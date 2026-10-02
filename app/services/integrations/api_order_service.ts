@@ -1,4 +1,5 @@
 import DomainError from '#exceptions/domain_error'
+import AuditLog from '#models/audit_log'
 import Color from '#models/color'
 import ExternalOrder from '#models/external_order'
 import ModelFile from '#models/model_file'
@@ -167,7 +168,9 @@ export default class ApiOrderService {
    */
   async create(
     seller: User,
-    input: { externalId: string; lines: ApiOrderLine[]; shippingAddress: ShippingAddress }
+    input: { externalId: string; lines: ApiOrderLine[]; shippingAddress: ShippingAddress },
+    /** the key that placed it, for the audit trail (a leaked key's orders can be traced) */
+    apiKeyId: string | null = null
   ): Promise<{ order: Order; created: boolean }> {
     const stores = new StoreService()
     const connection = await stores.apiConnection(seller)
@@ -198,6 +201,13 @@ export default class ApiOrderService {
       await external.delete()
       throw new ApiInputError(reason, null)
     }
+    await AuditLog.create({
+      actorId: seller.id,
+      action: 'api.order_created',
+      subjectType: 'order',
+      subjectId: external.orderId,
+      meta: { apiKeyId, externalId: input.externalId, lines: resolved.length },
+    })
     return { order: await this.load(external.orderId), created: true }
   }
 

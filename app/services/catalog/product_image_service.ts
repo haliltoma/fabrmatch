@@ -22,6 +22,9 @@ const rgbOf = (hex: string): [number, number, number] => {
   ]
 }
 
+/** Triangles × colours drawn inside a web request at most (a few hundred ms) */
+const INLINE_TRIANGLE_BUDGET = 400_000
+
 /** Largest mesh rendered in one go; bigger files keep the placeholder instead of stalling a worker. */
 const MAX_TRIANGLES = 2_000_000
 
@@ -104,7 +107,11 @@ export default class ProductImageService {
    * version and reused. Returns the picture per upper-case hex; colours that could not be drawn
    * (mesh too large or unreadable) are missing from the map.
    */
-  async colourRenders(modelFileId: string, hexes: string[]): Promise<Map<string, ShopImage>> {
+  async colourRenders(
+    modelFileId: string,
+    hexes: string[],
+    options: { inline?: boolean } = {}
+  ): Promise<Map<string, ShopImage>> {
     const wanted = [...new Set(hexes.map((h) => h.toUpperCase()).filter((h) => HEX.test(h)))]
     const result = new Map<string, ShopImage>()
     if (wanted.length === 0) return result
@@ -120,6 +127,17 @@ export default class ProductImageService {
     const file = await ModelFile.find(modelFileId)
     if (!file || file.blockedAt || file.analysisStatus !== 'done') return result
     if ((file.triangleCount ?? 0) > MAX_TRIANGLES) return result
+    // drawing blocks the event loop: in a web request only small jobs, the rest in the worker
+    // (the next publish then sends those pictures)
+    if (!options.inline && (file.triangleCount ?? 0) * missing.length > INLINE_TRIANGLE_BUDGET) {
+      const { default: RenderColourImages } = await import('#jobs/render_colour_images')
+      try {
+        await RenderColourImages.dispatch({ modelFileId: file.id, hexes: missing })
+      } catch (error) {
+        logger.warn({ msg: 'colour render job not queued', modelFileId, error })
+      }
+      return result
+    }
     const disk = drive.use('s3')
     let triangles
     try {

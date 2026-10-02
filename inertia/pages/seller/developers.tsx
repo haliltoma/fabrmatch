@@ -442,6 +442,11 @@ function DocsCard() {
           )}
         </p>
         <p>{t('Neither the API nor webhooks ever include buyer or maker identity.')}</p>
+        <p>
+          {t(
+            'Call the API from your server, never from a web page: anyone who sees a key can use it. A key that can place orders can spend your balance; revoke it at once if it leaks.'
+          )}
+        </p>
       </CardContent>
     </Card>
   )

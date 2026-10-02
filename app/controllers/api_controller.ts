@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import app from '@adonisjs/core/services/app'
 import db from '@adonisjs/lucid/services/db'
+import AuditLog from '#models/audit_log'
 import Order, { OWN_CHANNELS } from '#models/order'
 import OrderService from '#services/orders/order_service'
 import OrderTransformer from '#transformers/order_transformer'
@@ -84,22 +85,29 @@ export default class ApiController {
   }
 
   /** W4: places an order once per `externalId` (201 the first time, 200 with the same order after). */
-  async createOrder({ apiUser, request, response }: HttpContext) {
+  async createOrder({ apiUser, apiKey, request, response }: HttpContext) {
     const input = await request.validateUsing(apiOrderValidator)
     return this.refusals(response, async () => {
-      const { order, created } = await new ApiOrderService().create(apiUser, input)
+      const { order, created } = await new ApiOrderService().create(apiUser, input, apiKey.id)
       const [view] = await this.orderViews([order])
       return response.status(created ? 201 : 200).json({ data: view })
     })
   }
 
   /** W4: cancels (and refunds) an order no maker has accepted yet. */
-  async cancelOrder({ apiUser, params, response }: HttpContext) {
+  async cancelOrder({ apiUser, apiKey, params, response }: HttpContext) {
     const service = new ApiOrderService()
     const order = await service.find(apiUser, params.id)
     if (!order || order.buyerId !== apiUser.id) return notFound(response)
     try {
       await new OrderService().cancelByBuyer(order.id, apiUser.id)
+      await AuditLog.create({
+        actorId: apiUser.id,
+        action: 'api.order_cancelled',
+        subjectType: 'order',
+        subjectId: order.id,
+        meta: { apiKeyId: apiKey.id },
+      })
     } catch (error) {
       if (error instanceof InvalidOrderTransitionError) {
         return response.conflict({
@@ -164,7 +172,9 @@ export default class ApiController {
       orders.map((order) => ({
         order,
         externalId: externalOf.get(order.id) ?? null,
-        tracking: trackingOf.get(order.id) ?? null,
+        // the seller's own customers need it; a Fabrmatch shop buyer's parcel is not theirs to
+        // follow (a carrier page can show the buyer and the maker, rule 1)
+        tracking: OWN_CHANNELS.includes(order.channel) ? (trackingOf.get(order.id) ?? null) : null,
       }))
     ).resolve(app.container.createResolver(), 0)
   }

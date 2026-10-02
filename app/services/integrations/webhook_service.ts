@@ -5,7 +5,7 @@ import logger from '@adonisjs/core/services/logger'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import { DateTime } from 'luxon'
 import db from '@adonisjs/lucid/services/db'
-import { sellerOf, type default as Order } from '#models/order'
+import { OWN_CHANNELS, sellerOf, type default as Order } from '#models/order'
 import WebhookDelivery from '#models/webhook_delivery'
 import WebhookEndpoint from '#models/webhook_endpoint'
 import EncryptionService from '#services/identity/encryption_service'
@@ -235,9 +235,11 @@ export default class WebhookService {
         scalePercent: i.scale_percent ?? 100,
         quantity: i.quantity,
       })),
-      tracking: job
-        ? { carrier: job.carrier as string | null, number: job.tracking_number as string }
-        : null,
+      // own shop/site orders only: a Fabrmatch buyer's parcel is not the seller's to follow
+      tracking:
+        job && OWN_CHANNELS.includes(order.channel)
+          ? { carrier: job.carrier as string | null, number: job.tracking_number as string }
+          : null,
     }
   }
 

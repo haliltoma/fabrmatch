@@ -3573,4 +3573,7 @@ export const tr: Record<string, string> = {
   'Put {id} where the product id goes': 'Ürün kimliğinin geleceği yere {id} yaz',
   'Use a public https address': 'Herkese açık bir https adresi kullan',
   'Any / none': 'Herhangi / yok',
+  'Call the API from your server, never from a web page: anyone who sees a key can use it. A key that can place orders can spend your balance; revoke it at once if it leaks.':
+    "API'yi sunucundan çağır, asla bir web sayfasından değil: anahtarı gören herkes onu kullanabilir. Sipariş verebilen bir anahtar bakiyeni harcayabilir; sızarsa hemen iptal et.",
+  'Choose one of the listed categories': 'Listedeki kategorilerden birini seç',
 }

@@ -3,6 +3,7 @@ import string from '@adonisjs/core/helpers/string'
 import DomainError from '#exceptions/domain_error'
 import AuditLog from '#models/audit_log'
 import CatalogProduct from '#models/catalog_product'
+import Category from '#models/category'
 import Material from '#models/material'
 import ModelFile from '#models/model_file'
 import SellerProduct from '#models/seller_product'
@@ -63,6 +64,7 @@ export default class SellerDesignService {
     }
 
     const materials = await this.validMaterials(input.materials)
+    await this.assertCategory(input.categoryId)
     const existing = await CatalogProduct.query()
       .where('modelFileId', file.id)
       .where('ownerUserId', user.id)
@@ -124,8 +126,17 @@ export default class SellerDesignService {
     if (input.materials) catalog.allowedMaterials = await this.validMaterials(input.materials)
     if (input.scales) catalog.allowedScales = normaliseScales(input.scales)
     if (input.tags) catalog.tags = normaliseTags(input.tags)
-    if (input.categoryId !== undefined) catalog.categoryId = input.categoryId
+    if (input.categoryId !== undefined) {
+      await this.assertCategory(input.categoryId)
+      catalog.categoryId = input.categoryId
+    }
     await catalog.save()
+  }
+
+  private async assertCategory(categoryId: string | null | undefined) {
+    if (!categoryId) return
+    const category = await Category.query().where('id', categoryId).where('isActive', true).first()
+    if (!category) throw new SellerDesignError('Choose one of the listed categories')
   }
 
   private async validMaterials(requested: string[]) {
