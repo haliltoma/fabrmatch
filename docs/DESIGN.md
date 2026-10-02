@@ -321,3 +321,9 @@ Neden: ilk sürüm (yazıcı + adımlar + 2 CTA) hero'nun anlattığını tekrar
 - **Menü grupları** tüm panellerde (`group`); kısa menülerin grupları hep açık, admin'in alt grupları katlanır. Panel adı: "Maker" / "Seller" / "Admin".
 - **"Sırada" / "Şimdi seni bekleyenler"** = ortak `components/next_up.tsx`; kaynak sunucuda (`AttentionService`, `MakerAttentionService`), sıra = ilk yapılması gereken önce.
 - **Kapalı düğme** her zaman nedenini yanında yazar (`aria-describedby`). Dosya seçici tarayıcının stilsiz kutusu değil: gizli `input` + düğme görünümlü `label` (klavye odağı `peer-focus-visible`).
+
+## 29. Hero: "Mağazanda sat" satırı (2026-10-02)
+
+- **Yer:** hero sol sütun, dosya bırakma alanının altı, ince `line` ayraçla. "Sell it." vaadinin somut karşılığı (satış stratejisi: Shopify/Etsy/WooCommerce'ta zaten satan satıcı).
+- **Görünüm:** kart **yok** (dosya alanıyla yarışmasın); başlık satırı (display 18) + üç mağaza çipi (1.5px mürekkep kenar, `paper-raised`, 40px yükseklik) + tek satır "ne olur" açıklaması + satır içi bağlantı. Logolar Simple Icons (CC0), **tek renk `currentColor`** (iki temada da mürekkep; marka renkleri sabit hex olacağı için kullanılmaz — §15). WooCommerce yalnız "Woo" balonu (tam yazı ikon boyunda okunmaz).
+- **Dürüstlük:** `flags.externalStores` kapalıyken limon "Yakında açılıyor" rozeti + "Satışın nasıl işlediğini gör"; açıkken "Mağazanı bağla". Bileşen: `components/sell_channels.tsx`.

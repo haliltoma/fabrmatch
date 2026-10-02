@@ -280,6 +280,8 @@
 
 ## Log
 
+- **2026-10-02** — Paket V adım 1–2: üretici kazancı = maliyet × (1 + %25–30), tüm sayılar `/admin/settings → Üretici ödemesi` (referans üretici, kâr alt/üst sınırı; komisyon %10); ayar sayfası yüzde/TL/açık-kapalı girişi; yazıcı malzemesi kg başına maliyet + `maker_cost_profiles` tablosu. Ana sayfa hero'ya Shopify/Etsy/WooCommerce satırı (DESIGN §29). 993 test, a11y 0, ssr 59/59.
+
 - **2026-10-01** — Paket V tartışması açıldı (`docs/PAKET_V_TARTISMA.md`, tasks.md "Paket V" V0–V10): dış mağaza kataloğu + yeni platformlar, bölge para modu ve kur geliri (`fx_gain`), üretici maliyet profili + %25–30 kâr, hızlı fiyat aralığı + sabit fiyat + kabul (Xometry/Hubs modeli), mesafe ek ücreti. Kararlar K-V1..K-V6 kullanıcıyla verildi; V0 açık soruları bekliyor. Kod yok.
 
 - **2026-10-01** — İnceleme kalanları (d, f, g, i): kuyruk işçisi hiçbir işi tanımıyordu (`locations` eksikti) → düzeldi, testler ayrı Redis db'si (`REDIS_DB=1`); FakeCarrier sırrı env'den / rastgele; doğrulama mesajlarında okunur alan adları + eksik Türkçe kurallar; tutarlar `moneyMinor()`. 987 test. Kalan a, b, c, e, h karar/D4 bekliyor.

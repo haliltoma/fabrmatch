@@ -8,6 +8,7 @@ import type { HomeStats } from '~/lib/home_stats'
 import { HomeFaq, faqJsonLd, type FaqItem, type FaqParams } from '~/components/home_faq'
 import { HeroQuickStart } from '~/components/hero_quick_start'
 import { HeroCube } from '~/components/hero_cube'
+import { SellChannels } from '~/components/sell_channels'
 import { ClosingBand } from '~/components/closing_band'
 import { LearnBand, type HomeGuide } from '~/components/learn_band'
 import { PrintedAround } from '~/components/printed_around'
@@ -109,6 +110,9 @@ export default function Home({
             </p>
             <div className="mt-8 max-w-xl">
               <HeroQuickStart />
+            </div>
+            <div className="mt-6 max-w-xl">
+              <SellChannels />
             </div>
             <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-semibold">
               {ctaVariant === 'B' ? (

@@ -949,6 +949,12 @@ export const tr: Record<string, string> = {
     'Platform referansı olan {price}/kg üstünde, bu yüzden eşleşmiyorsun',
   '{material} at {price}/kg, above the {reference}/kg reference':
     '{material} {price}/kg, {reference}/kg referansının üstünde',
+  'Already sell on Shopify, Etsy or WooCommerce?':
+    "Shopify, Etsy veya WooCommerce'ta mı satıyorsun?",
+  'Opening soon': 'Yakında açılıyor',
+  'Shops you can connect': 'Bağlayabileceğin mağazalar',
+  'Connect your shop once. Every sale comes straight to us, a verified maker accepts and prints it, and the tracking number goes back to your shop.':
+    'Mağazanı bir kez bağla. Her satış doğrudan bize gelir, doğrulanmış bir üretici kabul edip basar, takip numarası mağazana geri döner.',
   'Allowance for failed prints': 'Başarısız baskı payı',
   'Your margin': 'Marjın',
   'Your share': 'Payın',
