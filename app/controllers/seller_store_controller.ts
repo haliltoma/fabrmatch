@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { marketsFor } from '#services/pricing/maker_market'
+import StorePriceWatch from '#services/integrations/stores/store_price_watch'
 import app from '@adonisjs/core/services/app'
 import vine from '@vinejs/vine'
 import ModelFile from '#models/model_file'
@@ -72,6 +73,9 @@ async function etsyCategories() {
 }
 
 /** /seller/stores: the seller's own shops (R4-T3 mapping, imported orders, R4-T4 write-back). */
+/** V6: how a shop's prices follow production cost */
+const priceModeValidator = vine.create({ mode: vine.enum(['watch', 'auto'] as const) })
+
 export default class SellerStoreController {
   private stores = new StoreService()
 
@@ -239,6 +243,32 @@ export default class SellerStoreController {
     await this.stores.syncListings(auth.getUserOrFail(), params.id)
     session.flash('success', 'Products refreshed from the shop.')
     return response.redirect().toPath(`/seller/stores?shop=${params.id}`)
+  }
+
+  /** V6: keep the shop's prices up to date by itself, or only warn. */
+  async priceMode({ auth, params, request, response, session }: HttpContext) {
+    const { mode } = await request.validateUsing(priceModeValidator)
+    const connection = await this.stores.ownConnection(auth.getUserOrFail(), params.id)
+    connection.priceMode = mode
+    await connection.save()
+    session.flash(
+      'success',
+      mode === 'auto'
+        ? 'We keep this shop’s prices at cost plus your margin from now on.'
+        : 'We tell you when a price in this shop gets thin; you change it.'
+    )
+    return response.redirect().toPath(`/seller/stores?shop=${connection.id}`)
+  }
+
+  /** V6: compare this shop's prices with today's production cost now. */
+  async checkPrices({ auth, params, response, session }: HttpContext) {
+    const connection = await this.stores.ownConnection(auth.getUserOrFail(), params.id)
+    const { checked } = await new StorePriceWatch().check(connection)
+    session.flash(
+      'success',
+      checked === 0 ? 'No published products to check yet.' : 'Prices checked.'
+    )
+    return response.redirect().toPath(`/seller/stores?shop=${connection.id}`)
   }
 
   async disconnect({ auth, params, response, session }: HttpContext) {

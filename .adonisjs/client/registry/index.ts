@@ -738,6 +738,18 @@ const routes = {
     tokens: [{"old":"/seller/stores/:id/disconnect","type":0,"val":"seller","end":""},{"old":"/seller/stores/:id/disconnect","type":0,"val":"stores","end":""},{"old":"/seller/stores/:id/disconnect","type":1,"val":"id","end":""},{"old":"/seller/stores/:id/disconnect","type":0,"val":"disconnect","end":""}],
     types: placeholder as Registry['seller_store.disconnect']['types'],
   },
+  'seller_store.price_mode': {
+    methods: ["POST"],
+    pattern: '/seller/stores/:id/price-mode',
+    tokens: [{"old":"/seller/stores/:id/price-mode","type":0,"val":"seller","end":""},{"old":"/seller/stores/:id/price-mode","type":0,"val":"stores","end":""},{"old":"/seller/stores/:id/price-mode","type":1,"val":"id","end":""},{"old":"/seller/stores/:id/price-mode","type":0,"val":"price-mode","end":""}],
+    types: placeholder as Registry['seller_store.price_mode']['types'],
+  },
+  'seller_store.check_prices': {
+    methods: ["POST"],
+    pattern: '/seller/stores/:id/check-prices',
+    tokens: [{"old":"/seller/stores/:id/check-prices","type":0,"val":"seller","end":""},{"old":"/seller/stores/:id/check-prices","type":0,"val":"stores","end":""},{"old":"/seller/stores/:id/check-prices","type":1,"val":"id","end":""},{"old":"/seller/stores/:id/check-prices","type":0,"val":"check-prices","end":""}],
+    types: placeholder as Registry['seller_store.check_prices']['types'],
+  },
   'seller_store.map': {
     methods: ["POST"],
     pattern: '/seller/stores/listings/:id',

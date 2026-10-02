@@ -365,6 +365,8 @@ router
           .post('/:id/sync', [controllers.SellerStore, 'sync'])
           .use(middleware.throttle({ name: 'store-sync', requests: 6, duration: '10 minutes' }))
         router.post('/:id/disconnect', [controllers.SellerStore, 'disconnect'])
+        router.post('/:id/price-mode', [controllers.SellerStore, 'priceMode'])
+        router.post('/:id/check-prices', [controllers.SellerStore, 'checkPrices'])
         router.post('/listings/:id', [controllers.SellerStore, 'map'])
         router.post('/orders/:id/retry', [controllers.SellerStore, 'retry'])
       })

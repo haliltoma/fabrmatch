@@ -258,6 +258,15 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
     integer: true,
   },
   {
+    key: 'orders.shopWaitingNoticeHours',
+    group: 'orders',
+    label: 'Tell the seller a shop order waits for a maker after (hours)',
+    help: 'An order from a seller’s own shop that no maker has taken by then: the seller hears it once, so they can answer their customer.',
+    min: 1,
+    max: 336,
+    integer: true,
+  },
+  {
     key: 'orders.unmatchedAutoCancelDays',
     group: 'orders',
     label: 'Cancel unmatched orders after (days)',

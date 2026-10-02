@@ -126,6 +126,8 @@ export type ScannedRoutes = {
     'seller_store.connect_test': { paramsTuple?: []; params?: {} }
     'seller_store.sync': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_store.disconnect': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'seller_store.price_mode': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'seller_store.check_prices': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_store.map': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_store.retry': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_wallet.show': { paramsTuple?: []; params?: {} }
@@ -587,6 +589,8 @@ export type ScannedRoutes = {
     'seller_store.connect_test': { paramsTuple?: []; params?: {} }
     'seller_store.sync': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_store.disconnect': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'seller_store.price_mode': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'seller_store.check_prices': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_store.map': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_store.retry': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_wallet.top_up': { paramsTuple?: []; params?: {} }

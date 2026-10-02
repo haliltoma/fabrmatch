@@ -14,6 +14,8 @@ const fabrmatchConfig = {
     productionSlaDays: 5,
     // paid but nobody accepted (`unmatched`) → cancelled and refunded automatically after this long
     unmatchedAutoCancelDays: 3,
+    // Paket V (V6): a shop order still waiting for a maker this long → the seller is told once
+    shopWaitingNoticeHours: 24,
   },
   matching: {
     // 1 = offers go out automatically after payment; 0 = an admin picks the maker in /admin/matching

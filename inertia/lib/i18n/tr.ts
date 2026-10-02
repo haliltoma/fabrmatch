@@ -1061,6 +1061,30 @@ export const tr: Record<string, string> = {
   'The most a maker may add to their price for an order delivered to another city. Their nearer orders stay cheaper.':
     'Bir üreticinin başka şehre teslim edilen sipariş için fiyatına ekleyebileceği en yüksek oran. Yakındaki siparişleri daha ucuz kalır.',
   'Delivered to another city': 'Başka şehre teslimde',
+  'Margin kept': 'Marj korunuyor',
+  'Thin margin': 'Marj dar',
+  'Below cost': 'Maliyetin altında',
+  'When production costs change': 'Üretim maliyeti değişince',
+  'Tell me; I change my prices': 'Bana haber ver; fiyatı ben değiştiririm',
+  'Keep my prices at cost plus my margin': 'Fiyatlarımı maliyet + marjımda tut',
+  'Check prices now': 'Fiyatları şimdi kontrol et',
+  'Publish a product and its prices show here.': 'Bir ürün yayınla, fiyatları burada görünsün.',
+  'Not checked yet': 'Henüz kontrol edilmedi',
+  'Shop price {price} · costs you {cost} · you keep {margin}':
+    'Mağaza fiyatı {price} · sana maliyeti {cost} · sana kalan {margin}',
+  'We check every day. In another currency the cost includes a small exchange buffer, rounded up, so a rate move does not eat your margin.':
+    'Her gün kontrol ederiz. Başka para biriminde maliyete küçük bir kur tamponu eklenip yukarı yuvarlanır; kur oynaması marjını yemez.',
+  'Prices in {shop}': '{shop} fiyatları',
+  'We keep this shop’s prices at cost plus your margin from now on.':
+    'Bundan sonra bu mağazanın fiyatlarını maliyet + marjında tutuyoruz.',
+  'We tell you when a price in this shop gets thin; you change it.':
+    'Bu mağazada bir fiyat daralınca sana haber veririz; sen değiştirirsin.',
+  'No published products to check yet.': 'Henüz kontrol edilecek yayında ürün yok.',
+  'Prices checked.': 'Fiyatlar kontrol edildi.',
+  'Tell the seller a shop order waits for a maker after (hours)':
+    'Mağaza siparişi üretici beklerse satıcıya haber ver (saat)',
+  'An order from a seller’s own shop that no maker has taken by then: the seller hears it once, so they can answer their customer.':
+    'Satıcının kendi mağazasından gelen ve o süreye kadar hiçbir üreticinin almadığı sipariş: satıcıya bir kez haber verilir, müşterisine yanıt verebilsin.',
   'Allowance for failed prints': 'Başarısız baskı payı',
   'Your margin': 'Marjın',
   'Your share': 'Payın',

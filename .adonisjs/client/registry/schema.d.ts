@@ -1471,6 +1471,30 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['disconnect']>>>
     }
   }
+  'seller_store.price_mode': {
+    methods: ["POST"]
+    pattern: '/seller/stores/:id/price-mode'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['priceMode']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['priceMode']>>>
+    }
+  }
+  'seller_store.check_prices': {
+    methods: ["POST"]
+    pattern: '/seller/stores/:id/check-prices'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['checkPrices']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['checkPrices']>>>
+    }
+  }
   'seller_store.map': {
     methods: ["POST"]
     pattern: '/seller/stores/listings/:id'

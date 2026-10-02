@@ -21,6 +21,7 @@ type Connection = {
   shopUrl: string | null
   currency: string | null
   lastSyncedAt: string | null
+  priceMode: 'watch' | 'auto'
 }
 type Listing = {
   id: string
@@ -32,6 +33,9 @@ type Listing = {
   scalePercent: number | null
   published: boolean
   priceMinor: number | null
+  costMinor: number | null
+  priceStatus: 'ok' | 'thin' | 'loss' | null
+  priceCheckedAt: string | null
   externalProductId: string
 }
 type ExternalOrder = {
@@ -54,6 +58,101 @@ type Product = {
 
 const selectClass =
   'h-10 w-full rounded-md border border-line bg-paper-raised px-3 text-sm text-ink-900 focus-visible:outline-2 focus-visible:outline-heat-500'
+
+const PRICE_STATUS = {
+  ok: { label: 'Margin kept', className: 'bg-fil-100 text-fil-600' },
+  thin: { label: 'Thin margin', className: 'bg-amber-soft text-amber-ink' },
+  loss: { label: 'Below cost', className: 'bg-danger-soft text-danger' },
+} as const
+
+/**
+ * Paket V (V6): each published variant's shop price against what an order of it costs the seller
+ * now (makers' market, settings, the exchange rate), and whether we keep the prices up to date.
+ */
+function PriceWatch({ connection, listings }: { connection: Connection; listings: Listing[] }) {
+  const { t } = useT()
+  const published = listings.filter((l) => l.published && l.sellerProductId && l.material)
+  const currency = connection.currency ?? 'TRY'
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="space-y-1">
+          <Label htmlFor="price-mode">{t('When production costs change')}</Label>
+          <select
+            id="price-mode"
+            className={cn(selectClass, 'w-auto')}
+            value={connection.priceMode}
+            onChange={(e) =>
+              router.post(
+                `/seller/stores/${connection.id}/price-mode`,
+                { mode: e.target.value },
+                { preserveScroll: true }
+              )
+            }
+          >
+            <option value="watch">{t('Tell me; I change my prices')}</option>
+            <option value="auto">{t('Keep my prices at cost plus my margin')}</option>
+          </select>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() =>
+            router.post(
+              `/seller/stores/${connection.id}/check-prices`,
+              {},
+              { preserveScroll: true }
+            )
+          }
+        >
+          {t('Check prices now')}
+        </Button>
+      </div>
+      {published.length === 0 ? (
+        <p className="text-sm text-ink-600">{t('Publish a product and its prices show here.')}</p>
+      ) : (
+        <ul className="divide-y divide-line">
+          {published.map((l) => {
+            const status = l.priceStatus ? PRICE_STATUS[l.priceStatus] : null
+            const margin =
+              l.priceMinor !== null && l.costMinor !== null ? l.priceMinor - l.costMinor : null
+            return (
+              <li key={l.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-ink-900">{l.title}</p>
+                  <p className="text-xs text-ink-600">
+                    {l.costMinor === null
+                      ? t('Not checked yet')
+                      : t('Shop price {price} · costs you {cost} · you keep {margin}', {
+                          price: formatMoney(l.priceMinor ?? 0, currency),
+                          cost: formatMoney(l.costMinor, currency),
+                          margin: formatMoney(margin ?? 0, currency),
+                        })}
+                  </p>
+                </div>
+                {status && (
+                  <span
+                    className={cn(
+                      'rounded-full px-2 py-0.5 text-xs font-semibold',
+                      status.className
+                    )}
+                  >
+                    {t(status.label)}
+                  </span>
+                )}
+              </li>
+            )
+          })}
+        </ul>
+      )}
+      <p className="text-xs text-ink-600">
+        {t(
+          'We check every day. In another currency the cost includes a small exchange buffer, rounded up, so a rate move does not eat your margin.'
+        )}
+      </p>
+    </div>
+  )
+}
 
 function MappingRow({ listing, products }: { listing: Listing; products: Product[] }) {
   const { t } = useT()
@@ -664,6 +763,15 @@ export default function SellerStores({
             </CardHeader>
             <CardContent>
               <PublishForm connection={current} products={products} listings={listings} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('Prices in {shop}', { shop: current.shopName })}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PriceWatch connection={current} listings={listings} />
             </CardContent>
           </Card>
 

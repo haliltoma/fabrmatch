@@ -364,10 +364,12 @@ export class ExperimentEventSchema extends BaseModel {
 }
 
 export class ExternalListingSchema extends BaseModel {
-  static $columns = ['color', 'createdAt', 'externalProductId', 'externalVariantId', 'id', 'material', 'priceMinor', 'published', 'scalePercent', 'sellerProductId', 'sku', 'storeConnectionId', 'title', 'updatedAt'] as const
+  static $columns = ['color', 'costMinor', 'createdAt', 'externalProductId', 'externalVariantId', 'id', 'material', 'priceCheckedAt', 'priceMinor', 'priceStatus', 'published', 'scalePercent', 'sellerProductId', 'sku', 'storeConnectionId', 'title', 'updatedAt'] as const
   $columns = ExternalListingSchema.$columns
   @column()
   declare color: string | null
+  @column()
+  declare costMinor: number | null
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column()
@@ -378,8 +380,12 @@ export class ExternalListingSchema extends BaseModel {
   declare id: string
   @column()
   declare material: string | null
+  @column.dateTime()
+  declare priceCheckedAt: DateTime | null
   @column()
   declare priceMinor: number | null
+  @column()
+  declare priceStatus: string | null
   @column()
   declare published: boolean
   @column()
@@ -1698,7 +1704,7 @@ export class SliceEstimateSchema extends BaseModel {
 }
 
 export class StoreConnectionSchema extends BaseModel {
-  static $columns = ['accessTokenEnc', 'apiKeyEnc', 'apiSecretEnc', 'createdAt', 'currency', 'externalShopId', 'id', 'lastSyncedAt', 'ordersPolledAt', 'provider', 'refreshTokenEnc', 'sellerUserId', 'shopName', 'shopUrl', 'status', 'tokenExpiresAt', 'updatedAt', 'webhookSecretEnc'] as const
+  static $columns = ['accessTokenEnc', 'apiKeyEnc', 'apiSecretEnc', 'createdAt', 'currency', 'externalShopId', 'id', 'lastSyncedAt', 'ordersPolledAt', 'priceMode', 'provider', 'refreshTokenEnc', 'sellerUserId', 'shopName', 'shopUrl', 'status', 'tokenExpiresAt', 'updatedAt', 'webhookSecretEnc'] as const
   $columns = StoreConnectionSchema.$columns
   @column()
   declare accessTokenEnc: string | null
@@ -1718,6 +1724,8 @@ export class StoreConnectionSchema extends BaseModel {
   declare lastSyncedAt: DateTime | null
   @column.dateTime()
   declare ordersPolledAt: DateTime | null
+  @column()
+  declare priceMode: string
   @column()
   declare provider: string
   @column()

@@ -76,7 +76,8 @@ export default class StoreService {
       .orderBy('id', 'asc')
   }
 
-  private async ownConnection(seller: User, connectionId: string) {
+  /** The seller's own shop, or a 404-like StoreError; public for the price watch routes (V6). */
+  async ownConnection(seller: User, connectionId: string) {
     const connection = await StoreConnection.query()
       .where('id', connectionId)
       .where('sellerUserId', seller.id)
@@ -387,11 +388,11 @@ export default class StoreService {
     for (const listing of unmapped) {
       const match = SKU_PATTERN.exec(listing.sku ?? '')
       if (!match) continue
-      const product = await SellerProduct.query()
-        .where('id', Number(match[1]))
-        .whereHas('sellerProfile', (q) => q.where('userId', seller.id))
-        .preload('catalogProduct')
-        .first()
+      // the SKU carries the product's 12-hex key (UUIDs since U7), resolved within this seller
+      const productId = await this.productBySkuKey(seller.id, match[1])
+      const product = productId
+        ? await SellerProduct.query().where('id', productId).preload('catalogProduct').first()
+        : null
       if (
         !product?.catalogProduct?.allowedMaterials.map((m) => m.toUpperCase()).includes(match[2])
       ) {

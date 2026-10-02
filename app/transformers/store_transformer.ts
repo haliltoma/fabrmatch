@@ -14,6 +14,8 @@ export class StoreConnectionTransformer extends BaseTransformer<StoreConnection>
       shopUrl: c.shopUrl,
       currency: c.currency,
       lastSyncedAt: c.lastSyncedAt?.toISO() ?? null,
+      // V6: warn the seller about thin prices, or keep the shop's prices up to date
+      priceMode: c.priceMode as 'watch' | 'auto',
     }
   }
 }
@@ -31,6 +33,10 @@ export class ExternalListingTransformer extends BaseTransformer<ExternalListing>
       scalePercent: l.scalePercent,
       published: l.published,
       priceMinor: l.priceMinor,
+      // V6: what an order of it costs the seller in the shop's currency, at the last check
+      costMinor: l.costMinor,
+      priceStatus: l.priceStatus as 'ok' | 'thin' | 'loss' | null,
+      priceCheckedAt: l.priceCheckedAt?.toISO() ?? null,
       externalProductId: l.externalProductId,
     }
   }

@@ -273,6 +273,30 @@ export const TEMPLATES_TR: Record<NotificationType, Template> = {
           body: `${c.code ?? 'Siparişi'} biz de iptal ettik; ödediğin tutar iade edilir.`,
           link: toOrder,
         }
+      case 'price_loss':
+        return {
+          title: `${c.productTitle ?? 'Bir ürün'} artık ${shopOrder} mağazasında maliyetin altında satılıyor`,
+          body: `Üretim artık mağaza fiyatından pahalı. Fiyatı yaklaşık ${money(c.amountMinor, c.currency)} yap ya da fiyatlarını bizim güncel tutmamıza izin ver.`,
+          link: '/seller/stores',
+        }
+      case 'price_thin':
+        return {
+          title: `${shopOrder} mağazasında ${c.productTitle ?? 'bir üründeki'} marjın daraldı`,
+          body: `Üretim maliyeti arttı. Marjını koruyan fiyat yaklaşık ${money(c.amountMinor, c.currency)}.`,
+          link: '/seller/stores',
+        }
+      case 'price_updated':
+        return {
+          title: `${shopOrder} mağazasında fiyatlar güncellendi`,
+          body: `${c.productTitle ?? 'Bir ürün'}, istediğin gibi marjını koruyan yeni bir fiyat aldı.`,
+          link: '/seller/stores',
+        }
+      case 'waiting_for_maker':
+        return {
+          title: `${shopOrder} mağazasından gelen ${c.code ?? 'sipariş'} hâlâ üretici bekliyor`,
+          body: 'Basacak birini arıyoruz. Müşterin sorarsa üretime hazırlandığını söyleyebilirsin.',
+          link: toOrder,
+        }
       case 'cancel_too_late':
         return {
           title: `${shopOrder} iptal edildi ama baskı başladı`,

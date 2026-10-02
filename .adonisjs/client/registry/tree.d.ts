@@ -209,6 +209,8 @@ export interface ApiDefinition {
     connectTest: typeof routes['seller_store.connect_test']
     sync: typeof routes['seller_store.sync']
     disconnect: typeof routes['seller_store.disconnect']
+    priceMode: typeof routes['seller_store.price_mode']
+    checkPrices: typeof routes['seller_store.check_prices']
     map: typeof routes['seller_store.map']
     retry: typeof routes['seller_store.retry']
   }

@@ -67,7 +67,14 @@ export interface NotificationContext {
     | 'failed'
     | 'cancelled'
     | 'cancel_too_late'
+    // Paket V (V6): shop prices and slow makers
+    | 'price_loss'
+    | 'price_thin'
+    | 'price_updated'
+    | 'waiting_for_maker'
   shopOrder?: string | null
+  /** V6: the shop product (and material) a price note is about */
+  productTitle?: string | null
 }
 
 export interface Rendered {
@@ -342,6 +349,30 @@ const TEMPLATES: Record<NotificationType, Template> = {
         return {
           title: `${shopOrder} was cancelled in your shop`,
           body: `We cancelled ${c.code ?? 'the order'} too; anything you paid is refunded.`,
+          link: toOrder,
+        }
+      case 'price_loss':
+        return {
+          title: `${c.productTitle ?? 'A product'} now sells below cost in ${shopOrder}`,
+          body: `Production costs more than the shop price now. Raise it to about ${money(c.amountMinor, c.currency)}, or let us keep your prices up to date.`,
+          link: '/seller/stores',
+        }
+      case 'price_thin':
+        return {
+          title: `Your margin on ${c.productTitle ?? 'a product'} got thin in ${shopOrder}`,
+          body: `Production costs went up. The price for your margin is about ${money(c.amountMinor, c.currency)}.`,
+          link: '/seller/stores',
+        }
+      case 'price_updated':
+        return {
+          title: `Prices updated in ${shopOrder}`,
+          body: `${c.productTitle ?? 'A product'} has a new price that keeps your margin, as you asked.`,
+          link: '/seller/stores',
+        }
+      case 'waiting_for_maker':
+        return {
+          title: `${c.code ?? 'An order'} from ${shopOrder} is still waiting for a maker`,
+          body: 'We are finding someone to print it. Your customer may ask; you can tell them it is on the way to production.',
           link: toOrder,
         }
       case 'cancel_too_late':
