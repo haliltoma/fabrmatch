@@ -60,7 +60,7 @@ export interface PublishResult {
 export interface StoreAdapter {
   readonly provider: StoreConnection['provider']
   /** Order channel the platform's orders are recorded under */
-  readonly channel: 'shopify' | 'etsy' | 'woocommerce'
+  readonly channel: 'shopify' | 'etsy' | 'woocommerce' | 'wix'
   /** Proves the credentials work; returns what the shop calls itself and its currency. */
   verify(connection: StoreConnection): Promise<{ shopName: string; currency: string | null }>
   /** Subscribes the shop's paid orders to our endpoint (safe to call again). */
@@ -86,10 +86,15 @@ export interface StoreAdapter {
   /** Platforms without order webhooks (Etsy): paid orders and cancellations since `since`. */
   pollOrders?(connection: StoreConnection, since: DateTime): Promise<StoreEvent[]>
   /**
-   * Paket V (V6): cancels the shop's order (and refunds its customer) when we cancelled ours.
-   * Absent on platforms with no API for it (Etsy): the seller is asked to do it in the shop.
+   * Paket V (V6): cancels the shop's order when we cancelled ours; `refunded` says whether the
+   * platform refunded its customer too (Shopify does, WooCommerce and Wix do not: the seller is
+   * asked to). Absent on platforms with no API for it (Etsy): the seller does both in the shop.
    */
-  cancelOrder?(connection: StoreConnection, externalOrderId: string, reason: string): Promise<void>
+  cancelOrder?(
+    connection: StoreConnection,
+    externalOrderId: string,
+    reason: string
+  ): Promise<{ refunded: boolean }>
   /** Marks the order shipped in the shop with our tracking; must be safe to repeat. */
   pushFulfillment(
     connection: StoreConnection,

@@ -1798,7 +1798,8 @@ export const tr: Record<string, string> = {
   'Orders per hour before a review flag': 'İnceleme bayrağı öncesi saatlik sipariş',
   'One buyer paying for this many orders in an hour is flagged.':
     'Bir alıcının bir saatte bu kadar sipariş ödemesi işaretlenir.',
-  'Feature: shop integrations (Etsy, Shopify)': 'Özellik: mağaza entegrasyonları (Etsy, Shopify)',
+  'Feature: shop integrations (Shopify, Etsy, WooCommerce, Wix)':
+    'Özellik: mağaza entegrasyonları (Shopify, Etsy, WooCommerce, Wix)',
   'On shows the feature, off hides it everywhere.':
     'Açık özelliği gösterir, kapalı her yerde gizler.',
   'Feature: quote requests (RFQ)': 'Özellik: fiyat talepleri (RFQ)',
@@ -2914,6 +2915,29 @@ export const tr: Record<string, string> = {
   'Etsy shop connected. New paid orders are picked up every few minutes.':
     'Etsy mağazası bağlandı. Yeni ödenen siparişler birkaç dakikada bir alınır.',
   'Etsy is not set up on Fabrmatch yet': "Etsy henüz Fabrmatch'te kurulmadı",
+  // Paket V (V8): Wix
+  'Add the Fabrmatch app to your Wix site. Your site needs Wix Stores.':
+    'Fabrmatch uygulamasını Wix sitene ekle. Sitende Wix Stores olmalı.',
+  'In your Wix dashboard open Fabrmatch under Apps. It brings you back here, signed in, and connects the site.':
+    "Wix panelinde Uygulamalar altından Fabrmatch'i aç. Seni oturumun açıkken buraya geri getirir ve siteyi bağlar.",
+  'Add Fabrmatch to Wix': "Fabrmatch'i Wix'e ekle",
+  'Wix sites connect through our Wix app. It opens here once Wix approves it.':
+    'Wix siteleri Wix uygulamamız üzerinden bağlanır. Wix onayladığında burada açılır.',
+  'Wix site connected. Paid orders will arrive here automatically.':
+    'Wix sitesi bağlandı. Ödenen siparişler buraya kendiliğinden gelecek.',
+  'Wix is not set up on Fabrmatch yet': "Wix henüz Fabrmatch'te kurulmadı",
+  'Open Fabrmatch from your Wix dashboard to connect your site':
+    "Siteni bağlamak için Fabrmatch'i Wix panelinden aç",
+  'This Wix link has expired; open Fabrmatch from your Wix dashboard again':
+    "Bu Wix bağlantısının süresi doldu; Fabrmatch'i Wix panelinden yeniden aç",
+  'This site is already connected to another Fabrmatch account':
+    'Bu site zaten başka bir Fabrmatch hesabına bağlı',
+  'Add Wix Stores to your site first, then connect it again':
+    'Önce sitene Wix Stores ekle, sonra yeniden bağla',
+  'Your Wix store still uses the older catalog. Wix moves every store to the new one; connect again once yours has moved.':
+    'Wix mağazan hâlâ eski kataloğu kullanıyor. Wix her mağazayı yenisine taşıyor; seninki taşındığında yeniden bağla.',
+  'Wix did not give an access token: is our app still on your site?':
+    'Wix erişim anahtarı vermedi: uygulamamız hâlâ sitende mi?',
   'Etsy access was not granted': 'Etsy erişimi verilmedi',
   'The Etsy connection expired; start again': 'Etsy bağlantısının süresi doldu; yeniden başlayın',
   'This Etsy account has no shop': 'Bu Etsy hesabının mağazası yok',

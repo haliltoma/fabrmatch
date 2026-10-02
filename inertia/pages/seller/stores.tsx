@@ -255,12 +255,14 @@ function MappingRow({ listing, products }: { listing: Listing; products: Product
 function ConnectForm({
   shopifyScopes,
   etsyAvailable,
+  wixAvailable,
 }: {
   shopifyScopes: string[]
   etsyAvailable: boolean
+  wixAvailable: boolean
 }) {
   const { t } = useT()
-  const [provider, setProvider] = useState<'shopify' | 'woocommerce' | 'etsy'>('shopify')
+  const [provider, setProvider] = useState<'shopify' | 'woocommerce' | 'etsy' | 'wix'>('shopify')
   const [form, setForm] = useState({ shopUrl: '', apiKey: '', apiSecret: '', accessToken: '' })
   const [legacy, setLegacy] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -275,6 +277,7 @@ function ConnectForm({
             ['shopify', 'Shopify'],
             ['woocommerce', 'WooCommerce'],
             ['etsy', 'Etsy'],
+            ['wix', 'Wix'],
           ] as const
         ).map(([value, label]) => (
           <button
@@ -295,7 +298,27 @@ function ConnectForm({
         ))}
       </div>
 
-      {provider === 'etsy' ? (
+      {provider === 'wix' ? (
+        wixAvailable ? (
+          <div className="space-y-3">
+            <ol className="list-decimal space-y-1 pl-5 text-sm text-ink-700">
+              <li>{t('Add the Fabrmatch app to your Wix site. Your site needs Wix Stores.')}</li>
+              <li>
+                {t(
+                  'In your Wix dashboard open Fabrmatch under Apps. It brings you back here, signed in, and connects the site.'
+                )}
+              </li>
+            </ol>
+            <Button asChild>
+              <a href="/seller/stores/wix/start">{t('Add Fabrmatch to Wix')}</a>
+            </Button>
+          </div>
+        ) : (
+          <p className="rounded-md bg-paper-sunken px-4 py-3 text-sm text-ink-700">
+            {t('Wix sites connect through our Wix app. It opens here once Wix approves it.')}
+          </p>
+        )
+      ) : provider === 'etsy' ? (
         etsyAvailable ? (
           <div className="space-y-3">
             <p className="text-sm text-ink-700">
@@ -662,6 +685,7 @@ export default function SellerStores({
   testShops,
   shopifyScopes,
   etsyAvailable,
+  wixAvailable,
   connections,
   currentId,
   listings,
@@ -671,6 +695,7 @@ export default function SellerStores({
   testShops: boolean
   shopifyScopes: string[]
   etsyAvailable: boolean
+  wixAvailable: boolean
   callbackUrl: string | null
   currency: string | null
   connections: Connection[]
@@ -751,7 +776,11 @@ export default function SellerStores({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ConnectForm shopifyScopes={shopifyScopes} etsyAvailable={etsyAvailable} />
+          <ConnectForm
+            shopifyScopes={shopifyScopes}
+            etsyAvailable={etsyAvailable}
+            wixAvailable={wixAvailable}
+          />
         </CardContent>
       </Card>
 

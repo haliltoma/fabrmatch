@@ -544,9 +544,10 @@ export default class StoreService {
       'Fabrmatch could not have this order printed in time and has refunded it. Sorry for the trouble.'
     let status: 'done' | 'manual' | 'failed' = 'manual'
     let error: string | null = null
+    let refunded = false
     if (adapter.cancelOrder) {
       try {
-        await adapter.cancelOrder(connection, external.externalOrderId, reason)
+        ;({ refunded } = await adapter.cancelOrder(connection, external.externalOrderId, reason))
         status = 'done'
       } catch (e) {
         status = 'failed'
@@ -560,7 +561,8 @@ export default class StoreService {
     await this.notifier.storeOrder(
       connection.sellerUserId,
       {
-        storeStep: status === 'done' ? 'cancelled_in_shop' : 'cancel_in_shop',
+        storeStep:
+          status !== 'done' ? 'cancel_in_shop' : refunded ? 'cancelled_in_shop' : 'refund_in_shop',
         shopOrder,
         code: order?.code,
         orderId,

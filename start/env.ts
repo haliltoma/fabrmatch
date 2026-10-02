@@ -72,6 +72,12 @@ export default await Env.create(new URL('../', import.meta.url), {
   ETSY_KEYSTRING: Env.schema.string.optional(),
   ETSY_SHARED_SECRET: Env.schema.secret.optional(),
 
+  // Wix app (dev.wix.com, Paket V V8): app id + secret (OAuth), and the webhook public key from
+  // the app's Webhooks page (PEM; "\n" for line breaks in one-line env files)
+  WIX_APP_ID: Env.schema.string.optional(),
+  WIX_APP_SECRET: Env.schema.secret.optional(),
+  WIX_PUBLIC_KEY: Env.schema.string.optional(),
+
   // iyzico (R1-T1): sandbox https://sandbox-api.iyzipay.com, live https://api.iyzipay.com
   IYZICO_BASE_URL: Env.schema.string.optional({ format: 'url', tld: false }),
   IYZICO_API_KEY: Env.schema.secret.optional(),

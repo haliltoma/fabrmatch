@@ -907,6 +907,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/store_webhook_controller').default['order']>>>
     }
   }
+  'store_webhook.wix': {
+    methods: ["POST"]
+    pattern: '/webhooks/wix'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/store_webhook_controller').default['wix']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/store_webhook_controller').default['wix']>>>
+    }
+  }
   'payment_return': {
     methods: ["POST"]
     pattern: '/payments/return'
@@ -1409,6 +1421,30 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['etsyCategories']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['etsyCategories']>>>
+    }
+  }
+  'seller_store.wix_start': {
+    methods: ["GET","HEAD"]
+    pattern: '/seller/stores/wix/start'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['wixStart']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['wixStart']>>>
+    }
+  }
+  'seller_store.wix_connect': {
+    methods: ["GET","HEAD"]
+    pattern: '/seller/stores/wix/connect'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['wixConnect']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/seller_store_controller').default['wixConnect']>>>
     }
   }
   'seller_store.publish': {

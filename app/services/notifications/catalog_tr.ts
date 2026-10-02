@@ -297,6 +297,12 @@ export const TEMPLATES_TR: Record<NotificationType, Template> = {
           body: 'Hiçbir üretici zamanında basamadı. Müşterine mağazanda iade yapıldı, bize ödediğin tutar da iade ediliyor.',
           link: toOrder,
         }
+      case 'refund_in_shop':
+        return {
+          title: `Lütfen ${c.code ?? 'siparişin'} iadesini ${shopOrder} mağazanda yap`,
+          body: 'Hiçbir üretici zamanında basamadı. Siparişi mağazanda iptal ettik ve bize ödediğin tutarı iade ettik, ancak mağazan müşterine kendiliğinden iade yapmıyor: iadeyi orada yap.',
+          link: toOrder,
+        }
       case 'cancel_in_shop':
         return {
           title: `Lütfen ${c.code ?? 'siparişi'} ${shopOrder} mağazanda iptal et`,

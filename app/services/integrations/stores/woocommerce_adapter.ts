@@ -252,13 +252,17 @@ export default class WooCommerceAdapter implements StoreAdapter {
     }
   }
 
-  /** Customer-visible note with the tracking, then "completed"; skipped if already completed. */
+  /**
+   * A customer-visible note, then "cancelled". WooCommerce does not refund on a status change:
+   * the seller refunds the customer in their shop (V6).
+   */
   async cancelOrder(connection: StoreConnection, externalOrderId: string, reason: string) {
     await this.call(connection, 'POST', `/orders/${externalOrderId}/notes`, {
       note: reason,
       customer_note: true,
     })
     await this.call(connection, 'PUT', `/orders/${externalOrderId}`, { status: 'cancelled' })
+    return { refunded: false }
   }
 
   async pushFulfillment(

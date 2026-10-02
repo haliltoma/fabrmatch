@@ -250,7 +250,7 @@ export default class ShopifyAdapter implements StoreAdapter {
     }
   }
 
-  /** Closes the order's open fulfillment orders with our tracking; nothing open = already done. */
+  /** Cancels the order and refunds its customer in Shopify (V6). */
   async cancelOrder(connection: StoreConnection, externalOrderId: string, reason: string) {
     const data = await this.graphql<{
       orderCancel: { orderCancelUserErrors: Array<{ message: string }> } | null
@@ -273,6 +273,7 @@ export default class ShopifyAdapter implements StoreAdapter {
     )
     const errors = data.orderCancel?.orderCancelUserErrors ?? []
     if (errors.length > 0) throw new StoreApiError(`Shopify: ${errors[0].message}`)
+    return { refunded: true }
   }
 
   async pushFulfillment(

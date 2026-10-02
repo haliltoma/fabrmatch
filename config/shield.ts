@@ -59,6 +59,7 @@ const shieldConfig = defineConfig({
       '/webhooks/carrier',
       '/payments/return',
       '/webhooks/stores/:id/orders',
+      '/webhooks/wix',
     ],
 
     /**

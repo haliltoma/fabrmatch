@@ -212,6 +212,9 @@ router
   .post('/webhooks/stores/:id/orders', [controllers.StoreWebhook, 'order'])
   .where('id', router.matchers.uuid())
   .use(middleware.throttle({ name: 'store-webhook', requests: 300, duration: '1 minute' }))
+router
+  .post('/webhooks/wix', [controllers.StoreWebhook, 'wix'])
+  .use(middleware.throttle({ name: 'wix-webhook', requests: 600, duration: '1 minute' }))
 
 // Hosted payment page return (iyzico POSTs the token; outcome is read back from the provider)
 router
@@ -355,6 +358,8 @@ router
         router.get('/etsy/start', [controllers.SellerStore, 'etsyStart'])
         router.get('/etsy/callback', [controllers.SellerStore, 'etsyCallback'])
         router.get('/etsy/categories', [controllers.SellerStore, 'etsyCategories'])
+        router.get('/wix/start', [controllers.SellerStore, 'wixStart'])
+        router.get('/wix/connect', [controllers.SellerStore, 'wixConnect'])
         // both call the shop's API from the web request: keep them from being hammered
         router
           .post('/:id/publish', [controllers.SellerStore, 'publish'])

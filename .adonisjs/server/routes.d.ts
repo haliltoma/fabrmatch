@@ -79,6 +79,7 @@ export type ScannedRoutes = {
     'carrier_webhook': { paramsTuple?: []; params?: {} }
     'payment_webhook': { paramsTuple?: []; params?: {} }
     'store_webhook.order': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'store_webhook.wix': { paramsTuple?: []; params?: {} }
     'payment_return': { paramsTuple?: []; params?: {} }
     'content_report.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'cart.show': { paramsTuple?: []; params?: {} }
@@ -121,6 +122,8 @@ export type ScannedRoutes = {
     'seller_store.etsy_start': { paramsTuple?: []; params?: {} }
     'seller_store.etsy_callback': { paramsTuple?: []; params?: {} }
     'seller_store.etsy_categories': { paramsTuple?: []; params?: {} }
+    'seller_store.wix_start': { paramsTuple?: []; params?: {} }
+    'seller_store.wix_connect': { paramsTuple?: []; params?: {} }
     'seller_store.publish': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_store.unpublish': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seller_store.connect_test': { paramsTuple?: []; params?: {} }
@@ -345,6 +348,8 @@ export type ScannedRoutes = {
     'seller_store.etsy_start': { paramsTuple?: []; params?: {} }
     'seller_store.etsy_callback': { paramsTuple?: []; params?: {} }
     'seller_store.etsy_categories': { paramsTuple?: []; params?: {} }
+    'seller_store.wix_start': { paramsTuple?: []; params?: {} }
+    'seller_store.wix_connect': { paramsTuple?: []; params?: {} }
     'seller_wallet.show': { paramsTuple?: []; params?: {} }
     'seller_payout.show': { paramsTuple?: []; params?: {} }
     'seller_payout.voucher': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -469,6 +474,8 @@ export type ScannedRoutes = {
     'seller_store.etsy_start': { paramsTuple?: []; params?: {} }
     'seller_store.etsy_callback': { paramsTuple?: []; params?: {} }
     'seller_store.etsy_categories': { paramsTuple?: []; params?: {} }
+    'seller_store.wix_start': { paramsTuple?: []; params?: {} }
+    'seller_store.wix_connect': { paramsTuple?: []; params?: {} }
     'seller_wallet.show': { paramsTuple?: []; params?: {} }
     'seller_payout.show': { paramsTuple?: []; params?: {} }
     'seller_payout.voucher': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -561,6 +568,7 @@ export type ScannedRoutes = {
     'carrier_webhook': { paramsTuple?: []; params?: {} }
     'payment_webhook': { paramsTuple?: []; params?: {} }
     'store_webhook.order': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'store_webhook.wix': { paramsTuple?: []; params?: {} }
     'payment_return': { paramsTuple?: []; params?: {} }
     'content_report.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'cart.add': { paramsTuple?: []; params?: {} }

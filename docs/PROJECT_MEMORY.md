@@ -280,6 +280,7 @@
 
 ## Log
 
+- **2026-10-02** — Paket V V8 Wix adaptörü (fake Wix ile uçtan uca): Catalog V3 yayın, JWT webhook, imzalı instance ile bağlanma, kargo/iptal geri yazımı; WooCommerce/Wix iptalinde satıcıya iade bildirimi. Canlı için Wix uygulama kaydı gerekli (tasks.md V8). 1041 test.
 - **2026-10-02** — Paket V V7 araştırıldı, kod yok: Trendyol/Hepsiburada pazar yeri kargo barkodu ve marka/kategori onayı ister → K-V7 kararı (PAKET_V §8).
 
 - **2026-10-02** — Paket V V6: mağaza fiyat takibi (izle/otomatik), üretici gecikmesi bildirimi, Shopify/Woo geri iptal (Etsy: satıcıya not), vitrin ve satıcı fiyatları pazar fiyatıyla; U7 kalıntısı SKU eşitleme hatası düzeltildi. Açık: ölçek/renk varyantları. 1025 test.

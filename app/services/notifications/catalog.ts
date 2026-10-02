@@ -74,6 +74,7 @@ export interface NotificationContext {
     | 'waiting_for_maker'
     | 'cancelled_in_shop'
     | 'cancel_in_shop'
+    | 'refund_in_shop'
   shopOrder?: string | null
   /** V6: the shop product (and material) a price note is about */
   productTitle?: string | null
@@ -375,6 +376,12 @@ const TEMPLATES: Record<NotificationType, Template> = {
         return {
           title: `${c.code ?? 'An order'} was cancelled; we cancelled it in ${shopOrder} too`,
           body: 'No maker could print it in time. Your customer is refunded in your shop, and what you paid us is refunded too.',
+          link: toOrder,
+        }
+      case 'refund_in_shop':
+        return {
+          title: `Please refund ${c.code ?? 'an order'} in ${shopOrder}`,
+          body: 'No maker could print it in time. We cancelled it in your shop and refunded what you paid us, but your shop does not refund your customer by itself: refund them there.',
           link: toOrder,
         }
       case 'cancel_in_shop':

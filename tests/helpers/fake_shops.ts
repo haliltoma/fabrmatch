@@ -1,5 +1,7 @@
-import { createHash, createHmac } from 'node:crypto'
+import { createHash, createHmac, createSign, generateKeyPairSync } from 'node:crypto'
 import { DateTime } from 'luxon'
+import { Secret } from '@adonisjs/core/helpers'
+import env from '#start/env'
 import StoreConnection from '#models/store_connection'
 import EncryptionService from '#services/identity/encryption_service'
 import type { StoreHttp, StoreHttpRequest } from '#services/integrations/stores/store_http'
@@ -664,5 +666,340 @@ export class FakeEtsy {
       tokenExpiresAt: DateTime.now().plus({ hours: 1 }),
       status: 'active',
     })
+  }
+}
+
+const b64url = (value: string | Buffer) => Buffer.from(value).toString('base64url')
+
+type WixFakeVariant = { id: string; sku: string; material: string; price: string }
+
+/**
+ * In-memory Wix (OAuth token, Catalog V3 products, eCommerce orders and fulfillments), answering
+ * in the documented shapes. Holds the app's id/secret and the RSA key webhooks are signed with;
+ * `useEnv()` points the app's env at them.
+ */
+export class FakeWix {
+  appId = 'wix-app-id'
+  appSecret = 'wix-app-secret'
+  instanceId = 'c5d7a8e2-0000-4000-8000-000000000001'
+  catalogVersion = 'V3_CATALOG'
+  currency = 'EUR'
+  tokens: string[] = []
+  products = new Map<
+    string,
+    { name: string; visible: boolean; revision: number; variants: WixFakeVariant[] }
+  >()
+  /** orders the shop holds (for fulfillment): line item ids and status */
+  orders = new Map<string, { lineItems: string[]; fulfillmentStatus: string }>()
+  fulfillments: Array<{ orderId: string; trackingNumber: string; carrier: string }> = []
+  cancelled: Array<{ orderId: string; customMessage: string }> = []
+  pageSize = 100
+  private keys = generateKeyPairSync('rsa', { modulusLength: 2048 })
+  private seq = 1000
+
+  get publicKeyPem() {
+    return this.keys.publicKey.export({ type: 'spki', format: 'pem' }).toString()
+  }
+
+  http: StoreHttp = async (req: StoreHttpRequest) => {
+    const url = new URL(req.url)
+    if (url.host !== 'www.wixapis.com') return json(404, { message: 'Not Found' })
+    const body = req.body ? JSON.parse(String(req.body)) : {}
+
+    if (url.pathname === '/oauth2/token') {
+      if (
+        body.grant_type !== 'client_credentials' ||
+        body.client_id !== this.appId ||
+        body.client_secret !== this.appSecret ||
+        body.instance_id !== this.instanceId
+      ) {
+        return json(400, { error: 'invalid_client' })
+      }
+      const token = `OauthNG.JWS.${++this.seq}`
+      this.tokens.push(token)
+      return json(200, { access_token: token, token_type: 'Bearer', expires_in: 14400 })
+    }
+    if (!this.tokens.includes(req.headers.authorization ?? '')) {
+      return json(401, { message: 'Unauthorized' })
+    }
+
+    const path = url.pathname
+    if (path === '/stores/v3/provision/version') {
+      return json(200, { catalogVersion: this.catalogVersion })
+    }
+    if (path === '/site-properties/v4/properties') {
+      return json(200, {
+        properties: { siteDisplayName: 'Wix Test Site', paymentCurrency: this.currency },
+      })
+    }
+    if (path === '/stores/v3/products/query-variants' && req.method === 'POST') {
+      const all = [...this.products.entries()].flatMap(([productId, p]) =>
+        p.variants.map((v) => ({
+          variantId: v.id,
+          sku: v.sku,
+          visible: true,
+          optionChoices: [
+            { optionChoiceNames: { optionName: 'Material', choiceName: v.material } },
+          ],
+          productData: { productId, name: p.name },
+        }))
+      )
+      const start = Number(body.query?.cursorPaging?.cursor ?? 0)
+      const next = start + this.pageSize
+      return json(200, {
+        variants: all.slice(start, next),
+        pagingMetadata: {
+          count: Math.min(this.pageSize, all.length - start),
+          hasNext: next < all.length,
+          cursors: next < all.length ? { next: String(next) } : {},
+        },
+      })
+    }
+    if (path === '/stores/v3/products' && req.method === 'POST') {
+      const product = body.product
+      if (product.productType !== 'PHYSICAL' || !product.physicalProperties) {
+        return json(400, { message: 'physicalProperties is required for a physical product' })
+      }
+      const id = `prod-${++this.seq}`
+      this.products.set(id, {
+        name: product.name,
+        visible: product.visible !== false,
+        revision: 1,
+        variants: product.variantsInfo.variants.map((v: any) => this.variantFrom(v)),
+      })
+      return json(200, { product: this.productJson(id) })
+    }
+    const productMatch = path.match(/^\/stores\/v3\/products\/([^/]+)$/)
+    if (productMatch) {
+      const id = productMatch[1]
+      const product = this.products.get(id)
+      if (!product) return json(404, { message: 'Product not found' })
+      if (req.method === 'GET') return json(200, { product: this.productJson(id) })
+      if (req.method === 'PATCH') {
+        const patch = body.product
+        if (patch.id !== id || String(patch.revision) !== String(product.revision)) {
+          return json(409, { message: 'Revision mismatch' })
+        }
+        if (patch.variantsInfo && !patch.options) {
+          return json(400, { message: 'options are required when variants are updated' })
+        }
+        if (patch.name !== undefined) product.name = patch.name
+        if (patch.visible !== undefined) product.visible = patch.visible
+        if (patch.variantsInfo) {
+          product.variants = patch.variantsInfo.variants.map((v: any) =>
+            v.id && product.variants.some((x) => x.id === v.id)
+              ? { ...this.variantFrom(v), id: v.id }
+              : this.variantFrom(v)
+          )
+        }
+        product.revision++
+        return json(200, { product: this.productJson(id) })
+      }
+    }
+    const orderMatch = path.match(/^\/ecom\/v1\/orders\/([^/]+)$/)
+    if (orderMatch && req.method === 'GET') {
+      const order = this.orders.get(orderMatch[1])
+      if (!order) return json(404, { message: 'Order not found' })
+      return json(200, {
+        order: {
+          id: orderMatch[1],
+          fulfillmentStatus: order.fulfillmentStatus,
+          lineItems: order.lineItems.map((id) => ({ id, quantity: 1 })),
+        },
+      })
+    }
+    const cancelMatch = path.match(/^\/ecom\/v1\/orders\/([^/]+)\/cancel$/)
+    if (cancelMatch && req.method === 'POST') {
+      this.cancelled.push({ orderId: cancelMatch[1], customMessage: body.customMessage ?? '' })
+      return json(200, { order: { id: cancelMatch[1], status: 'CANCELED' } })
+    }
+    const fulfillMatch = path.match(
+      /^\/ecom\/v1\/fulfillments\/orders\/([^/]+)\/create-fulfillment$/
+    )
+    if (fulfillMatch && req.method === 'POST') {
+      const orderId = fulfillMatch[1]
+      const tracking = body.fulfillment?.trackingInfo?.trackingNumber
+      if (this.fulfillments.some((f) => f.orderId === orderId && f.trackingNumber === tracking)) {
+        return json(409, {
+          message: 'Tracking number already exists',
+          details: { applicationError: { code: 'TRACKING_NUMBER_ALREADY_EXISTS' } },
+        })
+      }
+      this.fulfillments.push({
+        orderId,
+        trackingNumber: tracking,
+        carrier: body.fulfillment.trackingInfo.shippingProvider,
+      })
+      const order = this.orders.get(orderId)
+      if (order) order.fulfillmentStatus = 'FULFILLED'
+      return json(200, { orderWithFulfillments: { orderId } })
+    }
+    return json(404, { message: `No route ${req.method} ${path}` })
+  }
+
+  private variantFrom(v: any): WixFakeVariant {
+    return {
+      id: `var-${++this.seq}`,
+      sku: v.sku,
+      material: v.choices?.[0]?.optionChoiceNames?.choiceName ?? '',
+      price: v.price?.actualPrice?.amount ?? '0',
+    }
+  }
+
+  private productJson(id: string) {
+    const p = this.products.get(id)!
+    return {
+      id,
+      name: p.name,
+      visible: p.visible,
+      revision: String(p.revision),
+      options: [
+        {
+          name: 'Material',
+          optionRenderType: 'TEXT_CHOICES',
+          choicesSettings: {
+            choices: p.variants.map((v) => ({ choiceType: 'CHOICE_TEXT', name: v.material })),
+          },
+        },
+      ],
+      variantsInfo: {
+        variants: p.variants.map((v) => ({
+          id: v.id,
+          sku: v.sku,
+          visible: true,
+          price: { actualPrice: { amount: v.price } },
+          choices: [{ optionChoiceNames: { optionName: 'Material', choiceName: v.material } }],
+        })),
+      },
+    }
+  }
+
+  /** The `instance` query parameter Wix adds when the site owner opens our app. */
+  signedInstance(overrides: Record<string, unknown> = {}, secret = this.appSecret) {
+    const data = b64url(
+      JSON.stringify({
+        instanceId: this.instanceId,
+        appDefId: this.appId,
+        signDate: new Date().toISOString(),
+        uid: 'owner-1',
+        permissions: 'OWNER',
+        ...overrides,
+      })
+    )
+    const signature = createHmac('sha256', secret).update(data).digest('base64url')
+    return `${signature}.${data}`
+  }
+
+  /** A webhook as Wix sends it: a JWT (RS256) whose `data` holds the event as JSON strings. */
+  webhook(eventType: string, event: unknown, instanceId = this.instanceId) {
+    const header = b64url(JSON.stringify({ alg: 'RS256', kid: 'test' }))
+    const payload = b64url(
+      JSON.stringify({
+        data: JSON.stringify({ data: JSON.stringify(event), instanceId, eventType }),
+        iat: Math.floor(Date.now() / 1000),
+      })
+    )
+    const signer = createSign('RSA-SHA256')
+    signer.update(`${header}.${payload}`)
+    return `${header}.${payload}.${signer.sign(this.keys.privateKey).toString('base64url')}`
+  }
+
+  /** "Order approved" for a paid order with these lines (variant ids from our products). */
+  paidOrder(order: {
+    id: string
+    number?: string
+    paymentStatus?: string
+    lines: Array<{ variantId: string; sku: string; quantity: number; productId?: string }>
+  }) {
+    const lineIds = order.lines.map(() => `li-${++this.seq}`)
+    this.orders.set(order.id, { lineItems: lineIds, fulfillmentStatus: 'NOT_FULFILLED' })
+    return this.webhook('wix.ecom.v1.order_approved', {
+      id: `evt-${++this.seq}`,
+      entityFqdn: 'wix.ecom.v1.order',
+      slug: 'approved',
+      entityId: order.id,
+      actionEvent: {
+        body: {
+          order: {
+            id: order.id,
+            number: order.number ?? '10001',
+            currency: this.currency,
+            paymentStatus: order.paymentStatus ?? 'PAID',
+            lineItems: order.lines.map((l, i) => ({
+              id: lineIds[i],
+              productName: { original: 'Spiral vase', translated: 'Spiral vase' },
+              catalogReference: {
+                catalogItemId: l.productId ?? 'prod-x',
+                appId: '215238eb-22a5-4c36-9e7b-e7c08025e04e',
+                options: { variantId: l.variantId },
+              },
+              physicalProperties: { sku: l.sku, shippable: true },
+              quantity: l.quantity,
+              price: { amount: '25.00', formattedAmount: '€25.00' },
+            })),
+            shippingInfo: {
+              logistics: {
+                shippingDestination: {
+                  address: {
+                    country: 'TR',
+                    subdivision: 'TR-34',
+                    city: 'Istanbul',
+                    postalCode: '34000',
+                    addressLine: 'Atatürk Cd. 1',
+                  },
+                  contactDetails: { firstName: 'Ada', lastName: 'Yılmaz', phone: '+905550000000' },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+  }
+
+  cancelledOrder(id: string) {
+    return this.webhook('wix.ecom.v1.order_canceled', {
+      id: `evt-${++this.seq}`,
+      entityFqdn: 'wix.ecom.v1.order',
+      slug: 'canceled',
+      entityId: id,
+      actionEvent: { body: { order: { id, status: 'CANCELED' } } },
+    })
+  }
+
+  /** The JWT with its event changed but the old signature kept. */
+  tamper(jwt: string, change: (event: any) => void) {
+    const [header, payload, signature] = jwt.split('.')
+    const claims = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'))
+    const outer = JSON.parse(claims.data)
+    const event = JSON.parse(outer.data)
+    change(event)
+    outer.data = JSON.stringify(event)
+    claims.data = JSON.stringify(outer)
+    return `${header}.${b64url(JSON.stringify(claims))}.${signature}`
+  }
+
+  connection(sellerUserId = '00000000-0000-7000-8000-000000000000') {
+    return new StoreConnection().merge({
+      sellerUserId,
+      provider: 'wix',
+      shopName: 'Wix Test Site',
+      externalShopId: this.instanceId,
+      status: 'active',
+    })
+  }
+
+  /** Points the app's Wix settings at this fake (call `restoreEnv` after). */
+  useEnv() {
+    env.set('WIX_APP_ID', this.appId)
+    env.set('WIX_APP_SECRET', new Secret(this.appSecret) as never)
+    env.set('WIX_PUBLIC_KEY', this.publicKeyPem)
+  }
+
+  static restoreEnv() {
+    for (const key of ['WIX_APP_ID', 'WIX_APP_SECRET', 'WIX_PUBLIC_KEY'] as const) {
+      env.set(key, undefined as never)
+      delete process.env[key]
+    }
   }
 }

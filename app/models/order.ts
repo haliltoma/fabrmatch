@@ -23,7 +23,7 @@ export type OrderStatus =
   | 'cancelled'
 
 export type OrderChannel =
-  'storefront' | 'shopify' | 'etsy' | 'woocommerce' | 'rfq' | 'direct' | 'sample'
+  'storefront' | 'shopify' | 'etsy' | 'woocommerce' | 'wix' | 'rfq' | 'direct' | 'sample'
 
 export default class Order extends OrderSchema {
   declare status: OrderStatus

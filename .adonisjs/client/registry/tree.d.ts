@@ -131,6 +131,7 @@ export interface ApiDefinition {
   paymentWebhook: typeof routes['payment_webhook']
   storeWebhook: {
     order: typeof routes['store_webhook.order']
+    wix: typeof routes['store_webhook.wix']
   }
   paymentReturn: typeof routes['payment_return']
   contentReport: {
@@ -204,6 +205,8 @@ export interface ApiDefinition {
     etsyStart: typeof routes['seller_store.etsy_start']
     etsyCallback: typeof routes['seller_store.etsy_callback']
     etsyCategories: typeof routes['seller_store.etsy_categories']
+    wixStart: typeof routes['seller_store.wix_start']
+    wixConnect: typeof routes['seller_store.wix_connect']
     publish: typeof routes['seller_store.publish']
     unpublish: typeof routes['seller_store.unpublish']
     connectTest: typeof routes['seller_store.connect_test']

@@ -456,6 +456,12 @@ const routes = {
     tokens: [{"old":"/webhooks/stores/:id/orders","type":0,"val":"webhooks","end":""},{"old":"/webhooks/stores/:id/orders","type":0,"val":"stores","end":""},{"old":"/webhooks/stores/:id/orders","type":1,"val":"id","end":""},{"old":"/webhooks/stores/:id/orders","type":0,"val":"orders","end":""}],
     types: placeholder as Registry['store_webhook.order']['types'],
   },
+  'store_webhook.wix': {
+    methods: ["POST"],
+    pattern: '/webhooks/wix',
+    tokens: [{"old":"/webhooks/wix","type":0,"val":"webhooks","end":""},{"old":"/webhooks/wix","type":0,"val":"wix","end":""}],
+    types: placeholder as Registry['store_webhook.wix']['types'],
+  },
   'payment_return': {
     methods: ["POST"],
     pattern: '/payments/return',
@@ -707,6 +713,18 @@ const routes = {
     pattern: '/seller/stores/etsy/categories',
     tokens: [{"old":"/seller/stores/etsy/categories","type":0,"val":"seller","end":""},{"old":"/seller/stores/etsy/categories","type":0,"val":"stores","end":""},{"old":"/seller/stores/etsy/categories","type":0,"val":"etsy","end":""},{"old":"/seller/stores/etsy/categories","type":0,"val":"categories","end":""}],
     types: placeholder as Registry['seller_store.etsy_categories']['types'],
+  },
+  'seller_store.wix_start': {
+    methods: ["GET","HEAD"],
+    pattern: '/seller/stores/wix/start',
+    tokens: [{"old":"/seller/stores/wix/start","type":0,"val":"seller","end":""},{"old":"/seller/stores/wix/start","type":0,"val":"stores","end":""},{"old":"/seller/stores/wix/start","type":0,"val":"wix","end":""},{"old":"/seller/stores/wix/start","type":0,"val":"start","end":""}],
+    types: placeholder as Registry['seller_store.wix_start']['types'],
+  },
+  'seller_store.wix_connect': {
+    methods: ["GET","HEAD"],
+    pattern: '/seller/stores/wix/connect',
+    tokens: [{"old":"/seller/stores/wix/connect","type":0,"val":"seller","end":""},{"old":"/seller/stores/wix/connect","type":0,"val":"stores","end":""},{"old":"/seller/stores/wix/connect","type":0,"val":"wix","end":""},{"old":"/seller/stores/wix/connect","type":0,"val":"connect","end":""}],
+    types: placeholder as Registry['seller_store.wix_connect']['types'],
   },
   'seller_store.publish': {
     methods: ["POST"],

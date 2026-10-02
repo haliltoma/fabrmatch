@@ -19,6 +19,8 @@ export interface StoreHarness {
   cancelOrder?(externalOrderId: string): void
   /** What the shop now shows as shipped for this order, if anything. */
   shippedTracking(externalOrderId: string): Promise<string[]>
+  /** The signed delivery with its quantity changed (default: edit the JSON body). */
+  tamper?(body: string): string
   /** A signed delivery saying the shop cancelled this order. */
   signedCancellation?(externalOrderId: string): { body: string; headers: Record<string, string> }
   /** Whether the shop sells this product right now. */
@@ -40,7 +42,7 @@ const order: IncomingOrder = {
   },
 }
 
-/** Every store adapter (fake, Shopify R4-T1, Etsy R4-T5) must pass this same suite. */
+/** Every store adapter (fake, Shopify R4-T1, WooCommerce, Etsy R4-T5, Wix V8) must pass this same suite. */
 export function storeAdapterContract(label: string, make: () => Promise<StoreHarness>) {
   test.group(`StoreAdapter contract: ${label}`, () => {
     test('lists variants with ids and titles', async ({ assert }) => {
@@ -76,7 +78,7 @@ export function storeAdapterContract(label: string, make: () => Promise<StoreHar
     })
 
     test('refuses a tampered or unsigned delivery', async ({ assert }) => {
-      const { adapter, connection, signedOrder } = await make()
+      const { adapter, connection, signedOrder, tamper } = await make()
       if (!signedOrder) {
         // polling platforms never accept anything on the webhook endpoint
         await assert.rejects(
@@ -86,19 +88,19 @@ export function storeAdapterContract(label: string, make: () => Promise<StoreHar
         return
       }
       const { body, headers } = signedOrder(order)
+      const tampered = tamper ? tamper(body) : body.replace('"quantity":3', '"quantity":30')
+      assert.notEqual(tampered, body)
       await assert.rejects(
-        () =>
-          adapter.parseOrderWebhook(
-            connection,
-            body.replace('"quantity":3', '"quantity":30'),
-            headers
-          ),
+        () => adapter.parseOrderWebhook(connection, tampered, headers),
         StoreWebhookSignatureError as never
       )
-      await assert.rejects(
-        () => adapter.parseOrderWebhook(connection, body, {}),
-        StoreWebhookSignatureError as never
-      )
+      // platforms that sign in a header (Wix signs the body itself, a JWT)
+      if (Object.keys(headers).length > 0) {
+        await assert.rejects(
+          () => adapter.parseOrderWebhook(connection, body, {}),
+          StoreWebhookSignatureError as never
+        )
+      }
     })
 
     test('a cancellation is recognised as one', async ({ assert }) => {

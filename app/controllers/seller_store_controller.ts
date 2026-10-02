@@ -9,7 +9,9 @@ import type EtsyAdapter from '#services/integrations/stores/etsy_adapter'
 import { etsyConfigured } from '#services/integrations/stores/etsy_adapter'
 import { storeAdapter } from '#services/integrations/stores/store_registry'
 import EtsyOAuthService, { type PkceState } from '#services/integrations/stores/etsy_oauth_service'
-import StoreService from '#services/integrations/stores/store_service'
+import { wixConfigured, wixInstallUrl } from '#services/integrations/stores/wix_adapter'
+import WixConnectService from '#services/integrations/stores/wix_connect_service'
+import StoreService, { StoreError } from '#services/integrations/stores/store_service'
 import { SHOPIFY_SCOPES } from '#services/integrations/stores/shopify_adapter'
 import ShippingService from '#services/shipping/shipping_service'
 import { unitPriceFor } from '#services/storefront/storefront_service'
@@ -136,6 +138,7 @@ export default class SellerStoreController {
       testShops: app.inDev || app.inTest,
       shopifyScopes: SHOPIFY_SCOPES,
       etsyAvailable: etsyConfigured(),
+      wixAvailable: wixConfigured(),
       callbackUrl: current ? this.stores.callbackUrl(current) : null,
       currency: current?.currency ?? null,
       connections: await StoreConnectionTransformer.transform(connections).resolve(resolver, 0),
@@ -220,6 +223,27 @@ export default class SellerStoreController {
       'success',
       'Etsy shop connected. New paid orders are picked up every few minutes.'
     )
+    return response.redirect().toPath(`/seller/stores?shop=${connection.id}`)
+  }
+
+  /** "Add to Wix": Wix's own installer for our app; the seller picks the site there. */
+  async wixStart({ response }: HttpContext) {
+    if (!wixConfigured()) throw new StoreError('Wix is not set up on Fabrmatch yet')
+    return response.redirect(wixInstallUrl())
+  }
+
+  /**
+   * Opened from the seller's Wix dashboard (`instance`) or right after installing our app
+   * (`signedInstance`), both carrying the site's app instance signed by Wix.
+   */
+  async wixConnect({ auth, request, response, session }: HttpContext) {
+    const seller = auth.getUserOrFail()
+    const signed = request.input('instance') ?? request.input('signedInstance')
+    const connection = await new WixConnectService().connect(
+      seller,
+      typeof signed === 'string' ? signed : undefined
+    )
+    session.flash('success', 'Wix site connected. Paid orders will arrive here automatically.')
     return response.redirect().toPath(`/seller/stores?shop=${connection.id}`)
   }
 

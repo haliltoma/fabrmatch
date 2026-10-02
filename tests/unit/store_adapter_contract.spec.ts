@@ -4,7 +4,8 @@ import FakeStoreAdapter from '#services/integrations/stores/fake_store_adapter'
 import { storeAdapterContract } from '#tests/contracts/store_adapter_contract'
 import ShopifyAdapter from '#services/integrations/stores/shopify_adapter'
 import WooCommerceAdapter from '#services/integrations/stores/woocommerce_adapter'
-import { FakeEtsy, FakeShopify, FakeWoo } from '#tests/helpers/fake_shops'
+import { FakeEtsy, FakeShopify, FakeWix, FakeWoo } from '#tests/helpers/fake_shops'
+import WixAdapter from '#services/integrations/stores/wix_adapter'
 import EtsyAdapter from '#services/integrations/stores/etsy_adapter'
 import env from '#start/env'
 import { Secret } from '@adonisjs/core/helpers'
@@ -105,5 +106,36 @@ storeAdapterContract('etsy (in-memory Open API v3, polling)', async () => {
     shippedTracking: async (id) =>
       (shop.receipts.get(Number(id))?.shipments ?? []).map((s: any) => s.tracking_code),
     onSale: (id) => shop.listings.get(Number(id))?.state === 'active',
+  }
+})
+
+storeAdapterContract('wix (in-memory Catalog V3 + eCommerce)', async () => {
+  const shop = new FakeWix()
+  shop.useEnv()
+  return {
+    adapter: new WixAdapter(shop.http),
+    connection: shop.connection(),
+    signedOrder: (order) => ({
+      body: shop.paidOrder({
+        id: order.externalOrderId,
+        number: order.name?.replace('#', ''),
+        lines: order.lines.map((l) => ({
+          variantId: l.variantId,
+          sku: l.sku ?? '',
+          quantity: l.quantity,
+        })),
+      }),
+      headers: {},
+    }),
+    tamper: (body) =>
+      shop.tamper(body, (event) => {
+        event.actionEvent.body.order.lineItems[0].quantity = 30
+      }),
+    signedCancellation: (id) => ({ body: shop.cancelledOrder(id), headers: {} }),
+    onSale: (id) => shop.products.get(id)?.visible === true,
+    prepareShipment: (id) =>
+      shop.orders.set(id, { lineItems: ['li-1'], fulfillmentStatus: 'NOT_FULFILLED' }),
+    shippedTracking: async (id) =>
+      shop.fulfillments.filter((f) => f.orderId === id).map((f) => f.trackingNumber),
   }
 })

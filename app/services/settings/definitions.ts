@@ -373,7 +373,7 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
     key: 'flags.externalStores',
     kind: 'toggle',
     group: 'flags',
-    label: 'Feature: shop integrations (Etsy, Shopify)',
+    label: 'Feature: shop integrations (Shopify, Etsy, WooCommerce, Wix)',
     help: 'On shows the feature, off hides it everywhere.',
     min: 0,
     max: 1,
