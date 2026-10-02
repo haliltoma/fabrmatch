@@ -528,6 +528,10 @@ router
       })
       .use(middleware.feature({ name: 'rfq' }))
 
+    // Own costs and profit (Paket V): what the maker is paid is worked out from these
+    router.get('/costs', [controllers.MakerCost, 'show'])
+    router.post('/costs', [controllers.MakerCost, 'save'])
+
     // Finishing services the maker offers (sanding, painting…)
     router.get('/finishing', [controllers.MakerFinishing, 'show'])
     router.post('/finishing', [controllers.MakerFinishing, 'save'])

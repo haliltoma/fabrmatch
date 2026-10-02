@@ -1,5 +1,6 @@
 import {
   Activity,
+  Calculator,
   AlertTriangle,
   Award,
   BarChart3,
@@ -62,6 +63,7 @@ export const makerNav: NavItem[] = [
   { label: 'Printers', href: '/maker/printers', icon: Printer, group: 'Machines', mobileTab: true },
   { label: 'Capacity', href: '/maker/capacity', icon: Wrench, group: 'Machines' },
   { label: 'Finishing', href: '/maker/finishing', icon: Brush, group: 'Machines' },
+  { label: 'Your costs', href: '/maker/costs', icon: Calculator, group: 'Money' },
   { label: 'Earnings', href: '/maker/earnings', icon: Wallet, group: 'Money', mobileTab: true },
   { label: 'Payouts and invoices', href: '/maker/payout', icon: Landmark, group: 'Money' },
   { label: 'Performance', href: '/maker/performance', icon: Award, group: 'Money' },

@@ -955,6 +955,35 @@ export const tr: Record<string, string> = {
   'Shops you can connect': 'Bağlayabileceğin mağazalar',
   'Connect your shop once. Every sale comes straight to us, a verified maker accepts and prints it, and the tracking number goes back to your shop.':
     'Mağazanı bir kez bağla. Her satış doğrudan bize gelir, doğrulanmış bir üretici kabul edip basar, takip numarası mağazana geri döner.',
+  'Your costs': 'Maliyetlerin',
+  'What a print costs you. Your pay for every order is worked out from these numbers, with your profit on top, so an order never pays you less than it costs.':
+    'Bir baskının sana maliyeti. Her siparişteki kazancın bu sayılardan, üstüne kârın eklenerek hesaplanır; böylece hiçbir sipariş sana maliyetinden az ödemez.',
+  'You have not entered your own costs yet, so the platform reference is shown. Check each number and save.':
+    'Henüz kendi maliyetlerini girmedin; platform referansı gösteriliyor. Her sayıyı kontrol edip kaydet.',
+  'Your numbers': 'Senin sayıların',
+  'Machine hour': 'Makine saati',
+  'Power, wear and paying off the printer, per hour it prints. Reference: {value}.':
+    'Baskı saati başına elektrik, aşınma ve yazıcının kendini amorti etmesi. Referans: {value}.',
+  'Setup per print job': 'Baskı işi başına hazırlık',
+  'Material waste': 'Malzeme firesi',
+  'Your profit': 'Kârın',
+  'Between {min}% and {max}%. A higher profit pays more per order, but fewer orders fit.':
+    '%{min} ile %{max} arası. Kâr yükseldikçe sipariş başına daha çok kazanırsın ama daha az sipariş uyar.',
+  'Your profit must be between {min}% and {max}%': 'Kârın %{min} ile %{max} arasında olmalı',
+  'Material prices are set per printer, on the Printers page.':
+    'Malzeme fiyatları yazıcı başına, Yazıcılar sayfasında girilir.',
+  'Save costs': 'Maliyetleri kaydet',
+  'What you are paid for a print': 'Bir baskı için sana ödenen',
+  'Material per kg': 'Kg başına malzeme',
+  'Weight (g)': 'Ağırlık (g)',
+  'Print time (h)': 'Baskı süresi (sa)',
+  'Material, with waste': 'Malzeme, fire dahil',
+  'Setup': 'Hazırlık',
+  'You are paid': 'Sana ödenen',
+  'Fill in every number to see the example.': 'Örneği görmek için tüm sayıları doldur.',
+  'Shipping is paid to you on top. The platform fee is added to the buyer’s price, not taken from yours.':
+    'Kargo ayrıca sana ödenir. Platform payı alıcının fiyatına eklenir, seninkinden düşülmez.',
+  'Your costs are saved.': 'Maliyetlerin kaydedildi.',
   'Allowance for failed prints': 'Başarısız baskı payı',
   'Your margin': 'Marjın',
   'Your share': 'Payın',
