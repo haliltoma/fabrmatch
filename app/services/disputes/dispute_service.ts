@@ -297,8 +297,12 @@ export default class DisputeService {
         currency: order.currency,
         trx,
       })
+      // the makers' part of the escrow: without the platform fee, the seller's share and the FX gain
       const manufacturerShare =
-        escrow - order.platformFeeMinor - (order.sellerId ? order.sellerShareMinor : 0)
+        escrow -
+        order.platformFeeMinor -
+        (order.sellerId ? order.sellerShareMinor : 0) -
+        order.fxGainMinor
 
       let refundMinor = 0
       if (input.resolution === 'full_refund') {

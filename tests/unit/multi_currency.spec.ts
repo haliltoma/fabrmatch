@@ -65,7 +65,7 @@ test.group('multi-currency', (group) => {
     await fx.lock('USD')
   })
 
-  test('the locked rate carries the buffer and refreshing the same day overwrites, not duplicates', async ({
+  test('the locked rate is the mid rate with the buffer beside it; a same-day refresh overwrites', async ({
     assert,
   }) => {
     await enable('currencyUsd')
@@ -75,9 +75,11 @@ test.group('multi-currency', (group) => {
     assert.lengthOf(rows, 1)
     assert.equal(BigInt(rows[0].rate_nano), 20_000_000n) // 1/50
 
+    // Paket V (V4): parts convert at the mid rate; the buffer is added once, as the FX gain
     const locked = await fx.lock('USD')
-    assert.isTrue(locked.rateE9 > 20_000_000n)
-    assert.equal(locked.rateE9, 20_618_557n) // 20_000_000 / 0.97, rounded up
+    assert.equal(locked.rateE9, 20_000_000n)
+    assert.equal(locked.bufferBps, 300)
+    assert.equal((await fx.lock('USD', 500)).bufferBps, 500, "a region's own buffer wins")
   })
 
   test('a USD price keeps every invariant of a TRY price and remembers the TRY value', async ({
@@ -106,9 +108,14 @@ test.group('multi-currency', (group) => {
       const perUnitShipping = item.shippingMinor / item.quantity
       const perUnitCommission = item.platformCommissionMinor / item.quantity
       const perUnitMargin = item.sellerMarginMinor / item.quantity
+      // the FX gain (buffer + round-up) sits beside the parts, not inside them
       assert.equal(
         item.unitCostMinor,
-        item.manufacturerShareMinor + perUnitShipping + perUnitCommission + perUnitMargin
+        item.manufacturerShareMinor +
+          perUnitShipping +
+          perUnitCommission +
+          perUnitMargin +
+          item.fxGainMinor / item.quantity
       )
     }
     const sum = (pick: (i: (typeof inUsd.items)[number]) => number) =>
@@ -131,11 +138,17 @@ test.group('multi-currency', (group) => {
       sum((i) => i.sellerMarginMinor)
     )
 
-    // the buyer pays about the TRY price at the locked rate: a whole-order rounding error at most
+    assert.equal(
+      inUsd.fxGainMinor,
+      sum((i) => i.fxGainMinor)
+    )
+    assert.isAbove(inUsd.fxGainMinor, 0)
+    // without the gain, the buyer pays the TRY price at the mid rate (per-part rounding at most)
     const expected = convertMinor(inTry.totalMinor, inUsd.fx!.rateE9)
-    assert.isAtMost(Math.abs(inUsd.totalMinor - expected), 3 * 4 + 3)
-    // and converting back lands close to the TRY total (the buffer makes it a little more)
-    assert.isAtLeast(toBaseMinor(inUsd.totalMinor, inUsd.fx!.rateE9), inTry.totalMinor - 200)
+    assert.isAtMost(Math.abs(inUsd.totalMinor - inUsd.fxGainMinor - expected), 3 * 4 + 3)
+    // the gain is about the buffer: 3 % of the order, plus the round-up
+    assert.isAtLeast(inUsd.fxGainMinor, Math.floor((expected * 300) / 10_000) - 3)
+    assert.isAtLeast(toBaseMinor(inUsd.totalMinor, inUsd.fx!.rateE9), inTry.totalMinor)
   })
 
   test('an order is created in USD with the locked rate, and limits use the TRY value', async ({
@@ -233,9 +246,15 @@ test.group('multi-currency', (group) => {
       assert.equal(p.currency, 'USD')
       assert.equal(p.status, 'paid')
     }
+    // payees + platform fee + FX gain (its own ledger account) = what the buyer paid
+    assert.isAbove(order.fxGainMinor, 0)
     assert.equal(
-      payouts.reduce((a, p) => a + p.amountMinor, 0) + order.platformFeeMinor,
+      payouts.reduce((a, p) => a + p.amountMinor, 0) + order.platformFeeMinor + order.fxGainMinor,
       order.totalMinor
+    )
+    assert.equal(
+      await new LedgerService().balance('fx_gain', { orderId: order.id, currency: 'USD' }),
+      order.fxGainMinor
     )
     assert.equal(
       await new LedgerService().balance('buyer_escrow', { orderId: order.id, currency: 'USD' }),

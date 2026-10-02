@@ -315,6 +315,7 @@ export default class OrderService {
           baseTotalMinor: priced.baseTotalMinor,
           pricingRegionId: priced.pricingRegionId,
           makerBudgetMinor: priced.makerBudgetMinor,
+          fxGainMinor: priced.fxGainMinor,
           subtotalMinor: priced.subtotalMinor,
           shippingMinor: priced.shippingMinor,
           totalMinor: priced.totalMinor,

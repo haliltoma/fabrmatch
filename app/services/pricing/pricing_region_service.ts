@@ -86,6 +86,9 @@ export interface RegionChanges {
   commissionBps?: number | null
   minOrderMinor?: number
   rounding?: RoundingRule
+  currencyMode?: 'converted' | 'local'
+  /** null = the global FX buffer */
+  fxBufferBps?: number | null
 }
 
 /** Admin side of pricing regions (P2-T9): every change is validated here and audited. */
@@ -232,6 +235,19 @@ export class PricingRegionAdmin {
         throw new PricingRegionError('Unknown rounding rule')
       }
       region.rounding = changes.rounding
+    }
+    if (changes.currencyMode !== undefined) {
+      if (!['converted', 'local'].includes(changes.currencyMode)) {
+        throw new PricingRegionError('Unknown currency mode')
+      }
+      region.currencyMode = changes.currencyMode
+    }
+    if (changes.fxBufferBps !== undefined) {
+      const bps = changes.fxBufferBps
+      if (bps !== null && (!Number.isInteger(bps) || bps < 0 || bps > 2000)) {
+        throw new PricingRegionError('The FX buffer must be between 0% and 20%')
+      }
+      region.fxBufferBps = bps
     }
     if (changes.countries !== undefined && !region.isFallback) {
       const countries = [...new Set(changes.countries.map((c) => c.trim().toUpperCase()))].filter(

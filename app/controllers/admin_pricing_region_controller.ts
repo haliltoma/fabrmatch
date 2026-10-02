@@ -28,6 +28,13 @@ function toChanges(data: FormInput): RegionChanges {
           : Math.round(data.commissionPercent * 100),
     minOrderMinor: data.minOrder,
     rounding: data.rounding,
+    currencyMode: data.currencyMode,
+    fxBufferBps:
+      data.fxBufferPercent === undefined
+        ? undefined
+        : data.fxBufferPercent === null
+          ? null
+          : Math.round(data.fxBufferPercent * 100),
   }
 }
 

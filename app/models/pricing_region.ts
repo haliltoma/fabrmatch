@@ -7,6 +7,8 @@ import type { RoundingRule } from '#services/pricing/pricing_region_defaults'
 /** A group of countries priced by its own rules (P2, .plans/regional-pricing.md). */
 export default class PricingRegion extends PricingRegionSchema {
   declare rounding: RoundingRule
+  /** Paket V (V4): converted = TRY prices at the rate + buffer, rounded up; local = seller-set prices */
+  declare currencyMode: 'converted' | 'local'
 
   @column({
     prepare: (value: string[]) => JSON.stringify(value),

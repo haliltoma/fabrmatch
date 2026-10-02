@@ -41,7 +41,7 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
     kind: 'percent',
     group: 'pricing',
     label: 'Foreign-currency buffer',
-    help: 'Added to the exchange rate when a buyer pays in USD, EUR or GBP.',
+    help: 'Added once on top of the mid rate when a buyer pays in USD, EUR or GBP, and booked as FX gain. A region can set its own.',
     min: 0,
     max: 2000,
     integer: true,

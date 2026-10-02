@@ -83,6 +83,8 @@ export interface PricedItem {
   shippingMinor: number
   platformCommissionMinor: number
   sellerMarginMinor: number
+  /** Paket V (V4): FX buffer + round-up for the whole line, foreign currency only; else 0 */
+  fxGainMinor: number
 }
 
 export interface PricedOrder {
@@ -105,6 +107,8 @@ export interface PricedOrder {
   fx: LockedRate | null
   /** The pricing region whose rules priced the order (from the delivery country). */
   pricingRegionId: string
+  /** Paket V (V4): what the FX buffer and round-up add, in the order's currency; 0 for TRY */
+  fxGainMinor: number
   /** Paket V: what the order pays makers in all, TRY; a maker whose own price fits is offered it */
   makerBudgetMinor: number
   /** Paket V: the range a quote shows (buyer currency, before a coupon); `makers` = 0 → no market */
@@ -129,6 +133,23 @@ function convertItems(items: PricedItem[], rateE9: bigint): PricedItem[] {
       shippingMinor: shipping * i.quantity,
       platformCommissionMinor: commission * i.quantity,
       sellerMarginMinor: margin * i.quantity,
+    }
+  })
+}
+
+/**
+ * Paket V (V4): a foreign-currency price is the mid-rate price plus the FX buffer, rounded up by
+ * the region's rule. The difference is the platform's FX gain, kept apart from the commission and
+ * the maker share, so `unit = share + shipping + commission + margin + fx gain / quantity`.
+ */
+function liftForFx(items: PricedItem[], bufferBps: number, rule: RoundingRule): PricedItem[] {
+  return items.map((i) => {
+    const buffered = Math.ceil((i.unitCostMinor * (10_000 + bufferBps)) / 10_000)
+    const unit = roundUnitMinor(buffered, rule)
+    return {
+      ...i,
+      unitCostMinor: unit,
+      fxGainMinor: (unit - i.unitCostMinor) * i.quantity,
     }
   })
 }
@@ -313,6 +334,7 @@ export async function priceOrder(input: {
         shippingMinor: breakdown.shippingMinor * quantity,
         platformCommissionMinor: breakdown.platformCommissionMinor * quantity,
         sellerMarginMinor: breakdown.sellerMarginMinor * quantity,
+        fxGainMinor: 0,
       }
     })
 
@@ -358,9 +380,12 @@ export async function priceOrder(input: {
   const tryItems = itemsAt(budget.budgetMinor)
 
   const currency = (input.currency ?? BASE_CURRENCY).toUpperCase()
-  const fx = currency === BASE_CURRENCY ? null : await new FxService().lock(currency)
+  const fx =
+    currency === BASE_CURRENCY ? null : await new FxService().lock(currency, region.fxBufferBps)
   const priced = (list: PricedItem[]) =>
-    roundItems(fx ? convertItems(list, fx.rateE9) : list, region.rounding)
+    fx
+      ? liftForFx(convertItems(list, fx.rateE9), fx.bufferBps, region.rounding)
+      : roundItems(list, region.rounding)
   const items = priced(tryItems)
   const listTotalOf = (list: PricedItem[]) =>
     priced(list).reduce((a, i) => a + i.unitCostMinor * i.quantity, 0)
@@ -415,6 +440,7 @@ export async function priceOrder(input: {
     baseTotalMinor,
     fx,
     pricingRegionId: region.id,
+    fxGainMinor: sum((i) => i.fxGainMinor),
     makerBudgetMinor: shareOf(tryItems),
     priceRange: {
       lowMinor: Math.min(listTotalOf(itemsAt(budget.lowMinor)), listTotal),

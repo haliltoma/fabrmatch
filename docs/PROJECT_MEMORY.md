@@ -280,6 +280,8 @@
 
 ## Log
 
+- **2026-10-02** — Paket V V4: kur tamponu + yukarı yuvarlama ayrı `fx_gain` defter hesabı, parçalar orta kurla; bölge para modu + bölge tamponu; raporlarda fark payı ve kur geliri. 1014 test.
+
 - **2026-10-02** — Paket V V3 karşı teklif: üretici bütçe içinde daha fazla ister, admin onaylar/korur, yanıtsızsa sıradaki üretici. 1014 test.
 
 - **2026-10-02** — Paket V V2: sipariş fiyatı üreticilerin kendi tabanlarından (bütçe %75, az üreticide referans + %15 bant), teklifte üreticinin tutarı, ödemede taban + kargo, fark `platform_spread`; hızlı fiyat/dosya teklifi aralık gösterir. V0 varsayılanları `PAKET_V_TARTISMA.md §7` (hepsi admin ayarı). 1008 test.

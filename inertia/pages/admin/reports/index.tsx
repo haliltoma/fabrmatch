@@ -16,6 +16,8 @@ type Row = {
   vatMinor: number
   discountMinor: number
   platformFeeMinor: number
+  spreadMinor: number
+  fxGainMinor: number
   refundedMinor: number
   makerPayoutsMinor: number
   sellerPayoutsMinor: number
@@ -102,6 +104,11 @@ export default function AdminReports({
                       'Platform fee earned',
                       <Money key="f" minor={r.platformFeeMinor} currency={r.currency} />,
                     ],
+                    [
+                      'Kept from the fixed price (spread)',
+                      <Money key="sp" minor={r.spreadMinor} currency={r.currency} />,
+                    ],
+                    ['FX gain', <Money key="fx" minor={r.fxGainMinor} currency={r.currency} />],
                     [
                       'Refunds paid',
                       <Money key="r" minor={r.refundedMinor} currency={r.currency} />,

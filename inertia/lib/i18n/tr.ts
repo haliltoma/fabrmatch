@@ -1040,6 +1040,18 @@ export const tr: Record<string, string> = {
     'Karşı teklif onaylandı. İş, üreticinin fiyatıyla onun.',
   'Counter-offer declined. The order goes to the next maker.':
     'Karşı teklif reddedildi. Sipariş sıradaki üreticiye gidiyor.',
+  'Prices in this region': 'Bu bölgede fiyatlar',
+  'Converted from TRY at the rate + buffer': "TRY'den kur + tamponla çevrilir",
+  'Sellers set their own local prices': 'Satıcılar kendi yerel fiyatını belirler',
+  'A buyer paying in another currency pays the TRY price at the mid rate, plus the buffer, rounded up as above. The difference is booked as FX gain.':
+    'Başka para birimiyle ödeyen alıcı, TRY fiyatını orta kurdan, tampon eklenmiş ve yukarıdaki kurala göre yukarı yuvarlanmış olarak öder. Aradaki fark kur geliri olarak kaydedilir.',
+  'Sellers may enter their own price in the region currency for their products; where they have not, the converted price applies.':
+    'Satıcılar ürünleri için bölge para biriminde kendi fiyatını girebilir; girmedikleri yerde çevrilmiş fiyat geçerlidir.',
+  'FX buffer (%)': 'Kur tamponu (%)',
+  'Global setting': 'Genel ayar',
+  'Empty = the global FX buffer in Settings.': "Boş = Ayarlar'daki genel kur tamponu.",
+  'Kept from the fixed price (spread)': 'Sabit fiyattan kalan (fark payı)',
+  'FX gain': 'Kur geliri',
   'Allowance for failed prints': 'Başarısız baskı payı',
   'Your margin': 'Marjın',
   'Your share': 'Payın',
@@ -1698,8 +1710,8 @@ export const tr: Record<string, string> = {
   'Applies to new quotes only; orders already priced keep their fee.':
     'Yalnızca yeni tekliflere uygulanır; fiyatlanmış siparişler kendi payını korur.',
   'Foreign-currency buffer': 'Yabancı para tamponu',
-  'Added to the exchange rate when a buyer pays in USD, EUR or GBP.':
-    'Alıcı USD, EUR veya GBP ile ödediğinde kura eklenir.',
+  'Added once on top of the mid rate when a buyer pays in USD, EUR or GBP, and booked as FX gain. A region can set its own.':
+    'Alıcı USD, EUR veya GBP ile ödediğinde orta kurun üstüne bir kez eklenir ve kur geliri olarak kaydedilir. Bir bölge kendi tamponunu belirleyebilir.',
   'Exchange rate: longest age (hours)': 'Döviz kuru: en uzun yaş (saat)',
   'Orders in a foreign currency are refused when the stored rate is older than this.':
     'Saklanan kur bundan eskiyse yabancı para birimindeki siparişler reddedilir.',
@@ -2984,8 +2996,8 @@ export const tr: Record<string, string> = {
   'Up to .99 (12.34 → 12.99)': ',99’a yukarı (12,34 → 12,99)',
   'Save region': 'Bölgeyi kaydet',
   'Material prices per gram': 'Gram başına malzeme fiyatları',
-  'Makers here are matched only up to this price. An own price replaces the price level for that material.':
-    'Buradaki üreticiler yalnız bu fiyata kadar eşleşir. Özel fiyat, o malzeme için fiyat seviyesinin yerine geçer.',
+  'Material cost of the reference maker here: it prices orders while fewer than the minimum makers print the material. An own price replaces the price level for that material.':
+    'Referans üreticinin buradaki malzeme maliyeti: malzemeyi basan üretici sayısı en az sayının altındayken siparişler bununla fiyatlanır. Özel fiyat, o malzeme için fiyat seviyesinin yerine geçer.',
   'Region pricing': 'Bölgesel fiyatlandırma',
   'Each delivery country is priced by its region: price level, commission, minimum order and rounding. Changes apply to new prices only; placed orders keep theirs.':
     'Her teslimat ülkesi bölgesine göre fiyatlanır: fiyat seviyesi, komisyon, asgari sipariş ve yuvarlama. Değişiklikler yalnız yeni fiyatlara uygulanır; verilmiş siparişler kendi fiyatını korur.',

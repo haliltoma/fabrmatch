@@ -13,6 +13,10 @@ const rules = {
   /** TRY as the admin types it → minor units */
   minOrder: moneyMinor({ min: 0, max: 10_000_000 }).optional(),
   rounding: vine.enum(['none', 'whole', 'charm99'] as const).optional(),
+  /** Paket V (V4): converted (TRY at the rate + buffer, rounded up) or local (sellers' own prices) */
+  currencyMode: vine.enum(['converted', 'local'] as const).optional(),
+  /** the FX buffer in percent; empty = the global setting */
+  fxBufferPercent: vine.number().min(0).max(20).nullable().optional(),
 }
 
 export const pricingRegionUpdateValidator = vine.create(rules)

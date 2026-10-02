@@ -945,7 +945,7 @@ export class OrderMessageSchema extends BaseModel {
 }
 
 export class OrderSchema extends BaseModel {
-  static $columns = ['baseTotalMinor', 'buyerId', 'channel', 'code', 'completedAt', 'createdAt', 'currency', 'deliveredAt', 'discountMinor', 'fxRateId', 'fxRateNano', 'id', 'makerBudgetMinor', 'matchingRound', 'platformFeeMinor', 'pricingRegionId', 'requiredTrustTier', 'sellerId', 'sellerShareMinor', 'shipCountry', 'shippingAddressEnc', 'shippingMinor', 'status', 'subtotalMinor', 'taxMinor', 'taxRateBps', 'totalMinor', 'updatedAt'] as const
+  static $columns = ['baseTotalMinor', 'buyerId', 'channel', 'code', 'completedAt', 'createdAt', 'currency', 'deliveredAt', 'discountMinor', 'fxGainMinor', 'fxRateId', 'fxRateNano', 'id', 'makerBudgetMinor', 'matchingRound', 'platformFeeMinor', 'pricingRegionId', 'requiredTrustTier', 'sellerId', 'sellerShareMinor', 'shipCountry', 'shippingAddressEnc', 'shippingMinor', 'status', 'subtotalMinor', 'taxMinor', 'taxRateBps', 'totalMinor', 'updatedAt'] as const
   $columns = OrderSchema.$columns
   @column()
   declare baseTotalMinor: number
@@ -965,6 +965,8 @@ export class OrderSchema extends BaseModel {
   declare deliveredAt: DateTime | null
   @column()
   declare discountMinor: number
+  @column()
+  declare fxGainMinor: number
   @column()
   declare fxRateId: string | null
   @column()
@@ -1222,7 +1224,7 @@ export class PricingRegionMaterialSchema extends BaseModel {
 }
 
 export class PricingRegionSchema extends BaseModel {
-  static $columns = ['code', 'commissionBps', 'countries', 'createdAt', 'currency', 'id', 'isFallback', 'minOrderMinor', 'name', 'referenceMultiplierBps', 'rounding', 'updatedAt'] as const
+  static $columns = ['code', 'commissionBps', 'countries', 'createdAt', 'currency', 'currencyMode', 'fxBufferBps', 'id', 'isFallback', 'minOrderMinor', 'name', 'referenceMultiplierBps', 'rounding', 'updatedAt'] as const
   $columns = PricingRegionSchema.$columns
   @column()
   declare code: string
@@ -1234,6 +1236,10 @@ export class PricingRegionSchema extends BaseModel {
   declare createdAt: DateTime
   @column()
   declare currency: string
+  @column()
+  declare currencyMode: string
+  @column()
+  declare fxBufferBps: number | null
   @column({ isPrimary: true })
   declare id: string
   @column()

@@ -19,6 +19,8 @@ export type LedgerAccount =
   | 'chargeback_loss'
   /** Paket V: the fixed price above the accepting maker's own price, kept by the platform */
   | 'platform_spread'
+  /** Paket V (V4): the FX buffer and round-up of a foreign-currency order, kept by the platform */
+  | 'fx_gain'
 
 export type LedgerDirection = 'debit' | 'credit'
 

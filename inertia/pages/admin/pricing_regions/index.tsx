@@ -23,6 +23,8 @@ type Region = {
   commissionPercent: number | null
   minOrderMinor: number
   rounding: Rounding
+  currencyMode: 'converted' | 'local'
+  fxBufferPercent: number | null
   materialPrices: Record<string, number>
 }
 
@@ -114,6 +116,8 @@ function RegionCard({
     commissionPercent: region.commissionPercent === null ? '' : String(region.commissionPercent),
     minOrder: (region.minOrderMinor / 100).toFixed(2),
     rounding: region.rounding,
+    currencyMode: region.currencyMode,
+    fxBufferPercent: region.fxBufferPercent === null ? '' : String(region.fxBufferPercent),
   })
   const set = (key: keyof typeof form) => (value: string) =>
     setForm((f) => ({ ...f, [key]: value }))
@@ -152,6 +156,8 @@ function RegionCard({
                   form.commissionPercent === '' ? null : Number(form.commissionPercent),
                 minOrder: Number(form.minOrder),
                 rounding: form.rounding,
+                currencyMode: form.currencyMode,
+                fxBufferPercent: form.fxBufferPercent === '' ? null : Number(form.fxBufferPercent),
               },
               { preserveScroll: true }
             )
@@ -263,6 +269,42 @@ function RegionCard({
               ))}
             </select>
           </div>
+          <div className="space-y-1">
+            <Label htmlFor={field('mode')}>{t('Prices in this region')}</Label>
+            <select
+              id={field('mode')}
+              className={selectClass}
+              value={form.currencyMode}
+              aria-describedby={`${field('mode')}-help`}
+              onChange={(e) => set('currencyMode')(e.target.value)}
+            >
+              <option value="converted">{t('Converted from TRY at the rate + buffer')}</option>
+              <option value="local">{t('Sellers set their own local prices')}</option>
+            </select>
+            <p id={`${field('mode')}-help`} className="text-xs text-ink-600">
+              {form.currencyMode === 'converted'
+                ? t(
+                    'A buyer paying in another currency pays the TRY price at the mid rate, plus the buffer, rounded up as above. The difference is booked as FX gain.'
+                  )
+                : t(
+                    'Sellers may enter their own price in the region currency for their products; where they have not, the converted price applies.'
+                  )}
+            </p>
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor={field('fx')}>{t('FX buffer (%)')}</Label>
+            <Input
+              id={field('fx')}
+              inputMode="decimal"
+              value={form.fxBufferPercent}
+              placeholder={t('Global setting')}
+              aria-describedby={`${field('fx')}-help`}
+              onChange={(e) => set('fxBufferPercent')(e.target.value)}
+            />
+            <p id={`${field('fx')}-help`} className="text-xs text-ink-600">
+              {t('Empty = the global FX buffer in Settings.')}
+            </p>
+          </div>
           <div className="sm:col-span-2">
             <Button type="submit">{t('Save region')}</Button>
           </div>
@@ -274,7 +316,7 @@ function RegionCard({
           </h3>
           <p className="text-xs text-ink-600">
             {t(
-              'Makers here are matched only up to this price. An own price replaces the price level for that material.'
+              'Material cost of the reference maker here: it prices orders while fewer than the minimum makers print the material. An own price replaces the price level for that material.'
             )}
           </p>
           <div

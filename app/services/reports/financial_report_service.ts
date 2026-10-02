@@ -23,6 +23,10 @@ export interface SummaryRow {
   vatMinor: number
   discountMinor: number
   platformFeeMinor: number
+  /** Paket V: the fixed price above the accepting makers' own prices */
+  spreadMinor: number
+  /** Paket V (V4): FX buffer and round-up on foreign-currency orders */
+  fxGainMinor: number
   refundedMinor: number
   makerPayoutsMinor: number
   sellerPayoutsMinor: number
@@ -47,6 +51,8 @@ export default class FinancialReportService {
           vatMinor: 0,
           discountMinor: 0,
           platformFeeMinor: 0,
+          spreadMinor: 0,
+          fxGainMinor: 0,
           refundedMinor: 0,
           makerPayoutsMinor: 0,
           sellerPayoutsMinor: 0,
@@ -75,16 +81,21 @@ export default class FinancialReportService {
       r.discountMinor = Number(o.discount)
     }
 
-    const fee = await db.rawQuery(
-      `select currency,
-              coalesce(sum(case when direction = 'credit' then amount_minor else -amount_minor end), 0) as fee
+    // the platform's three earnings, each its own ledger account (credits less debits)
+    const earned = await db.rawQuery(
+      `select account, currency,
+              coalesce(sum(case when direction = 'credit' then amount_minor else -amount_minor end), 0) as total
          from ledger_entries
-        where account = 'platform_fee' and created_at >= ? and created_at < ?
-        group by currency`,
+        where account in ('platform_fee', 'platform_spread', 'fx_gain')
+          and created_at >= ? and created_at < ?
+        group by account, currency`,
       [sql(period.from), sql(period.to)]
     )
-    for (const f of fee.rows as Array<{ currency: string; fee: string }>) {
-      row(f.currency).platformFeeMinor = Number(f.fee)
+    for (const e of earned.rows as Array<{ account: string; currency: string; total: string }>) {
+      const r = row(e.currency)
+      if (e.account === 'platform_fee') r.platformFeeMinor = Number(e.total)
+      else if (e.account === 'platform_spread') r.spreadMinor = Number(e.total)
+      else r.fxGainMinor = Number(e.total)
     }
 
     // a refund is paid out when the `refund` account is debited
@@ -125,6 +136,8 @@ export default class FinancialReportService {
         'vat_included',
         'discounts_given',
         'platform_fee_earned',
+        'spread_earned',
+        'fx_gain_earned',
         'refunds_paid',
         'maker_payouts_paid',
         'seller_payouts_paid',
@@ -137,6 +150,8 @@ export default class FinancialReportService {
         minorToDecimal(r.vatMinor),
         minorToDecimal(r.discountMinor),
         minorToDecimal(r.platformFeeMinor),
+        minorToDecimal(r.spreadMinor),
+        minorToDecimal(r.fxGainMinor),
         minorToDecimal(r.refundedMinor),
         minorToDecimal(r.makerPayoutsMinor),
         minorToDecimal(r.sellerPayoutsMinor),

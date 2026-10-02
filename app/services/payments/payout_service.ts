@@ -117,7 +117,9 @@ export default class PayoutService {
     })
     const platformFee = order.platformFeeMinor
     const sellerShare = order.sellerId ? order.sellerShareMinor : 0
-    const makersPart = escrow - platformFee - sellerShare
+    // Paket V (V4): the FX buffer and round-up of a foreign-currency order are the platform's
+    const fxGain = Math.min(order.fxGainMinor, Math.max(0, escrow - platformFee - sellerShare))
+    const makersPart = escrow - platformFee - sellerShare - fxGain
     // Paket V (K-V3): a maker who accepted their own price is paid that plus shipping; what the
     // fixed price left above it is the platform's (a refund comes out of that part first)
     const spread =
@@ -136,6 +138,7 @@ export default class PayoutService {
       const needInvoice = await this.allocateAsSeller(order, trx, {
         escrow,
         spread,
+        fxGain,
         manufacturer: { id: job.manufacturerProfileId, share: manufacturerShare },
         seller:
           sellerShare > 0 && order.sellerId ? { id: order.sellerId, share: sellerShare } : null,
@@ -170,6 +173,15 @@ export default class PayoutService {
                 account: 'platform_spread' as const,
                 direction: 'credit' as const,
                 amountMinor: spread,
+              },
+            ]
+          : []),
+        ...(fxGain > 0
+          ? [
+              {
+                account: 'fx_gain' as const,
+                direction: 'credit' as const,
+                amountMinor: fxGain,
               },
             ]
           : []),
@@ -217,7 +229,7 @@ export default class PayoutService {
         action: 'payout.allocated',
         subjectType: 'order',
         subjectId: orderId,
-        meta: { escrow, platformFee, sellerShare, manufacturerShare, spread },
+        meta: { escrow, platformFee, sellerShare, manufacturerShare, spread, fxGain },
       },
       { client: trx }
     )
@@ -239,6 +251,8 @@ export default class PayoutService {
       escrow: number
       /** Paket V: the maker share left above the accepting maker's price, for the record */
       spread: number
+      /** Paket V (V4): FX buffer + round-up, for the record (in our own result like the spread) */
+      fxGain: number
       manufacturer: { id: string; share: number }
       seller: { id: string; share: number } | null
     }
@@ -339,6 +353,7 @@ export default class PayoutService {
           model: 'merchant_of_record',
           escrow: input.escrow,
           spread: input.spread,
+          fxGain: input.fxGain,
           outputVat,
           inputVat,
           withheld,

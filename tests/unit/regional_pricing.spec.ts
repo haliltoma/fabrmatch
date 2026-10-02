@@ -292,13 +292,16 @@ test.group('regional pricing: regions and orders (P2)', (group) => {
       assert.exists(priced.fx)
       const item = priced.items[0]
       assert.equal(item.unitCostMinor % 100, 99)
+      // the FX gain (buffer + the round-up to ,99) is kept apart from every other part
       assert.equal(
         item.manufacturerShareMinor * item.quantity +
           item.shippingMinor +
           item.platformCommissionMinor +
-          item.sellerMarginMinor,
+          item.sellerMarginMinor +
+          item.fxGainMinor,
         item.unitCostMinor * item.quantity
       )
+      assert.isAbove(priced.fxGainMinor, 0)
       assert.equal(priced.totalMinor, item.unitCostMinor * 2)
       // the TRY equivalent is kept for limits and reports
       assert.isAbove(priced.baseTotalMinor, priced.totalMinor)

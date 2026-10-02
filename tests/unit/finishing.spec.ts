@@ -185,7 +185,9 @@ test.group('finishing in prices and orders', (group) => {
         item.manufacturerShareMinor +
           item.shippingMinor / item.quantity +
           item.platformCommissionMinor / item.quantity +
-          item.sellerMarginMinor / item.quantity
+          item.sellerMarginMinor / item.quantity +
+          // Paket V (V4): the FX buffer and round-up sit beside the parts
+          item.fxGainMinor / item.quantity
       )
     } finally {
       flags.currencyUsd = 0

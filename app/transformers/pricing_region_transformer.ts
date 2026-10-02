@@ -16,6 +16,8 @@ export default class PricingRegionTransformer extends BaseTransformer<PricingReg
       commissionPercent: r.commissionBps === null ? null : r.commissionBps / 100,
       minOrderMinor: r.minOrderMinor,
       rounding: r.rounding,
+      currencyMode: r.currencyMode,
+      fxBufferPercent: r.fxBufferBps === null ? null : r.fxBufferBps / 100,
       materialPrices: Object.fromEntries(
         (r.materials ?? []).map((m) => [m.material, m.pricePerGramMinor])
       ),

@@ -8,7 +8,6 @@ import {
   BASE_CURRENCY,
   FOREIGN_CURRENCIES,
   isForeignCurrency,
-  withMargin,
   type ForeignCurrency,
 } from '#services/pricing/fx'
 import { StaticFxProvider, TcmbProvider, type FxProvider } from '#services/pricing/fx_provider'
@@ -17,7 +16,10 @@ export class FxError extends DomainError {}
 
 export interface LockedRate {
   fxRateId: string
+  /** the mid rate (foreign per 1 TRY, ×1e9): every part of the order is converted at it */
   rateE9: bigint
+  /** Paket V (V4): added on top once, with the region's round-up; the difference is `fx_gain` */
+  bufferBps: number
 }
 
 const FLAG_FOR: Record<ForeignCurrency, FeatureName> = {
@@ -46,10 +48,11 @@ export default class FxService {
   }
 
   /**
-   * The rate an order will be priced with: the newest stored rate, widened by the FX buffer, and
-   * refused when it is older than the allowed age (a stale rate could lose real money).
+   * The rate an order will be priced with: the newest stored mid rate and the FX buffer to add on
+   * top (the region's own, else the global one), refused when the rate is older than the allowed
+   * age (a stale rate could lose real money).
    */
-  async lock(currency: string): Promise<LockedRate> {
+  async lock(currency: string, regionBufferBps: number | null = null): Promise<LockedRate> {
     this.assertEnabled(currency)
     if (!isForeignCurrency(currency)) throw new FxError('No conversion is needed for TRY')
     const row = await db
@@ -67,7 +70,8 @@ export default class FxService {
     }
     return {
       fxRateId: row.id,
-      rateE9: withMargin(BigInt(row.rate_nano), fabrmatchConfig.pricing.fxMarginBps),
+      rateE9: BigInt(row.rate_nano),
+      bufferBps: regionBufferBps ?? fabrmatchConfig.pricing.fxMarginBps,
     }
   }
 
