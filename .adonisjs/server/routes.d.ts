@@ -184,6 +184,8 @@ export type ScannedRoutes = {
     'maker_rfq.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_rfq.bid': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_rfq.withdraw': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'maker_cost.show': { paramsTuple?: []; params?: {} }
+    'maker_cost.save': { paramsTuple?: []; params?: {} }
     'maker_finishing.show': { paramsTuple?: []; params?: {} }
     'maker_finishing.save': { paramsTuple?: []; params?: {} }
     'maker_payout.show': { paramsTuple?: []; params?: {} }
@@ -356,6 +358,7 @@ export type ScannedRoutes = {
     'maker_order_message.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_rfq.index': { paramsTuple?: []; params?: {} }
     'maker_rfq.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'maker_cost.show': { paramsTuple?: []; params?: {} }
     'maker_finishing.show': { paramsTuple?: []; params?: {} }
     'maker_payout.show': { paramsTuple?: []; params?: {} }
     'maker_payout.voucher': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -479,6 +482,7 @@ export type ScannedRoutes = {
     'maker_order_message.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_rfq.index': { paramsTuple?: []; params?: {} }
     'maker_rfq.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'maker_cost.show': { paramsTuple?: []; params?: {} }
     'maker_finishing.show': { paramsTuple?: []; params?: {} }
     'maker_payout.show': { paramsTuple?: []; params?: {} }
     'maker_payout.voucher': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -615,6 +619,7 @@ export type ScannedRoutes = {
     'maker_order_message.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_rfq.bid': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_rfq.withdraw': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'maker_cost.save': { paramsTuple?: []; params?: {} }
     'maker_finishing.save': { paramsTuple?: []; params?: {} }
     'maker_payout.save': { paramsTuple?: []; params?: {} }
     'maker_payout.invoice': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

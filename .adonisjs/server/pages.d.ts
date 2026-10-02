@@ -61,6 +61,7 @@ declare module '@adonisjs/inertia/types' {
     'invoices/index': ExtractProps<(typeof import('../../inertia/pages/invoices/index.tsx'))['default']>
     'legal/show': ExtractProps<(typeof import('../../inertia/pages/legal/show.tsx'))['default']>
     'maker/capacity/index': ExtractProps<(typeof import('../../inertia/pages/maker/capacity/index.tsx'))['default']>
+    'maker/costs': ExtractProps<(typeof import('../../inertia/pages/maker/costs.tsx'))['default']>
     'maker/dashboard': ExtractProps<(typeof import('../../inertia/pages/maker/dashboard.tsx'))['default']>
     'maker/earnings': ExtractProps<(typeof import('../../inertia/pages/maker/earnings.tsx'))['default']>
     'maker/finishing': ExtractProps<(typeof import('../../inertia/pages/maker/finishing.tsx'))['default']>

@@ -2167,6 +2167,30 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/maker_rfq_controller').default['withdraw']>>>
     }
   }
+  'maker_cost.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/maker/costs'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/maker_cost_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/maker_cost_controller').default['show']>>>
+    }
+  }
+  'maker_cost.save': {
+    methods: ["POST"]
+    pattern: '/maker/costs'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/maker_costs').makerCostsValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/maker_costs').makerCostsValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/maker_cost_controller').default['save']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/maker_cost_controller').default['save']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'maker_finishing.show': {
     methods: ["GET","HEAD"]
     pattern: '/maker/finishing'

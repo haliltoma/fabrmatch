@@ -283,6 +283,10 @@ export interface ApiDefinition {
     bid: typeof routes['maker_rfq.bid']
     withdraw: typeof routes['maker_rfq.withdraw']
   }
+  makerCost: {
+    show: typeof routes['maker_cost.show']
+    save: typeof routes['maker_cost.save']
+  }
   makerFinishing: {
     show: typeof routes['maker_finishing.show']
     save: typeof routes['maker_finishing.save']

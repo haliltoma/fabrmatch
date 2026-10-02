@@ -1086,6 +1086,18 @@ const routes = {
     tokens: [{"old":"/maker/rfqs/:id/withdraw","type":0,"val":"maker","end":""},{"old":"/maker/rfqs/:id/withdraw","type":0,"val":"rfqs","end":""},{"old":"/maker/rfqs/:id/withdraw","type":1,"val":"id","end":""},{"old":"/maker/rfqs/:id/withdraw","type":0,"val":"withdraw","end":""}],
     types: placeholder as Registry['maker_rfq.withdraw']['types'],
   },
+  'maker_cost.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/maker/costs',
+    tokens: [{"old":"/maker/costs","type":0,"val":"maker","end":""},{"old":"/maker/costs","type":0,"val":"costs","end":""}],
+    types: placeholder as Registry['maker_cost.show']['types'],
+  },
+  'maker_cost.save': {
+    methods: ["POST"],
+    pattern: '/maker/costs',
+    tokens: [{"old":"/maker/costs","type":0,"val":"maker","end":""},{"old":"/maker/costs","type":0,"val":"costs","end":""}],
+    types: placeholder as Registry['maker_cost.save']['types'],
+  },
   'maker_finishing.show': {
     methods: ["GET","HEAD"],
     pattern: '/maker/finishing',

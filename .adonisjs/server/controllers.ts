@@ -47,6 +47,7 @@ export const controllers = {
   Invoice: () => import('#controllers/invoice_controller'),
   Language: () => import('#controllers/language_controller'),
   Legal: () => import('#controllers/legal_controller'),
+  MakerCost: () => import('#controllers/maker_cost_controller'),
   MakerDashboard: () => import('#controllers/maker_dashboard_controller'),
   MakerFinishing: () => import('#controllers/maker_finishing_controller'),
   MakerOrderMessage: () => import('#controllers/maker_order_message_controller'),
