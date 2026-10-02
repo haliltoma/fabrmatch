@@ -11,7 +11,12 @@ import { storeAdapter } from '#services/integrations/stores/store_registry'
 import EtsyOAuthService, { type PkceState } from '#services/integrations/stores/etsy_oauth_service'
 import { wixConfigured, wixInstallUrl } from '#services/integrations/stores/wix_adapter'
 import WixConnectService from '#services/integrations/stores/wix_connect_service'
-import StoreService, { StoreError } from '#services/integrations/stores/store_service'
+import StoreService, {
+  MAX_SHOP_VARIANTS,
+  StoreError,
+  sizeLabel,
+} from '#services/integrations/stores/store_service'
+import Color from '#models/color'
 import { SHOPIFY_SCOPES } from '#services/integrations/stores/shopify_adapter'
 import ShippingService from '#services/shipping/shipping_service'
 import { unitPriceFor } from '#services/storefront/storefront_service'
@@ -46,11 +51,14 @@ const publishValidator = vine.create({
     .array(
       vine.object({
         material: vine.string().trim().maxLength(20),
+        // W3: a colour from our list (none = no colour choice) and a size the design offers
+        color: vine.string().trim().maxLength(40).nullable().optional(),
+        scalePercent: vine.number().withoutDecimals().min(10).max(300).optional(),
         priceMinor: vine.number().withoutDecimals().min(100).max(100_000_000),
       })
     )
     .minLength(1)
-    .maxLength(20),
+    .maxLength(MAX_SHOP_VARIANTS),
 })
 
 const unpublishValidator = vine.create({
@@ -110,32 +118,38 @@ export default class SellerStoreController {
       const file = fileOf.get(product.catalogProduct?.modelFileId ?? '')
       if (!file) return []
       const atCost = Object.create(product, { marginBps: { value: 0 } }) as SellerProduct
-      return product.catalogProduct.allowedMaterials.flatMap((material) => {
-        const cost = unitPriceFor(
-          atCost,
-          file,
-          material.toUpperCase(),
-          shipping,
-          100,
-          0,
-          undefined,
-          markets
-        )
-        const suggested = unitPriceFor(
-          product,
-          file,
-          material.toUpperCase(),
-          shipping,
-          100,
-          0,
-          undefined,
-          markets
-        )
-        return cost === null || suggested === null
-          ? []
-          : [{ material: material.toUpperCase(), costMinor: cost, suggestedMinor: suggested }]
+      // W3: every material at every size the design is offered in
+      const scales = product.catalogProduct.allowedScales ?? [100]
+      return product.catalogProduct.allowedMaterials.flatMap((raw) => {
+        const material = raw.toUpperCase()
+        return scales.flatMap((scalePercent) => {
+          const cost = unitPriceFor(
+            atCost,
+            file,
+            material,
+            shipping,
+            scalePercent,
+            0,
+            undefined,
+            markets
+          )
+          const suggested = unitPriceFor(
+            product,
+            file,
+            material,
+            shipping,
+            scalePercent,
+            0,
+            undefined,
+            markets
+          )
+          return cost === null || suggested === null
+            ? []
+            : [{ material, scalePercent, costMinor: cost, suggestedMinor: suggested }]
+        })
       })
     }
+    const colours = await Color.query().where('isActive', true).orderBy('name', 'asc')
     return inertia.render('seller/stores', {
       preselectProductId: preselect ?? null,
       testShops: app.inDev || app.inTest,
@@ -164,7 +178,14 @@ export default class SellerStoreController {
           materials: p.catalogProduct.allowedMaterials,
           scales: p.catalogProduct.allowedScales ?? [100],
           prices: pricesFor(p),
+          sizes: Object.fromEntries(
+            (p.catalogProduct.allowedScales ?? [100]).map((scale) => [
+              scale,
+              sizeLabel(fileOf.get(p.catalogProduct.modelFileId ?? ''), scale),
+            ])
+          ),
         })),
+      colours: colours.map((c) => ({ name: c.name, hex: c.hex })),
     })
   }
 

@@ -7,6 +7,7 @@ import {
   StoreWebhookSignatureError,
   decimalPrice,
   descriptionHtml,
+  variantOptions,
   type StoreEvent,
   type PublishInput,
   type PublishResult,
@@ -132,6 +133,10 @@ export default class ShopifyAdapter implements StoreAdapter {
     input: PublishInput,
     existingProductId: string | null
   ): Promise<PublishResult> {
+    const options = variantOptions(input.variants)
+    const images = [
+      ...new Set([...input.imageUrls, ...input.variants.flatMap((v) => v.imageUrl ?? [])]),
+    ]
     const data = await this.graphql<{
       productSet: {
         product: { id: string; variants: { nodes: Array<{ id: string; sku: string }> } } | null
@@ -141,7 +146,7 @@ export default class ShopifyAdapter implements StoreAdapter {
       connection,
       `mutation productSet($input: ProductSetInput!, $synchronous: Boolean, $identifier: ProductSetIdentifiers) {
         productSet(input: $input, synchronous: $synchronous, identifier: $identifier) {
-          product { id variants(first: 50) { nodes { id sku } } }
+          product { id variants(first: 250) { nodes { id sku } } }
           userErrors { field message }
         }
       }`,
@@ -152,25 +157,20 @@ export default class ShopifyAdapter implements StoreAdapter {
           title: input.title,
           descriptionHtml: descriptionHtml(input.description),
           status: 'ACTIVE',
-          productOptions: [
-            { name: 'Material', values: input.variants.map((v) => ({ name: v.material })) },
-          ],
+          productOptions: options.choices.map((o) => ({
+            name: o.name,
+            values: o.values.map((name) => ({ name })),
+          })),
           variants: input.variants.map((v) => ({
-            optionValues: [{ optionName: 'Material', name: v.material }],
+            optionValues: options.valuesOf(v).map((o) => ({ optionName: o.name, name: o.value })),
             price: decimalPrice(v.priceMinor),
             sku: v.sku,
             // printed on demand: never "sold out"
             inventoryPolicy: 'CONTINUE',
+            // the colour's picture; Shopify wants it in the product's files as well
+            ...(v.imageUrl ? { file: imageFile(v.imageUrl, input.title) } : {}),
           })),
-          ...(input.imageUrls.length > 0
-            ? {
-                files: input.imageUrls.map((url) => ({
-                  originalSource: url,
-                  contentType: 'IMAGE',
-                  alt: input.title,
-                })),
-              }
-            : {}),
+          ...(images.length > 0 ? { files: images.map((url) => imageFile(url, input.title)) } : {}),
         },
       }
     )
@@ -178,12 +178,12 @@ export default class ShopifyAdapter implements StoreAdapter {
     if (userErrors.length > 0 || !product) {
       throw new StoreApiError(`Shopify: ${userErrors[0]?.message ?? 'product was not saved'}`)
     }
-    const bySku = new Map(input.variants.map((v) => [v.sku, v.material]))
+    const ours = new Set(input.variants.map((v) => v.sku))
     return {
       productId: numericId(product.id),
       variants: product.variants.nodes
-        .filter((v) => bySku.has(v.sku))
-        .map((v) => ({ variantId: numericId(v.id), sku: v.sku, material: bySku.get(v.sku)! })),
+        .filter((v) => ours.has(v.sku))
+        .map((v) => ({ variantId: numericId(v.id), sku: v.sku })),
     }
   }
 
@@ -410,4 +410,8 @@ interface ShopifyOrder {
     country_code?: string
     phone?: string | null
   } | null
+}
+
+function imageFile(url: string, alt: string) {
+  return { originalSource: url, contentType: 'IMAGE', alt }
 }

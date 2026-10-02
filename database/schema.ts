@@ -1382,10 +1382,12 @@ export class PrinterSchema extends BaseModel {
 }
 
 export class ProductImageSchema extends BaseModel {
-  static $columns = ['angle', 'contentType', 'createdAt', 'height', 'id', 'kind', 'modelFileId', 'qcPhotoId', 'renderVersion', 'reviewedAt', 'reviewedBy', 'status', 'storageKey', 'submittedBy', 'updatedAt', 'width'] as const
+  static $columns = ['angle', 'colorHex', 'contentType', 'createdAt', 'height', 'id', 'kind', 'modelFileId', 'qcPhotoId', 'renderVersion', 'reviewedAt', 'reviewedBy', 'status', 'storageKey', 'submittedBy', 'updatedAt', 'width'] as const
   $columns = ProductImageSchema.$columns
   @column()
   declare angle: number | null
+  @column()
+  declare colorHex: string | null
   @column()
   declare contentType: string
   @column.dateTime({ autoCreate: true })

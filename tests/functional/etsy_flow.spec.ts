@@ -125,7 +125,7 @@ test.group('Etsy: connect with OAuth, publish, polled orders, tracking', (group)
     )
 
     // a paid receipt appears in the shop; the poll picks it up and places the order
-    const pla = published.variants.find((v) => v.material === 'PLA')!
+    const pla = published.variants.find((v) => v.sku === fabrmatchSku(product.id, 'PLA'))!
     etsy.receipt(3_300_001, [{ productId: pla.variantId, sku: pla.sku, quantity: 2 }])
     const polled = await stores.pollOrders()
     assert.deepEqual(polled, { shops: 1, events: 1 })

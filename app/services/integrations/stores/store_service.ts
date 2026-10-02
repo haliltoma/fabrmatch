@@ -22,10 +22,16 @@ import ProductImage from '#models/product_image'
 import ProductImageService from '#services/catalog/product_image_service'
 import { storeAdapter } from '#services/integrations/stores/store_registry'
 import {
+  SKU_PATTERN,
+  colourCode,
   fabrmatchSku,
   skuKey,
   type IncomingOrder,
+  type PublishVariant as AdapterVariant,
 } from '#services/integrations/stores/store_adapter'
+import Color from '#models/color'
+import type CatalogProduct from '#models/catalog_product'
+import type ModelFile from '#models/model_file'
 import { shopifyDomain } from '#services/integrations/stores/shopify_adapter'
 import { wooSiteUrl } from '#services/integrations/stores/woocommerce_adapter'
 
@@ -45,13 +51,16 @@ export interface ConnectInput {
   accessToken?: string | null
 }
 
+/** What the seller picks on the publish form: one row per material × colour × size (W3). */
 export interface PublishVariant {
   material: string
+  color?: string | null
+  scalePercent?: number
   priceMinor: number
 }
 
-// FM-<12 hex key of the seller product>-<material> (store_adapter.ts fabrmatchSku)
-const SKU_PATTERN = /^FM-([0-9A-F]{12})-([A-Z0-9]+)$/i
+/** A shop product holds at most this many of our variants (Shopify/Etsy limits leave room). */
+export const MAX_SHOP_VARIANTS = 100
 
 export interface ListingMapping {
   sellerProductId: string | null
@@ -179,7 +188,7 @@ export default class StoreService {
     const product = await SellerProduct.query()
       .where('id', sellerProductId)
       .whereHas('sellerProfile', (q) => q.where('userId', seller.id))
-      .preload('catalogProduct')
+      .preload('catalogProduct', (q) => q.preload('modelFile'))
       .first()
     const catalog = product?.catalogProduct
     if (!product || !catalog || !catalog.isActive || !catalog.modelFileId) {
@@ -188,17 +197,7 @@ export default class StoreService {
     if (product.status === 'archived') {
       throw new StoreError('This product is archived; make it active or draft first')
     }
-    const allowed = catalog.allowedMaterials.map((m) => m.toUpperCase())
-    const chosen = [...new Map(variants.map((v) => [v.material.toUpperCase(), v])).values()]
-    if (chosen.length === 0) throw new StoreError('Choose at least one material')
-    for (const v of chosen) {
-      if (!allowed.includes(v.material.toUpperCase())) {
-        throw new StoreError(`Material ${v.material} is not available for this product`)
-      }
-      if (!Number.isInteger(v.priceMinor) || v.priceMinor < 100) {
-        throw new StoreError('Set a price for every material')
-      }
-    }
+    const chosen = await this.publishVariants(catalog, variants)
 
     // the shop product we created before (also when it was taken off sale), found by our SKU
     const previous = await ExternalListing.query()
@@ -207,27 +206,45 @@ export default class StoreService {
       .whereLike('sku', `FM-${skuKey(product.id)}-%`)
       .orderBy('id', 'desc')
       .first()
-    const images = await new ProductImageService().forModelFiles([catalog.modelFileId])
+    const imageService = new ProductImageService()
+    const pictures = await imageService.forModelFiles([catalog.modelFileId])
+    const turntable = pictures.get(catalog.modelFileId) ?? []
+    const colourHex = [...new Set(chosen.flatMap((v) => (v.hex ? [v.hex] : [])))]
+    const colourImages = await imageService.colourRenders(catalog.modelFileId, colourHex)
     const base = env.get('APP_URL').replace(/\/$/, '')
     // the shop downloads images from us, so only a public https address works
-    const imageUrls = base.startsWith('https://')
-      ? (images.get(catalog.modelFileId) ?? []).slice(0, 8).map((i) => `${base}${i.url}`)
-      : []
+    const publicUrls = base.startsWith('https://')
+    const imageUrls = publicUrls ? turntable.slice(0, 8).map((i) => `${base}${i.url}`) : []
 
-    // platforms that take uploads (Etsy) get the files themselves
+    // platforms that take uploads (Etsy) get the files themselves, colours included
     const imageFiles =
       connection.provider === 'etsy'
         ? await Promise.all(
-            (images.get(catalog.modelFileId) ?? []).slice(0, 10).map(async (image) => {
-              const row = await ProductImage.findOrFail(image.id)
-              return {
-                bytes: Buffer.from(await drive.use('s3').getBytes(row.storageKey)),
-                contentType: row.contentType,
-              }
-            })
+            [...turntable.slice(0, Math.max(2, 10 - colourImages.size)), ...colourImages.values()]
+              .slice(0, 10)
+              .map(async (image) => {
+                const row = await ProductImage.findOrFail(image.id)
+                return {
+                  bytes: Buffer.from(await drive.use('s3').getBytes(row.storageKey)),
+                  contentType: row.contentType,
+                }
+              })
           )
         : undefined
 
+    const file = catalog.modelFile
+    const publishVariants: AdapterVariant[] = chosen.map((v) => {
+      const colourImage = v.hex ? colourImages.get(v.hex) : undefined
+      return {
+        material: v.material,
+        color: v.color,
+        scalePercent: v.scalePercent,
+        sizeLabel: sizeLabel(file, v.scalePercent),
+        sku: fabrmatchSku(product.id, v.material, v.color, v.scalePercent),
+        priceMinor: v.priceMinor,
+        imageUrl: publicUrls && colourImage ? `${base}${colourImage.url}` : null,
+      }
+    })
     const result = await storeAdapter(connection.provider).publishProduct(
       connection,
       {
@@ -237,16 +254,17 @@ export default class StoreService {
         images: imageFiles,
         categoryId,
         currency: connection.currency ?? 'TRY',
-        variants: chosen.map((v) => ({
-          material: v.material.toUpperCase(),
-          sku: fabrmatchSku(product.id, v.material),
-          priceMinor: v.priceMinor,
-        })),
+        variants: publishVariants,
       },
       previous?.externalProductId ?? null
     )
-    const price = new Map(chosen.map((v) => [v.material.toUpperCase(), v.priceMinor]))
+    const bySku = new Map(publishVariants.map((v) => [v.sku, v]))
     for (const variant of result.variants) {
+      const ours = bySku.get(variant.sku)
+      if (!ours) continue
+      const label = [ours.material, ours.color, ours.scalePercent === 100 ? null : ours.sizeLabel]
+        .filter(Boolean)
+        .join(' · ')
       await db
         .table('external_listings')
         .insert({
@@ -254,12 +272,13 @@ export default class StoreService {
           external_product_id: result.productId,
           external_variant_id: variant.variantId,
           sku: variant.sku,
-          title: `${product.title} — ${variant.material}`.slice(0, 300),
+          title: `${product.title} — ${label}`.slice(0, 300),
           seller_product_id: product.id,
-          material: variant.material,
-          scale_percent: 100,
+          material: ours.material,
+          color: ours.color,
+          scale_percent: ours.scalePercent,
           published: true,
-          price_minor: price.get(variant.material) ?? null,
+          price_minor: ours.priceMinor,
           created_at: new Date(),
           updated_at: new Date(),
         })
@@ -270,20 +289,100 @@ export default class StoreService {
           'title',
           'seller_product_id',
           'material',
+          'color',
           'scale_percent',
           'published',
           'price_minor',
           'updated_at',
         ])
     }
+    // a colour or size dropped from the product no longer sells in this shop
+    await ExternalListing.query()
+      .where('storeConnectionId', connection.id)
+      .where('sellerProductId', product.id)
+      .where('externalProductId', result.productId)
+      .whereNotIn(
+        'externalVariantId',
+        result.variants.map((v) => v.variantId)
+      )
+      .update({ published: false, updatedAt: new Date() })
+
     await AuditLog.create({
       actorId: seller.id,
       action: previous ? 'store.product_updated' : 'store.product_published',
       subjectType: 'store_connection',
       subjectId: connection.id,
-      meta: { sellerProductId: product.id, externalProductId: result.productId },
+      meta: {
+        sellerProductId: product.id,
+        externalProductId: result.productId,
+        variants: result.variants.length,
+      },
     })
     return result
+  }
+
+  /**
+   * The variants a seller asked for, checked against the design: offered materials and sizes,
+   * active colours (canonical name + hex), unique combinations, at most MAX_SHOP_VARIANTS, a
+   * price on each, and either every variant with a colour or none.
+   */
+  private async publishVariants(catalog: CatalogProduct, variants: PublishVariant[]) {
+    const allowed = new Set(catalog.allowedMaterials.map((m) => m.toUpperCase()))
+    const scales = new Set(catalog.allowedScales ?? [100])
+    const colours = await Color.query().where('isActive', true)
+    const colourByName = new Map(colours.map((c) => [c.name.toLowerCase(), c]))
+    const seen = new Map<string, true>()
+    const chosen: Array<{
+      material: string
+      color: string | null
+      hex: string | null
+      scalePercent: number
+      priceMinor: number
+    }> = []
+    for (const v of variants) {
+      const material = v.material.trim().toUpperCase()
+      if (!allowed.has(material)) {
+        throw new StoreError(`Material ${material} is not available for this product`)
+      }
+      const scalePercent = v.scalePercent ?? 100
+      if (!scales.has(scalePercent)) {
+        throw new StoreError(`Size ${scalePercent}% is not offered for this product`)
+      }
+      const colour = v.color ? colourByName.get(v.color.trim().toLowerCase()) : null
+      if (v.color && !colour) throw new StoreError(`Unknown colour: ${v.color}`)
+      if (!Number.isInteger(v.priceMinor) || v.priceMinor < 100) {
+        throw new StoreError('Set a price for every variant')
+      }
+      const key = `${material}|${colour?.id ?? ''}|${scalePercent}`
+      if (seen.has(key)) continue
+      seen.set(key, true)
+      chosen.push({
+        material,
+        color: colour?.name ?? null,
+        hex: colour?.hex?.toUpperCase() ?? null,
+        scalePercent,
+        priceMinor: v.priceMinor,
+      })
+    }
+    if (chosen.length === 0) throw new StoreError('Choose at least one material')
+    if (chosen.length > MAX_SHOP_VARIANTS) {
+      throw new StoreError(`At most ${MAX_SHOP_VARIANTS} variants per shop product`)
+    }
+    const withColour = chosen.filter((v) => v.color !== null).length
+    if (withColour > 0 && withColour < chosen.length) {
+      throw new StoreError('Give every variant a colour, or none of them')
+    }
+    // the shop's colour codes must tell the colours apart (SKU, see colourCode)
+    const codes = new Map<string, string>()
+    for (const v of chosen) {
+      if (!v.color) continue
+      const code = colourCode(v.color)
+      if (codes.has(code) && codes.get(code) !== v.color) {
+        throw new StoreError(`${codes.get(code)} and ${v.color} cannot be sold together yet`)
+      }
+      codes.set(code, v.color)
+    }
+    return chosen
   }
 
   /**
@@ -387,21 +486,46 @@ export default class StoreService {
       .whereNull('sellerProductId')
       .whereLike('sku', 'FM-%')
     for (const listing of unmapped) {
-      const match = SKU_PATTERN.exec(listing.sku ?? '')
-      if (!match) continue
-      // the SKU carries the product's 12-hex key (UUIDs since U7), resolved within this seller
-      const productId = await this.productBySkuKey(seller.id, match[1])
-      const product = productId
-        ? await SellerProduct.query().where('id', productId).preload('catalogProduct').first()
-        : null
-      if (
-        !product?.catalogProduct?.allowedMaterials.map((m) => m.toUpperCase()).includes(match[2])
-      ) {
-        continue
-      }
-      listing.merge({ sellerProductId: product.id, material: match[2], scalePercent: 100 })
+      const parsed = await this.parseSku(seller.id, listing.sku)
+      if (!parsed) continue
+      listing.merge({
+        sellerProductId: parsed.sellerProductId,
+        material: parsed.material,
+        color: parsed.color,
+        scalePercent: parsed.scalePercent,
+      })
       await listing.save()
     }
+  }
+
+  /**
+   * One of our SKUs, read back: the seller's product (by its key), a material it offers, the
+   * colour (code → an active colour, unambiguous) and a size it offers. Null when any part does
+   * not resolve: the line then waits for the seller to map it.
+   */
+  private async parseSku(sellerUserId: string, sku: string | null) {
+    const match = SKU_PATTERN.exec(sku ?? '')
+    if (!match) return null
+    const productId = await this.productBySkuKey(sellerUserId, match[1])
+    const product = productId
+      ? await SellerProduct.query().where('id', productId).preload('catalogProduct').first()
+      : null
+    const catalog = product?.catalogProduct
+    const material = match[2].toUpperCase()
+    if (!product || !catalog?.allowedMaterials.map((m) => m.toUpperCase()).includes(material)) {
+      return null
+    }
+    const scalePercent = match[4] ? Number(match[4]) : 100
+    if (!(catalog.allowedScales ?? [100]).includes(scalePercent)) return null
+    let color: string | null = null
+    const code = match[3]?.toUpperCase()
+    if (code && code !== 'X') {
+      const active = await Color.query().where('isActive', true)
+      const colours = active.filter((c) => colourCode(c.name) === code)
+      if (colours.length !== 1) return null
+      color = colours[0].name
+    }
+    return { sellerProductId: product.id, material, color, scalePercent }
   }
 
   async listings(seller: User, connectionId: string) {
@@ -647,16 +771,8 @@ export default class StoreService {
         continue
       }
       // a product we published carries our SKU even before its variants were read back
-      const bySku = SKU_PATTERN.exec(line.sku ?? '')
-      const product = bySku ? await this.productBySkuKey(connection.sellerUserId, bySku[1]) : null
-      if (bySku && product) {
-        mapping.set(line.variantId, {
-          sellerProductId: product,
-          material: bySku[2],
-          color: null,
-          scalePercent: 100,
-        })
-      }
+      const parsed = await this.parseSku(connection.sellerUserId, line.sku)
+      if (parsed) mapping.set(line.variantId, parsed)
     }
     const unmapped = order.lines.filter((l) => !mapping.has(l.variantId))
     if (order.lines.length === 0) {
@@ -857,4 +973,11 @@ export default class StoreService {
     order.merge({ fulfillmentStatus: 'pending', fulfillmentAttempts: 0 })
     await order.save()
   }
+}
+
+/** "62 × 62 × 83 mm" at the given size; "100%" style when the model's size is unknown. */
+export function sizeLabel(file: ModelFile | null | undefined, scalePercent: number) {
+  const dims = [file?.bboxXMm, file?.bboxYMm, file?.bboxZMm]
+  if (dims.some((d) => d === null || d === undefined)) return `${scalePercent}%`
+  return `${dims.map((d) => Math.round((Number(d) * scalePercent) / 100)).join(' × ')} mm`
 }

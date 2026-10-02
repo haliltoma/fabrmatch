@@ -35,12 +35,26 @@ export interface IncomingOrder {
 export type StoreEvent =
   { type: 'paid'; order: IncomingOrder } | { type: 'cancelled'; externalOrderId: string }
 
-/** A Fabrmatch product as it should appear in the seller's shop (one variant per material). */
+/** One sellable combination: material × colour × size (W3). */
+export interface PublishVariant {
+  material: string
+  /** Colour name from our colour list; null = the product is sold without a colour choice */
+  color: string | null
+  scalePercent: number
+  /** What buyers read for the size, e.g. "62 × 62 × 83 mm" */
+  sizeLabel: string
+  sku: string
+  priceMinor: number
+  /** Picture of this colour (URL platforms), also listed in `imageUrls` */
+  imageUrl?: string | null
+}
+
+/** A Fabrmatch product as it should appear in the seller's shop. */
 export interface PublishInput {
   title: string
   description: string
   imageUrls: string[]
-  variants: Array<{ material: string; sku: string; priceMinor: number }>
+  variants: PublishVariant[]
   currency: string
   /** Platform category (Etsy taxonomy id); ignored where the platform needs none */
   categoryId?: string | null
@@ -50,7 +64,55 @@ export interface PublishInput {
 
 export interface PublishResult {
   productId: string
-  variants: Array<{ variantId: string; sku: string; material: string }>
+  /** The shop's id for each of our variants, matched by SKU */
+  variants: Array<{ variantId: string; sku: string }>
+}
+
+export type OptionName = 'Material' | 'Colour' | 'Size' | 'Material / Size'
+
+/**
+ * The shop options a set of variants needs: Material always, Colour and Size only when they
+ * vary. A platform with fewer option slots (`maxOptions`) gets Material and Size merged into one.
+ */
+export function variantOptions(variants: PublishVariant[], maxOptions = 3) {
+  const hasColour = variants.some((v) => v.color !== null)
+  const hasSize = new Set(variants.map((v) => v.scalePercent)).size > 1
+  const merge = hasSize && hasColour && maxOptions < 3
+  const names: OptionName[] = merge
+    ? ['Material / Size', 'Colour']
+    : [
+        'Material',
+        ...(hasColour ? (['Colour'] as const) : []),
+        ...(hasSize ? (['Size'] as const) : []),
+      ]
+  const valuesOf = (v: PublishVariant) =>
+    names.map((name) => ({
+      name,
+      value:
+        name === 'Material'
+          ? v.material
+          : name === 'Colour'
+            ? (v.color ?? '—')
+            : name === 'Size'
+              ? v.sizeLabel
+              : `${v.material} · ${v.sizeLabel}`,
+    }))
+  /** Every option's values in first-seen order (what platforms list as choices) */
+  const choices = names.map((name, i) => ({
+    name,
+    values: [...new Set(variants.map((v) => valuesOf(v)[i].value))],
+  }))
+  return { names, valuesOf, choices }
+}
+
+/** "Black" → "BLACK", "Sky blue" → "SKYBL": the colour part of a SKU (at most 5 characters). */
+export function colourCode(name: string) {
+  return (
+    name
+      .toUpperCase()
+      .replaceAll(/[^A-Z0-9]/g, '')
+      .slice(0, 5) || 'X'
+  )
 }
 
 /**
@@ -112,10 +174,24 @@ export function skuKey(sellerProductId: string) {
   return sellerProductId.replaceAll('-', '').slice(-12).toUpperCase()
 }
 
-/** Stable SKU for a Fabrmatch product in a material (FM-<key>-<MATERIAL>, at most 22 characters). */
-export function fabrmatchSku(sellerProductId: string, material: string) {
-  return `FM-${skuKey(sellerProductId)}-${material.toUpperCase()}`
+/**
+ * Stable SKU for a Fabrmatch product variant. Material only (the original size, no colour):
+ * FM-<key>-<MATERIAL>, as before W3. With a colour or another size:
+ * FM-<key>-<MATERIAL>-<COLOUR|X>-<PERCENT>, at most 32 characters (Etsy's limit).
+ */
+export function fabrmatchSku(
+  sellerProductId: string,
+  material: string,
+  color: string | null = null,
+  scalePercent = 100
+) {
+  const base = `FM-${skuKey(sellerProductId)}-${material.toUpperCase()}`
+  if (color === null && scalePercent === 100) return base
+  return `${base}-${color === null ? 'X' : colourCode(color)}-${scalePercent}`
 }
+
+/** Our SKUs: product key, material, and (W3) colour code + size percent */
+export const SKU_PATTERN = /^FM-([0-9A-F]{12})-([A-Z0-9]+)(?:-([A-Z0-9]{1,5})-(\d{2,3}))?$/i
 
 /** 12345 → "123.45" (prices travel as decimal strings; integer maths only). */
 export function decimalPrice(minor: number) {

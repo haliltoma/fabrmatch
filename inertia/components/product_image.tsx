@@ -3,7 +3,7 @@ import { useT } from '~/lib/i18n'
 
 export type ShopImage = {
   id: string
-  kind: 'render' | 'maker_photo'
+  kind: 'render' | 'maker_photo' | 'colour_render'
   url: string
   width: number | null
   height: number | null

@@ -30,6 +30,27 @@ export default class SellerProductController {
       p.catalogProduct?.modelFileId ? [p.catalogProduct.modelFileId] : []
     )
     const images = await new ProductImageService().forModelFiles(fileIds)
+    // W3: the colour pictures made for the seller's shops are theirs to use too
+    const colourRows =
+      fileIds.length === 0
+        ? []
+        : await ProductImage.query()
+            .whereIn('modelFileId', fileIds)
+            .where('kind', 'colour_render')
+            .where('status', 'approved')
+            .orderBy('colorHex')
+    for (const row of colourRows) {
+      const list = images.get(row.modelFileId) ?? []
+      list.push({
+        id: row.id,
+        kind: 'colour_render',
+        url: `/images/${row.id}`,
+        width: row.width,
+        height: row.height,
+        angle: row.angle,
+      })
+      images.set(row.modelFileId, list)
+    }
     const shopRows =
       products.length === 0
         ? []
@@ -166,7 +187,12 @@ export default class SellerProductController {
       n++
       const ext =
         row.contentType === 'image/jpeg' ? 'jpg' : row.contentType === 'image/webp' ? 'webp' : 'png'
-      const label = row.kind === 'render' ? `render-${row.angle ?? n}` : `photo-${n}`
+      const label =
+        row.kind === 'render'
+          ? `render-${row.angle ?? n}`
+          : row.kind === 'colour_render'
+            ? `colour-${(row.colorHex ?? '').slice(1).toLowerCase() || n}`
+            : `photo-${n}`
       // pictures are compressed already: store them as they are
       files[`${name}-${label}.${ext}`] = [
         await drive.use('s3').getBytes(row.storageKey),

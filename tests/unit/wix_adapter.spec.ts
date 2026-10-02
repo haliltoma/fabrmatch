@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import { variant } from '#tests/contracts/store_adapter_contract'
 import {
   StoreApiError,
   StoreWebhookSignatureError,
@@ -11,10 +12,7 @@ const input = {
   description: 'Printed on demand',
   imageUrls: [],
   currency: 'EUR',
-  variants: [
-    { material: 'PLA', sku: 'FM-1-PLA', priceMinor: 2500 },
-    { material: 'PETG', sku: 'FM-1-PETG', priceMinor: 2990 },
-  ],
+  variants: [variant('PLA', 'FM-1-PLA', 2500), variant('PETG', 'FM-1-PETG', 2990)],
 }
 
 test.group('Wix adapter (Paket V, V8)', (group) => {
@@ -68,7 +66,7 @@ test.group('Wix adapter (Paket V, V8)', (group) => {
     const first = await adapter.publishProduct(connection, input, null)
     const again = await adapter.publishProduct(
       connection,
-      { ...input, variants: [{ material: 'ABS', sku: 'FM-1-ABS', priceMinor: 3100 }] },
+      { ...input, variants: [variant('ABS', 'FM-1-ABS', 3100)] },
       first.productId
     )
     assert.notEqual(again.productId, first.productId)

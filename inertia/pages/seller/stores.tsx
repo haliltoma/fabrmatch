@@ -53,8 +53,19 @@ type Product = {
   title: string
   materials: string[]
   scales: number[]
-  prices: Array<{ material: string; costMinor: number; suggestedMinor: number }>
+  prices: Array<{
+    material: string
+    scalePercent: number
+    costMinor: number
+    suggestedMinor: number
+  }>
+  /** buyer-facing size per scale percent, e.g. "62 × 62 × 83 mm" */
+  sizes: Record<string, string>
 }
+type Colour = { name: string; hex: string }
+
+/** A shop product holds at most this many variants (store_service MAX_SHOP_VARIANTS). */
+const MAX_VARIANTS = 100
 
 const selectClass =
   'h-10 w-full rounded-md border border-line bg-paper-raised px-3 text-sm text-ink-900 focus-visible:outline-2 focus-visible:outline-heat-500'
@@ -475,11 +486,13 @@ function PublishForm({
   products,
   listings,
   preselect,
+  colours,
 }: {
   connection: Connection
   products: Product[]
   listings: Listing[]
   preselect: string | null
+  colours: Colour[]
 }) {
   const { t } = useT()
   // "Publish to my shop" on the products page links here with ?product=<id>
@@ -487,9 +500,15 @@ function PublishForm({
     products.find((p) => p.id === preselect)?.id ?? products[0]?.id ?? null
   )
   const product = products.find((p) => p.id === productId) ?? null
-  const publishedPrice = (material: string) =>
-    listings.find((l) => l.published && l.sellerProductId === productId && l.material === material)
+  const published = listings.filter((l) => l.published && l.sellerProductId === productId)
+  const publishedPrice = (material: string, scale: number) =>
+    published.find((l) => l.material === material && (l.scalePercent ?? 100) === scale)
       ?.priceMinor ?? null
+  // what is in the shop now decides the first choice of colours and sizes
+  const shopColours = [...new Set(published.flatMap((l) => (l.color ? [l.color] : [])))]
+  const shopScales = [...new Set(published.map((l) => l.scalePercent ?? 100))]
+  const [pickedColours, setPickedColours] = useState<Record<string, string[]>>({})
+  const [pickedScales, setPickedScales] = useState<Record<string, number[]>>({})
   const [prices, setPrices] = useState<Record<string, number | null>>({})
   const [chosen, setChosen] = useState<Record<string, boolean>>({})
   const [busy, setBusy] = useState(false)
@@ -511,10 +530,20 @@ function PublishForm({
     )
   }
 
-  const rows = product?.prices ?? []
-  const priceOf = (material: string, suggested: number) =>
-    prices[`${productId}:${material}`] ?? publishedPrice(material) ?? suggested
-  const isChosen = (material: string) => chosen[`${productId}:${material}`] ?? true
+  const key = (material: string, scale: number) => `${productId}:${material}:${scale}`
+  const colourChoice = pickedColours[productId ?? ''] ?? shopColours
+  const scaleChoice = pickedScales[productId ?? ''] ?? (shopScales.length > 0 ? shopScales : [100])
+  const rows = (product?.prices ?? []).filter((r) => scaleChoice.includes(r.scalePercent))
+  const priceOf = (r: Product['prices'][number]) =>
+    prices[key(r.material, r.scalePercent)] ??
+    publishedPrice(r.material, r.scalePercent) ??
+    r.suggestedMinor
+  const isChosen = (r: Product['prices'][number]) => chosen[key(r.material, r.scalePercent)] ?? true
+  const chosenRows = rows.filter(isChosen)
+  const variantCount = chosenRows.length * Math.max(1, colourChoice.length)
+  const sizeOf = (scale: number) => product?.sizes[String(scale)] ?? `${scale}%`
+  const toggle = <T,>(list: T[], value: T, on: boolean) =>
+    on ? [...list, value] : list.filter((x) => x !== value)
 
   return (
     <form
@@ -528,12 +557,15 @@ function PublishForm({
           {
             sellerProductId: product.id,
             ...(needsCategory && category ? { categoryId: String(category.id) } : {}),
-            variants: rows
-              .filter((r) => isChosen(r.material))
-              .map((r) => ({
+            // every chosen material × size, in each chosen colour (or without a colour)
+            variants: chosenRows.flatMap((r) =>
+              (colourChoice.length > 0 ? colourChoice : [null]).map((color) => ({
                 material: r.material,
-                priceMinor: priceOf(r.material, r.suggestedMinor),
-              })),
+                color,
+                scalePercent: r.scalePercent,
+                priceMinor: priceOf(r),
+              }))
+            ),
           },
           { onFinish: () => setBusy(false) }
         )
@@ -605,6 +637,73 @@ function PublishForm({
           )}
         </p>
       )}
+      {product && product.scales.length > 1 && (
+        <fieldset>
+          <legend className="mb-1.5 text-sm font-medium text-ink-900">{t('Sizes')}</legend>
+          <div className="flex flex-wrap gap-2">
+            {product.scales.map((scale) => {
+              const on = scaleChoice.includes(scale)
+              return (
+                <label
+                  key={scale}
+                  className={`flex min-h-10 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm ${on ? 'border-ink-900 font-medium text-ink-900' : 'border-line text-ink-700'}`}
+                >
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 accent-heat-600"
+                    checked={on}
+                    onChange={(e) =>
+                      setPickedScales({
+                        ...pickedScales,
+                        [product.id]: toggle(scaleChoice, scale, e.target.checked),
+                      })
+                    }
+                  />
+                  {scale === 100 ? t('Original') : `${scale}%`}
+                  <span className="font-mono text-xs text-ink-600">{sizeOf(scale)}</span>
+                </label>
+              )
+            })}
+          </div>
+        </fieldset>
+      )}
+      {product && colours.length > 0 && (
+        <fieldset>
+          <legend className="mb-1 text-sm font-medium text-ink-900">{t('Colours')}</legend>
+          <p className="mb-1.5 text-xs text-ink-600">
+            {t('Pick none to sell it without a colour choice. Each colour gets its own picture.')}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {colours.map((c) => {
+              const on = colourChoice.includes(c.name)
+              return (
+                <label
+                  key={c.name}
+                  className={`flex min-h-10 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm ${on ? 'border-ink-900 font-medium text-ink-900' : 'border-line text-ink-700'}`}
+                >
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 accent-heat-600"
+                    checked={on}
+                    onChange={(e) =>
+                      setPickedColours({
+                        ...pickedColours,
+                        [product.id]: toggle(colourChoice, c.name, e.target.checked),
+                      })
+                    }
+                  />
+                  <span
+                    aria-hidden
+                    className="h-4 w-4 rounded-full border border-line"
+                    style={{ backgroundColor: c.hex }}
+                  />
+                  {t(c.name)}
+                </label>
+              )
+            })}
+          </div>
+        </fieldset>
+      )}
       {rows.length === 0 ? (
         <p className="text-sm text-ink-600">{t('This product has no priced material yet.')}</p>
       ) : (
@@ -613,19 +712,22 @@ function PublishForm({
             {t('Materials and shop prices')}
           </legend>
           {rows.map((r) => {
-            const id = `pub-${productId}-${r.material}`
+            const id = `pub-${productId}-${r.material}-${r.scalePercent}`
             return (
-              <div key={id} className="grid items-end gap-3 sm:grid-cols-[auto_1fr_1fr]">
+              <div key={id} className="grid items-end gap-3 sm:grid-cols-[13rem_1fr_1fr]">
                 <label className="flex items-center gap-2 pb-2 text-sm text-ink-900">
                   <input
                     type="checkbox"
                     className="accent-heat-600"
-                    checked={isChosen(r.material)}
+                    checked={isChosen(r)}
                     onChange={(e) =>
-                      setChosen({ ...chosen, [`${productId}:${r.material}`]: e.target.checked })
+                      setChosen({ ...chosen, [key(r.material, r.scalePercent)]: e.target.checked })
                     }
                   />
                   <span className="font-mono">{r.material}</span>
+                  {scaleChoice.length > 1 && (
+                    <span className="font-mono text-xs text-ink-600">{sizeOf(r.scalePercent)}</span>
+                  )}
                 </label>
                 <div className="space-y-1">
                   <Label htmlFor={id}>{t('Price in your shop')}</Label>
@@ -633,9 +735,9 @@ function PublishForm({
                     key={id}
                     id={id}
                     currency={currency}
-                    valueMinor={priceOf(r.material, r.suggestedMinor)}
+                    valueMinor={priceOf(r)}
                     onChange={(minor) =>
-                      setPrices({ ...prices, [`${productId}:${r.material}`]: minor })
+                      setPrices({ ...prices, [key(r.material, r.scalePercent)]: minor })
                     }
                   />
                 </div>
@@ -647,6 +749,18 @@ function PublishForm({
               </div>
             )
           })}
+          <p
+            id="pub-variant-count"
+            className={`text-sm ${variantCount > MAX_VARIANTS ? 'font-medium text-danger' : 'text-ink-700'}`}
+            aria-live="polite"
+          >
+            {variantCount > MAX_VARIANTS
+              ? t('{n} variants: at most {max} fit in one shop product', {
+                  n: variantCount,
+                  max: MAX_VARIANTS,
+                })
+              : t('{n} variants in your shop', { n: variantCount })}
+          </p>
         </fieldset>
       )}
       <div className="flex flex-wrap gap-2">
@@ -655,7 +769,8 @@ function PublishForm({
           disabled={
             busy ||
             !product ||
-            !rows.some((r) => isChosen(r.material)) ||
+            chosenRows.length === 0 ||
+            variantCount > MAX_VARIANTS ||
             (needsCategory && !alreadyPublished && !category)
           }
         >
@@ -697,6 +812,7 @@ export default function SellerStores({
   orders,
   products,
   preselectProductId,
+  colours,
 }: {
   testShops: boolean
   shopifyScopes: string[]
@@ -710,6 +826,7 @@ export default function SellerStores({
   orders: ExternalOrder[]
   products: Product[]
   preselectProductId: string | null
+  colours: Colour[]
 }) {
   const { t } = useT()
   const current = connections.find((c) => c.id === currentId) ?? null
@@ -803,6 +920,7 @@ export default function SellerStores({
                 products={products}
                 listings={listings}
                 preselect={preselectProductId}
+                colours={colours}
               />
             </CardContent>
           </Card>

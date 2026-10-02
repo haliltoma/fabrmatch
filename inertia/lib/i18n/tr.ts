@@ -3519,4 +3519,13 @@ export const tr: Record<string, string> = {
     'Bu model olduğu gibi basılamıyor; düzeltip yeniden yükle',
   'You already made a product from this file': 'Bu dosyadan zaten bir ürün oluşturdun',
   'Seller design': 'Satıcı tasarımı',
+  'Sizes': 'Boyutlar',
+  'Original': 'Orijinal',
+  'Pick none to sell it without a colour choice. Each colour gets its own picture.':
+    'Renk seçeneği olmadan satmak için hiçbirini seçme. Her rengin kendi görseli olur.',
+  '{n} variants: at most {max} fit in one shop product':
+    '{n} varyant: bir mağaza ürününe en çok {max} sığar',
+  '{n} variants in your shop': 'Mağazanda {n} varyant',
+  'Give every variant a colour, or none of them': 'Her varyanta bir renk ver ya da hiçbirine verme',
+  'Set a price for every variant': 'Her varyant için fiyat gir',
 }

@@ -97,7 +97,7 @@ export default class StorePriceWatch {
     const buffer = fabrmatchConfig.pricing.fxMarginBps
 
     let changed = 0
-    const toRepublish = new Map<string, Array<{ material: string; priceMinor: number }>>()
+    const toRepublish = new Map<string, Array<{ listingId: string; priceMinor: number }>>()
     for (const listing of listings) {
       const product = productOf.get(listing.sellerProductId!)
       const file = fileOf.get(product?.catalogProduct?.modelFileId ?? '')
@@ -116,7 +116,7 @@ export default class StorePriceWatch {
 
       if (status !== 'ok' && connection.priceMode === 'auto') {
         const variants = toRepublish.get(product.id) ?? []
-        variants.push({ material: listing.material!, priceMinor: target })
+        variants.push({ listingId: listing.id, priceMinor: target })
         toRepublish.set(product.id, variants)
       } else if (WORSE[status] > WORSE[before]) {
         changed++
@@ -168,7 +168,7 @@ export default class StorePriceWatch {
   /** auto mode: the shop gets the suggested prices; the other variants keep theirs. */
   private async republish(
     connection: StoreConnection,
-    changes: Map<string, Array<{ material: string; priceMinor: number }>>
+    changes: Map<string, Array<{ listingId: string; priceMinor: number }>>
   ): Promise<number> {
     const seller = await User.findOrFail(connection.sellerUserId)
     const stores = new StoreService()
@@ -178,19 +178,22 @@ export default class StorePriceWatch {
         .where('storeConnectionId', connection.id)
         .where('sellerProductId', productId)
         .where('published', true)
-      const newPrice = new Map(variants.map((v) => [v.material.toUpperCase(), v.priceMinor]))
+      // per variant (W3: material × colour × size), the others keep their price
+      const newPrice = new Map(variants.map((v) => [v.listingId, v.priceMinor]))
       const all = current
         .filter((l) => l.material && l.priceMinor !== null)
         .map((l) => ({
           material: l.material!.toUpperCase(),
-          priceMinor: newPrice.get(l.material!.toUpperCase()) ?? l.priceMinor!,
+          color: l.color,
+          scalePercent: l.scalePercent ?? 100,
+          priceMinor: newPrice.get(l.id) ?? l.priceMinor!,
         }))
       try {
         await stores.publish(seller, connection.id, productId, all)
         await ExternalListing.query()
           .where('storeConnectionId', connection.id)
           .where('sellerProductId', productId)
-          .whereIn('material', [...newPrice.keys()])
+          .whereIn('id', [...newPrice.keys()])
           .update({ priceStatus: 'ok' })
         updated += variants.length
         await this.notifications.notify({

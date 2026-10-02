@@ -7,6 +7,7 @@ import {
   StoreApiError,
   StoreWebhookSignatureError,
   decimalPrice,
+  variantOptions,
   type PublishInput,
   type PublishResult,
   type StoreAdapter,
@@ -17,7 +18,6 @@ import { safeStoreHttp, type StoreHttp } from '#services/integrations/stores/sto
 
 export const WIX_API = 'https://www.wixapis.com'
 /** The option our variants are made of, as in the other shops. */
-const MATERIAL_OPTION = 'Material'
 
 export function wixConfigured() {
   return !!env.get('WIX_APP_ID') && !!env.get('WIX_APP_SECRET') && !!env.get('WIX_PUBLIC_KEY')
@@ -190,43 +190,39 @@ export default class WixAdapter implements StoreAdapter {
     input: PublishInput,
     existingProductId: string | null
   ): Promise<PublishResult> {
+    const optionSet = variantOptions(input.variants)
+    const images = [
+      ...new Set([...input.imageUrls, ...input.variants.flatMap((v) => v.imageUrl ?? [])]),
+    ]
     const variants = input.variants.map((v) => ({
       sku: v.sku,
       visible: true,
-      choices: [
-        {
-          optionChoiceNames: {
-            optionName: MATERIAL_OPTION,
-            choiceName: v.material,
-            renderType: 'TEXT_CHOICES',
-          },
+      choices: optionSet.valuesOf(v).map((o) => ({
+        optionChoiceNames: {
+          optionName: o.name,
+          choiceName: o.value,
+          renderType: 'TEXT_CHOICES',
         },
-      ],
+      })),
       price: { actualPrice: { amount: decimalPrice(v.priceMinor) } },
       physicalProperties: {},
     }))
-    const options = [
-      {
-        name: MATERIAL_OPTION,
-        optionRenderType: 'TEXT_CHOICES',
-        choicesSettings: {
-          choices: input.variants.map((v) => ({ choiceType: 'CHOICE_TEXT', name: v.material })),
-        },
+    const options = optionSet.choices.map((o) => ({
+      name: o.name,
+      optionRenderType: 'TEXT_CHOICES',
+      choicesSettings: {
+        choices: o.values.map((name) => ({ choiceType: 'CHOICE_TEXT', name })),
       },
-    ]
+    }))
 
     if (existingProductId) {
       const current = await this.product(connection, existingProductId)
-      const byMaterial = new Map(
-        (current.variantsInfo?.variants ?? []).map((v) => [
-          v.choices?.[0]?.optionChoiceNames?.choiceName?.toUpperCase(),
-          v,
-        ])
+      const bySku = new Map(
+        (current.variantsInfo?.variants ?? []).filter((v) => v.sku).map((v) => [v.sku!, v])
       )
-      const sameMaterials =
-        byMaterial.size === input.variants.length &&
-        input.variants.every((v) => byMaterial.has(v.material.toUpperCase()))
-      if (sameMaterials) {
+      const sameVariants =
+        bySku.size === input.variants.length && input.variants.every((v) => bySku.has(v.sku))
+      if (sameVariants) {
         // the options stay; every variant keeps its id and gets its new price
         const updated = await this.call<{ product: WixProduct }>(
           connection,
@@ -241,17 +237,14 @@ export default class WixAdapter implements StoreAdapter {
               visible: true,
               options: current.options,
               variantsInfo: {
-                variants: variants.map((v, i) => ({
-                  ...v,
-                  id: byMaterial.get(input.variants[i].material.toUpperCase())!.id,
-                })),
+                variants: variants.map((v) => ({ ...v, id: bySku.get(v.sku)!.id })),
               },
             },
           }
         )
         return this.result(updated.product ?? current, input)
       }
-      // other materials than before: the old product leaves the shop, a new one replaces it
+      // other variants than before: the old product leaves the shop, a new one replaces it
       await this.unpublishProduct(connection, existingProductId).catch(() => {})
     }
 
@@ -266,8 +259,8 @@ export default class WixAdapter implements StoreAdapter {
           plainDescription: input.description || undefined,
           visible: true,
           physicalProperties: {},
-          ...(input.imageUrls.length > 0
-            ? { media: { itemsInfo: { items: input.imageUrls.map((url) => ({ url })) } } }
+          ...(images.length > 0
+            ? { media: { itemsInfo: { items: images.map((url) => ({ url })) } } }
             : {}),
           options,
           variantsInfo: { variants },
@@ -384,12 +377,12 @@ export default class WixAdapter implements StoreAdapter {
   }
 
   private result(product: WixProduct, input: PublishInput): PublishResult {
-    const bySku = new Map(input.variants.map((v) => [v.sku, v.material]))
+    const ours = new Set(input.variants.map((v) => v.sku))
     return {
       productId: product.id,
       variants: (product.variantsInfo?.variants ?? [])
-        .filter((v) => v.sku && bySku.has(v.sku))
-        .map((v) => ({ variantId: v.id!, sku: v.sku!, material: bySku.get(v.sku!)! })),
+        .filter((v) => v.sku && ours.has(v.sku))
+        .map((v) => ({ variantId: v.id!, sku: v.sku! })),
     }
   }
 

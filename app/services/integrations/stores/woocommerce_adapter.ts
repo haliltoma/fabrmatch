@@ -7,6 +7,7 @@ import {
   StoreWebhookSignatureError,
   decimalPrice,
   descriptionHtml,
+  variantOptions,
   type StoreEvent,
   type PublishInput,
   type PublishResult,
@@ -144,20 +145,22 @@ export default class WooCommerceAdapter implements StoreAdapter {
     input: PublishInput,
     existingProductId: string | null
   ): Promise<PublishResult> {
+    const options = variantOptions(input.variants)
+    const images = [
+      ...new Set([...input.imageUrls, ...input.variants.flatMap((v) => v.imageUrl ?? [])]),
+    ]
     const body = {
       name: input.title,
       type: 'variable',
       status: 'publish',
       description: descriptionHtml(input.description),
-      images: input.imageUrls.map((src) => ({ src })),
-      attributes: [
-        {
-          name: 'Material',
-          variation: true,
-          visible: true,
-          options: input.variants.map((v) => v.material),
-        },
-      ],
+      images: images.map((src) => ({ src })),
+      attributes: options.choices.map((o) => ({
+        name: o.name,
+        variation: true,
+        visible: true,
+        options: o.values,
+      })),
     }
     const product = existingProductId
       ? await this.call<{ id: number }>(connection, 'PUT', `/products/${existingProductId}`, body)
@@ -171,12 +174,14 @@ export default class WooCommerceAdapter implements StoreAdapter {
         )
       : []
     const bySku = new Map(current.map((v) => [v.sku, v.id]))
+    const wanted = new Set(input.variants.map((v) => v.sku))
     const payload = (v: PublishInput['variants'][number]) => ({
       regular_price: decimalPrice(v.priceMinor),
       sku: v.sku,
       manage_stock: false,
       stock_status: 'instock',
-      attributes: [{ name: 'Material', option: v.material }],
+      attributes: options.valuesOf(v).map((o) => ({ name: o.name, option: o.value })),
+      ...(v.imageUrl ? { image: { src: v.imageUrl } } : {}),
     })
     const batch = await this.call<{
       create?: Array<{ id: number; sku: string; error?: { message: string } }>
@@ -186,16 +191,19 @@ export default class WooCommerceAdapter implements StoreAdapter {
       update: input.variants
         .filter((v) => bySku.has(v.sku))
         .map((v) => ({ id: bySku.get(v.sku), ...payload(v) })),
+      // a colour or size the seller no longer offers leaves the shop (only our own variants)
+      delete: current
+        .filter((v) => v.sku?.startsWith('FM-') && !wanted.has(v.sku))
+        .map((v) => v.id),
     })
     const saved = [...(batch.create ?? []), ...(batch.update ?? [])]
     const failed = saved.find((v) => v.error)
     if (failed) throw new StoreApiError(`WooCommerce: ${failed.error!.message}`)
-    const material = new Map(input.variants.map((v) => [v.sku, v.material]))
     return {
       productId: String(product.id),
       variants: saved
-        .filter((v) => material.has(v.sku))
-        .map((v) => ({ variantId: String(v.id), sku: v.sku, material: material.get(v.sku)! })),
+        .filter((v) => wanted.has(v.sku))
+        .map((v) => ({ variantId: String(v.id), sku: v.sku })),
     }
   }
 

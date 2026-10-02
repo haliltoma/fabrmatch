@@ -6,6 +6,7 @@ import {
   StoreApiError,
   StoreWebhookSignatureError,
   decimalPrice,
+  variantOptions,
   type PublishInput,
   type PublishResult,
   type StoreAdapter,
@@ -22,8 +23,8 @@ export const ETSY_SCOPES = [
   'transactions_r',
   'transactions_w',
 ]
-/** Etsy's custom variation property ("Material" in our listings). */
-const CUSTOM_PROPERTY_ID = 513
+/** Etsy's custom variation properties, in option order (Material, then Colour). */
+const CUSTOM_PROPERTIES = [513, 514] as const
 /** Made to order: the offering quantity is only a ceiling Etsy needs. */
 const OFFERING_QUANTITY = 999
 
@@ -164,6 +165,8 @@ export default class EtsyAdapter implements StoreAdapter {
       'Create a processing profile in your Etsy shop first'
     )
     const cheapest = Math.min(...input.variants.map((v) => v.priceMinor))
+    // Etsy: two custom variation properties; Material and Size share one when all three vary
+    const options = variantOptions(input.variants, 2)
     let listingId = existingProductId
     if (!listingId) {
       if (!input.categoryId) throw new StoreApiError('Choose an Etsy category for this product')
@@ -216,14 +219,12 @@ export default class EtsyAdapter implements StoreAdapter {
       JSON.stringify({
         products: input.variants.map((v) => ({
           sku: v.sku,
-          property_values: [
-            {
-              property_id: CUSTOM_PROPERTY_ID,
-              property_name: 'Material',
-              value_ids: [],
-              values: [v.material],
-            },
-          ],
+          property_values: options.valuesOf(v).map((o, i) => ({
+            property_id: CUSTOM_PROPERTIES[i],
+            property_name: o.name,
+            value_ids: [],
+            values: [o.value],
+          })),
           offerings: [
             {
               // the API takes a JSON number; built from the exact decimal string
@@ -234,8 +235,11 @@ export default class EtsyAdapter implements StoreAdapter {
             },
           ],
         })),
-        price_on_property: [CUSTOM_PROPERTY_ID],
-        sku_on_property: [CUSTOM_PROPERTY_ID],
+        // the colour never changes the price; material and size do
+        price_on_property: options.names
+          .map((name, i) => (name === 'Colour' ? null : CUSTOM_PROPERTIES[i]))
+          .filter((id) => id !== null),
+        sku_on_property: options.names.map((_, i) => CUSTOM_PROPERTIES[i]),
       }),
       'application/json'
     )
@@ -253,16 +257,12 @@ export default class EtsyAdapter implements StoreAdapter {
       )
     }
 
-    const material = new Map(input.variants.map((v) => [v.sku, v.material]))
+    const ours = new Set(input.variants.map((v) => v.sku))
     return {
       productId: listingId,
       variants: inventory.products
-        .filter((p) => material.has(p.sku))
-        .map((p) => ({
-          variantId: String(p.product_id),
-          sku: p.sku,
-          material: material.get(p.sku)!,
-        })),
+        .filter((p) => ours.has(p.sku))
+        .map((p) => ({ variantId: String(p.product_id), sku: p.sku })),
     }
   }
 

@@ -7,12 +7,27 @@ import { MeshParseError, parseModel } from '#services/files/mesh_parser'
 import type { ModelFormat } from '#services/files/file_scanner'
 import { RENDER_VERSION, renderTurntable } from '#services/files/model_renderer'
 
+const HEX = /^#[0-9A-F]{6}$/
+
+/**
+ * A filament colour as the renderer's base tone. Dark colours are lifted (black → dark grey) so
+ * the shading still shows the form; light colours stay as they are.
+ */
+const rgbOf = (hex: string): [number, number, number] => {
+  const lift = (c: number) => Math.round(56 + (c * 199) / 255)
+  return [
+    lift(Number.parseInt(hex.slice(1, 3), 16)),
+    lift(Number.parseInt(hex.slice(3, 5), 16)),
+    lift(Number.parseInt(hex.slice(5, 7), 16)),
+  ]
+}
+
 /** Largest mesh rendered in one go; bigger files keep the placeholder instead of stalling a worker. */
 const MAX_TRIANGLES = 2_000_000
 
 export interface ShopImage {
   id: string
-  kind: 'render' | 'maker_photo'
+  kind: 'render' | 'maker_photo' | 'colour_render'
   url: string
   width: number | null
   height: number | null
@@ -84,12 +99,71 @@ export default class ProductImageService {
     return frames.length
   }
 
+  /**
+   * W3: one render per colour (angle 30°, the colour's hex as the filament), made once per render
+   * version and reused. Returns the picture per upper-case hex; colours that could not be drawn
+   * (mesh too large or unreadable) are missing from the map.
+   */
+  async colourRenders(modelFileId: string, hexes: string[]): Promise<Map<string, ShopImage>> {
+    const wanted = [...new Set(hexes.map((h) => h.toUpperCase()).filter((h) => HEX.test(h)))]
+    const result = new Map<string, ShopImage>()
+    if (wanted.length === 0) return result
+    const existing = await ProductImage.query()
+      .where('modelFileId', modelFileId)
+      .where('kind', 'colour_render')
+      .where('renderVersion', RENDER_VERSION)
+      .whereIn('colorHex', wanted)
+    for (const row of existing) result.set(row.colorHex!, toShopImage(row))
+    const missing = wanted.filter((h) => !result.has(h))
+    if (missing.length === 0) return result
+
+    const file = await ModelFile.find(modelFileId)
+    if (!file || file.blockedAt || file.analysisStatus !== 'done') return result
+    if ((file.triangleCount ?? 0) > MAX_TRIANGLES) return result
+    const disk = drive.use('s3')
+    let triangles
+    try {
+      triangles = parseModel(
+        Buffer.from(await disk.getBytes(file.storageKey)),
+        file.format as ModelFormat
+      )
+    } catch (error) {
+      // no picture is better than no publish: the shop then shows the turntable only
+      logger.warn({ msg: 'colour render skipped', modelFileId, error: (error as Error).message })
+      return result
+    }
+    for (const hex of missing) {
+      const [frame] = renderTurntable(triangles, { angles: [30], color: rgbOf(hex) })
+      if (!frame) continue
+      const storageKey = `product-images/renders/${file.id}/v${RENDER_VERSION}-c${hex.slice(1)}.png`
+      await disk.put(storageKey, frame.png, { contentType: 'image/png' })
+      const row = await ProductImage.updateOrCreate(
+        { storageKey },
+        {
+          modelFileId: file.id,
+          kind: 'colour_render',
+          status: 'approved',
+          contentType: 'image/png',
+          width: frame.width,
+          height: frame.height,
+          angle: frame.angle,
+          colorHex: hex,
+          renderVersion: RENDER_VERSION,
+          reviewedAt: DateTime.now(),
+        }
+      )
+      result.set(hex, toShopImage(row))
+    }
+    return result
+  }
+
   /** Approved pictures per model file: maker photos first (the real thing), then the turntable. */
   async forModelFiles(modelFileIds: string[]): Promise<Map<string, ShopImage[]>> {
     const map = new Map<string, ShopImage[]>()
     if (modelFileIds.length === 0) return map
     const rows = await ProductImage.query()
       .whereIn('modelFileId', [...new Set(modelFileIds)])
+      .whereIn('kind', ['render', 'maker_photo'])
       .where('status', 'approved')
       .orderByRaw("case when kind = 'maker_photo' then 0 else 1 end")
       .orderBy('angle', 'asc')

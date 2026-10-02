@@ -4,8 +4,25 @@ import type StoreConnection from '#models/store_connection'
 import {
   StoreWebhookSignatureError,
   type IncomingOrder,
+  type PublishVariant,
   type StoreAdapter,
 } from '#services/integrations/stores/store_adapter'
+
+/** A variant as the store service hands it to an adapter. */
+export const variant = (
+  material: string,
+  sku: string,
+  priceMinor: number,
+  extra: Partial<PublishVariant> = {}
+): PublishVariant => ({
+  material,
+  sku,
+  priceMinor,
+  color: null,
+  scalePercent: 100,
+  sizeLabel: '40 × 40 × 55 mm',
+  ...extra,
+})
 
 export interface StoreHarness {
   adapter: StoreAdapter
@@ -141,10 +158,7 @@ export function storeAdapterContract(label: string, make: () => Promise<StoreHar
         ],
         categoryId: '1029',
         currency: 'TRY',
-        variants: [
-          { material: 'PLA', sku: 'FM-1-PLA', priceMinor: 25_000 },
-          { material: 'PETG', sku: 'FM-1-PETG', priceMinor: 29_900 },
-        ],
+        variants: [variant('PLA', 'FM-1-PLA', 25_000), variant('PETG', 'FM-1-PETG', 29_900)],
       }
       const first = await adapter.publishProduct(connection, input, null)
       assert.lengthOf(first.variants, 2)
@@ -165,6 +179,46 @@ export function storeAdapterContract(label: string, make: () => Promise<StoreHar
         variants.map((v) => v.sku),
         ['FM-1-PLA', 'FM-1-PETG']
       )
+    })
+
+    test('publishes colour × size variants, each with its own id, kept on update (W3)', async ({
+      assert,
+    }) => {
+      const { adapter, connection } = await make()
+      const big = { scalePercent: 150, sizeLabel: '60 × 60 × 83 mm' }
+      const input = {
+        title: 'Vase',
+        description: 'Twisted',
+        imageUrls: [],
+        images: [
+          {
+            bytes: Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+            contentType: 'image/png',
+          },
+        ],
+        categoryId: '1029',
+        currency: 'TRY',
+        variants: [
+          variant('PLA', 'FM-2-PLA-BLACK-100', 25_000, { color: 'Black' }),
+          variant('PLA', 'FM-2-PLA-WHITE-100', 25_000, { color: 'White' }),
+          variant('PLA', 'FM-2-PLA-BLACK-150', 41_000, { color: 'Black', ...big }),
+          variant('PETG', 'FM-2-PETG-BLACK-150', 46_000, { color: 'Black', ...big }),
+        ],
+      }
+      const first = await adapter.publishProduct(connection, input, null)
+      assert.lengthOf(first.variants, 4)
+      assert.lengthOf(new Set(first.variants.map((v) => v.variantId)), 4)
+      const again = await adapter.publishProduct(
+        connection,
+        {
+          ...input,
+          variants: input.variants.map((v) => ({ ...v, priceMinor: v.priceMinor + 100 })),
+        },
+        first.productId
+      )
+      const ids = (r: typeof first) =>
+        Object.fromEntries(r.variants.map((v) => [v.sku, v.variantId]))
+      assert.deepEqual(ids(again), ids(first))
     })
   })
 }
