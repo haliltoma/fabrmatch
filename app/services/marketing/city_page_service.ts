@@ -61,7 +61,8 @@ export default class CityPageService {
         'mp.country',
         'pm.material',
         'pm.currency',
-        'pm.price_per_gram_minor as rate'
+        // makers enter their cost per kg; the page shows it per gram, as before
+        db.raw('ceil(pm.material_cost_per_kg_minor / 1000.0)::int as rate')
       )
 
     const pages: CityPage[] = []

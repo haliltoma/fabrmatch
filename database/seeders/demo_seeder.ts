@@ -130,7 +130,7 @@ export default class DemoSeeder extends BaseSeeder {
           printerId: printer.id,
           material,
           colors: ['black', 'white', 'grey'],
-          pricePerGramMinor: 60,
+          materialCostPerKgMinor: 60_000,
           currency: 'TRY',
         })
       }
@@ -184,7 +184,7 @@ export default class DemoSeeder extends BaseSeeder {
             printerId: p.id,
             material,
             colors: ['black', 'white'],
-            pricePerGramMinor: rate,
+            materialCostPerKgMinor: rate * 1000,
             currency: 'TRY',
           })
         }

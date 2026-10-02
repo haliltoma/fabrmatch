@@ -28,6 +28,7 @@ export const FIELD_LABELS: Record<string, string> = {
   minPrice: 'minimum price',
   maxPrice: 'maximum price',
   pricePerGramMinor: 'price per gram',
+  materialCostPerKgMinor: 'material cost per kg',
   refundMinor: 'refund amount',
   commissionPercent: 'commission',
   multiplierPercent: 'multiplier',

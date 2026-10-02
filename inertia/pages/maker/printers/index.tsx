@@ -12,14 +12,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/u
 import { PageHeader } from '~/components/page_header'
 import { EmptyState } from '~/components/empty_state'
 import { useT } from '~/lib/i18n'
+import { formatMoney } from '~/lib/format'
 
 type Material = {
   id: string
   material: string
   colors: string[]
-  pricePerGramMinor: number
+  materialCostPerKgMinor: number
   currency: string
-  aboveReference: { missedOrders: number; referencePricePerGramMinor: number } | null
+  aboveReference: { missedOrders: number; referenceCostPerKgMinor: number } | null
 }
 
 type PrinterData = {
@@ -201,7 +202,7 @@ function AddMaterialForm({
   const options = catalog.materials.filter((m) => m.technology === technology)
   const [material, setMaterial] = useState(options[0]?.code ?? '')
   const [colors, setColors] = useState<string[]>([])
-  const [pricePerGramMinor, setPrice] = useState<number | null>(null)
+  const [costPerKgMinor, setCost] = useState<number | null>(null)
 
   const toggle = (name: string) =>
     setColors((list) => (list.includes(name) ? list.filter((c) => c !== name) : [...list, name]))
@@ -210,7 +211,7 @@ function AddMaterialForm({
     e.preventDefault()
     router.post(
       `/maker/printers/${printerId}/materials`,
-      { material, colors, pricePerGramMinor: pricePerGramMinor ?? 0 },
+      { material, colors, materialCostPerKgMinor: costPerKgMinor ?? 0 },
       { onSuccess: () => onClose() }
     )
   }
@@ -265,10 +266,15 @@ function AddMaterialForm({
         </div>
       </fieldset>
       <div>
-        <Label htmlFor="price">{t('Your price per gram')}</Label>
-        <MoneyInput id="price" required valueMinor={pricePerGramMinor} onChange={setPrice} />
+        <Label htmlFor="price">{t('What this material costs you, per kg')}</Label>
+        <MoneyInput id="price" required valueMinor={costPerKgMinor} onChange={setCost} />
+        <p className="mt-1 text-xs text-ink-600">
+          {t(
+            'The price you pay for a 1 kg spool or bottle. Your pay is worked out from your costs.'
+          )}
+        </p>
       </div>
-      <Button type="submit" disabled={colors.length === 0 || pricePerGramMinor === null}>
+      <Button type="submit" disabled={colors.length === 0 || costPerKgMinor === null}>
         {t('Add Material')}
       </Button>
     </form>
@@ -415,17 +421,19 @@ export default function PrintersIndex({
                         <div>
                           <span className="font-medium">{mat.material}</span>
                           <span className="ml-2 text-sm text-ink-600">
-                            {(mat.pricePerGramMinor / 100).toFixed(2)} {mat.currency}/g
+                            {t('{price}/kg', {
+                              price: formatMoney(mat.materialCostPerKgMinor, mat.currency),
+                            })}
                           </span>
                           {mat.aboveReference && (
                             <p className="mt-1 text-xs text-danger">
                               {t(
-                                'Above the platform price of {price} {currency}/g, so you are not matched',
+                                'Above the platform reference of {price}/kg, so you are not matched',
                                 {
-                                  price: (
-                                    mat.aboveReference.referencePricePerGramMinor / 100
-                                  ).toFixed(2),
-                                  currency: mat.currency,
+                                  price: formatMoney(
+                                    mat.aboveReference.referenceCostPerKgMinor,
+                                    mat.currency
+                                  ),
                                 }
                               )}
                               {mat.aboveReference.missedOrders > 0

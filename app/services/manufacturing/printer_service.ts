@@ -18,7 +18,8 @@ interface CreatePrinterData {
 interface CreateMaterialData {
   material: string
   colors: string[]
-  pricePerGramMinor: number
+  /** what the maker pays for the material, per kilogram */
+  materialCostPerKgMinor: number
   currency?: string
 }
 
@@ -77,7 +78,7 @@ export default class PrinterService {
       printerId: printer.id,
       material,
       colors,
-      pricePerGramMinor: data.pricePerGramMinor,
+      materialCostPerKgMinor: data.materialCostPerKgMinor,
       currency: data.currency ?? 'TRY',
     })
   }

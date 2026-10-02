@@ -40,6 +40,7 @@ const FIELD_NAMES: Record<string, string> = {
   'limit per customer': 'müşteri başına sınır',
   'minimum price': 'en düşük fiyat',
   'maximum price': 'en yüksek fiyat',
+  'material cost per kg': 'kg başına malzeme maliyeti',
   'price per gram': 'gram fiyatı',
   'refund amount': 'iade tutarı',
   'price': 'fiyat',

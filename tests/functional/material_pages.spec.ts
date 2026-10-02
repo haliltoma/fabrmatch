@@ -20,7 +20,7 @@ async function maker(material: string, rateMinor: number, options: { active?: bo
   const printer = await createPrinter(profile, { material, isActive: options.active ?? true })
   await PrinterMaterial.query()
     .where('printerId', printer.id)
-    .update({ pricePerGramMinor: rateMinor })
+    .update({ materialCostPerKgMinor: rateMinor * 1000 })
   return { profile, printer }
 }
 

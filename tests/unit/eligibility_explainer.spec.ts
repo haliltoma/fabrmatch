@@ -45,7 +45,9 @@ test.group('eligibility explainer', (group) => {
 
     const pricey = await createManufacturer()
     const printer = await createPrinter(pricey.profile)
-    await PrinterMaterial.query().where('printerId', printer.id).update({ pricePerGramMinor: 999 })
+    await PrinterMaterial.query()
+      .where('printerId', printer.id)
+      .update({ materialCostPerKgMinor: 999_000 })
 
     const noPrinter = await createManufacturer()
 

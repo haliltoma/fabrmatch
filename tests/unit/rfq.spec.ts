@@ -451,7 +451,7 @@ test.group('choosing a winner', (group) => {
     // above the platform reference price, which would normally rule this maker out of matching
     await PrinterMaterial.query()
       .where('printerId', cheap.printer.id)
-      .update({ pricePerGramMinor: 9_999 })
+      .update({ materialCostPerKgMinor: 9_999_000 })
     const { order } = await rfqs.award(rfq.id, buyer, win.id, TR_ADDRESS)
     await Order.query().where('id', order.id).update({ status: 'paid' })
 

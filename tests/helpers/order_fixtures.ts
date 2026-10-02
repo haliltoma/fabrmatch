@@ -90,7 +90,7 @@ export async function createPrinter(
     printerId: printer.id,
     material: opts.material ?? 'PLA',
     colors: opts.colors ?? ['black', 'white'],
-    pricePerGramMinor: 50,
+    materialCostPerKgMinor: 50_000,
     currency: 'TRY',
   })
   if (opts.slotMinutes !== 0) {

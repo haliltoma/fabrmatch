@@ -33,8 +33,9 @@ export default class MaterialPageService {
       .groupBy('pm.material', 'pm.currency')
       .select('pm.material', 'pm.currency')
       .countDistinct('mp.id as makers')
-      .min('pm.price_per_gram_minor as min_rate')
-      .max('pm.price_per_gram_minor as max_rate')
+      // makers enter their cost per kg; the page shows it per gram, as before
+      .select(db.raw('ceil(min(pm.material_cost_per_kg_minor) / 1000.0)::int as min_rate'))
+      .select(db.raw('ceil(max(pm.material_cost_per_kg_minor) / 1000.0)::int as max_rate'))
 
     return materials.map((m) => {
       const own = rows

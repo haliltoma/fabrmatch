@@ -82,12 +82,12 @@ test.group('PrinterService', (group) => {
     const material = await service.addMaterial(printer, {
       material: 'RESIN',
       colors: ['Grey', 'Clear', 'Black'],
-      pricePerGramMinor: 150,
+      materialCostPerKgMinor: 150_000,
     })
 
     assert.equal(material.material, 'RESIN')
     assert.deepEqual(material.colors, ['Grey', 'Clear', 'Black'])
-    assert.equal(material.pricePerGramMinor, 150)
+    assert.equal(material.materialCostPerKgMinor, 150_000)
     assert.equal(material.currency, 'TRY')
   })
 
@@ -106,7 +106,7 @@ test.group('PrinterService', (group) => {
     const material = await service.addMaterial(printer, {
       material: 'PLA',
       colors: ['White'],
-      pricePerGramMinor: 50,
+      materialCostPerKgMinor: 50_000,
     })
 
     await service.removeMaterial(material)

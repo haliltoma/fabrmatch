@@ -114,7 +114,7 @@ function reasonText(r: Reason, t: ReturnType<typeof useT>['t']): string {
         colour: String(r.colour),
       })
     case 'price_above_reference':
-      return t('{material} at {price}/g, above the {reference}/g reference', {
+      return t('{material} at {price}/kg, above the {reference}/kg reference', {
         material: String(r.material),
         price: money(r.price),
         reference: money(r.reference),

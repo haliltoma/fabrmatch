@@ -941,6 +941,14 @@ export const tr: Record<string, string> = {
   'Failed prints': 'Başarısız baskılar',
   'Share of prints that fail and are printed again; the cost is spread over the good ones.':
     'Başarısız olup yeniden basılan baskıların payı; maliyeti başarılı baskılara dağıtılır.',
+  'What this material costs you, per kg': 'Bu malzemenin sana kg maliyeti',
+  'The price you pay for a 1 kg spool or bottle. Your pay is worked out from your costs.':
+    '1 kg makara ya da şişe için ödediğin fiyat. Kazancın maliyetlerinden hesaplanır.',
+  '{price}/kg': '{price}/kg',
+  'Above the platform reference of {price}/kg, so you are not matched':
+    'Platform referansı olan {price}/kg üstünde, bu yüzden eşleşmiyorsun',
+  '{material} at {price}/kg, above the {reference}/kg reference':
+    '{material} {price}/kg, {reference}/kg referansının üstünde',
   'Allowance for failed prints': 'Başarısız baskı payı',
   'Your margin': 'Marjın',
   'Your share': 'Payın',

@@ -121,7 +121,7 @@ test.group('printer model catalogue over HTTP (X-14)', (group) => {
       .loginAs(user)
       .withCsrfToken()
       .header('accept', 'application/json')
-      .json({ material: 'PLA', colors: ['Black'], pricePerGramMinor: 40, currency: 'EUR' })
+      .json({ material: 'PLA', colors: ['Black'], materialCostPerKgMinor: 40_000, currency: 'EUR' })
     assert.equal(res.status(), 422)
   })
 })

@@ -29,9 +29,11 @@ async function maker(
     material: options.material ?? 'PETG',
     isActive: options.active ?? true,
   })
-  await PrinterMaterial.query().where('printerId', printer.id).update({
-    pricePerGramMinor: rateMinor,
-  })
+  await PrinterMaterial.query()
+    .where('printerId', printer.id)
+    .update({
+      materialCostPerKgMinor: rateMinor * 1000,
+    })
   return { profile, printer }
 }
 

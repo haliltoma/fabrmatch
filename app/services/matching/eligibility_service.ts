@@ -20,16 +20,17 @@ export function fitsBuildVolume(part: Dims, build: Dims): boolean {
 }
 
 /**
- * The platform pays the reference price per gram; a maker asking more is not matched (R2-T4).
- * `referenceMinor` is the order's regional reference (P2); without it the base reference applies.
+ * The platform prices material at the reference per gram; a maker whose material costs more is not
+ * matched (R2-T4). `referenceMinor` is the order's regional reference per gram (P2); without it the
+ * base reference applies. The maker's cost is per kilogram (Paket V).
  */
 export function makerPriceFits(
-  makerPricePerGramMinor: number,
+  makerCostPerKgMinor: number,
   material: string,
   referenceMinor?: number | null
 ): boolean {
   const reference = referenceMinor ?? referencePriceFor(material)?.pricePerGramMinor ?? null
-  return reference === null || makerPricePerGramMinor <= reference
+  return reference === null || makerCostPerKgMinor <= reference * 1000
 }
 
 /** The reference per gram for each material of an order, under its pricing region's rules. */
@@ -58,7 +59,7 @@ function supportsItem(
       m.material.toUpperCase() === item.material.toUpperCase() &&
       (!checkPrice ||
         makerPriceFits(
-          m.pricePerGramMinor,
+          m.materialCostPerKgMinor,
           item.material,
           references?.get(item.material.toUpperCase())
         )) &&

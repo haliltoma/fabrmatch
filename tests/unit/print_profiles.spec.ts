@@ -171,7 +171,7 @@ test.group('maker minimum price (R2-T4)', (group) => {
     const printer = await createPrinter(greedy.profile)
     await PrinterMaterial.query()
       .where('printerId', printer.id)
-      .update({ price_per_gram_minor: 500 })
+      .update({ material_cost_per_kg_minor: 500_000 })
 
     const { order } = await createDraftOrder()
     const candidates = await new EligibilityService().findCandidates(order)
@@ -179,9 +179,10 @@ test.group('maker minimum price (R2-T4)', (group) => {
       candidates.map((c) => c.manufacturerProfileId),
       [cheap.profile.id]
     )
-    assert.isTrue(makerPriceFits(50, 'PLA'))
-    assert.isFalse(makerPriceFits(51, 'PLA'))
-    assert.isTrue(makerPriceFits(9999, 'UNKNOWNIUM'), 'no reference price, no cap')
+    // the maker's cost is per kg, the reference per gram (PLA 0.50 TRY/g = 500 TRY/kg)
+    assert.isTrue(makerPriceFits(50_000, 'PLA'))
+    assert.isFalse(makerPriceFits(50_001, 'PLA'))
+    assert.isTrue(makerPriceFits(9_999_000, 'UNKNOWNIUM'), 'no reference price, no cap')
   })
 
   test('the hint counts recent orders the maker missed by price', async ({ assert }) => {
@@ -189,7 +190,7 @@ test.group('maker minimum price (R2-T4)', (group) => {
     const printer = await createPrinter(maker.profile)
     await PrinterMaterial.query()
       .where('printerId', printer.id)
-      .update({ price_per_gram_minor: 500 })
+      .update({ material_cost_per_kg_minor: 500_000 })
     const { order } = await createDraftOrder()
     const sm = new OrderStateMachine()
     await sm.transition(order.id, 'awaiting_payment')
@@ -203,13 +204,13 @@ test.group('maker minimum price (R2-T4)', (group) => {
         materials: loaded.map((r) => ({
           id: r.id,
           material: r.material,
-          pricePerGramMinor: r.price_per_gram_minor,
+          materialCostPerKgMinor: r.material_cost_per_kg_minor,
         })),
       },
     ])
     const [hint] = [...hints.values()]
     assert.equal(hint.missedOrders, 1)
-    assert.equal(hint.referencePricePerGramMinor, 50)
+    assert.equal(hint.referenceCostPerKgMinor, 50_000)
   })
 })
 

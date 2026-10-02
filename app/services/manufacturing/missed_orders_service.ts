@@ -14,11 +14,11 @@ export default class MissedOrdersService {
     printers: Array<{
       id: string
       technology: string
-      materials: Array<{ id: string; material: string; pricePerGramMinor: number }>
+      materials: Array<{ id: string; material: string; materialCostPerKgMinor: number }>
     }>,
     country = 'TR'
-  ): Promise<Map<string, { missedOrders: number; referencePricePerGramMinor: number }>> {
-    const result = new Map<string, { missedOrders: number; referencePricePerGramMinor: number }>()
+  ): Promise<Map<string, { missedOrders: number; referenceCostPerKgMinor: number }>> {
+    const result = new Map<string, { missedOrders: number; referenceCostPerKgMinor: number }>()
     const since = DateTime.now().minus({ days: LOOKBACK_DAYS }).toSQL()!
     const code = country.trim().toUpperCase()
     const regions = new PricingRegionService()
@@ -27,7 +27,7 @@ export default class MissedOrdersService {
     for (const printer of printers) {
       for (const m of printer.materials) {
         const reference = regions.referenceFor(region, m.material)
-        if (reference === null || m.pricePerGramMinor <= reference) continue
+        if (reference === null || m.materialCostPerKgMinor <= reference * 1000) continue
         const row = await db
           .from('order_items as oi')
           .join('orders as o', 'o.id', 'oi.order_id')
@@ -40,7 +40,7 @@ export default class MissedOrdersService {
           .first()
         result.set(m.id, {
           missedOrders: Number(row?.n ?? 0),
-          referencePricePerGramMinor: reference,
+          referenceCostPerKgMinor: reference * 1000,
         })
       }
     }

@@ -20,7 +20,8 @@ export default class PrinterMaterial extends BaseModel {
   declare colors: string[]
 
   @column()
-  declare pricePerGramMinor: number
+  /** what the maker pays for this material, per kilogram (Paket V) */
+  declare materialCostPerKgMinor: number
 
   @column()
   declare currency: string

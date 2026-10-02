@@ -269,14 +269,15 @@ export default class EligibilityExplainer {
     const reference = references.get(material) ?? null
     if (
       checkPrice &&
-      !coloured.some((m) => makerPriceFits(m.pricePerGramMinor, item.material, reference))
+      !coloured.some((m) => makerPriceFits(m.materialCostPerKgMinor, item.material, reference))
     ) {
       return [
         {
           code: 'price_above_reference',
           material,
-          price: Math.min(...coloured.map((m) => m.pricePerGramMinor)),
-          reference: reference ?? referencePriceFor(item.material)?.pricePerGramMinor ?? 0,
+          // both per kilogram, like the maker types it
+          price: Math.min(...coloured.map((m) => m.materialCostPerKgMinor)),
+          reference: (reference ?? referencePriceFor(item.material)?.pricePerGramMinor ?? 0) * 1000,
         },
       ]
     }

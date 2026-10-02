@@ -69,7 +69,7 @@ export default class PrinterController {
           id: m.id,
           material: m.material,
           colors: m.colors,
-          pricePerGramMinor: m.pricePerGramMinor,
+          materialCostPerKgMinor: m.materialCostPerKgMinor,
           currency: m.currency,
           aboveReference: missed.get(m.id) ?? null,
         })),

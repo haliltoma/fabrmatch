@@ -33,23 +33,32 @@ test.group('ReferenceCatalogService', (group) => {
     const offer = await service.addMaterial(printer, {
       material: ' petg ',
       colors: ['black', 'WHITE', 'black'],
-      pricePerGramMinor: 300,
+      materialCostPerKgMinor: 300000,
     })
     assert.equal(offer.material, 'PETG')
     assert.deepEqual(offer.colors, ['Black', 'White'])
 
     await assert.rejects(
       () =>
-        service.addMaterial(printer, { material: 'GOLD', colors: ['Black'], pricePerGramMinor: 1 }),
+        service.addMaterial(printer, {
+          material: 'GOLD',
+          colors: ['Black'],
+          materialCostPerKgMinor: 1000,
+        }),
       /not in the material catalogue/
     )
     await assert.rejects(
       () =>
-        service.addMaterial(printer, { material: 'PLA', colors: ['Puce'], pricePerGramMinor: 1 }),
+        service.addMaterial(printer, {
+          material: 'PLA',
+          colors: ['Puce'],
+          materialCostPerKgMinor: 1000,
+        }),
       /not in the colour catalogue/
     )
     await assert.rejects(
-      () => service.addMaterial(printer, { material: 'PLA', colors: [], pricePerGramMinor: 1 }),
+      () =>
+        service.addMaterial(printer, { material: 'PLA', colors: [], materialCostPerKgMinor: 1000 }),
       /at least one colour/
     )
   })
@@ -62,7 +71,7 @@ test.group('ReferenceCatalogService', (group) => {
         new PrinterService().addMaterial(printer, {
           material: 'RESIN',
           colors: ['Grey'],
-          pricePerGramMinor: 1,
+          materialCostPerKgMinor: 1000,
         }),
       /SLA material/
     )
@@ -78,7 +87,11 @@ test.group('ReferenceCatalogService', (group) => {
     await catalog.setMaterialActive(abs.id, false, admin.id)
     await assert.rejects(
       () =>
-        service.addMaterial(printer, { material: 'ABS', colors: ['Black'], pricePerGramMinor: 1 }),
+        service.addMaterial(printer, {
+          material: 'ABS',
+          colors: ['Black'],
+          materialCostPerKgMinor: 1000,
+        }),
       /not in the material catalogue/
     )
 
@@ -86,7 +99,7 @@ test.group('ReferenceCatalogService', (group) => {
     const offer = await service.addMaterial(printer, {
       material: 'ASA',
       colors: ['Black'],
-      pricePerGramMinor: 1,
+      materialCostPerKgMinor: 1000,
     })
     assert.equal(offer.material, 'ASA')
     await assert.rejects(

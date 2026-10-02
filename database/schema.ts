@@ -645,6 +645,29 @@ export class LedgerEntrySchema extends BaseModel {
   declare walletUserId: string | null
 }
 
+export class MakerCostProfileSchema extends BaseModel {
+  static $columns = ['createdAt', 'failureBps', 'hourlyRateMinor', 'id', 'manufacturerProfileId', 'profitBps', 'setupMinor', 'updatedAt', 'wasteBps'] as const
+  $columns = MakerCostProfileSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare failureBps: number
+  @column()
+  declare hourlyRateMinor: number
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare manufacturerProfileId: string
+  @column()
+  declare profitBps: number
+  @column()
+  declare setupMinor: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare wasteBps: number
+}
+
 export class ManufacturerFinishingSchema extends BaseModel {
   static $columns = ['finishingOptionId', 'id', 'manufacturerProfileId'] as const
   $columns = ManufacturerFinishingSchema.$columns
@@ -1249,7 +1272,7 @@ export class PrintProfileSchema extends BaseModel {
 }
 
 export class PrinterMaterialSchema extends BaseModel {
-  static $columns = ['colors', 'createdAt', 'currency', 'id', 'material', 'pricePerGramMinor', 'printerId', 'updatedAt'] as const
+  static $columns = ['colors', 'createdAt', 'currency', 'id', 'material', 'materialCostPerKgMinor', 'printerId', 'updatedAt'] as const
   $columns = PrinterMaterialSchema.$columns
   @column()
   declare colors: any
@@ -1262,7 +1285,7 @@ export class PrinterMaterialSchema extends BaseModel {
   @column()
   declare material: string
   @column()
-  declare pricePerGramMinor: number
+  declare materialCostPerKgMinor: number
   @column()
   declare printerId: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })

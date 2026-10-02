@@ -174,7 +174,7 @@ test.group('regional pricing: regions and orders (P2)', (group) => {
     // dearer than the base reference, within an EU reference 50% higher
     await PrinterMaterial.query()
       .where('printerId', printer.id)
-      .update({ pricePerGramMinor: base + Math.floor(base / 4) })
+      .update({ materialCostPerKgMinor: (base + Math.floor(base / 4)) * 1000 })
     const address = {
       fullName: 'Max Muster',
       line1: 'Hauptstr. 1',
@@ -209,7 +209,7 @@ test.group('regional pricing: regions and orders (P2)', (group) => {
     const hintFor = async (price: number) => {
       await PrinterMaterial.query()
         .where('printerId', printer.id)
-        .update({ pricePerGramMinor: price })
+        .update({ materialCostPerKgMinor: price * 1000 })
       const rows = await PrinterMaterial.query().where('printerId', printer.id)
       const hints = await new MissedOrdersService().forPrinters(
         [{ id: printer.id, technology: 'FDM', materials: rows }],
@@ -240,7 +240,7 @@ test.group('regional pricing: regions and orders (P2)', (group) => {
 
     const hint = await hintFor(base * 2)
     assert.exists(hint)
-    assert.equal(hint!.referencePricePerGramMinor, Math.ceil(base * 1.5))
+    assert.equal(hint!.referenceCostPerKgMinor, Math.ceil(base * 1.5) * 1000)
     assert.equal(hint!.missedOrders, 1, 'the Turkish order could never have gone to a German maker')
   })
 
