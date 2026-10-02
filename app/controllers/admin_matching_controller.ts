@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import MatchingService from '#services/matching/matching_service'
+import MatchOffer from '#models/match_offer'
 import MatchSuggestionService from '#services/matching/match_suggestion_service'
 import SettingsService from '#services/settings/settings_service'
 import { adminOfferValidator, matchingModeValidator } from '#validators/admin_matching'
@@ -28,6 +29,21 @@ export default class AdminMatchingController {
     })
     session.flash('success', 'Offer sent. The maker has to accept it before the time runs out.')
     return response.redirect().toPath(`/admin/matching/${params.id}`)
+  }
+
+  /** Paket V (V3): agree to the maker's price; the offer is accepted at it. */
+  async approveCounter({ params, response, session, auth }: HttpContext) {
+    const job = await new MatchingService().approveCounter(params.id, auth.getUserOrFail().id)
+    session.flash('success', 'Counter-offer approved. The maker has the job at their price.')
+    return response.redirect().toPath(`/admin/matching/${job.orderId}`)
+  }
+
+  /** Keep the offer's price: the next maker is tried. */
+  async rejectCounter({ params, response, session, auth }: HttpContext) {
+    const offer = await MatchOffer.findOrFail(params.id)
+    await new MatchingService().rejectCounter(params.id, auth.getUserOrFail().id)
+    session.flash('success', 'Counter-offer declined. The order goes to the next maker.')
+    return response.redirect().toPath(`/admin/matching/${offer.orderId}`)
   }
 
   /** Turning automatic matching on also starts a round for every order already waiting. */

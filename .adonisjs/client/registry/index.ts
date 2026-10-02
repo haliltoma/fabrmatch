@@ -996,6 +996,12 @@ const routes = {
     tokens: [{"old":"/maker/offers/:id/decline","type":0,"val":"maker","end":""},{"old":"/maker/offers/:id/decline","type":0,"val":"offers","end":""},{"old":"/maker/offers/:id/decline","type":1,"val":"id","end":""},{"old":"/maker/offers/:id/decline","type":0,"val":"decline","end":""}],
     types: placeholder as Registry['maker_work.decline']['types'],
   },
+  'maker_work.counter': {
+    methods: ["POST"],
+    pattern: '/maker/offers/:id/counter',
+    tokens: [{"old":"/maker/offers/:id/counter","type":0,"val":"maker","end":""},{"old":"/maker/offers/:id/counter","type":0,"val":"offers","end":""},{"old":"/maker/offers/:id/counter","type":1,"val":"id","end":""},{"old":"/maker/offers/:id/counter","type":0,"val":"counter","end":""}],
+    types: placeholder as Registry['maker_work.counter']['types'],
+  },
   'maker_work.packing_slip': {
     methods: ["GET","HEAD"],
     pattern: '/maker/jobs/:id/packing-slip',
@@ -1373,6 +1379,18 @@ const routes = {
     pattern: '/admin/matching/:id/offer',
     tokens: [{"old":"/admin/matching/:id/offer","type":0,"val":"admin","end":""},{"old":"/admin/matching/:id/offer","type":0,"val":"matching","end":""},{"old":"/admin/matching/:id/offer","type":1,"val":"id","end":""},{"old":"/admin/matching/:id/offer","type":0,"val":"offer","end":""}],
     types: placeholder as Registry['admin_matching.offer']['types'],
+  },
+  'admin_matching.approve_counter': {
+    methods: ["POST"],
+    pattern: '/admin/matching/offers/:id/approve-counter',
+    tokens: [{"old":"/admin/matching/offers/:id/approve-counter","type":0,"val":"admin","end":""},{"old":"/admin/matching/offers/:id/approve-counter","type":0,"val":"matching","end":""},{"old":"/admin/matching/offers/:id/approve-counter","type":0,"val":"offers","end":""},{"old":"/admin/matching/offers/:id/approve-counter","type":1,"val":"id","end":""},{"old":"/admin/matching/offers/:id/approve-counter","type":0,"val":"approve-counter","end":""}],
+    types: placeholder as Registry['admin_matching.approve_counter']['types'],
+  },
+  'admin_matching.reject_counter': {
+    methods: ["POST"],
+    pattern: '/admin/matching/offers/:id/reject-counter',
+    tokens: [{"old":"/admin/matching/offers/:id/reject-counter","type":0,"val":"admin","end":""},{"old":"/admin/matching/offers/:id/reject-counter","type":0,"val":"matching","end":""},{"old":"/admin/matching/offers/:id/reject-counter","type":0,"val":"offers","end":""},{"old":"/admin/matching/offers/:id/reject-counter","type":1,"val":"id","end":""},{"old":"/admin/matching/offers/:id/reject-counter","type":0,"val":"reject-counter","end":""}],
+    types: placeholder as Registry['admin_matching.reject_counter']['types'],
   },
   'admin_order.index': {
     methods: ["GET","HEAD"],

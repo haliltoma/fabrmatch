@@ -13,6 +13,7 @@ import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { Badge } from '~/components/ui/badge'
 import { PageHeader } from '~/components/page_header'
+import { MoneyInput } from '~/components/money_input'
 import { useT } from '~/lib/i18n'
 
 type OfferItem = {
@@ -30,6 +31,10 @@ type OfferItem = {
 type OfferData = {
   /** what this maker is paid for the parts (order currency); null = the order's maker share */
   payMinor: number | null
+  /** V3: what the maker asked instead, while an admin decides */
+  counterPayMinor: number | null
+  /** V3: the most the maker may ask; null = no counter-offer for this offer */
+  maxAskMinor: number | null
   id: string
   round: number
   status: string
@@ -103,14 +108,13 @@ const JOB_BADGES: Record<string, 'default' | 'secondary' | 'warning' | 'success'
 
 function useCountdown(expiresAt: string) {
   const target = new Date(expiresAt).getTime()
-  const [remaining, setRemaining] = useState(() => Math.max(0, target - Date.now()))
-
+  // keep only the clock; the remaining time follows a new deadline (a counter-offer) at once
+  const [now, setNow] = useState(() => Date.now())
   useEffect(() => {
-    const timer = setInterval(() => setRemaining(Math.max(0, target - Date.now())), 1000)
+    const timer = setInterval(() => setNow(Date.now()), 1000)
     return () => clearInterval(timer)
-  }, [target])
-
-  return remaining
+  }, [])
+  return Math.max(0, target - now)
 }
 
 function Countdown({ expiresAt }: { expiresAt: string }) {
@@ -125,13 +129,19 @@ function Countdown({ expiresAt }: { expiresAt: string }) {
     if (expired) router.reload({ only: ['offers', 'jobs'] })
   }, [expired])
 
-  const minutes = Math.floor(remaining / 60000)
+  const hours = Math.floor(remaining / 3_600_000)
+  const minutes = Math.floor((remaining % 3_600_000) / 60000)
   const seconds = Math.floor((remaining % 60000) / 1000)
+  const pad = (n: number) => String(n).padStart(2, '0')
 
   return (
     <span
       className={`inline-flex items-center gap-1 text-sm font-medium ${
-        expired ? 'text-ink-600' : hydrated && minutes < 5 ? 'text-danger' : 'text-ink-700'
+        expired
+          ? 'text-ink-600'
+          : hydrated && hours === 0 && minutes < 5
+            ? 'text-danger'
+            : 'text-ink-700'
       }`}
     >
       <Clock className="h-3.5 w-3.5" />
@@ -139,7 +149,9 @@ function Countdown({ expiresAt }: { expiresAt: string }) {
         ? '–:––'
         : expired
           ? t('Expired')
-          : `${minutes}:${String(seconds).padStart(2, '0')}`}
+          : hours > 0
+            ? `${hours}:${pad(minutes)}:${pad(seconds)}`
+            : `${minutes}:${pad(seconds)}`}
     </span>
   )
 }
@@ -178,10 +190,27 @@ function OfferCard({ offer }: { offer: OfferData }) {
   const { t } = useT()
 
   const [busy, setBusy] = useState(false)
+  const [asking, setAsking] = useState(false)
+  const [ask, setAsk] = useState<number | null>(null)
+  const pay = offer.payMinor ?? offer.order.manufacturerShareMinor
+  const countered = offer.status === 'countered'
+  const askOk =
+    ask !== null && ask > pay && (offer.maxAskMinor === null || ask <= offer.maxAskMinor)
 
   function respond(action: 'accept' | 'decline') {
     setBusy(true)
     router.post(`/maker/offers/${offer.id}/${action}`, {}, { onFinish: () => setBusy(false) })
+  }
+
+  function sendCounter(e: React.FormEvent) {
+    e.preventDefault()
+    if (!askOk) return
+    setBusy(true)
+    router.post(
+      `/maker/offers/${offer.id}/counter`,
+      { amountMinor: ask },
+      { onFinish: () => setBusy(false) }
+    )
   }
 
   return (
@@ -201,25 +230,71 @@ function OfferCard({ offer }: { offer: OfferData }) {
       </CardHeader>
       <CardContent className="space-y-4">
         <ItemList items={offer.order.items} />
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs text-ink-600">{t('Your payout')}</p>
             <p className="text-lg font-semibold text-ink-900">
-              {formatMoney(
-                offer.payMinor ?? offer.order.manufacturerShareMinor,
-                offer.order.currency
+              {formatMoney(pay, offer.order.currency)}
+            </p>
+            <p className="text-xs text-ink-600">{t('Shipping is paid to you on top.')}</p>
+          </div>
+          {countered ? (
+            <p className="max-w-xs text-sm text-ink-700" role="status">
+              {t('You asked for {amount}. Fabrmatch answers before the time above runs out.', {
+                amount: formatMoney(offer.counterPayMinor ?? 0, offer.order.currency),
+              })}
+            </p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={busy}
+                onClick={() => respond('decline')}
+              >
+                {t('Decline')}
+              </Button>
+              {offer.maxAskMinor !== null && !asking && (
+                <Button size="sm" variant="outline" disabled={busy} onClick={() => setAsking(true)}>
+                  {t('Ask for more')}
+                </Button>
+              )}
+              <Button size="sm" disabled={busy} onClick={() => respond('accept')}>
+                {t('Accept')}
+              </Button>
+            </div>
+          )}
+        </div>
+        {asking && !countered && offer.maxAskMinor !== null && (
+          <form onSubmit={sendCounter} className="space-y-2 border-t border-line pt-3">
+            <Label htmlFor={`ask-${offer.id}`}>{t('What would you take for it?')}</Label>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="w-40">
+                <MoneyInput
+                  id={`ask-${offer.id}`}
+                  valueMinor={ask}
+                  onChange={setAsk}
+                  currency={offer.order.currency}
+                />
+              </div>
+              <Button type="submit" size="sm" disabled={busy || !askOk}>
+                {t('Send counter-offer')}
+              </Button>
+              <Button type="button" size="sm" variant="ghost" onClick={() => setAsking(false)}>
+                {t('Cancel')}
+              </Button>
+            </div>
+            <p className="text-xs text-ink-600">
+              {t(
+                'More than {offer}, up to {max}. Fabrmatch approves or keeps the offer; if not, it goes to the next maker.',
+                {
+                  offer: formatMoney(pay, offer.order.currency),
+                  max: formatMoney(offer.maxAskMinor, offer.order.currency),
+                }
               )}
             </p>
-          </div>
-          <div className="flex gap-2">
-            <Button size="sm" variant="outline" disabled={busy} onClick={() => respond('decline')}>
-              {t('Decline')}
-            </Button>
-            <Button size="sm" disabled={busy} onClick={() => respond('accept')}>
-              {t('Accept')}
-            </Button>
-          </div>
-        </div>
+          </form>
+        )}
       </CardContent>
     </Card>
   )

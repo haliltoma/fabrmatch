@@ -8,3 +8,8 @@ export const makerCostsValidator = vine.create({
   failureBps: vine.number().withoutDecimals().min(0).max(5000),
   profitBps: vine.number().withoutDecimals().min(0).max(10_000),
 })
+
+/** Paket V (V3): what a maker asks instead of the offer, minor units of the order's currency. */
+export const counterOfferValidator = vine.create({
+  amountMinor: vine.number().withoutDecimals().positive().max(1_000_000_000),
+})

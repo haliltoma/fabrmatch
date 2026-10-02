@@ -169,6 +169,7 @@ export type ScannedRoutes = {
     'maker_work.index': { paramsTuple?: []; params?: {} }
     'maker_work.accept': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_work.decline': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'maker_work.counter': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_work.packing_slip': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_work.printing': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_work.produced': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -232,6 +233,8 @@ export type ScannedRoutes = {
     'admin_matching.mode': { paramsTuple?: []; params?: {} }
     'admin_matching.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_matching.offer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_matching.approve_counter': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_matching.reject_counter': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_order.index': { paramsTuple?: []; params?: {} }
     'admin_order.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_order.reassign': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -608,6 +611,7 @@ export type ScannedRoutes = {
     'printer.store_material': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_work.accept': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_work.decline': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'maker_work.counter': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_work.printing': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_work.produced': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_work.qc_upload_url': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -647,6 +651,8 @@ export type ScannedRoutes = {
     'admin_queue_monitor.run_again': { paramsTuple?: []; params?: {} }
     'admin_matching.mode': { paramsTuple?: []; params?: {} }
     'admin_matching.offer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_matching.approve_counter': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin_matching.reject_counter': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_order.reassign': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_user.suspend': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin_user.unsuspend': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

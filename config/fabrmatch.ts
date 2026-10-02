@@ -23,6 +23,10 @@ const fabrmatchConfig = {
     explorationRate: 0.2,
     explorationWindowDays: 30,
     explorationMaxCompletedJobs: 3,
+    // Paket V (V3): a maker may ask more than their offer, up to the order's maker budget
+    counterOffers: 1,
+    // how long an admin has to answer a counter-offer before the next maker is tried
+    counterTtlMinutes: 120,
   },
   // PRD §10: tier 0 → 1 → 2 is automatic, tier 3 (partner) is admin-only
   trust: {

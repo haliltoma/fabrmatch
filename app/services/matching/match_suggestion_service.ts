@@ -1,6 +1,7 @@
 import fabrmatchConfig from '#config/fabrmatch'
 import ManufacturerProfile from '#models/manufacturer_profile'
 import Order from '#models/order'
+import { OPEN_OFFER_STATUSES } from '#models/match_offer'
 import Printer from '#models/printer'
 import EligibilityService from '#services/matching/eligibility_service'
 import EligibilityExplainer from '#services/matching/eligibility_explainer'
@@ -9,7 +10,8 @@ import OrderService from '#services/orders/order_service'
 import { productionDaysForOrder } from '#services/orders/production_window'
 import MatchingService from '#services/matching/matching_service'
 
-export type QueueState = 'needs_maker' | 'offer_out' | 'unmatched'
+/** counter: a maker asked for more and waits for an admin's answer (Paket V, V3) */
+export type QueueState = 'needs_maker' | 'offer_out' | 'counter' | 'unmatched'
 
 /**
  * What the admin matching screen shows: orders waiting for a maker, and for one order the makers
@@ -27,15 +29,22 @@ export default class MatchSuggestionService {
       .preload('matchOffers', (q) => q.orderBy('id', 'desc'))
       .orderBy('updatedAt', 'asc')
 
+    const isOpen = (m: { status: string }) => OPEN_OFFER_STATUSES.includes(m.status as never)
     const pendingMakerIds = orders.flatMap((o) =>
-      o.matchOffers.filter((m) => m.status === 'pending').map((m) => m.manufacturerProfileId)
+      o.matchOffers.filter(isOpen).map((m) => m.manufacturerProfileId)
     )
     const makers = await this.makersById(pendingMakerIds)
 
     return orders.map((order) => {
-      const pending = order.matchOffers.find((m) => m.status === 'pending') ?? null
+      const pending = order.matchOffers.find(isOpen) ?? null
       const state: QueueState =
-        order.status === 'unmatched' ? 'unmatched' : pending ? 'offer_out' : 'needs_maker'
+        order.status === 'unmatched'
+          ? 'unmatched'
+          : pending?.status === 'countered'
+            ? 'counter'
+            : pending
+              ? 'offer_out'
+              : 'needs_maker'
       return {
         id: order.id,
         code: order.code,
@@ -64,7 +73,8 @@ export default class MatchSuggestionService {
 
     const city = this.orders.decryptShippingAddress(order)?.city ?? null
     const open = ['matching', 'unmatched'].includes(order.status)
-    const pending = order.matchOffers.find((m) => m.status === 'pending') ?? null
+    const pending =
+      order.matchOffers.find((m) => OPEN_OFFER_STATUSES.includes(m.status as never)) ?? null
 
     const candidates = open
       ? await this.eligibility.findCandidates(order, {
@@ -168,6 +178,18 @@ export default class MatchSuggestionService {
             expiresAt: pending.expiresAt.toISO(),
           }
         : null,
+      // V3: the maker asked for more; all TRY (like the maker budget)
+      counterOffer:
+        pending?.status === 'countered'
+          ? {
+              offerId: pending.id,
+              maker: makers.get(pending.manufacturerProfileId)!,
+              offeredMinor: pending.makerPayMinor,
+              askedMinor: pending.counterPayMinor,
+              budgetMinor: order.makerBudgetMinor,
+              expiresAt: pending.expiresAt.toISO(),
+            }
+          : null,
       suggestions,
       notEligible,
       history: order.matchOffers.map((m) => ({

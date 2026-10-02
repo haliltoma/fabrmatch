@@ -264,6 +264,7 @@ export interface ApiDefinition {
     index: typeof routes['maker_work.index']
     accept: typeof routes['maker_work.accept']
     decline: typeof routes['maker_work.decline']
+    counter: typeof routes['maker_work.counter']
     packingSlip: typeof routes['maker_work.packing_slip']
     printing: typeof routes['maker_work.printing']
     produced: typeof routes['maker_work.produced']
@@ -360,6 +361,8 @@ export interface ApiDefinition {
     mode: typeof routes['admin_matching.mode']
     show: typeof routes['admin_matching.show']
     offer: typeof routes['admin_matching.offer']
+    approveCounter: typeof routes['admin_matching.approve_counter']
+    rejectCounter: typeof routes['admin_matching.reject_counter']
   }
   adminOrder: {
     index: typeof routes['admin_order.index']

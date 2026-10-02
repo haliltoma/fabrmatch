@@ -13,7 +13,7 @@ import { useT } from '~/lib/i18n'
 type Row = {
   id: string
   code: string
-  state: 'needs_maker' | 'offer_out' | 'unmatched'
+  state: 'needs_maker' | 'offer_out' | 'counter' | 'unmatched'
   totalMinor: number
   currency: string
   waitingSince: string | null
@@ -23,6 +23,11 @@ type Row = {
 }
 
 const SECTIONS: { state: Row['state']; title: string; hint: string }[] = [
+  {
+    state: 'counter',
+    title: 'Counter-offers',
+    hint: 'A maker asked for more than the offer. Approve their price or keep the offer; with no answer it goes to the next maker.',
+  },
   {
     state: 'needs_maker',
     title: 'Needs a maker',

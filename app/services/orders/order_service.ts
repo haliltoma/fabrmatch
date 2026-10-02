@@ -6,7 +6,7 @@ import AuditLog from '#models/audit_log'
 import { DateTime } from 'luxon'
 import logger from '@adonisjs/core/services/logger'
 import fabrmatchConfig from '#config/fabrmatch'
-import MatchOffer from '#models/match_offer'
+import MatchOffer, { OPEN_OFFER_STATUSES } from '#models/match_offer'
 import LedgerService from '#services/payments/ledger_service'
 import OrderNotifier from '#services/notifications/order_notifier'
 import PaymentService from '#services/payments/payment_service'
@@ -455,7 +455,7 @@ export default class OrderService {
       // no maker may accept an offer for a cancelled order
       await MatchOffer.query({ client: trx })
         .where('orderId', orderId)
-        .where('status', 'pending')
+        .whereIn('status', OPEN_OFFER_STATUSES)
         .update({ status: 'expired' })
 
       const escrow = await this.ledger.balance('buyer_escrow', {

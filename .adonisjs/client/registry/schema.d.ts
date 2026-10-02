@@ -1987,6 +1987,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/maker_work_controller').default['decline']>>>
     }
   }
+  'maker_work.counter': {
+    methods: ["POST"]
+    pattern: '/maker/offers/:id/counter'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/maker_costs').counterOfferValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/maker_costs').counterOfferValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/maker_work_controller').default['counter']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/maker_work_controller').default['counter']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'maker_work.packing_slip': {
     methods: ["GET","HEAD"]
     pattern: '/maker/jobs/:id/packing-slip'
@@ -2741,6 +2753,30 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/admin_matching').adminOfferValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_matching_controller').default['offer']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_matching_controller').default['offer']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin_matching.approve_counter': {
+    methods: ["POST"]
+    pattern: '/admin/matching/offers/:id/approve-counter'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_matching_controller').default['approveCounter']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_matching_controller').default['approveCounter']>>>
+    }
+  }
+  'admin_matching.reject_counter': {
+    methods: ["POST"]
+    pattern: '/admin/matching/offers/:id/reject-counter'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin_matching_controller').default['rejectCounter']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin_matching_controller').default['rejectCounter']>>>
     }
   }
   'admin_order.index': {

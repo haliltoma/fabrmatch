@@ -5,7 +5,7 @@ import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import { DateTime } from 'luxon'
 import fabrmatchConfig from '#config/fabrmatch'
 import Order from '#models/order'
-import MatchOffer from '#models/match_offer'
+import MatchOffer, { OPEN_OFFER_STATUSES } from '#models/match_offer'
 import ProductionJob from '#models/production_job'
 import ManufacturerProfile from '#models/manufacturer_profile'
 import AuditLog from '#models/audit_log'
@@ -22,7 +22,7 @@ import { productionDaysForOrder } from '#services/orders/production_window'
 import FileAccessService from '#services/files/file_access_service'
 import type { MatchingEffects } from '#services/matching/matching_effects'
 import QueueMatchingEffects from '#services/matching/matching_effects'
-import { convertMinor } from '#services/pricing/fx'
+import { convertMinor, toBaseMinor } from '#services/pricing/fx'
 
 export class OfferError extends DomainError {}
 
@@ -89,7 +89,7 @@ export default class MatchingService {
         o
           .from('match_offers')
           .whereRaw('match_offers.order_id = orders.id')
-          .where('status', 'pending')
+          .whereIn('status', OPEN_OFFER_STATUSES)
       )
       .select('id')
 
@@ -151,11 +151,12 @@ export default class MatchingService {
       const order = await Order.query({ client: trx }).where('id', orderId).forUpdate().first()
       if (!order || order.status !== 'matching') return { kind: 'noop' }
 
-      const pending = await MatchOffer.query({ client: trx })
+      // a pending or countered offer still holds the order
+      const open = await MatchOffer.query({ client: trx })
         .where('orderId', orderId)
-        .where('status', 'pending')
+        .whereIn('status', OPEN_OFFER_STATUSES)
         .first()
-      if (pending) return { kind: 'noop' }
+      if (open) return { kind: 'noop' }
 
       if (order.matchingRound >= cfg.maxRounds) {
         return this.markUnmatched(order.id, 'max_rounds', trx)
@@ -235,11 +236,11 @@ export default class MatchingService {
       if (!order || !['matching', 'unmatched'].includes(order.status)) {
         throw new OfferError('This order is not waiting for a maker')
       }
-      const pending = await MatchOffer.query({ client: trx })
+      const open = await MatchOffer.query({ client: trx })
         .where('orderId', orderId)
-        .where('status', 'pending')
+        .whereIn('status', OPEN_OFFER_STATUSES)
         .first()
-      if (pending) throw new OfferError('An offer is already out for this order')
+      if (open) throw new OfferError('An offer is already out for this order')
 
       const previous = await MatchOffer.query({ client: trx })
         .where('orderId', orderId)
@@ -532,7 +533,13 @@ export default class MatchingService {
   async expireOffer(offerId: string): Promise<MatchOffer | null> {
     const orderId = await db.transaction(async (trx) => {
       const offer = await MatchOffer.query({ client: trx }).where('id', offerId).forUpdate().first()
-      if (!offer || offer.status !== 'pending' || offer.expiresAt > DateTime.now()) return null
+      if (
+        !offer ||
+        !OPEN_OFFER_STATUSES.includes(offer.status) ||
+        offer.expiresAt > DateTime.now()
+      ) {
+        return null
+      }
       offer.status = 'expired'
       await offer.useTransaction(trx).save()
       await this.audit(trx, 'match.offer_expired', offer.orderId, { offerId })
@@ -544,11 +551,96 @@ export default class MatchingService {
   /** Safety net in case a delayed ExpireOffer job was lost. */
   async expireStaleOffers(): Promise<number> {
     const stale = await MatchOffer.query()
-      .where('status', 'pending')
+      .whereIn('status', OPEN_OFFER_STATUSES)
       .where('expiresAt', '<=', DateTime.now().toSQL()!)
       .select('id')
     for (const offer of stale) await this.expireOffer(offer.id)
     return stale.length
+  }
+
+  /**
+   * Paket V (V3): the maker finds the offer too low and asks for more (in the order's currency,
+   * kept in TRY like the offer), at most what the order pays makers in all, so the platform never pays out more than the buyer paid for the
+   * work. The order waits for an admin until the counter runs out.
+   */
+  async counterOffer(
+    offerId: string,
+    manufacturerProfileId: string,
+    askMinor: number,
+    actorId: string | null = null
+  ): Promise<MatchOffer> {
+    if (fabrmatchConfig.matching.counterOffers !== 1) {
+      throw new OfferError('Counter-offers are switched off')
+    }
+    return db.transaction(async (trx) => {
+      const offer = await this.lockOwnedOffer(offerId, manufacturerProfileId, trx)
+      if (offer.expiresAt <= DateTime.now()) throw new OfferError('Offer has expired')
+      const order = await Order.query({ client: trx }).where('id', offer.orderId).firstOrFail()
+      if (offer.makerPayMinor === null || order.makerBudgetMinor === null) {
+        throw new OfferError('This offer has a fixed price; accept or decline it')
+      }
+      const ask =
+        order.fxRateNano === null ? askMinor : toBaseMinor(askMinor, BigInt(order.fxRateNano))
+      if (!Number.isSafeInteger(ask) || ask <= offer.makerPayMinor) {
+        throw new OfferError('Ask for more than the offer, or accept it as it is')
+      }
+      if (ask > order.makerBudgetMinor) {
+        throw new OfferError('That is more than this order pays makers')
+      }
+      offer.status = 'countered'
+      offer.counterPayMinor = ask
+      offer.respondedAt = DateTime.now()
+      offer.expiresAt = DateTime.now().plus({ minutes: fabrmatchConfig.matching.counterTtlMinutes })
+      await offer.useTransaction(trx).save()
+      await this.audit(
+        trx,
+        'match.offer_countered',
+        offer.orderId,
+        { offerId, offeredMinor: offer.makerPayMinor, askedMinor: ask },
+        actorId
+      )
+      return offer
+    })
+  }
+
+  /** An admin agrees to the maker's price: the offer is accepted at it, on the maker's behalf. */
+  async approveCounter(offerId: string, adminId: string): Promise<ProductionJob> {
+    const offer = await db.transaction(async (trx) => {
+      const row = await MatchOffer.query({ client: trx }).where('id', offerId).forUpdate().first()
+      if (!row || row.status !== 'countered' || row.counterPayMinor === null) {
+        throw new OfferError('There is no counter-offer to approve')
+      }
+      if (row.expiresAt <= DateTime.now()) throw new OfferError('The counter-offer has lapsed')
+      await this.audit(
+        trx,
+        'match.counter_approved',
+        row.orderId,
+        { offerId, fromMinor: row.makerPayMinor, toMinor: row.counterPayMinor },
+        adminId
+      )
+      row.makerPayMinor = row.counterPayMinor
+      row.status = 'pending'
+      // the maker already said yes at this price: accept now (capacity is checked there)
+      row.expiresAt = DateTime.now().plus({ minutes: fabrmatchConfig.matching.offerTtlMinutes })
+      await row.useTransaction(trx).save()
+      return row
+    })
+    return this.acceptOffer(offer.id, offer.manufacturerProfileId, adminId)
+  }
+
+  /** An admin keeps the price: the counter lapses and the next maker is tried. */
+  async rejectCounter(offerId: string, adminId: string): Promise<MatchOffer | null> {
+    const orderId = await db.transaction(async (trx) => {
+      const row = await MatchOffer.query({ client: trx }).where('id', offerId).forUpdate().first()
+      if (!row || row.status !== 'countered') {
+        throw new OfferError('There is no counter-offer to decline')
+      }
+      row.status = 'declined'
+      await row.useTransaction(trx).save()
+      await this.audit(trx, 'match.counter_rejected', row.orderId, { offerId }, adminId)
+      return row.orderId
+    })
+    return this.runRound(orderId)
   }
 
   private async lockOwnedOffer(

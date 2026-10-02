@@ -1009,6 +1009,37 @@ export const tr: Record<string, string> = {
     'Üreticiye göre bu sipariş {low} ile {high} arası tutuyor. Fiyatın çoğuna yetiyor, bu yüzden hızlı alınır.',
   'Priced at our reference maker until enough makers print this nearby. This is the price you pay.':
     'Yakında bunu basan yeterli üretici olana kadar referans üreticimize göre fiyatlandı. Ödeyeceğin fiyat budur.',
+  'Shipping is paid to you on top.': 'Kargo ayrıca sana ödenir.',
+  'You asked for {amount}. Fabrmatch answers before the time above runs out.':
+    '{amount} istedin. Fabrmatch yukarıdaki süre dolmadan yanıt verir.',
+  'Ask for more': 'Daha fazla iste',
+  'What would you take for it?': 'Bu iş için ne istersin?',
+  'Send counter-offer': 'Karşı teklif gönder',
+  'More than {offer}, up to {max}. Fabrmatch approves or keeps the offer; if not, it goes to the next maker.':
+    '{offer} üstünde, en fazla {max}. Fabrmatch onaylar ya da teklifi korur; onaylanmazsa iş sıradaki üreticiye gider.',
+  'Counter-offer sent. We answer before the time on the card runs out.':
+    'Karşı teklif gönderildi. Karttaki süre dolmadan yanıt veririz.',
+  'Counter-offers': 'Karşı teklifler',
+  'On: a maker who finds an offer too low can ask for more, up to what the order pays makers. An admin approves or declines.':
+    'Açık: teklifi düşük bulan üretici, siparişin üreticilere ödediği tutara kadar daha fazla isteyebilir. Admin onaylar ya da reddeder.',
+  'Counter-offer answer time (minutes)': 'Karşı teklif yanıt süresi (dakika)',
+  'Without an answer by then, the counter-offer lapses and the next maker is tried.':
+    'O süreye kadar yanıt verilmezse karşı teklif düşer ve sıradaki üreticiye geçilir.',
+  'Counter-offers from makers': 'Üreticilerden karşı teklifler',
+  'A maker asked for more than the offer. Approve their price or keep the offer; with no answer it goes to the next maker.':
+    'Bir üretici tekliften fazlasını istedi. Fiyatını onayla ya da teklifi koru; yanıt verilmezse sıradaki üreticiye geçer.',
+  '{maker} asks for more': '{maker} daha fazla istiyor',
+  'Offered': 'Teklif edilen',
+  'Asked': 'İstenen',
+  'The order pays makers': 'Siparişin üreticilere ödediği',
+  'Approving gives them the job at their price; the platform keeps less of the difference. Without an answer by {when} it goes to the next maker.':
+    'Onaylarsan iş onun fiyatıyla onundur; platform farktan daha az alır. {when} tarihine kadar yanıt verilmezse sıradaki üreticiye geçer.',
+  'Approve their price': 'Fiyatını onayla',
+  'Keep the offer': 'Teklifi koru',
+  'Counter-offer approved. The maker has the job at their price.':
+    'Karşı teklif onaylandı. İş, üreticinin fiyatıyla onun.',
+  'Counter-offer declined. The order goes to the next maker.':
+    'Karşı teklif reddedildi. Sipariş sıradaki üreticiye gidiyor.',
   'Allowance for failed prints': 'Başarısız baskı payı',
   'Your margin': 'Marjın',
   'Your share': 'Payın',
@@ -2323,8 +2354,8 @@ export const tr: Record<string, string> = {
   'Offer sent to {maker}. It expires {when}; if they decline it comes back here.':
     '{maker} kişisine teklif gönderildi. {when} tarihinde sona erer; reddederse buraya geri döner.',
   'Suggested makers': 'Önerilen üreticiler',
-  'Everyone here passes every rule right now: the part fits the printer, the material and colour are set up at or below the reference price, there is free capacity within {days} days, the tier is high enough, and they are not the buyer or seller.':
-    'Buradaki herkes şu anda tüm kuralları karşılıyor: parça yazıcıya sığıyor, malzeme ve renk referans fiyatta ya da altında tanımlı, {days} gün içinde boş kapasite var, seviye yeterli ve alıcı ya da satıcı değiller.',
+  'Everyone here passes every rule right now: the part fits the printer, the material and colour are set up, their own price for the order fits what it pays makers, there is free capacity within {days} days, the tier is high enough, and they are not the buyer or seller.':
+    'Buradaki herkes şu anda tüm kuralları karşılıyor: parça yazıcıya sığıyor, malzeme ve renk tanımlı, sipariş için kendi fiyatı siparişin üreticilere ödediğine sığıyor, {days} gün içinde boş kapasite var, seviye yeterli ve alıcı ya da satıcı değiller.',
   'No maker fits right now': 'Şu anda uygun üretici yok',
   'Makers who already declined or let an offer expire are left out. New capacity or an approved maker makes them show up here.':
     'Daha önce reddeden ya da teklifin süresini kaçıran üreticiler dışarıda kalır. Yeni kapasite ya da onaylanan bir üretici burada görünmelerini sağlar.',

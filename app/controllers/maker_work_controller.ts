@@ -15,6 +15,7 @@ import {
   registerEvidenceValidator,
   shipValidator,
 } from '#validators/order'
+import { counterOfferValidator } from '#validators/maker_costs'
 
 export default class MakerWorkController {
   async index({ inertia, auth }: HttpContext) {
@@ -69,6 +70,16 @@ export default class MakerWorkController {
     const profile = await new MakerWorkService().profileFor(user)
     await new MatchingService().acceptOffer(params.id, profile.id, user.id)
     session.flash('success', 'Offer accepted — the job is yours.')
+    return response.redirect().back()
+  }
+
+  /** Paket V (V3): ask for more than the offer; an admin answers. Amount in the order's currency. */
+  async counter({ auth, params, request, response, session }: HttpContext) {
+    const { amountMinor } = await request.validateUsing(counterOfferValidator)
+    const user = auth.getUserOrFail()
+    const profile = await new MakerWorkService().profileFor(user)
+    await new MatchingService().counterOffer(params.id, profile.id, amountMinor, user.id)
+    session.flash('success', 'Counter-offer sent. We answer before the time on the card runs out.')
     return response.redirect().back()
   }
 

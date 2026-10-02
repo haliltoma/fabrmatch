@@ -252,6 +252,15 @@ type Props = {
   canOffer: boolean
   canOverride: boolean
   pendingOffer: { maker: Maker; expiresAt: string | null } | null
+  /** V3: the maker asked for more (TRY) */
+  counterOffer: {
+    offerId: string
+    maker: Maker
+    offeredMinor: number | null
+    askedMinor: number | null
+    budgetMinor: number | null
+    expiresAt: string | null
+  } | null
   suggestions: Suggestion[]
   notEligible: Verdict[]
   history: {
@@ -402,6 +411,7 @@ export default function AdminMatchingShow({
   canOffer,
   canOverride,
   pendingOffer,
+  counterOffer,
   suggestions,
   notEligible,
   history,
@@ -409,6 +419,8 @@ export default function AdminMatchingShow({
   offerTtlMinutes,
 }: Props) {
   const { t } = useT()
+  // suggestions only mean something while the order still waits for a maker
+  const stillOpen = order.status === 'matching' || order.status === 'unmatched'
   const [picked, setPicked] = useState<Pick | null>(null)
   const [sending, setSending] = useState(false)
 
@@ -478,7 +490,59 @@ export default function AdminMatchingShow({
         ))}
       </ul>
 
-      {pendingOffer && (
+      {counterOffer && (
+        <section
+          aria-labelledby="counter-title"
+          className="space-y-3 rounded-lg border-[1.5px] border-ink-900 bg-paper-raised p-5"
+        >
+          <h2 id="counter-title" className="font-display text-lg font-semibold text-ink-900">
+            {t('{maker} asks for more', { maker: counterOffer.maker.label })}
+          </h2>
+          <dl className="grid gap-2 text-sm sm:grid-cols-3">
+            <div>
+              <dt className="text-ink-600">{t('Offered')}</dt>
+              <dd className="tabular font-medium">{money(counterOffer.offeredMinor)} TRY</dd>
+            </div>
+            <div>
+              <dt className="text-ink-600">{t('Asked')}</dt>
+              <dd className="tabular font-semibold text-ink-900">
+                {money(counterOffer.askedMinor)} TRY
+              </dd>
+            </div>
+            <div>
+              <dt className="text-ink-600">{t('The order pays makers')}</dt>
+              <dd className="tabular font-medium">{money(counterOffer.budgetMinor)} TRY</dd>
+            </div>
+          </dl>
+          <p className="text-sm text-ink-700">
+            {t(
+              'Approving gives them the job at their price; the platform keeps less of the difference. Without an answer by {when} it goes to the next maker.',
+              { when: formatDateTime(counterOffer.expiresAt) }
+            )}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              onClick={() =>
+                router.post(`/admin/matching/offers/${counterOffer.offerId}/approve-counter`)
+              }
+            >
+              {t('Approve their price')}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() =>
+                router.post(`/admin/matching/offers/${counterOffer.offerId}/reject-counter`)
+              }
+            >
+              {t('Keep the offer')}
+            </Button>
+          </div>
+        </section>
+      )}
+
+      {pendingOffer && !counterOffer && (
         <p className="flex items-center gap-2 rounded-md bg-paper-sunken px-4 py-3 text-sm text-ink-700">
           <Clock className="h-4 w-4 shrink-0" aria-hidden="true" />
           {t('Offer sent to {maker}. It expires {when}; if they decline it comes back here.', {
@@ -488,55 +552,59 @@ export default function AdminMatchingShow({
         </p>
       )}
 
-      <section className="space-y-3">
-        <div>
-          <h2 className="font-display text-xl font-semibold text-ink-900">
-            {t('Suggested makers')}{' '}
-            <span className="tabular text-base font-normal text-ink-600">{suggestions.length}</span>
-          </h2>
-          <p className="text-sm text-ink-700">
-            {t(
-              'Everyone here passes every rule right now: the part fits the printer, the material and colour are set up at or below the reference price, there is free capacity within {days} days, the tier is high enough, and they are not the buyer or seller.',
-              { days: productionSlaDays }
-            )}
-          </p>
-        </div>
+      {stillOpen && (
+        <section className="space-y-3">
+          <div>
+            <h2 className="font-display text-xl font-semibold text-ink-900">
+              {t('Suggested makers')}{' '}
+              <span className="tabular text-base font-normal text-ink-600">
+                {suggestions.length}
+              </span>
+            </h2>
+            <p className="text-sm text-ink-700">
+              {t(
+                'Everyone here passes every rule right now: the part fits the printer, the material and colour are set up, their own price for the order fits what it pays makers, there is free capacity within {days} days, the tier is high enough, and they are not the buyer or seller.',
+                { days: productionSlaDays }
+              )}
+            </p>
+          </div>
 
-        {suggestions.length === 0 ? (
-          <EmptyState
-            icon={SearchX}
-            title={t('No maker fits right now')}
-            description={
-              canOverride
-                ? t('No maker passes every rule. In manual mode you can still pick one below.')
-                : t(
-                    'Makers who already declined or let an offer expire are left out. New capacity or an approved maker makes them show up here.'
-                  )
-            }
-            action={
-              <Button asChild variant="outline">
-                <Link href="/admin/makers">{t('Open makers')}</Link>
-              </Button>
-            }
-          />
-        ) : (
-          <ol className="space-y-3">
-            {suggestions.map((s, i) => (
-              <SuggestionCard
-                key={s.manufacturerProfileId}
-                s={s}
-                rank={i + 1}
-                canOffer={canOffer}
-                onPick={(x) =>
-                  setPicked({ id: x.manufacturerProfileId, label: x.maker.label, missing: [] })
-                }
-              />
-            ))}
-          </ol>
-        )}
-      </section>
+          {suggestions.length === 0 ? (
+            <EmptyState
+              icon={SearchX}
+              title={t('No maker fits right now')}
+              description={
+                canOverride
+                  ? t('No maker passes every rule. In manual mode you can still pick one below.')
+                  : t(
+                      'Makers who already declined or let an offer expire are left out. New capacity or an approved maker makes them show up here.'
+                    )
+              }
+              action={
+                <Button asChild variant="outline">
+                  <Link href="/admin/makers">{t('Open makers')}</Link>
+                </Button>
+              }
+            />
+          ) : (
+            <ol className="space-y-3">
+              {suggestions.map((s, i) => (
+                <SuggestionCard
+                  key={s.manufacturerProfileId}
+                  s={s}
+                  rank={i + 1}
+                  canOffer={canOffer}
+                  onPick={(x) =>
+                    setPicked({ id: x.manufacturerProfileId, label: x.maker.label, missing: [] })
+                  }
+                />
+              ))}
+            </ol>
+          )}
+        </section>
+      )}
 
-      {notEligible.length > 0 && (
+      {stillOpen && notEligible.length > 0 && (
         <NotEligible verdicts={notEligible} canOverride={canOverride} onPick={setPicked} />
       )}
 

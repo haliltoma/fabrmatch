@@ -501,6 +501,7 @@ router
     router.get('/work', [controllers.MakerWork, 'index'])
     router.post('/offers/:id/accept', [controllers.MakerWork, 'accept'])
     router.post('/offers/:id/decline', [controllers.MakerWork, 'decline'])
+    router.post('/offers/:id/counter', [controllers.MakerWork, 'counter'])
     router.get('/jobs/:id/packing-slip', [controllers.MakerWork, 'packingSlip'])
     router.post('/jobs/:id/printing', [controllers.MakerWork, 'printing'])
     router.post('/jobs/:id/produced', [controllers.MakerWork, 'produced'])
@@ -619,6 +620,12 @@ router
     router
       .post('/matching/:id/offer', [controllers.AdminMatching, 'offer'])
       .where('id', router.matchers.uuid())
+    // Paket V (V3): answer a maker's counter-offer (id = the offer)
+    router.post('/matching/offers/:id/approve-counter', [
+      controllers.AdminMatching,
+      'approveCounter',
+    ])
+    router.post('/matching/offers/:id/reject-counter', [controllers.AdminMatching, 'rejectCounter'])
 
     router.get('/orders', [controllers.AdminOrder, 'index'])
     router.get('/orders/:id', [controllers.AdminOrder, 'show'])

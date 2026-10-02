@@ -280,6 +280,8 @@
 
 ## Log
 
+- **2026-10-02** — Paket V V3 karşı teklif: üretici bütçe içinde daha fazla ister, admin onaylar/korur, yanıtsızsa sıradaki üretici. 1014 test.
+
 - **2026-10-02** — Paket V V2: sipariş fiyatı üreticilerin kendi tabanlarından (bütçe %75, az üreticide referans + %15 bant), teklifte üreticinin tutarı, ödemede taban + kargo, fark `platform_spread`; hızlı fiyat/dosya teklifi aralık gösterir. V0 varsayılanları `PAKET_V_TARTISMA.md §7` (hepsi admin ayarı). 1008 test.
 
 - **2026-10-02** — Paket V adım 1–2: üretici kazancı = maliyet × (1 + %25–30), tüm sayılar `/admin/settings → Üretici ödemesi` (referans üretici, kâr alt/üst sınırı; komisyon %10); ayar sayfası yüzde/TL/açık-kapalı girişi; yazıcı malzemesi kg başına maliyet + `maker_cost_profiles` tablosu. Ana sayfa hero'ya Shopify/Etsy/WooCommerce satırı (DESIGN §29). 993 test, a11y 0, ssr 59/59.

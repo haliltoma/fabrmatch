@@ -1,5 +1,6 @@
 import Dispute from '#models/dispute'
 import Payout from '#models/payout'
+import MatchOffer from '#models/match_offer'
 import AdminQueueService from '#services/admin/queue_service'
 
 export type AttentionItem = {
@@ -24,11 +25,13 @@ export type AdminAttention = {
  */
 export default class AttentionService {
   async summary(): Promise<AdminAttention> {
-    const [queues, disputes, payouts] = await Promise.all([
+    const [queues, disputes, payouts, counters] = await Promise.all([
       new AdminQueueService().counts(),
       Dispute.query().whereNot('status', 'resolved').count('* as n').first(),
       Payout.query().where('status', 'pending').count('* as n').first(),
+      MatchOffer.query().where('status', 'countered').count('* as n').first(),
     ])
+    const counterOffers = Number(counters?.$extras.n ?? 0)
     const openDisputes = Number(disputes?.$extras.n ?? 0)
     const pendingPayouts = Number(payouts?.$extras.n ?? 0)
 
@@ -51,6 +54,12 @@ export default class AttentionService {
         count: queues.paymentReviews,
         label: 'Payments needing review',
         href: '/admin/queues#payment-reviews',
+      },
+      {
+        key: 'counterOffers',
+        count: counterOffers,
+        label: 'Counter-offers from makers',
+        href: '/admin/matching',
       },
       {
         key: 'unmatched',
@@ -105,7 +114,7 @@ export default class AttentionService {
     return {
       badges: {
         queues: queueTotal,
-        matching: queues.unmatched,
+        matching: queues.unmatched + counterOffers,
         disputes: openDisputes,
         payouts: pendingPayouts,
       },
