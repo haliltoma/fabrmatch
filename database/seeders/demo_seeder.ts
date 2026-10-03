@@ -10,6 +10,7 @@ import CapacitySlot from '#models/capacity_slot'
 import Printer from '#models/printer'
 import PrinterMaterial from '#models/printer_material'
 import MatchOffer from '#models/match_offer'
+import JobQcPhoto from '#models/job_qc_photo'
 import RoleService from '#services/identity/role_service'
 import OnboardingService from '#services/identity/onboarding_service'
 import OrderService from '#services/orders/order_service'
@@ -287,6 +288,17 @@ export default class DemoSeeder extends BaseSeeder {
       return { order, offer }
     }
 
+    // shipping needs a photo of the finished part
+    const QC_PNG = Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+      'base64'
+    )
+    const addQcPhoto = async (jobId: string) => {
+      const storageKey = `qc/${jobId}/${randomUUID()}.png`
+      await drive.use('s3').put(storageKey, QC_PNG, { contentType: 'image/png' })
+      await JobQcPhoto.create({ productionJobId: jobId, storageKey })
+    }
+
     // 1. an offer the maker can still accept
     await place(products[0], 1)
 
@@ -299,6 +311,7 @@ export default class DemoSeeder extends BaseSeeder {
     if (c.offer) {
       const job = await matching.acceptOffer(c.offer.id, maker.id, makerUser.id)
       await fulfilment.markProduced(job.id, maker.id, makerUser.id)
+      await addQcPhoto(job.id)
       await fulfilment.markShipped(
         job.id,
         maker.id,
@@ -315,6 +328,7 @@ export default class DemoSeeder extends BaseSeeder {
     if (d.offer) {
       const job = await matching.acceptOffer(d.offer.id, maker.id, makerUser.id)
       await fulfilment.markProduced(job.id, maker.id, makerUser.id)
+      await addQcPhoto(job.id)
       await fulfilment.markShipped(
         job.id,
         maker.id,

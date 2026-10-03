@@ -27,7 +27,7 @@ services:
       retries: 5
 
   minio:
-    image: quay.io/minio/minio
+    image: pgsty/minio
     ports:
       - '9000:9000'
       - '9001:9001'
@@ -40,7 +40,7 @@ services:
 
   # creates the S3_BUCKET once MinIO is up (uploads fail silently without it)
   minio-init:
-    image: quay.io/minio/mc
+    image: pgsty/mc
     depends_on:
       - minio
     restart: 'no'
