@@ -10,7 +10,6 @@ import db from '@adonisjs/lucid/services/db'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import { DateTime } from 'luxon'
 import logger from '@adonisjs/core/services/logger'
-import app from '@adonisjs/core/services/app'
 import env from '#start/env'
 import Order from '#models/order'
 import Payment from '#models/payment'
@@ -21,7 +20,7 @@ import OrderNotifier from '#services/notifications/order_notifier'
 import FakePaymentProvider from '#services/payments/fake_provider'
 import OrderService from '#services/orders/order_service'
 import { isValidTckn } from '#services/identity/tax_ids'
-import { paymentProvider } from '#services/payments/provider_registry'
+import { allowsTestPayments, paymentProvider } from '#services/payments/provider_registry'
 import { salesModel } from '#services/payments/sales_model'
 import type { CheckoutRequest, PaymentProvider, WebhookEvent } from '#services/payments/provider'
 import type { ShippingAddress } from '#services/orders/order_service'
@@ -814,7 +813,7 @@ export default class PaymentService {
    * `payment.succeeded` delivered through the real webhook path.
    */
   async simulateSuccess(orderId: string, buyerId: string) {
-    if (!(app.inDev || app.inTest) || !(this.provider instanceof FakePaymentProvider)) {
+    if (!allowsTestPayments() || !(this.provider instanceof FakePaymentProvider)) {
       throw new PaymentError('Payment simulation is only available with the fake provider')
     }
     const { payment } = await this.startCheckout(orderId, buyerId)

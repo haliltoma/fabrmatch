@@ -1,11 +1,12 @@
+# Template: deploy/deploy.sh fills @APP_DIR@ and @NODE_BIN@ and installs it as a user unit
 [Unit]
 Description=Fabrmatch web (HTTP + scheduler)
 After=network-online.target
 
 [Service]
-WorkingDirectory=%h/my-projects/fabrmatch/build
+WorkingDirectory=@APP_DIR@/build
 EnvironmentFile=%h/.config/fabrmatch/app.env
-ExecStart=%h/.nvm/versions/node/v24.21.0/bin/node bin/server.js
+ExecStart=@NODE_BIN@ bin/server.js
 Restart=always
 RestartSec=3
 

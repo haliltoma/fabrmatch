@@ -37,17 +37,18 @@ Postgres + Redis Docker'da, yalnız `127.0.0.1`. Dosyalar Cloudflare R2'de. Sunu
    `set -a; . ~/.config/fabrmatch/app.env; set +a; cd build && ADMIN_EMAIL=... ADMIN_PASSWORD='...' node ace db:seed --files database/seeders/admin_seeder.js`
    Giriş → Account security → 2FA kur (admin paneli 2FA'sız açılmaz).
 
-## Test sunucusu (şu anki kurulum): yalnız Tailscale
+## Erişim (şu anki kurulum)
 
-Cloudflare Tunnel kapalı. Erişim yalnız tailnet'ten, `tailscale serve` ile (gerçek HTTPS; secure cookie
-için şart, düz `http://IP:3333` ile giriş yapılamaz):
+**Genel:** ayrı Cloudflare tüneli `fabrmatch` (ID `5b298e3e-…`, sistem servisi `cloudflared`), public hostname'ler:
 
-- `https://laserkopf-server-1.taila4687d.ts.net` → `127.0.0.1:3333` (= `APP_URL`)
-- `https://laserkopf-server-1.taila4687d.ts.net:8443` → `127.0.0.1:9002` (= `S3_ENDPOINT`)
+- `https://fabrmatch.bestytrends.com` → `localhost:3333` (= `APP_URL`)
+- `https://fabrmatch-files.bestytrends.com` → `localhost:9002` (= `S3_ENDPOINT`; buna Cloudflare Access koyma,
+  imzalı linkleri bozar)
 
-Kurulum (bir kez): admin konsolunda MagicDNS + HTTPS Certificates, `sudo tailscale set --operator=<kullanıcı>`,
-sonra `tailscale serve --bg --https=443 http://127.0.0.1:3333` ve `--https=8443 http://127.0.0.1:9002`.
-Durum: `tailscale serve status`. Canlıya çıkarken Fabrmatch için **ayrı** bir Cloudflare tüneli aç.
+Ana site (`bestytrends.com`, `www`) başka bir tünelde; bu sunucuya ekleme.
+
+**Yedek (yalnız tailnet):** `tailscale serve` → `https://laserkopf-server-1.taila4687d.ts.net` (3333) ve
+`:8443` (9002). Bucket CORS iki origin'e de izin verir. Durum: `tailscale serve status`.
 
 ## STAGING bayrağı
 
@@ -60,11 +61,31 @@ sahte ödeme/kargo ve iyzico sandbox'a izin verilir, `EMAIL_VERIFICATION_REQUIRE
 - **Mail:** Mailpit SMTP `127.0.0.1:1026`, gelen kutusu `ssh -L 8026:127.0.0.1:8026 sunucu` → http://localhost:8026
 - İlk admin bilgisi: `~/.config/fabrmatch/admin-credentials.txt`
 
-Canlıya geçerken: `STAGING` ve `EMAIL_VERIFICATION_REQUIRED` satırlarını sil, R2/iyzico/SMTP'yi gir.
+Canlıya geçerken: `STAGING`, `EMAIL_VERIFICATION_REQUIRED` ve `ADMIN_2FA_REQUIRED=false` satırlarını sil, demo hesapları (`*@demo.test`, `admin@fabrmatch.com`) kaldır, R2/iyzico/SMTP'yi gir.
 
 ## Yeni sürüm
 
-`git pull && bash deploy/deploy.sh` — build, migration, servis yeniden başlatma.
+```bash
+bash deploy/deploy.sh            # git pull + tam kurulum
+bash deploy/deploy.sh --skip-pull  # yerel kodla (commit edilmemiş değişiklik varken)
+bash deploy/deploy.sh --no-backup  # pg_dump yedeğini atla (önerilmez)
+```
+
+11 aşama, her biri ilerleme çubuğu + kalan süre tahminiyle (süreler önceki çalışmalardan öğrenilir):
+ön kontroller → git pull (`--ff-only`, kirli ağaçta durur) → Docker servisleri → `npm ci` → build →
+üretim bağımlılıkları → **pg_dump yedeği** (`~/backups/fabrmatch`, son 10) → migration → bucket/CORS
+(STAGING) → systemd unit'leri (şablondan, node yolu otomatik) → sağlık kontrolü (yerel 200, servisler, dış adres).
+
+Hata olursa: aşama, komut, çıkış kodu, ayıklanmış hata satırları, son çıktı ve o aşamaya özel çözüm
+önerisi gösterilir. Tam log: `~/.local/state/fabrmatch/logs/` (son 20).
+
+Güvenlik ağı:
+
+- Build/bağımlılık hatası → önceki `build/` geri yüklenir, çalışan site etkilenmez.
+- Yeni sürüm sağlık kontrolünden geçemezse → önceki build'e dönülür ve servisler yeniden başlar
+  (hatalı build `build.failed/`). Migration'lar geri alınmaz; gerekirse:
+  `docker exec -i fabrmatch-prod-postgres-1 pg_restore -U fabrmatch -d fabrmatch --clean < ~/backups/fabrmatch/<dosya>.dump`
+- Aynı anda iki deploy çalışamaz (kilit dosyası).
 
 ## Notlar
 

@@ -1,3 +1,4 @@
+import app from '@adonisjs/core/services/app'
 import env from '#start/env'
 import FakePaymentProvider from '#services/payments/fake_provider'
 import IyzicoClient from '#services/payments/iyzico/iyzico_client'
@@ -81,6 +82,11 @@ export function assertPaymentConfigured(runtime: PaymentRuntime): void {
     return
   }
   throw new PaymentNotConfiguredError(`Payment provider "${provider}" is not implemented yet`)
+}
+
+/** Dev, tests and a STAGING test server may take fake payments; a live install never does. */
+export function allowsTestPayments(): boolean {
+  return app.inDev || app.inTest || env.get('STAGING', false)
 }
 
 export function currentPaymentRuntime(): PaymentRuntime {

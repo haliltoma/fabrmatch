@@ -17,7 +17,7 @@ import {
   payValidator,
   reviewValidator,
 } from '#validators/order'
-import { paymentProvider } from '#services/payments/provider_registry'
+import { allowsTestPayments, paymentProvider } from '#services/payments/provider_registry'
 
 function payStep(order: Order, service: OrderService) {
   if (!['draft', 'awaiting_payment'].includes(order.status)) return null
@@ -104,7 +104,7 @@ export default class OrderController {
 
   /** Dev-only: completes a fake-provider checkout through the real webhook path. */
   async simulatePayment({ auth, params, response, session }: HttpContext) {
-    if (!(app.inDev || app.inTest)) return response.notFound()
+    if (!allowsTestPayments()) return response.notFound()
     await new PaymentService().simulateSuccess(params.id, auth.getUserOrFail().id)
     session.flash('success', 'Payment simulated — looking for a manufacturer.')
     return response.redirect().back()

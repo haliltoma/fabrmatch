@@ -1,11 +1,10 @@
-import app from '@adonisjs/core/services/app'
 import { randomBytes } from 'node:crypto'
 import DomainError from '#exceptions/domain_error'
 import Order from '#models/order'
 import Payment from '#models/payment'
 import FakePaymentProvider from '#services/payments/fake_provider'
 import PaymentService from '#services/payments/payment_service'
-import { paymentProvider } from '#services/payments/provider_registry'
+import { allowsTestPayments, paymentProvider } from '#services/payments/provider_registry'
 
 export class TestCheckoutError extends DomainError {}
 
@@ -43,7 +42,7 @@ export default class TestCheckoutService {
   constructor(private provider = paymentProvider()) {}
 
   static enabled(): boolean {
-    if (app.inProduction) return false
+    if (!allowsTestPayments()) return false
     try {
       return paymentProvider() instanceof FakePaymentProvider
     } catch {

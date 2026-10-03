@@ -1,11 +1,12 @@
+# Template: deploy/deploy.sh fills @APP_DIR@ and @NODE_BIN@ and installs it as a user unit
 [Unit]
 Description=Fabrmatch queue worker
 After=network-online.target
 
 [Service]
-WorkingDirectory=%h/my-projects/fabrmatch/build
+WorkingDirectory=@APP_DIR@/build
 EnvironmentFile=%h/.config/fabrmatch/app.env
-ExecStart=%h/.nvm/versions/node/v24.21.0/bin/node ace queue:work
+ExecStart=@NODE_BIN@ ace queue:work
 Restart=always
 RestartSec=3
 

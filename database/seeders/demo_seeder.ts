@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import app from '@adonisjs/core/services/app'
+import env from '#start/env'
 import { DateTime } from 'luxon'
 import User from '#models/user'
 import ModelFile from '#models/model_file'
@@ -61,12 +62,15 @@ const PRODUCTS = [
   { title: 'Cable Clip Set', description: 'Ten clips for desk edges up to 30 mm.', volume: 9_000 },
 ]
 
-/** Local demo data so every panel and the shop have something real to show. Dev only. */
+/**
+ * Demo data so every panel and the shop have something real to show. Local dev, plus a test
+ * server (STAGING=true); a live production install always skips it.
+ */
 export default class DemoSeeder extends BaseSeeder {
-  static environment = ['development']
+  static environment = ['development', 'production']
 
   async run() {
-    if (app.inProduction) return
+    if (app.inProduction && !env.get('STAGING', false)) return
     // today's rates (static provider outside production) so browse prices can be converted
     await new FxService().refresh()
     const roles = new RoleService()
