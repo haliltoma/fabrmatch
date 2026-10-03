@@ -11,12 +11,16 @@ import ChargebackService from '#services/payments/chargeback_service'
 import ContentReportService from '#services/admin/content_report_service'
 import FraudService from '#services/admin/fraud_service'
 import FulfillmentService from '#services/orders/fulfillment_service'
+import EncryptionService from '#services/identity/encryption_service'
 
 export class QueueError extends DomainError {}
 
-export type AckQueue = 'payment_review' | 'reconcile'
+export type AckQueue = 'payment_review' | 'reconcile' | 'moderation'
 
 const RECONCILE_LOOKBACK_DAYS = 3
+/** Paket Y: this many refused texts within the window puts an account in front of an admin */
+export const MODERATION_REPEAT_COUNT = 3
+const MODERATION_WINDOW_DAYS = 7
 
 /** A row id; bulk refs for rows are checked before they reach a query. */
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -125,6 +129,66 @@ export default class AdminQueueService {
     }))
   }
 
+  /**
+   * Paket Y: accounts whose texts were refused again and again (contact details, company names)
+   * since an admin last looked. The admin sees who and what was typed; the other side never did.
+   */
+  async moderationRepeats(now: DateTime = DateTime.now()) {
+    const since = now.minus({ days: MODERATION_WINDOW_DAYS }).toSQL()!
+    const rows = await db.rawQuery(
+      `select e.user_id, u.email, u.full_name, count(*)::int as n, max(e.created_at) as last_at,
+              array_agg(distinct e.reason) as reasons
+         from moderation_events e
+         join users u on u.id = e.user_id
+        where e.created_at >= ?
+          and e.created_at > coalesce((
+            select max(r.created_at) from audit_logs r
+             where r.action = 'queue.acknowledged'
+               and r.meta->>'queue' = 'moderation'
+               and r.meta->>'ref' = e.user_id::text), '-infinity')
+        group by e.user_id, u.email, u.full_name
+       having count(*) >= ?
+        order by max(e.created_at) desc
+        limit 100`,
+      [since, MODERATION_REPEAT_COUNT]
+    )
+    type Row = {
+      user_id: string
+      email: string
+      full_name: string | null
+      n: number
+      last_at: Date
+      reasons: string[]
+    }
+    const list = rows.rows as Row[]
+    if (list.length === 0) return []
+    const samples = await db
+      .from('moderation_events')
+      .whereIn(
+        'user_id',
+        list.map((r) => r.user_id)
+      )
+      .where('created_at', '>=', since)
+      .orderBy('created_at', 'desc')
+      .select('user_id', 'context', 'text_enc', 'created_at')
+    const encryption = new EncryptionService()
+    return list.map((r) => ({
+      ref: r.user_id,
+      email: r.email,
+      fullName: r.full_name,
+      count: r.n,
+      reasons: r.reasons,
+      lastAt: DateTime.fromJSDate(r.last_at).toISO(),
+      recent: samples
+        .filter((x: { user_id: string }) => x.user_id === r.user_id)
+        .slice(0, 3)
+        .map((x: { context: string; text_enc: string }) => ({
+          context: x.context,
+          text: encryption.decrypt(x.text_enc),
+        })),
+    }))
+  }
+
   async pendingMakers() {
     const profiles = await ManufacturerProfile.query()
       .where('status', 'pending')
@@ -155,7 +219,9 @@ export default class AdminQueueService {
         new SupportService().listOpen(),
       ])
     const shopPhotos = await new ShopPhotoService().pending()
+    const moderation = await this.moderationRepeats()
     return {
+      moderation: moderation.length,
       shopPhotos: shopPhotos.length,
       support: support.length,
       chargebacks: chargebacks.length,

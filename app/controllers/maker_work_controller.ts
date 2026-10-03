@@ -16,6 +16,8 @@ import {
   shipValidator,
 } from '#validators/order'
 import { counterOfferValidator } from '#validators/maker_costs'
+import { revisionRequestValidator } from '#validators/order'
+import OfferRevisionService from '#services/matching/offer_revision_service'
 
 export default class MakerWorkController {
   async index({ inertia, auth }: HttpContext) {
@@ -80,6 +82,16 @@ export default class MakerWorkController {
     const profile = await new MakerWorkService().profileFor(user)
     await new MatchingService().counterOffer(params.id, profile.id, amountMinor, user.id)
     session.flash('success', 'Counter-offer sent. We answer before the time on the card runs out.')
+    return response.redirect().back()
+  }
+
+  /** Paket Y: ask the buyer for a change before accepting; the offer waits for the answer. */
+  async revision({ auth, params, request, response, session }: HttpContext) {
+    const { body } = await request.validateUsing(revisionRequestValidator)
+    const user = auth.getUserOrFail()
+    const profile = await new MakerWorkService().profileFor(user)
+    await new OfferRevisionService().request(params.id, profile.id, body, user.id)
+    session.flash('success', 'Question sent. The offer waits for the buyer’s answer.')
     return response.redirect().back()
   }
 

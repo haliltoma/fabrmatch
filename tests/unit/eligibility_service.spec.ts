@@ -64,7 +64,7 @@ test.group('EligibilityService', (group) => {
     assert.lengthOf(await svc.findCandidates(order), 0)
   })
 
-  test('material and color must match', async ({ assert }) => {
+  test('material must match; the colour is the maker’s call on the offer', async ({ assert }) => {
     const { profile: petg } = await createManufacturer()
     await createPrinter(petg, { material: 'PETG' })
     const { profile: red } = await createManufacturer()
@@ -75,7 +75,7 @@ test.group('EligibilityService', (group) => {
     const { order } = await createDraftOrder(undefined, { color: 'black' })
     const ids = idsOf(await svc.findCandidates(order))
 
-    assert.deepEqual(ids, [ok.id])
+    assert.sameMembers(ids, [ok.id, red.id])
   })
 
   test('technology must match', async ({ assert }) => {

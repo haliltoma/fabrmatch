@@ -47,6 +47,16 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
     integer: true,
   },
   {
+    key: 'pricing.extraColourMinor',
+    kind: 'money',
+    group: 'pricing',
+    label: 'Extra colour fee (per piece)',
+    help: 'Added for each colour after the first in a multi-colour print. It goes to the maker (filament changes and purge waste) and applies to new orders only.',
+    min: 0,
+    max: 100_000,
+    integer: true,
+  },
+  {
     key: 'pricing.fxMaxAgeHours',
     group: 'pricing',
     label: 'Exchange rate: longest age (hours)',
@@ -219,6 +229,15 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
     help: 'Without an answer by then, the counter-offer lapses and the next maker is tried.',
     min: 10,
     max: 2880,
+    integer: true,
+  },
+  {
+    key: 'matching.revisionTtlMinutes',
+    group: 'matching',
+    label: 'Revision answer time (minutes)',
+    help: 'How long a buyer has to answer when a maker asks for a change. Without an answer the next maker is tried.',
+    min: 60,
+    max: 10_080,
     integer: true,
   },
   {

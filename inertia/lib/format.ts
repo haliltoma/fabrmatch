@@ -32,6 +32,13 @@ export function formatPrice(minor: number, currency: string = 'TRY'): string {
   return `${shown.approx ? '≈ ' : ''}${formatMoney(shown.minor, shown.currency)}`
 }
 
+/** A price difference with its sign after the ≈ (≈ +1.98 USD, +19,80 TRY). */
+export function formatPriceDelta(minor: number, currency: string = 'TRY'): string {
+  const shown = convertPrice(Math.abs(minor), currency)
+  const sign = minor < 0 ? '−' : '+'
+  return `${shown.approx ? '≈ ' : ''}${sign}${formatMoney(shown.minor, shown.currency)}`
+}
+
 export function formatDateTime(iso: string | null): string {
   if (!iso) return '—'
   return new Date(iso).toLocaleString(intlLocale(), {

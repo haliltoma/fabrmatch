@@ -91,6 +91,7 @@ export type ScannedRoutes = {
     'order.store': { paramsTuple?: []; params?: {} }
     'order.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'order.cancel': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'order.answer_revision': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'order.pay': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'order.pay_from_wallet': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'order.simulate_payment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -186,6 +187,7 @@ export type ScannedRoutes = {
     'maker_work.accept': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_work.decline': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_work.counter': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'maker_work.revision': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_work.packing_slip': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_work.printing': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_work.produced': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -596,6 +598,7 @@ export type ScannedRoutes = {
     'cart.checkout': { paramsTuple?: []; params?: {} }
     'order.store': { paramsTuple?: []; params?: {} }
     'order.cancel': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'order.answer_revision': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'order.pay': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'order.pay_from_wallet': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'order.simulate_payment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -650,6 +653,7 @@ export type ScannedRoutes = {
     'maker_work.accept': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_work.decline': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_work.counter': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'maker_work.revision': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_work.printing': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_work.produced': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'maker_work.qc_upload_url': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

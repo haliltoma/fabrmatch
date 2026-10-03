@@ -53,9 +53,9 @@ test.group('StorefrontService: visibility', (group) => {
     const { product } = await createStorefrontProduct()
     const detail = await shop.find(product.id)
     assert.isNotNull(detail)
-    // one plain price per material, plus a priced variant per finishing that suits it
+    // one plain single-colour price per material, plus variants per finishing and colour count
     assert.lengthOf(
-      detail!.options.filter((o) => o.finishing === null),
+      detail!.options.filter((o) => o.finishing === null && o.colourCount === 1),
       2
     )
     assert.isAbove(detail!.options.length, 2)

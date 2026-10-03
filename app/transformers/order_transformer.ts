@@ -40,6 +40,8 @@ export default class OrderTransformer extends BaseTransformer<Order> {
         technology: i.technology,
         material: i.material,
         color: i.color,
+        colours: i.colours ?? [],
+        buyerNote: i.buyerNote,
         finishing: i.finishingName,
         finishingColour: i.finishingColour,
         quantity: i.quantity,
@@ -83,6 +85,9 @@ export default class OrderTransformer extends BaseTransformer<Order> {
         technology: i.technology,
         material: i.material,
         color: i.color,
+        colours: i.colours ?? [],
+        // what the buyer wrote for the maker (moderated); no name, no contact
+        noteForMaker: i.buyerNote,
         finishing: i.finishingName,
         finishingColour: i.finishingColour,
         quantity: i.quantity,

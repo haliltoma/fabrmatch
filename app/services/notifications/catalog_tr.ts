@@ -78,6 +78,24 @@ export const TEMPLATES_TR: Record<NotificationType, Template> = {
         }
       : null,
 
+  revision_requested: (role, c) =>
+    role === 'buyer'
+      ? {
+          title: `Üreticinin ${c.code} hakkında bir sorusu var`,
+          body: 'Üretici kabul etmeden önce bir değişiklik ya da ayrıntı istedi. Sipariş sayfasından cevap ver; yeniden ödeme alınmaz.',
+          link: orderLink.buyer(c),
+        }
+      : null,
+
+  revision_answered: (role, c) =>
+    role === 'maker'
+      ? {
+          title: 'Alıcı sorunu cevapladı',
+          body: 'Sorduğun teklif yeniden panonda. Süresi dolmadan kabul et ya da reddet.',
+          link: orderLink.maker(c),
+        }
+      : null,
+
   message_received: (role, c) =>
     role === 'buyer'
       ? {

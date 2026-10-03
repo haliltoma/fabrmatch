@@ -20,8 +20,52 @@ import { splitGross, taxRateFor } from '#services/tax/tax'
 import ShippingService from '#services/shipping/shipping_service'
 import { marketBudget, marketMakers, type WorkLine } from '#services/pricing/maker_market'
 import { bboxOf } from '#services/shipping/shipping_table'
+import Color from '#models/color'
+import fabrmatchConfig from '#config/fabrmatch'
+import type { ItemColour } from '#models/order_item'
 
 export class OrderInputError extends DomainError {}
+
+/** a multi-colour print: up to this many filament colours, each with an optional part note */
+export const MAX_COLOURS = 4
+const MAX_PART_LENGTH = 40
+
+/**
+ * The buyer's colours as catalogue names (Paket Y). A list is checked strictly; a lone `color`
+ * from an older path (shop links, API) is kept as given when it is not in the catalogue.
+ */
+export async function resolveColours(item: {
+  color?: string | null
+  colours?: Array<{ name: string; part?: string | null }>
+}): Promise<ItemColour[]> {
+  if ((!item.colours || item.colours.length === 0) && !item.color?.trim()) return []
+  const active = await Color.query().where('isActive', true)
+  const byName = new Map(active.map((c) => [c.name.toLowerCase(), c.name]))
+  if (!item.colours || item.colours.length === 0) {
+    const single = item.color?.trim()
+    return single ? [{ name: byName.get(single.toLowerCase()) ?? single, part: null }] : []
+  }
+  if (item.colours.length > MAX_COLOURS) {
+    throw new OrderInputError(`Pick at most ${MAX_COLOURS} colours`)
+  }
+  const resolved: ItemColour[] = []
+  for (const colour of item.colours) {
+    const name = byName.get(colour.name.trim().toLowerCase())
+    if (!name) throw new OrderInputError(`"${colour.name}" is not one of our colours`)
+    if (resolved.some((r) => r.name === name)) throw new OrderInputError('Pick each colour once')
+    const part = colour.part?.trim() || null
+    if (part && part.length > MAX_PART_LENGTH) {
+      throw new OrderInputError(`Keep each part name under ${MAX_PART_LENGTH} characters`)
+    }
+    resolved.push({ name, part })
+  }
+  return resolved
+}
+
+/** per piece, TRY: each colour after the first is the maker's extra work */
+export function colourExtraFor(count: number): number {
+  return Math.max(0, count - 1) * fabrmatchConfig.pricing.extraColourMinor
+}
 
 export interface PricingItemInput {
   file: ModelFile | null
@@ -37,6 +81,10 @@ export interface PricingItemInput {
   finishingColour?: string | null
   /** size as a percent of the original model, 10–300; volume scales with the cube */
   scalePercent?: number
+  /** Paket Y: the filament colour(s) in order, with the part each one is for; first = `color` */
+  colours?: Array<{ name: string; part?: string | null }>
+  /** what the buyer wants the maker to know (already moderated) */
+  buyerNote?: string | null
 }
 
 /** Slicer numbers for this model + profile, already scaled to the chosen material; null → use the heuristic. */
@@ -67,6 +115,10 @@ export interface PricedItem {
   finishingMinor: number
   material: string
   color: string | null
+  colours: ItemColour[]
+  /** per unit, converted like `finishingMinor`; already inside `manufacturerShareMinor` */
+  colourExtraMinor: number
+  buyerNote: string | null
   quantity: number
   estGrams: number
   estPrintMinutes: number
@@ -122,6 +174,7 @@ function convertItems(items: PricedItem[], rateE9: bigint): PricedItem[] {
       ...i,
       manufacturerShareMinor: share,
       finishingMinor: convertMinor(i.finishingMinor, rateE9),
+      colourExtraMinor: convertMinor(i.colourExtraMinor, rateE9),
       unitCostMinor: share + shipping + commission + margin,
       shippingMinor: shipping * i.quantity,
       platformCommissionMinor: commission * i.quantity,
@@ -218,6 +271,7 @@ export async function priceOrder(input: {
     const finishingService = new FinishingService()
     const finishing = await finishingService.resolve(item.finishing, item.material)
     const finishingColour = await finishingService.resolveColour(finishing, item.finishingColour)
+    const colours = await resolveColours(item)
     const reference = regions.referenceFor(region, item.material)
     if (reference === null) throw new OrderInputError(`Unknown material: ${item.material}`)
 
@@ -238,6 +292,8 @@ export async function priceOrder(input: {
       sliced,
       finishing,
       finishingColour,
+      colours,
+      colourExtraMinor: colourExtraFor(colours.length),
       item,
       file,
       volumeMm3: scaledVolume,
@@ -303,7 +359,8 @@ export async function priceOrder(input: {
         infill: p.infill,
         estGrams: p.sliced ? p.gramsPerUnit : undefined,
         shippingMinor: perUnitShipping,
-        finishingMinor: p.finishing?.priceMinor ?? 0,
+        // the maker's extra work per piece: finishing and the colours after the first
+        finishingMinor: (p.finishing?.priceMinor ?? 0) + p.colourExtraMinor,
         estPrintMinutes: unitMinutes(p),
         manufacturerShareMinor: unitShares?.[i],
       })
@@ -315,9 +372,13 @@ export async function priceOrder(input: {
         finishingCode: p.finishing?.code ?? null,
         finishingColour: p.finishingColour,
         finishingName: p.finishing?.name ?? null,
-        finishingMinor: breakdown.finishingMinor,
+        finishingMinor: p.finishing?.priceMinor ?? 0,
         material: p.item.material.toUpperCase(),
-        color: p.item.color ?? null,
+        // an older path's colour as it was given; a chosen list's first colour otherwise
+        color: p.item.color ?? p.colours[0]?.name.toLowerCase() ?? null,
+        colours: p.colours,
+        colourExtraMinor: p.colourExtraMinor,
+        buyerNote: p.item.buyerNote?.trim() || null,
         quantity,
         estGrams: Math.ceil(breakdown.estGrams),
         estPrintMinutes:
@@ -343,7 +404,7 @@ export async function priceOrder(input: {
     // as the order item stores it (whole grams), so matching computes the very same floors
     grams: Math.ceil(p.gramsPerUnit) * p.item.quantity,
     minutes: unitMinutes(p) * p.item.quantity,
-    finishingMinor: (p.finishing?.priceMinor ?? 0) * p.item.quantity,
+    finishingMinor: ((p.finishing?.priceMinor ?? 0) + p.colourExtraMinor) * p.item.quantity,
   }))
   const market = await marketMakers({
     country: input.country,

@@ -158,6 +158,8 @@ export default class MatchSuggestionService {
           fileName: i.modelFile.originalName,
           material: i.material,
           color: i.color,
+          colours: i.colours ?? [],
+          buyerNote: i.buyerNote,
           quantity: i.quantity,
           technology: i.technology,
           estPrintMinutes: i.estPrintMinutes,

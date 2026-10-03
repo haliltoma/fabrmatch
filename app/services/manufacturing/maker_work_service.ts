@@ -17,6 +17,7 @@ export default class MakerWorkService {
         .whereIn('status', OPEN_OFFER_STATUSES)
         .where('expiresAt', '>', DateTime.now().toSQL()!)
         .preload('order', (q) => q.preload('items', (i) => i.preload('modelFile')))
+        .preload('revisions', (r) => r.orderBy('id', 'asc'))
         .orderBy('expiresAt', 'asc')
     )
   }

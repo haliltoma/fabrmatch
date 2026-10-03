@@ -10,6 +10,8 @@ import ShippingService from '#services/shipping/shipping_service'
 import { bboxOf, type default as ShippingTable } from '#services/shipping/shipping_table'
 import { referencePriceFor } from '#services/pricing/reference_prices'
 import { roundUnitMinor, type BrowseTerms } from '#services/pricing/pricing_region_service'
+import Color from '#models/color'
+import { MAX_COLOURS, colourExtraFor } from '#services/orders/order_pricing'
 
 export interface StorefrontFilters {
   q?: string
@@ -49,6 +51,8 @@ export interface StorefrontDetail extends StorefrontCard {
     material: string
     scalePercent: number
     finishing: string | null
+    /** Paket Y: how many filament colours (1 = single colour); extra ones cost the maker's work */
+    colourCount: number
     unitPriceMinor: number
   }>
   finishings: Array<{
@@ -60,11 +64,16 @@ export interface StorefrontDetail extends StorefrontCard {
     needsColour: boolean
   }>
   paintColours: Array<{ name: string; hex: string }>
+  /** every catalogue filament colour; the buyer chooses, the maker accepts or asks (Paket Y) */
+  colours: Array<{ name: string; hex: string }>
+  maxColours: number
   productionDays: number
   updatedAt: string
 }
 
 const MAX_CANDIDATES = 500
+/** prices for 1…MAX_COLOURS filament colours, so the page shows what checkout charges */
+const COLOUR_COUNTS = Array.from({ length: MAX_COLOURS }, (_, i) => i + 1)
 
 export function slugify(title: string): string {
   return (
@@ -264,24 +273,35 @@ export default class StorefrontService {
       !f.materials || (f.materials as string[]).map((m) => m.toUpperCase()).includes(material)
     const options = scales.flatMap((scalePercent) =>
       card.materials.flatMap((material) =>
-        [null, ...finishings.filter((f) => suits(f, material))].flatMap((f) => {
-          const unitPriceMinor = unitPriceFor(
-            product,
-            file,
-            material,
-            shipping,
-            scalePercent,
-            f?.priceMinor ?? 0,
-            terms,
-            markets
-          )
-          return unitPriceMinor === null
-            ? []
-            : [{ material, scalePercent, finishing: f?.code ?? null, unitPriceMinor }]
-        })
+        [null, ...finishings.filter((f) => suits(f, material))].flatMap((f) =>
+          COLOUR_COUNTS.flatMap((colourCount) => {
+            const unitPriceMinor = unitPriceFor(
+              product,
+              file,
+              material,
+              shipping,
+              scalePercent,
+              (f?.priceMinor ?? 0) + colourExtraFor(colourCount),
+              terms,
+              markets
+            )
+            return unitPriceMinor === null
+              ? []
+              : [
+                  {
+                    material,
+                    scalePercent,
+                    finishing: f?.code ?? null,
+                    colourCount,
+                    unitPriceMinor,
+                  },
+                ]
+          })
+        )
       )
     )
     const offered = finishings.filter((f) => card.materials.some((m) => suits(f, m)))
+    const colours = await Color.query().where('isActive', true).orderBy('name')
     return {
       ...card,
       images: images.get(file.id) ?? [],
@@ -296,6 +316,8 @@ export default class StorefrontService {
       paintColours: offered.some((f) => f.needsColour)
         ? await new FinishingService().paintColours()
         : [],
+      colours: colours.map((c) => ({ name: c.name, hex: c.hex })),
+      maxColours: MAX_COLOURS,
       productionDays: fabrmatchConfig.orders.productionSlaDays,
       scales,
       options,

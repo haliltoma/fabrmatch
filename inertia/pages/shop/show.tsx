@@ -8,7 +8,7 @@ import { Link } from '@adonisjs/inertia/react'
 import { ArrowLeft, PackageCheck, Star } from 'lucide-react'
 import { TermsCheckbox, useLegalAcceptance } from '~/components/terms_checkbox'
 import { useIdempotencyKey } from '~/lib/idempotency'
-import { formatPrice } from '~/lib/format'
+import { formatPrice, formatPriceDelta } from '~/lib/format'
 import { useT } from '~/lib/i18n'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
@@ -16,6 +16,7 @@ import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { ProductGallery, type ShopImage } from '~/components/product_image'
 import { PaintColourField, type PaintColour } from '~/components/paint_colour'
+import { ColourPicker, type ChosenColour } from '~/components/colour_picker'
 
 type Product = {
   id: string
@@ -32,6 +33,8 @@ type Product = {
     material: string
     scalePercent: number
     finishing: string | null
+    /** how many filament colours this price is for (1 = single colour) */
+    colourCount: number
     unitPriceMinor: number
   }>
   finishings: Array<{
@@ -43,8 +46,13 @@ type Product = {
     needsColour: boolean
   }>
   paintColours: PaintColour[]
+  /** every filament colour: the buyer chooses, the maker accepts or asks */
+  colours: PaintColour[]
+  maxColours: number
   productionDays: number
 }
+
+const MAX_QUANTITY = 100
 
 function ReportListing({ productId }: { productId: string }) {
   const { t } = useT()
@@ -150,8 +158,13 @@ export default function ShopShow({
   const needsTerms = useLegalAcceptance()
   const [accepted, setAccepted] = useState(false)
   const [material, setMaterial] = useState(product.options[0]?.material ?? '')
-  const [scale, setScale] = useState(100)
-  const [quantity, setQuantity] = useState(1)
+  // the buyer decides: nothing is picked for them
+  const [colours, setColours] = useState<ChosenColour[]>([])
+  const [buyerNote, setBuyerNote] = useState('')
+  const [scale, setScale] = useState(product.scales.includes(100) ? 100 : product.scales[0])
+  // the field may be empty while typing; the order always uses a whole number in 1…100
+  const [quantityText, setQuantityText] = useState('1')
+  const quantity = Math.min(MAX_QUANTITY, Math.max(1, Number.parseInt(quantityText, 10) || 1))
   const [busy, setBusy] = useState(false)
   const [coupon, setCoupon] = useState('')
   const [finishing, setFinishing] = useState('')
@@ -176,18 +189,43 @@ export default function ShopShow({
     )
   }
 
-  const atScale = product.options.filter(
-    (o) => o.scalePercent === scale && o.finishing === (finishing || null)
-  )
-  const unit = atScale.find((o) => o.material === material)?.unitPriceMinor ?? 0
-  // the material list always shows every material at the plain price; finishing is chosen after
-  const plainAtScale = product.options.filter(
-    (o) => o.scalePercent === scale && o.finishing === null
-  )
+  const colourCount = Math.max(1, colours.length)
+  const priceOf = (m: string, f: string | null, n = colourCount) =>
+    product.options.find(
+      (o) =>
+        o.material === m && o.scalePercent === scale && o.finishing === f && o.colourCount === n
+    )?.unitPriceMinor ?? null
+  const unit = priceOf(material, finishing || null) ?? 0
+  // the breakdown: one colour, then what extra colours and the finishing add
+  const plainUnit = priceOf(material, null, 1) ?? 0
+  const colouredUnit = priceOf(material, null) ?? plainUnit
+  const extraColourMinor = (priceOf(material, null, 2) ?? plainUnit) - plainUnit
+  // every material that can be printed at this size, priced with the finishing already chosen
+  const materials = product.options
+    .filter((o) => o.scalePercent === scale && o.finishing === null && o.colourCount === 1)
+    .map((o) => o.material)
   const finishingFits = (f: Product['finishings'][number]) =>
-    !f.materials || f.materials.map((m) => m.toUpperCase()).includes(material)
+    (!f.materials || f.materials.map((m) => m.toUpperCase()).includes(material)) &&
+    priceOf(material, f.code) !== null
   const chosenFinishing = product.finishings.find((f) => f.code === finishing) ?? null
   const missingColour = !!chosenFinishing?.needsColour && !paintColour
+  const days = product.productionDays + (chosenFinishing?.extraDays ?? 0)
+  // a disabled button always says why, next to it
+  const blocker = cannotDeliver
+    ? t('Change the country above to one where makers print to order.')
+    : colours.length === 0
+      ? t('Pick a colour to continue.')
+      : missingColour
+        ? t('Pick a paint colour to continue.')
+        : needsTerms && !accepted
+          ? t('Accept the terms to continue.')
+          : null
+
+  const pickMaterial = (next: string) => {
+    setMaterial(next)
+    const f = product.finishings.find((x) => x.code === finishing)
+    if (f && priceOf(next, f.code) === null) setFinishing('')
+  }
   const description =
     product.description ?? t('{title} — 3D printed on demand.', { title: product.title })
   // link previews want an absolute URL: a real photo first, else the hero render
@@ -201,6 +239,8 @@ export default function ShopShow({
       `/shop/${product.id}/order`,
       {
         material,
+        colours: colours.map((c) => ({ name: c.name, part: c.part.trim() || undefined })),
+        buyerNote: buyerNote.trim() || undefined,
         quantity,
         scalePercent: scale,
         shippingAddress: { ...address, phone: address.phone || undefined },
@@ -209,7 +249,14 @@ export default function ShopShow({
         finishing: finishing || undefined,
         finishingColour: chosenFinishing?.needsColour ? paintColour : undefined,
       },
-      { headers: idem.headers(), onError: idem.renew, onFinish: () => setBusy(false) }
+      {
+        headers: idem.headers(),
+        // a refused note or coupon keeps the address and choices on the page
+        preserveState: true,
+        preserveScroll: true,
+        onError: idem.renew,
+        onFinish: () => setBusy(false),
+      }
     )
   }
 
@@ -270,6 +317,24 @@ export default function ShopShow({
               {product.description && (
                 <p className="mt-2 whitespace-pre-wrap text-ink-700">{product.description}</p>
               )}
+              <dl className="mt-5 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 border-t border-line pt-4 text-sm">
+                {product.bboxMm && (
+                  <>
+                    <dt className="text-ink-600">{t('Size')}</dt>
+                    <dd className="font-mono text-ink-900">
+                      {product.bboxMm.map((d) => Math.round((d * scale) / 100)).join(' × ')} mm
+                    </dd>
+                  </>
+                )}
+                <dt className="text-ink-600">{t('Materials')}</dt>
+                <dd className="text-ink-900">{product.materials.join(', ')}</dd>
+                <dt className="text-ink-600">{t('Ready in')}</dt>
+                <dd className="text-ink-900">
+                  {t('{n} days after a maker accepts, then shipped', { n: days })}
+                </dd>
+                <dt className="text-ink-600">{t('Printed by')}</dt>
+                <dd className="text-ink-900">{t('A verified maker in your country')}</dd>
+              </dl>
             </div>
           </div>
 
@@ -286,23 +351,17 @@ export default function ShopShow({
                       id="material"
                       className="flex h-10 w-full rounded-md border border-line bg-paper-raised px-3 text-sm"
                       value={material}
-                      onChange={(e) => {
-                        const next = e.target.value
-                        setMaterial(next)
-                        const f = product.finishings.find((x) => x.code === finishing)
-                        if (
-                          f?.materials &&
-                          !f.materials.map((m) => m.toUpperCase()).includes(next)
-                        ) {
-                          setFinishing('')
-                        }
-                      }}
+                      onChange={(e) => pickMaterial(e.target.value)}
                     >
-                      {plainAtScale.map((o) => (
-                        <option key={o.material} value={o.material}>
-                          {o.material} — {formatPrice(o.unitPriceMinor, product.currency)}
-                        </option>
-                      ))}
+                      {materials.map((m) => {
+                        const price = priceOf(m, finishing || null) ?? priceOf(m, null)
+                        return (
+                          <option key={m} value={m}>
+                            {m}
+                            {price !== null && ` — ${formatPrice(price, product.currency)}`}
+                          </option>
+                        )
+                      })}
                     </select>
                   </div>
                   {product.scales.length > 1 && (
@@ -324,18 +383,57 @@ export default function ShopShow({
                   )}
                   <div>
                     <Label htmlFor="quantity">{t('Quantity')}</Label>
-                    <Input
-                      id="quantity"
-                      type="number"
-                      min={1}
-                      max={100}
-                      value={quantity}
-                      onChange={(e) =>
-                        setQuantity(Math.max(1, Number.parseInt(e.target.value, 10) || 1))
-                      }
-                    />
+                    <div className="flex h-10 items-stretch overflow-hidden rounded-md border border-line bg-paper-raised focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-heat-500">
+                      <button
+                        type="button"
+                        className="w-11 shrink-0 text-lg text-ink-700 hover:bg-paper-sunken disabled:text-ink-300"
+                        aria-label={t('One less')}
+                        disabled={quantity <= 1}
+                        onClick={() => setQuantityText(String(quantity - 1))}
+                      >
+                        −
+                      </button>
+                      <input
+                        id="quantity"
+                        inputMode="numeric"
+                        aria-describedby="quantity-help"
+                        className="tabular min-w-0 flex-1 border-x border-line bg-transparent text-center text-sm focus:outline-none"
+                        value={quantityText}
+                        onChange={(e) =>
+                          setQuantityText(e.target.value.replace(/\D/g, '').slice(0, 3))
+                        }
+                        onBlur={() => setQuantityText(String(quantity))}
+                      />
+                      <button
+                        type="button"
+                        className="w-11 shrink-0 text-lg text-ink-700 hover:bg-paper-sunken disabled:text-ink-300"
+                        aria-label={t('One more')}
+                        disabled={quantity >= MAX_QUANTITY}
+                        onClick={() => setQuantityText(String(quantity + 1))}
+                      >
+                        +
+                      </button>
+                    </div>
+                    <p id="quantity-help" className="mt-1 text-xs text-ink-600">
+                      {t('Up to {max} per order.', { max: MAX_QUANTITY })}
+                    </p>
                   </div>
                 </div>
+
+                <ColourPicker
+                  id="filament-colour"
+                  colours={product.colours}
+                  value={colours}
+                  onChange={setColours}
+                  max={product.maxColours}
+                  extraNote={
+                    extraColourMinor > 0
+                      ? t('Each extra colour adds {price} per piece.', {
+                          price: formatPrice(extraColourMinor, product.currency),
+                        })
+                      : undefined
+                  }
+                />
 
                 {product.finishings.some(finishingFits) && (
                   <div className="space-y-1">
@@ -349,7 +447,12 @@ export default function ShopShow({
                       <option value="">{t('None — straight from the printer')}</option>
                       {product.finishings.filter(finishingFits).map((f) => (
                         <option key={f.code} value={f.code}>
-                          {t(f.name)} · {t('+{n} days', { n: f.extraDays })}
+                          {t(f.name)} ·{' '}
+                          {formatPriceDelta(
+                            (priceOf(material, f.code) ?? 0) - colouredUnit,
+                            product.currency
+                          )}{' '}
+                          · {f.extraDays === 1 ? t('+1 day') : t('+{n} days', { n: f.extraDays })}
                         </option>
                       ))}
                     </select>
@@ -368,15 +471,74 @@ export default function ShopShow({
                   </div>
                 )}
 
-                <p className="text-lg font-semibold text-ink-900">
-                  {t('Total')}: {formatPrice(unit * quantity, product.currency)}
-                </p>
+                <div className="space-y-1">
+                  <Label htmlFor="buyer-note">{t('Note for the maker (optional)')}</Label>
+                  <textarea
+                    id="buyer-note"
+                    rows={2}
+                    maxLength={500}
+                    value={buyerNote}
+                    aria-describedby="buyer-note-help"
+                    onChange={(e) => setBuyerNote(e.target.value)}
+                    className="w-full rounded-md border border-line bg-paper-raised px-3 py-2 text-sm"
+                  />
+                  <p id="buyer-note-help" className="text-xs text-ink-600">
+                    {t(
+                      'Print details only. Phone numbers, links and company names are not sent: both sides stay anonymous.'
+                    )}
+                  </p>
+                </div>
+
+                <div className="space-y-1 border-t border-line pt-4" aria-live="polite">
+                  <dl className="space-y-1 text-sm text-ink-700">
+                    <div className="flex justify-between gap-3">
+                      <dt>
+                        {colours.length === 0
+                          ? material
+                          : t('{material}, {colour}', {
+                              material,
+                              colour: colours.map((c) => t(c.name)).join(' + '),
+                            })}
+                      </dt>
+                      <dd className="tabular">{formatPrice(plainUnit, product.currency)}</dd>
+                    </div>
+                    {colours.length > 1 && (
+                      <div className="flex justify-between gap-3">
+                        <dt>{t('{n} colours', { n: colours.length })}</dt>
+                        <dd className="tabular">
+                          {formatPriceDelta(colouredUnit - plainUnit, product.currency)}
+                        </dd>
+                      </div>
+                    )}
+                    {chosenFinishing && (
+                      <div className="flex justify-between gap-3">
+                        <dt>
+                          {t(chosenFinishing.name)}
+                          {paintColour && chosenFinishing.needsColour && ` (${t(paintColour)})`}
+                        </dt>
+                        <dd className="tabular">
+                          {formatPriceDelta(unit - colouredUnit, product.currency)}
+                        </dd>
+                      </div>
+                    )}
+                    {quantity > 1 && (
+                      <div className="flex justify-between gap-3">
+                        <dt>{t('Quantity')}</dt>
+                        <dd className="tabular">× {quantity}</dd>
+                      </div>
+                    )}
+                  </dl>
+                  <p className="flex items-baseline justify-between gap-3 pt-1 text-ink-900">
+                    <span className="text-sm font-medium">{t('Total')}</span>
+                    <span className="tabular font-display text-2xl font-semibold">
+                      {formatPrice(unit * quantity, product.currency)}
+                    </span>
+                  </p>
+                </div>
                 <ChargeNote />
                 <DeliveryNotice delivery={delivery} />
                 <p className="text-xs text-ink-600">
-                  {t('Made within {n} days of a maker accepting it, then shipped.', {
-                    n: product.productionDays + (chosenFinishing?.extraDays ?? 0),
-                  })}
+                  {t('Made within {n} days of a maker accepting it, then shipped.', { n: days })}
                 </p>
 
                 {props.user ? (
@@ -473,25 +635,20 @@ export default function ShopShow({
                     <FormErrors />
                     <Button
                       type="submit"
-                      disabled={
-                        busy ||
-                        cannotDeliver ||
-                        !material ||
-                        missingColour ||
-                        (needsTerms && !accepted)
-                      }
+                      disabled={busy || !material || blocker !== null}
+                      aria-describedby={blocker ? 'order-blocker' : undefined}
                       className="w-full"
                     >
                       {busy ? t('Please wait…') : t('Continue to payment')}
                     </Button>
-                    {cannotDeliver && (
-                      <p className="text-center text-xs text-ink-600">
-                        {t('Change the country above to one where makers print to order.')}
+                    {blocker && (
+                      <p id="order-blocker" className="text-center text-xs text-ink-600">
+                        {blocker}
                       </p>
                     )}
                   </>
                 ) : (
-                  <Link href="/login">
+                  <Link href="/login" className="block">
                     <Button type="button" className="w-full">
                       {t('Log in to order')}
                     </Button>
@@ -508,7 +665,7 @@ export default function ShopShow({
       </div>
       {reviews.count > 0 && (
         <section
-          className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8"
+          className="mx-auto max-w-5xl px-4 pb-16 sm:px-6 lg:px-8"
           aria-labelledby="reviews-h"
         >
           <h2 id="reviews-h" className="font-display text-2xl font-semibold text-ink-900">

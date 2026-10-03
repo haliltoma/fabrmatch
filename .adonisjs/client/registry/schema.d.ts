@@ -1051,6 +1051,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/order_controller').default['cancel']>>>
     }
   }
+  'order.answer_revision': {
+    methods: ["POST"]
+    pattern: '/orders/:id/revision'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/order').revisionAnswerValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/order').revisionAnswerValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/order_controller').default['answerRevision']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/order_controller').default['answerRevision']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'order.pay': {
     methods: ["POST"]
     pattern: '/orders/:id/pay'
@@ -2189,6 +2201,18 @@ export interface Registry {
       query: ExtractQuery<InferInput<(typeof import('#validators/maker_costs').counterOfferValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/maker_work_controller').default['counter']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/maker_work_controller').default['counter']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'maker_work.revision': {
+    methods: ["POST"]
+    pattern: '/maker/offers/:id/revision'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/order').revisionRequestValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/order').revisionRequestValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/maker_work_controller').default['revision']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/maker_work_controller').default['revision']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'maker_work.packing_slip': {

@@ -854,6 +854,27 @@ export class ModelFileSchema extends BaseModel {
   declare volumeMm3: number | null
 }
 
+export class ModerationEventSchema extends BaseModel {
+  static $columns = ['context', 'createdAt', 'id', 'orderId', 'reason', 'source', 'textEnc', 'userId'] as const
+  $columns = ModerationEventSchema.$columns
+  @column()
+  declare context: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare orderId: string | null
+  @column()
+  declare reason: string
+  @column()
+  declare source: string
+  @column()
+  declare textEnc: string
+  @column()
+  declare userId: string
+}
+
 export class NotificationPreferenceSchema extends BaseModel {
   static $columns = ['createdAt', 'email', 'id', 'type', 'updatedAt', 'userId'] as const
   $columns = NotificationPreferenceSchema.$columns
@@ -896,11 +917,40 @@ export class NotificationSchema extends BaseModel {
   declare userId: string
 }
 
+export class OfferRevisionSchema extends BaseModel {
+  static $columns = ['answeredAt', 'createdAt', 'id', 'matchOfferId', 'orderId', 'requestBody', 'responseBody', 'status', 'updatedAt'] as const
+  $columns = OfferRevisionSchema.$columns
+  @column.dateTime()
+  declare answeredAt: DateTime | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare matchOfferId: string
+  @column()
+  declare orderId: string
+  @column()
+  declare requestBody: string
+  @column()
+  declare responseBody: string | null
+  @column()
+  declare status: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
 export class OrderItemSchema extends BaseModel {
-  static $columns = ['color', 'createdAt', 'estGrams', 'estPrintMinutes', 'finishingCode', 'finishingColour', 'finishingMinor', 'finishingName', 'id', 'manufacturerShareMinor', 'material', 'modelFileId', 'orderId', 'printProfileId', 'quantity', 'scalePercent', 'technology', 'unitCostMinor', 'updatedAt'] as const
+  static $columns = ['buyerNote', 'color', 'colourExtraMinor', 'colours', 'createdAt', 'estGrams', 'estPrintMinutes', 'finishingCode', 'finishingColour', 'finishingMinor', 'finishingName', 'id', 'manufacturerShareMinor', 'material', 'modelFileId', 'orderId', 'printProfileId', 'quantity', 'scalePercent', 'technology', 'unitCostMinor', 'updatedAt'] as const
   $columns = OrderItemSchema.$columns
   @column()
+  declare buyerNote: string | null
+  @column()
   declare color: string | null
+  @column()
+  declare colourExtraMinor: number
+  @column()
+  declare colours: any
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column()

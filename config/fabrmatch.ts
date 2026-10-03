@@ -31,6 +31,8 @@ const fabrmatchConfig = {
     counterOffers: 1,
     // how long an admin has to answer a counter-offer before the next maker is tried
     counterTtlMinutes: 120,
+    // Paket Y: how long the buyer has to answer a maker's revision request
+    revisionTtlMinutes: 2880,
   },
   // PRD §10: tier 0 → 1 → 2 is automatic, tier 3 (partner) is admin-only
   trust: {
@@ -84,6 +86,8 @@ const fabrmatchConfig = {
     fxMarginBps: 300,
     // a stored rate older than this is not used to price an order
     fxMaxAgeHours: 72,
+    // Paket Y: each colour after the first, per piece (TRY minor), the maker's extra work
+    extraColourMinor: 2000,
   },
   // Paket V: what a maker earns (cost × (1 + profit)) and the reference maker the platform prices
   // with until makers' own cost profiles take over. All editable in /admin/settings.

@@ -509,6 +509,15 @@ Sıra: W1 → W2 → W3 → W4 → W5 → W6 → W7; W0 hemen. Her görev ayrı 
 - [ ] **K-W1 · nodemailer güvenlik açığı** · P1 · ⏸ kullanıcı — `npm audit`: nodemailer ≤10.0.8 (yüksek: adres ayrıştırıcıda DoS, TLS servername yeniden kullanımı). `@adonisjs/mail` 10.4.0 (en yeni) `^9` istiyor; düzeltme yalnız 10.x'te. Seçenek: `overrides` ile 10.0.13'e zorlamak (ana sürüm atlaması, Adonis mail ile denenmeli) ya da Adonis güncellemesini beklemek. Gerçek risk düşük: tek SMTP taşıyıcı, alıcı adresleri doğrulanmış e-posta, gelen posta ayrıştırılmıyor.
 - [ ] **W-sonra · Shopify/Etsy/Woo/Wix canlı deneme** — çok seçenekli varyantlar resmi dokümana göre yazıldı (Shopify `ProductVariantSetInput.file`, Etsy 513/514) ve sahte API'lerle test edildi; gerçek mağazada denenmedi (hesap/anahtar gerekiyor).
 
+## Paket Y — Rengi sipariş veren seçer, üretici kabul/ret/revizyon, iletişim denetimi (2026-10-03)
+
+Kararlar (kullanıcı, 2026-10-03): renk + filament türü sipariş verenin kararı (stok kısıtı yok); üretici teklifi görüp kabul / ret / revizyon ister; revizyon **fiyatsız** ayrıntılarla sınırlı (renkler, parça notları, açıklama) — fiyatı değiştiren değişiklik = iptal + tam iade + yeni sipariş; çok renk = en fazla 4 renk + parça notu, her ek renk için ayardan gelen ücret (üretici payına); taraflar arası serbest metin regex + yapay zeka denetiminden geçer, yakalanırsa **gönderilmez**, gönderene neden söylenir, deneme kayda geçer (API anahtarı sonra; ucuz, OpenAI uyumlu sağlayıcı).
+
+- [x] ✔ 2026-10-03 **Y1 · Renk seçimi sipariş verende** · P1 — katalogdaki tüm aktif renkler; `order_items.colours` [{name, part}] + `colour_extra_minor`; `pricing.extraColourMinor` ayarı; fiyat motoru + eşleştirme tabanı (`orderWorkLines`) ek rengi üretici payına sayar; eşleştirme rengi eleme ölçütü olarak kullanmaz (üretici karar verir). Vitrin ürün sayfasında renk(ler) + parça notu + fiyat dökümü.
+- [x] ✔ 2026-10-03 **Y2 · Teklifte revizyon** · P1 — üretici teklifte "revizyon iste" (gerekçe); teklif `revision` durumunda aynı üreticide bekler (`matching.revisionTtlMinutes`); sipariş veren renkleri/notları düzenler + cevap yazar → teklif yeniden `pending`; teklif başına en fazla 3 revizyon; süre dolarsa sıradaki üretici. Fiyat değişmez.
+- [x] ✔ 2026-10-03 **Y3 · İletişim denetimi** · P1 · ⏸ yapay zeka anahtarı (MODERATION_API_URL/KEY/MODEL) kullanıcıdan — anahtar yokken yalnız kurallar çalışır — `ContentModerator`: regex (`contact_filter`) + yapay zeka (gizlenmiş telefon, firma/marka adı, dış kanal yönlendirmesi); `MODERATION_*` env, anahtar yoksa yalnız regex; yakalanan metin reddedilir (422 + neden), `moderation_events` (şifreli metin) kaydı; admin dikkat listesinde tekrarlayan hesaplar. Sipariş mesajları, revizyon isteği/cevabı, parça notları.
+- [ ] **Y4 · Diğer sipariş yolları** · P2 — sepet/hızlı fiyat, API ve dış mağaza siparişlerinde çoklu renk (bugün tek `color`).
+
 ## Karar defteri (bekleyenler)
 
 | Kod    | Karar                                        | Öneri                                                                                  | Durum                                   |

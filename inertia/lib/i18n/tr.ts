@@ -2438,7 +2438,6 @@ export const tr: Record<string, string> = {
   'Part {part} mm does not fit {build} mm': '{part} mm parça {build} mm tablaya sığmıyor',
   'Part size is not known yet': 'Parça ölçüsü henüz bilinmiyor',
   'No {material} set up': '{material} tanımlı değil',
-  '{material} not in {colour}': '{material} {colour} renkte yok',
   '{material} at {price}/g, above the {reference}/g reference':
     '{material} {price}/g, {reference}/g referansın üstünde',
   'Needs {need} min free in {days} days, best day has {free} min':
@@ -2468,8 +2467,8 @@ export const tr: Record<string, string> = {
   'Pictures': 'Görseller',
   'Render': 'Render',
   'Photo {n}': 'Fotoğraf {n}',
-  'Computer render of the model. The printed part shows fine layer lines, and its colour follows the material you pick.':
-    "Modelin bilgisayar render'ı. Basılan parçada ince katman çizgileri görünür, rengi seçtiğin malzemeye göre olur.",
+  'Computer render of the model. The printed part shows fine layer lines and comes in the colour you pick.':
+    "Modelin bilgisayar render'ı. Basılan parçada ince katman çizgileri görünür ve seçtiğin renkte gelir.",
   'Photo of a real print from a maker on Fabrmatch.':
     "Fabrmatch'teki bir üreticinin gerçek baskısının fotoğrafı.",
   'Shop photos to review': 'İncelenecek vitrin fotoğrafları',
@@ -3577,4 +3576,98 @@ export const tr: Record<string, string> = {
     "API'yi sunucundan çağır, asla bir web sayfasından değil: anahtarı gören herkes onu kullanabilir. Sipariş verebilen bir anahtar bakiyeni harcayabilir; sızarsa hemen iptal et.",
   'Choose one of the listed categories': 'Listedeki kategorilerden birini seç',
   'Sell it': 'Sat',
+  'Pick a paint colour to continue.': 'Devam etmek için bir boya rengi seç.',
+  'Accept the terms to continue.': 'Devam etmek için koşulları kabul et.',
+  'Ready in': 'Hazır olma',
+  '{n} days after a maker accepts, then shipped':
+    'Üretici kabul ettikten sonra {n} gün içinde, ardından kargoda',
+  'Printed by': 'Basan',
+  'A verified maker in your country': 'Ülkendeki doğrulanmış bir üretici',
+  'One less': 'Bir eksik',
+  'One more': 'Bir fazla',
+  'Up to {max} per order.': 'Siparişte en fazla {max} adet.',
+  'Colour: the maker prints it in a colour they have in stock.':
+    'Renk: üretici stoğundaki bir renkte basar.',
+  '+1 day': '+1 gün',
+  '{material}, {colour}': '{material}, {colour}',
+  'any colour': 'herhangi bir renk',
+  'Pick a colour.': 'Bir renk seç.',
+  'Pick 1 colour. The price stays the same.': '1 renk seç. Fiyat değişmez.',
+  'Pick {n} colours. The price stays the same.': '{n} renk seç. Fiyat değişmez.',
+  'Pick a colour, or up to {max} for a multi-colour print.':
+    'Bir renk seç ya da çok renkli baskı için en fazla {max} renk.',
+  'That is the most colours one print can have.': 'Bir baskı en fazla bu kadar renk olabilir.',
+  'Which part gets which colour? The maker reads this.':
+    'Hangi parça hangi renk olsun? Bunu üretici okur.',
+  'e.g. head, base, text': 'ör. kafa, taban, yazı',
+  'The maker has a question': 'Üreticinin bir sorusu var',
+  'Your turn · answer by {when}': 'Sıra sende · {when} tarihine kadar cevapla',
+  'Earlier questions ({n})': 'Önceki sorular ({n})',
+  'You:': 'Sen:',
+  'Model file': 'Model dosyası',
+  'Note for the maker (optional)': 'Üreticiye not (isteğe bağlı)',
+  'Your answer': 'Cevabın',
+  'Print details only. Phone numbers, links and company names are not sent: both sides stay anonymous.':
+    'Yalnız baskı ayrıntıları. Telefon numarası, bağlantı ve firma adı gönderilmez: iki taraf da anonim kalır.',
+  'Send answer': 'Cevabı gönder',
+  'Keep the same number of colours; a different number changes the price.':
+    'Renk sayısı aynı kalmalı; farklı sayı fiyatı değiştirir.',
+  'Need another material, size or number of colours? That changes the price: cancel below for a full refund and order again.':
+    'Başka malzeme, boyut ya da renk sayısı mı gerekiyor? Bu fiyatı değiştirir: aşağıdan iptal et, tam iade al ve yeniden sipariş ver.',
+  'Your price does not change with this answer.': 'Bu cevapla fiyatın değişmez.',
+  'Accounts repeatedly sharing contact details': 'İletişim bilgisi paylaşmayı tekrarlayan hesaplar',
+  '{count} texts refused in 7 days · {reasons} · last {when}':
+    '7 günde {count} metin reddedildi · {reasons} · son {when}',
+  'Open account': 'Hesabı aç',
+  'contact details': 'iletişim bilgisi',
+  'company or brand name': 'firma ya da marka adı',
+  'moving off the platform': 'platform dışına taşıma',
+  'Buyer’s note:': 'Alıcının notu:',
+  'Questions': 'Sorular',
+  'You asked:': 'Sordun:',
+  'Buyer:': 'Alıcı:',
+  'Waiting for the answer…': 'Cevap bekleniyor…',
+  'No answer': 'Cevap yok',
+  'Waiting for the buyer’s answer. The offer stays yours until the time above.':
+    'Alıcının cevabı bekleniyor. Teklif yukarıdaki süreye kadar senin.',
+  'Ask the buyer': 'Alıcıya sor',
+  'What do you need from the buyer before accepting?': 'Kabul etmeden önce alıcıdan ne gerekiyor?',
+  'e.g. I have no clear PETG. May the body be white?':
+    "ör. Şeffaf PETG'm yok. Gövde beyaz olabilir mi?",
+  'The buyer may change colours and notes; the price stays. Phone numbers, links and company names are not sent. {n} questions left on this offer.':
+    'Alıcı renkleri ve notları değiştirebilir; fiyat aynı kalır. Telefon numarası, bağlantı ve firma adı gönderilmez. Bu teklifte {n} soru hakkın kaldı.',
+  'Send question': 'Soruyu gönder',
+  'Pick a colour to continue.': 'Devam etmek için bir renk seç.',
+  'Each extra colour adds {price} per piece.': 'Her ek renk parça başına {price} ekler.',
+  '{n} colours': '{n} renk',
+  'Not sent: it contains contact details (phone, e-mail, link or account). Keep the conversation here.':
+    'Gönderilmedi: iletişim bilgisi içeriyor (telefon, e-posta, bağlantı ya da hesap). Konuşmayı burada sürdür.',
+  'Not sent: it names a company, shop or brand. Both sides stay anonymous on Fabrmatch.':
+    "Gönderilmedi: bir firma, mağaza ya da marka adı geçiyor. Fabrmatch'te iki taraf da anonim kalır.",
+  'Not sent: it asks to continue somewhere else. Keep the conversation here.':
+    'Gönderilmedi: başka bir yerde devam etmeyi öneriyor. Konuşmayı burada sürdür.',
+  'Answer sent. The maker can accept your order now.':
+    'Cevap gönderildi. Üretici artık siparişini kabul edebilir.',
+  'Question sent. The offer waits for the buyer’s answer.':
+    'Soru gönderildi. Teklif alıcının cevabını bekliyor.',
+  'Write what you need from the buyer': 'Alıcıdan ne istediğini yaz',
+  'Write an answer for the maker': 'Üretici için bir cevap yaz',
+  'There is no question to answer on this order': 'Bu siparişte cevaplanacak bir soru yok',
+  'The time to answer has run out; the order went to another maker':
+    'Cevap süresi doldu; sipariş başka bir üreticiye geçti',
+  'That part of the order was not found': 'Siparişin bu parçası bulunamadı',
+  'Changing how many colours changes the price. Cancel for a full refund and order again.':
+    'Renk sayısını değiştirmek fiyatı değiştirir. İptal et, tam iade al ve yeniden sipariş ver.',
+  'Waiting for the buyer’s answer; you can accept once it arrives':
+    'Alıcının cevabı bekleniyor; cevap gelince kabul edebilirsin',
+  'Pick each colour once': 'Her rengi bir kez seç',
+  'Extra colour fee (per piece)': 'Ek renk ücreti (parça başı)',
+  'Added for each colour after the first in a multi-colour print. It goes to the maker (filament changes and purge waste) and applies to new orders only.':
+    'Çok renkli baskıda ilk renkten sonraki her renk için eklenir. Üreticiye gider (filament değişimi ve atık) ve yalnız yeni siparişlere uygulanır.',
+  'Revision answer time (minutes)': 'Revizyon cevap süresi (dakika)',
+  'How long a buyer has to answer when a maker asks for a change. Without an answer the next maker is tried.':
+    'Üretici bir değişiklik istediğinde alıcının cevap süresi. Cevap gelmezse sıradaki üreticiye geçilir.',
+  'A maker asks about your order': 'Üretici siparişin hakkında soruyor',
+  'Buyer answered your question': 'Alıcı sorunu cevapladı',
+  'Pick one': 'Birini seç',
 }

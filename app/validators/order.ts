@@ -127,3 +127,31 @@ export const sampleOrderValidator = vine.create({
   color: vine.string().trim().maxLength(40).optional(),
   shippingAddress: addressRules(),
 })
+
+/** Paket Y: a maker asks the buyer for a change before accepting (text is moderated) */
+export const revisionRequestValidator = vine.create({
+  body: vine.string().trim().minLength(3).maxLength(1000),
+})
+
+/** The buyer's answer: a reply, and price-neutral changes to colours, parts and the note */
+export const revisionAnswerValidator = vine.create({
+  response: vine.string().trim().minLength(1).maxLength(1000),
+  items: vine
+    .array(
+      vine.object({
+        itemId: vine.string().uuid(),
+        colours: vine
+          .array(
+            vine.object({
+              name: vine.string().trim().maxLength(32),
+              part: vine.string().trim().maxLength(40).optional(),
+            })
+          )
+          .maxLength(4)
+          .optional(),
+        buyerNote: vine.string().trim().maxLength(500).optional(),
+      })
+    )
+    .maxLength(50)
+    .optional(),
+})

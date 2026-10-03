@@ -14,6 +14,7 @@ import OrderStateMachine, {
   InvalidOrderTransitionError,
 } from '#services/orders/order_state_machine'
 import OrderItem from '#models/order_item'
+import OfferRevision from '#models/offer_revision'
 import ModelFile from '#models/model_file'
 import SellerProduct from '#models/seller_product'
 import type { PrinterTechnology } from '#models/printer'
@@ -24,6 +25,7 @@ import { paymentProvider } from '#services/payments/provider_registry'
 import { requiredTierForTotal } from '#services/manufacturing/trust_tier_service'
 import { OrderInputError, priceOrder } from '#services/orders/order_pricing'
 import { pageMeta, pageParams } from '#services/pagination'
+import ContentModerator from '#services/messaging/content_moderator'
 
 export interface ShippingAddress {
   fullName: string
@@ -47,6 +49,10 @@ export interface CreateDraftInput {
   printProfileId?: string | null
   finishing?: string | null
   finishingColour?: string | null
+  /** Paket Y: filament colours with the part each is for (first = `color`) */
+  colours?: Array<{ name: string; part?: string | null }>
+  /** what the buyer wants the maker to know; moderated before it is stored */
+  buyerNote?: string | null
   shippingAddress: ShippingAddress
   channel?: OrderChannel
   sellerId?: string | null
@@ -130,6 +136,8 @@ export default class OrderService {
       CreateDraftInput,
       | 'material'
       | 'color'
+      | 'colours'
+      | 'buyerNote'
       | 'quantity'
       | 'shippingAddress'
       | 'currency'
@@ -159,6 +167,11 @@ export default class OrderService {
     if (!(catalog.allowedScales ?? [100]).includes(scale)) {
       throw new OrderInputError('That size is not offered for this product')
     }
+    // the maker reads the part names and the note: no contact details or company names (rule 1)
+    await new ContentModerator().enforce(
+      [input.buyerNote, ...(input.colours ?? []).map((c) => c.part)],
+      { userId: buyer.id, orderId: null, context: 'buyer_note' }
+    )
     const file = await ModelFile.find(catalog.modelFileId)
     return this.persistDraft(buyer, [{ ...input, file }], {
       shippingAddress: input.shippingAddress,
@@ -350,6 +363,9 @@ export default class OrderService {
           scalePercent: i.scalePercent,
           material: i.material,
           color: i.color,
+          colours: i.colours,
+          colourExtraMinor: i.colourExtraMinor,
+          buyerNote: i.buyerNote,
           quantity: i.quantity,
           estGrams: i.estGrams,
           estPrintMinutes: i.estPrintMinutes,
@@ -461,6 +477,10 @@ export default class OrderService {
         .where('orderId', orderId)
         .whereIn('status', OPEN_OFFER_STATUSES)
         .update({ status: 'expired' })
+      await OfferRevision.query({ client: trx })
+        .where('orderId', orderId)
+        .where('status', 'open')
+        .update({ status: 'lapsed' })
 
       const escrow = await this.ledger.balance('buyer_escrow', {
         orderId,

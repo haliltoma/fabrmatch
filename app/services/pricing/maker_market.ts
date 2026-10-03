@@ -158,6 +158,8 @@ export function orderWorkLines(order: {
     estGrams: number
     estPrintMinutes: number
     finishingMinor: number
+    /** Paket Y: extra colours per unit; the maker's work like finishing */
+    colourExtraMinor?: number
     quantity: number
   }>
 }): WorkLine[] {
@@ -168,7 +170,10 @@ export function orderWorkLines(order: {
     // estGrams is per unit, estPrintMinutes already for the whole line
     grams: i.estGrams * i.quantity,
     minutes: i.estPrintMinutes,
-    finishingMinor: (rate ? toBaseMinor(i.finishingMinor, rate) : i.finishingMinor) * i.quantity,
+    finishingMinor:
+      (rate
+        ? toBaseMinor(i.finishingMinor + (i.colourExtraMinor ?? 0), rate)
+        : i.finishingMinor + (i.colourExtraMinor ?? 0)) * i.quantity,
   }))
 }
 

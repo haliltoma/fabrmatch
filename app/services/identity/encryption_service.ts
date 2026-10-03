@@ -14,6 +14,7 @@ export const ENCRYPTED_COLUMNS: Array<{ table: string; column: string }> = [
   { table: 'external_orders', column: 'shipping_address_enc' },
   { table: 'manufacturer_profiles', column: 'iban_enc' },
   { table: 'manufacturer_profiles', column: 'tax_id_enc' },
+  { table: 'moderation_events', column: 'text_enc' },
   { table: 'order_messages', column: 'original_enc' },
   { table: 'orders', column: 'shipping_address_enc' },
   { table: 'payee_tax_profiles', column: 'address_enc' },

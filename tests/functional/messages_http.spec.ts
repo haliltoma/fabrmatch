@@ -10,7 +10,7 @@ const inertia = { 'x-inertia': 'true', 'x-inertia-version': '1', 'accept': 'appl
 test.group('messages over HTTP', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
-  test('buyer writes, maker reads it masked; strangers get 404; admin sees the original', async ({
+  test('buyer writes, maker reads it; contact details are refused; strangers get 404', async ({
     client,
     assert,
   }) => {
@@ -20,13 +20,22 @@ test.group('messages over HTTP', (group) => {
     await new RoleService().assignRole(buyer, 'seller')
     await new RoleService().assignRole(makerUser, 'manufacturer')
 
+    const refused = await client
+      .post(`/orders/${order.id}/messages`)
+      .loginAs(buyer)
+      .withCsrfToken()
+      .header('accept', 'application/json')
+      .json({ body: 'Text me: 0532 111 22 33' })
+    refused.assertStatus(422)
+    assert.match(refused.body().error, /contact details/)
+
     const post = await client
       .post(`/orders/${order.id}/messages`)
       .loginAs(buyer)
       .withCsrfToken()
       .headers(inertia)
       .redirects(0)
-      .json({ body: 'Text me: 0532 111 22 33' })
+      .json({ body: 'Could you print it in matte black?' })
     post.assertStatus(302)
     assert.equal(
       await OrderMessage.query()
@@ -40,7 +49,7 @@ test.group('messages over HTTP', (group) => {
       .loginAs(makerUser)
       .headers(inertia)
     makerPage.assertStatus(200)
-    assert.equal(makerPage.body().props.messages[0].body, 'Text me: [hidden]')
+    assert.equal(makerPage.body().props.messages[0].body, 'Could you print it in matte black?')
     assert.equal(makerPage.body().props.side, 'maker')
 
     const stranger = await createUser('stranger')
@@ -63,6 +72,6 @@ test.group('messages over HTTP', (group) => {
       .loginAs(boss)
       .headers(inertia)
     adminPage.assertStatus(200)
-    assert.equal(adminPage.body().props.messages[0].original, 'Text me: 0532 111 22 33')
+    assert.lengthOf(adminPage.body().props.messages, 1)
   })
 })

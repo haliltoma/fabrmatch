@@ -11,6 +11,20 @@ import { PageHeader } from '~/components/page_header'
 import { EmptyState } from '~/components/empty_state'
 import { useT } from '~/lib/i18n'
 
+type ModerationRepeat = {
+  ref: string
+  email: string
+  fullName: string | null
+  count: number
+  reasons: string[]
+  lastAt: string | null
+  recent: Array<{ context: string; text: string }>
+}
+const REASON_LABELS: Record<string, string> = {
+  contact: 'contact details',
+  company: 'company or brand name',
+  off_platform: 'moving off the platform',
+}
 type Unmatched = {
   id: string
   code: string
@@ -203,7 +217,7 @@ function Section({
   )
 }
 
-const acknowledge = (queue: 'payment_review' | 'reconcile', ref: string) =>
+const acknowledge = (queue: 'payment_review' | 'reconcile' | 'moderation', ref: string) =>
   router.post('/admin/queues/acknowledge', { queue, ref })
 
 export default function AdminQueues({
@@ -217,6 +231,7 @@ export default function AdminQueues({
   chargebacks,
   support,
   shopPhotos,
+  moderation,
 }: {
   unmatched: Unmatched[]
   overdue: Overdue[]
@@ -228,6 +243,7 @@ export default function AdminQueues({
   chargebacks: Chargeback[]
   support: SupportItem[]
   shopPhotos: { id: string; url: string; product: string; createdAt: string | null }[]
+  moderation: ModerationRepeat[]
 }) {
   const { t } = useT()
 
@@ -241,12 +257,14 @@ export default function AdminQueues({
     reports.length +
     chargebacks.length +
     support.length +
-    shopPhotos.length
+    shopPhotos.length +
+    moderation.length
 
   const clear = [
     { title: 'Makers waiting for approval', count: pendingMakers.length },
     { title: 'Orders flagged for fraud review', count: fraud.length },
     { title: 'Support requests', count: support.length },
+    { title: 'Accounts repeatedly sharing contact details', count: moderation.length },
     { title: 'Card chargebacks', count: chargebacks.length },
     { title: 'Shop photos to review', count: shopPhotos.length },
     { title: 'Reported listings', count: reports.length },
@@ -461,6 +479,52 @@ export default function AdminQueues({
                 {t('Reject')}
               </Button>
             </div>
+          </li>
+        ))}
+      </Section>
+
+      <Section
+        id="moderation"
+        title={t('Accounts repeatedly sharing contact details')}
+        count={moderation.length}
+      >
+        {moderation.map((m) => (
+          <li key={m.ref} className="space-y-2 px-5 py-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="font-medium text-ink-900">{m.fullName ?? m.email}</p>
+                <p className="text-xs text-ink-600">
+                  {t('{count} texts refused in 7 days · {reasons} · last {when}', {
+                    count: m.count,
+                    reasons: m.reasons.map((r) => t(REASON_LABELS[r] ?? r)).join(', '),
+                    when: formatDateTime(m.lastAt),
+                  })}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" asChild>
+                  {/* suspend or warn from the user list */}
+                  <a href={`/admin/users?q=${encodeURIComponent(m.email)}`}>{t('Open account')}</a>
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => acknowledge('moderation', m.ref)}
+                >
+                  {t('Mark handled')}
+                </Button>
+              </div>
+            </div>
+            <ul className="space-y-1">
+              {m.recent.map((r, i) => (
+                <li
+                  key={i}
+                  className="rounded-md border border-line bg-paper-sunken px-3 py-1.5 font-mono text-xs text-ink-800"
+                >
+                  {r.text}
+                </li>
+              ))}
+            </ul>
           </li>
         ))}
       </Section>

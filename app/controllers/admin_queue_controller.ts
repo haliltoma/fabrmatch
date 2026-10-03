@@ -10,7 +10,7 @@ import MatchingService from '#services/matching/matching_service'
 import ShopPhotoService from '#services/catalog/shop_photo_service'
 
 const ackValidator = vine.create({
-  queue: vine.enum(['payment_review', 'reconcile']),
+  queue: vine.enum(['payment_review', 'reconcile', 'moderation']),
   ref: vine.string().trim().minLength(1).maxLength(200),
 })
 
@@ -47,6 +47,7 @@ export default class AdminQueueController {
       chargebacks,
       support,
       shopPhotos,
+      moderation,
     ] = await Promise.all([
       queues.unmatchedOrders(),
       queues.overdueJobs(),
@@ -58,6 +59,7 @@ export default class AdminQueueController {
       new ChargebackService().listOpen(),
       new SupportService().listOpen(),
       new ShopPhotoService().pending(),
+      queues.moderationRepeats(),
     ])
     return inertia.render('admin/queues/index', {
       unmatched,
@@ -70,6 +72,7 @@ export default class AdminQueueController {
       chargebacks,
       support,
       shopPhotos,
+      moderation,
     })
   }
 

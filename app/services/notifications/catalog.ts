@@ -24,6 +24,8 @@ export const NOTIFICATION_TYPES = [
   'dispute_responded',
   'dispute_resolved',
   'message_received',
+  'revision_requested',
+  'revision_answered',
   'welcome',
   'payment_reminder',
   'review_request',
@@ -160,6 +162,24 @@ const TEMPLATES: Record<NotificationType, Template> = {
           title: `Your offer on ${c.rfqCode} was chosen`,
           body: 'The buyer will pay now. After that you get the job to accept and start.',
           link: `/maker/rfqs/${c.rfqId}`,
+        }
+      : null,
+
+  revision_requested: (role, c) =>
+    role === 'buyer'
+      ? {
+          title: `The maker has a question about ${c.code}`,
+          body: 'Before accepting, your maker asked for a change or a detail. Answer on the order page; nothing is charged again.',
+          link: orderLink.buyer(c),
+        }
+      : null,
+
+  revision_answered: (role, c) =>
+    role === 'maker'
+      ? {
+          title: 'The buyer answered your question',
+          body: 'An offer you asked about is back on your board. Accept or decline it before it runs out.',
+          link: orderLink.maker(c),
         }
       : null,
 

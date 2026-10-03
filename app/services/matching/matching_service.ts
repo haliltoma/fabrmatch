@@ -5,7 +5,8 @@ import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import { DateTime } from 'luxon'
 import fabrmatchConfig from '#config/fabrmatch'
 import Order from '#models/order'
-import MatchOffer, { OPEN_OFFER_STATUSES } from '#models/match_offer'
+import MatchOffer, { OPEN_OFFER_STATUSES, type MatchOfferStatus } from '#models/match_offer'
+import OfferRevision from '#models/offer_revision'
 import ProductionJob from '#models/production_job'
 import ManufacturerProfile from '#models/manufacturer_profile'
 import AuditLog from '#models/audit_log'
@@ -519,8 +520,13 @@ export default class MatchingService {
     actorId: string | null = null
   ): Promise<MatchOffer | null> {
     const orderId = await db.transaction(async (trx) => {
-      const offer = await this.lockOwnedOffer(offerId, manufacturerProfileId, trx)
+      // a maker waiting on a revision answer may still walk away (Paket Y)
+      const offer = await this.lockOwnedOffer(offerId, manufacturerProfileId, trx, [
+        'pending',
+        'revision',
+      ])
       offer.status = 'declined'
+      await this.lapseRevisions(offer.id, trx)
       offer.respondedAt = DateTime.now()
       await offer.useTransaction(trx).save()
       await this.audit(trx, 'match.offer_declined', offer.orderId, { offerId }, actorId)
@@ -542,6 +548,7 @@ export default class MatchingService {
       }
       offer.status = 'expired'
       await offer.useTransaction(trx).save()
+      await this.lapseRevisions(offer.id, trx)
       await this.audit(trx, 'match.offer_expired', offer.orderId, { offerId })
       return offer.orderId
     })
@@ -646,14 +653,26 @@ export default class MatchingService {
   private async lockOwnedOffer(
     offerId: string,
     manufacturerProfileId: string,
-    trx: TransactionClientContract
+    trx: TransactionClientContract,
+    allowed: MatchOfferStatus[] = ['pending']
   ): Promise<MatchOffer> {
     const offer = await MatchOffer.query({ client: trx }).where('id', offerId).forUpdate().first()
     if (!offer || offer.manufacturerProfileId !== manufacturerProfileId) {
       throw new OfferError('Offer not found')
     }
-    if (offer.status !== 'pending') throw new OfferError('Offer is no longer pending')
+    if (offer.status === 'revision' && !allowed.includes('revision')) {
+      throw new OfferError('Waiting for the buyer’s answer; you can accept once it arrives')
+    }
+    if (!allowed.includes(offer.status)) throw new OfferError('Offer is no longer pending')
     return offer
+  }
+
+  /** A question nobody will answer any more (offer declined, expired or the order cancelled). */
+  private async lapseRevisions(offerId: string, trx: TransactionClientContract) {
+    await OfferRevision.query({ client: trx })
+      .where('matchOfferId', offerId)
+      .where('status', 'open')
+      .update({ status: 'lapsed' })
   }
 
   private async markUnmatched(

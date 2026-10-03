@@ -1,7 +1,9 @@
 import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
 import Notification from '#models/notification'
+import ModerationEvent from '#models/moderation_event'
 import OrderMessage from '#models/order_message'
+import { ModerationError } from '#services/messaging/content_moderator'
 import { maskContactDetails } from '#services/messaging/contact_filter'
 import MessageService, { MessageError } from '#services/messaging/message_service'
 import FakePaymentProvider from '#services/payments/fake_provider'
@@ -52,9 +54,12 @@ test.group('MessageService', (group) => {
     assert,
   }) => {
     const { order, buyer, makerUser, profile } = await inProduction()
-    const sent = await service.send(order.id, buyer.id, 'Call me on 0532 123 45 67 or a@b.com')
-    assert.equal(sent.body, 'Call me on [hidden] or [hidden]')
-    assert.equal(sent.maskedCount, 2)
+    await assert.rejects(
+      () => service.send(order.id, buyer.id, 'Call me on 0532 123 45 67 or a@b.com'),
+      ModerationError
+    )
+    assert.lengthOf(await OrderMessage.query().where('orderId', order.id), 0, 'refused, not masked')
+    await service.send(order.id, buyer.id, 'Could the base be a bit thicker?')
     await service.send(order.id, makerUser.id, 'Sure, will do')
 
     const buyerView = await service.thread(order.id, 'buyer')
@@ -105,18 +110,18 @@ test.group('MessageService', (group) => {
     assert.equal(await service.unreadFor(order.id, 'maker'), 1)
   })
 
-  test('admins see the original; the stored copy is encrypted; recipients are notified anonymously', async ({
+  test('a refused attempt is kept encrypted for admins; recipients are notified anonymously', async ({
     assert,
   }) => {
     const { order, buyer, makerUser } = await inProduction()
-    await service.send(order.id, buyer.id, 'reach me at +905321234567')
+    await assert.rejects(() => service.send(order.id, buyer.id, 'reach me at +905321234567'))
+    const attempt = await ModerationEvent.query().where('userId', buyer.id).firstOrFail()
+    assert.equal(attempt.orderId, order.id)
+    assert.equal(attempt.context, 'order_message')
+    assert.equal(attempt.reason, 'contact')
+    assert.notInclude(attempt.textEnc, '905321234567')
 
-    const adminView = await service.threadForAdmin(order.id)
-    assert.equal(adminView[0].original, 'reach me at +905321234567')
-    assert.equal(adminView[0].shown, 'reach me at [hidden]')
-    const row = await OrderMessage.firstOrFail()
-    assert.notInclude(row.originalEnc ?? '', '905321234567')
-
+    await service.send(order.id, buyer.id, 'Thanks, looking forward to it')
     const note = await Notification.query()
       .where('userId', makerUser.id)
       .where('type', 'message_received')

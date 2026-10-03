@@ -262,6 +262,7 @@ router
       ])
     router.get('/:id', [controllers.Order, 'show'])
     router.post('/:id/cancel', [controllers.Order, 'cancel'])
+    router.post('/:id/revision', [controllers.Order, 'answerRevision'])
     router
       .post('/:id/pay', [controllers.Order, 'pay'])
       .use([middleware.verified(), middleware.idempotent()])
@@ -547,6 +548,7 @@ router
     router.post('/offers/:id/accept', [controllers.MakerWork, 'accept'])
     router.post('/offers/:id/decline', [controllers.MakerWork, 'decline'])
     router.post('/offers/:id/counter', [controllers.MakerWork, 'counter'])
+    router.post('/offers/:id/revision', [controllers.MakerWork, 'revision'])
     router.get('/jobs/:id/packing-slip', [controllers.MakerWork, 'packingSlip'])
     router.post('/jobs/:id/printing', [controllers.MakerWork, 'printing'])
     router.post('/jobs/:id/produced', [controllers.MakerWork, 'produced'])

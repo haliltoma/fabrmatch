@@ -228,7 +228,7 @@ export function ProductGallery({
       <figcaption className="text-sm text-ink-600">
         {view === 'turntable'
           ? t(
-              'Computer render of the model. The printed part shows fine layer lines, and its colour follows the material you pick.'
+              'Computer render of the model. The printed part shows fine layer lines and comes in the colour you pick.'
             )
           : t('Photo of a real print from a maker on Fabrmatch.')}
       </figcaption>

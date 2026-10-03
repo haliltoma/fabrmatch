@@ -21,6 +21,8 @@ const LABELS: Record<string, string> = {
   store_order: 'Orders from your own shop',
   dispute_opened: 'Dispute opened',
   dispute_responded: 'Dispute response',
+  revision_requested: 'A maker asks about your order',
+  revision_answered: 'Buyer answered your question',
   dispute_resolved: 'Dispute resolved',
   message_received: 'New message',
   welcome: 'Welcome message',

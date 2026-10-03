@@ -35,7 +35,6 @@ export type Reason =
   | { code: 'too_small'; build: number[]; part: number[] }
   | { code: 'size_unknown' }
   | { code: 'material_missing'; material: string }
-  | { code: 'colour_missing'; material: string; colour: string }
   | { code: 'price_above_reference'; material: string; price: number; reference: number }
   /** Paket V: the maker's own price for the order on this printer is above the order's budget (TRY) */
   | { code: 'price_above_budget'; price: number; budget: number }
@@ -290,23 +289,17 @@ export default class EligibilityExplainer {
     const same = printer.materials.filter((m) => m.material.toUpperCase() === material)
     if (same.length === 0) return [{ code: 'material_missing', material }]
 
-    const colour = item.color
-    const coloured = colour
-      ? same.filter((m) => m.colors.some((c) => c.toLowerCase() === colour.toLowerCase()))
-      : same
-    if (coloured.length === 0) return [{ code: 'colour_missing', material, colour: colour! }]
-
     const reference = references.get(material) ?? null
     if (
       checkPrice &&
-      !coloured.some((m) => makerPriceFits(m.materialCostPerKgMinor, item.material, reference))
+      !same.some((m) => makerPriceFits(m.materialCostPerKgMinor, item.material, reference))
     ) {
       return [
         {
           code: 'price_above_reference',
           material,
           // both per kilogram, like the maker types it
-          price: Math.min(...coloured.map((m) => m.materialCostPerKgMinor)),
+          price: Math.min(...same.map((m) => m.materialCostPerKgMinor)),
           reference: (reference ?? referencePriceFor(item.material)?.pricePerGramMinor ?? 0) * 1000,
         },
       ]

@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto'
 import redis from '@adonisjs/redis/services/main'
 import User from '#models/user'
 import ModelFile from '#models/model_file'
-import ManufacturerProfile from '#models/manufacturer_profile'
+import ManufacturerProfile, { type ProfileStatus } from '#models/manufacturer_profile'
 import Printer from '#models/printer'
 import type { PrinterTechnology } from '#models/printer'
 import PrinterMaterial from '#models/printer_material'
@@ -48,7 +48,12 @@ export async function createUser(prefix = 'user', options: { verified?: boolean 
 }
 
 export async function createManufacturer(
-  overrides: Partial<{ trustTier: number; country: string; city: string; status: 'active' }> = {}
+  overrides: Partial<{
+    trustTier: number
+    country: string
+    city: string
+    status: ProfileStatus
+  }> = {}
 ) {
   const user = await createUser('maker')
   const profile = await ManufacturerProfile.create({

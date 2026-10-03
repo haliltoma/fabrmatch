@@ -15,6 +15,8 @@ import { LayerStepper } from '~/components/layer_stepper'
 import { OrderCode } from '~/components/order_code'
 import { StatusBadge } from '~/components/status_badge'
 import { OrderNextStep } from '~/components/order_next_step'
+import { RevisionAnswer, type OpenRevision } from '~/components/revision_answer'
+import { colourLabel, type ItemColour } from '~/lib/colours'
 import { useT } from '~/lib/i18n'
 import { useIdempotencyKey } from '~/lib/idempotency'
 
@@ -24,6 +26,8 @@ type OrderItem = {
   technology: string
   material: string
   color: string | null
+  colours?: ItemColour[]
+  buyerNote?: string | null
   finishing: string | null
   finishingColour?: string | null
   quantity: number
@@ -256,6 +260,7 @@ export default function OrdersShow({
   paymentReturn,
   walletBalanceMinor,
   confirmDays,
+  revision,
 }: {
   order: OrderData
   timeline: TimelineEntry[]
@@ -270,6 +275,8 @@ export default function OrdersShow({
   walletBalanceMinor: number | null
   /** Days after delivery to check the part or open a dispute (orders.autoConfirmDays) */
   confirmDays: number
+  /** Paket Y: the maker asked something before accepting; null when nothing waits */
+  revision: OpenRevision | null
 }) {
   const { t } = useT()
 
@@ -361,6 +368,15 @@ export default function OrdersShow({
         <p role="alert" className="rounded-md bg-danger-soft px-4 py-3 text-sm text-danger">
           {t('The payment did not go through and no money was taken. You can try again.')}
         </p>
+      )}
+
+      {revision && (
+        <RevisionAnswer
+          orderId={order.id}
+          items={order.items}
+          revision={revision}
+          canCancel={['paid', 'matching', 'unmatched'].includes(order.status)}
+        />
       )}
 
       <OrderNextStep
@@ -510,7 +526,9 @@ export default function OrdersShow({
               <div>
                 <p className="font-medium text-ink-900">
                   {item.fileName ?? 'Model file'} · {item.material}
-                  {item.color ? ` · ${item.color}` : ''}
+                  {colourLabel(item.colours, item.color, t)
+                    ? ` · ${colourLabel(item.colours, item.color, t)}`
+                    : ''}
                   {item.finishing
                     ? ` · ${t(item.finishing)}${item.finishingColour ? ` (${t(item.finishingColour)})` : ''}`
                     : ''}

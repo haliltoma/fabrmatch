@@ -56,6 +56,7 @@ test.group('admin queues', (group) => {
       chargebacks: 0,
       support: 0,
       shopPhotos: 0,
+      moderation: 0,
     })
   })
 })

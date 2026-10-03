@@ -26,6 +26,12 @@ export default await Env.create(new URL('../', import.meta.url), {
   // signs the fake carrier's webhooks outside tests (no real carrier yet, D3); unset = a random one per process
   FAKE_CARRIER_SECRET: Env.schema.secret.optional(),
 
+  // Paket Y: AI check of texts between buyer and maker, any OpenAI-compatible chat API
+  // (base URL like https://api.openai.com/v1); unset = the contact-detail rules only
+  MODERATION_API_URL: Env.schema.string.optional({ format: 'url', tld: false }),
+  MODERATION_API_KEY: Env.schema.secret.optional(),
+  MODERATION_MODEL: Env.schema.string.optional(),
+
   SLICER_DRIVER: Env.schema.enum.optional(['none', 'orca'] as const),
   SLICER_BIN: Env.schema.string.optional(),
   SLICER_PROFILES_DIR: Env.schema.string.optional(),

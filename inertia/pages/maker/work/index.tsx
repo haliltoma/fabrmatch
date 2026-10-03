@@ -15,11 +15,15 @@ import { Badge } from '~/components/ui/badge'
 import { PageHeader } from '~/components/page_header'
 import { MoneyInput } from '~/components/money_input'
 import { useT } from '~/lib/i18n'
+import { colourLabel, type ItemColour } from '~/lib/colours'
 
 type OfferItem = {
   technology: string
   material: string
   color: string | null
+  /** Paket Y: the buyer's colours, each with the part it is for */
+  colours?: ItemColour[]
+  noteForMaker?: string | null
   finishing: string | null
   finishingColour?: string | null
   quantity: number
@@ -40,6 +44,15 @@ type OfferData = {
   status: string
   expiresAt: string
   slotDate: string | null
+  /** Paket Y: questions to the buyer and their answers, oldest first */
+  revisions: Array<{
+    id: string
+    status: string
+    request: string
+    response: string | null
+  }>
+  canAskRevision: boolean
+  revisionsLeft: number
   order: {
     code: string
     shipCountry: string
@@ -165,7 +178,9 @@ function ItemList({ items }: { items: OfferItem[] }) {
         <li key={i} className="flex flex-wrap items-baseline gap-x-3">
           <span className="font-medium text-ink-900">
             {item.material}
-            {item.color ? ` · ${item.color}` : ''}
+            {colourLabel(item.colours, item.color, t)
+              ? ` · ${colourLabel(item.colours, item.color, t)}`
+              : ''}
             {item.finishing
               ? ` · ${t(item.finishing)}${item.finishingColour ? ` (${t(item.finishingColour)})` : ''}`
               : ''}
@@ -180,6 +195,11 @@ function ItemList({ items }: { items: OfferItem[] }) {
               {t('{v2} mm', { v2: item.bboxMm.map((d) => Math.round(d)).join('×') })}
             </span>
           )}
+          {item.noteForMaker && (
+            <p className="mt-1 w-full rounded-md bg-paper-sunken px-3 py-1.5 text-ink-800">
+              <span className="text-ink-600">{t('Buyer’s note:')}</span> {item.noteForMaker}
+            </p>
+          )}
         </li>
       ))}
     </ul>
@@ -192,14 +212,38 @@ function OfferCard({ offer }: { offer: OfferData }) {
   const [busy, setBusy] = useState(false)
   const [asking, setAsking] = useState(false)
   const [ask, setAsk] = useState<number | null>(null)
+  const [questioning, setQuestioning] = useState(false)
+  const [question, setQuestion] = useState('')
   const pay = offer.payMinor ?? offer.order.manufacturerShareMinor
   const countered = offer.status === 'countered'
+  const waiting = offer.status === 'revision'
   const askOk =
     ask !== null && ask > pay && (offer.maxAskMinor === null || ask <= offer.maxAskMinor)
 
   function respond(action: 'accept' | 'decline') {
     setBusy(true)
     router.post(`/maker/offers/${offer.id}/${action}`, {}, { onFinish: () => setBusy(false) })
+  }
+
+  function sendQuestion(e: React.FormEvent) {
+    e.preventDefault()
+    setBusy(true)
+    router.post(
+      `/maker/offers/${offer.id}/revision`,
+      { body: question.trim() },
+      {
+        preserveScroll: true,
+        // a refused question keeps its text so the maker can fix it
+        preserveState: true,
+        // a refused question comes back as a flash error, not as a failed visit
+        onSuccess: (page) => {
+          if (page.flash?.error) return
+          setQuestioning(false)
+          setQuestion('')
+        },
+        onFinish: () => setBusy(false),
+      }
+    )
   }
 
   function sendCounter(e: React.FormEvent) {
@@ -230,6 +274,22 @@ function OfferCard({ offer }: { offer: OfferData }) {
       </CardHeader>
       <CardContent className="space-y-4">
         <ItemList items={offer.order.items} />
+        {offer.revisions.length > 0 && (
+          <ul className="space-y-2 border-t border-line pt-3 text-sm" aria-label={t('Questions')}>
+            {offer.revisions.map((r) => (
+              <li key={r.id} className="space-y-1">
+                <p className="text-ink-900">
+                  <span className="text-ink-600">{t('You asked:')}</span> {r.request}
+                </p>
+                <p className={r.response ? 'text-ink-900' : 'text-ink-600'}>
+                  <span className="text-ink-600">{t('Buyer:')}</span>{' '}
+                  {r.response ??
+                    (r.status === 'open' ? t('Waiting for the answer…') : t('No answer'))}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs text-ink-600">{t('Your payout')}</p>
@@ -244,6 +304,20 @@ function OfferCard({ offer }: { offer: OfferData }) {
                 amount: formatMoney(offer.counterPayMinor ?? 0, offer.order.currency),
               })}
             </p>
+          ) : waiting ? (
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="max-w-xs text-sm text-ink-700" role="status">
+                {t('Waiting for the buyer’s answer. The offer stays yours until the time above.')}
+              </p>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={busy}
+                onClick={() => respond('decline')}
+              >
+                {t('Decline')}
+              </Button>
+            </div>
           ) : (
             <div className="flex flex-wrap gap-2">
               <Button
@@ -254,6 +328,16 @@ function OfferCard({ offer }: { offer: OfferData }) {
               >
                 {t('Decline')}
               </Button>
+              {offer.canAskRevision && !questioning && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={busy}
+                  onClick={() => setQuestioning(true)}
+                >
+                  {t('Ask the buyer')}
+                </Button>
+              )}
               {offer.maxAskMinor !== null && !asking && (
                 <Button size="sm" variant="outline" disabled={busy} onClick={() => setAsking(true)}>
                   {t('Ask for more')}
@@ -265,6 +349,39 @@ function OfferCard({ offer }: { offer: OfferData }) {
             </div>
           )}
         </div>
+        {questioning && !waiting && !countered && (
+          <form onSubmit={sendQuestion} className="space-y-2 border-t border-line pt-3">
+            <Label htmlFor={`question-${offer.id}`}>
+              {t('What do you need from the buyer before accepting?')}
+            </Label>
+            <textarea
+              id={`question-${offer.id}`}
+              required
+              rows={3}
+              minLength={3}
+              maxLength={1000}
+              value={question}
+              aria-describedby={`question-help-${offer.id}`}
+              placeholder={t('e.g. I have no clear PETG. May the body be white?')}
+              onChange={(e) => setQuestion(e.target.value)}
+              className="w-full rounded-md border border-line bg-paper-raised px-3 py-2 text-sm"
+            />
+            <p id={`question-help-${offer.id}`} className="text-xs text-ink-600">
+              {t(
+                'The buyer may change colours and notes; the price stays. Phone numbers, links and company names are not sent. {n} questions left on this offer.',
+                { n: offer.revisionsLeft }
+              )}
+            </p>
+            <div className="flex gap-2">
+              <Button type="submit" size="sm" disabled={busy || question.trim().length < 3}>
+                {t('Send question')}
+              </Button>
+              <Button type="button" size="sm" variant="ghost" onClick={() => setQuestioning(false)}>
+                {t('Cancel')}
+              </Button>
+            </div>
+          </form>
+        )}
         {asking && !countered && offer.maxAskMinor !== null && (
           <form onSubmit={sendCounter} className="space-y-2 border-t border-line pt-3">
             <Label htmlFor={`ask-${offer.id}`}>{t('What would you take for it?')}</Label>

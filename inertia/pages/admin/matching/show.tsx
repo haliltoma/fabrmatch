@@ -18,6 +18,7 @@ import { Money } from '~/components/money'
 import { OrderCode } from '~/components/order_code'
 import { StatusBadge } from '~/components/status_badge'
 import { useT } from '~/lib/i18n'
+import { colourLabel, type ItemColour } from '~/lib/colours'
 
 type Maker = {
   id: string
@@ -108,11 +109,6 @@ function reasonText(r: Reason, t: ReturnType<typeof useT>['t']): string {
       return t('Part size is not known yet')
     case 'material_missing':
       return t('No {material} set up', { material: String(r.material) })
-    case 'colour_missing':
-      return t('{material} not in {colour}', {
-        material: String(r.material),
-        colour: String(r.colour),
-      })
     case 'price_above_reference':
       return t('{material} at {price}/kg, above the {reference}/kg reference', {
         material: String(r.material),
@@ -242,6 +238,8 @@ type Props = {
       fileName: string
       material: string
       color: string | null
+      colours?: ItemColour[]
+      buyerNote?: string | null
       quantity: number
       technology: string
       estPrintMinutes: number
@@ -481,11 +479,17 @@ export default function AdminMatchingShow({
             <span className="font-medium text-ink-900">{i.fileName}</span>
             <span className="text-ink-700">
               {i.technology} · {i.material}
-              {i.color && ` · ${i.color}`} × {i.quantity} ·{' '}
+              {colourLabel(i.colours, i.color, t) &&
+                ` · ${colourLabel(i.colours, i.color, t)}`} × {i.quantity} ·{' '}
               <span className="tabular">{i.sizeMm.map((d) => d ?? '?').join(' × ')} mm</span> ·{' '}
               {t('~{h} h print', { h: (i.estPrintMinutes / 60).toFixed(1) })}
               {i.finishing && ` · ${i.finishing}`}
             </span>
+            {i.buyerNote && (
+              <p className="w-full text-ink-600">
+                {t('Buyer’s note:')} {i.buyerNote}
+              </p>
+            )}
           </li>
         ))}
       </ul>

@@ -6,7 +6,7 @@ import Order from '#models/order'
 import OrderMessage from '#models/order_message'
 import ProductionJob from '#models/production_job'
 import EncryptionService from '#services/identity/encryption_service'
-import { maskContactDetails } from '#services/messaging/contact_filter'
+import ContentModerator from '#services/messaging/content_moderator'
 import NotificationService from '#services/notifications/notification_service'
 
 export class MessageError extends DomainError {}
@@ -18,11 +18,13 @@ const MAX_LENGTH = 1500
 
 /**
  * Buyer ↔ maker messages on one order. Neither side learns who the other is: messages carry only
- * the words "Buyer"/"Maker", and phone numbers, links, e-mails and payment details are masked
- * before storage. Admins alone can read what was originally typed.
+ * the words "Buyer"/"Maker", and a message with contact details or a company name is refused
+ * (Paket Y; the attempt is kept for admins). Messages masked before that still show masked.
  */
 export default class MessageService {
   private encryption = new EncryptionService()
+
+  constructor(private moderator = new ContentModerator()) {}
 
   /** Which side of the order this user is on, or null. Makers only count while their job is active. */
   async sideOf(orderId: string, userId: string): Promise<Side | null> {
@@ -49,14 +51,14 @@ export default class MessageService {
     if (typed.length === 0) throw new MessageError('Write a message first')
     if (typed.length > MAX_LENGTH) throw new MessageError(`Keep it under ${MAX_LENGTH} characters`)
 
-    const filtered = maskContactDetails(typed)
+    await this.moderator.enforce([typed], { userId: senderId, orderId, context: 'order_message' })
     const message = await OrderMessage.create({
       orderId,
       senderId,
       senderRole: side,
-      body: filtered.text,
-      originalEnc: filtered.maskedCount > 0 ? this.encryption.encrypt(typed) : null,
-      maskedCount: filtered.maskedCount,
+      body: typed,
+      originalEnc: null,
+      maskedCount: 0,
     })
     await this.notifyOther(order, side, message)
     return message

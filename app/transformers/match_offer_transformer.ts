@@ -3,6 +3,7 @@ import type MatchOffer from '#models/match_offer'
 import OrderTransformer from '#transformers/order_transformer'
 import { convertMinor } from '#services/pricing/fx'
 import fabrmatchConfig from '#config/fabrmatch'
+import { MAX_REVISIONS } from '#models/offer_revision'
 
 export default class MatchOfferTransformer extends BaseTransformer<MatchOffer> {
   toObject() {
@@ -33,6 +34,17 @@ export default class MatchOfferTransformer extends BaseTransformer<MatchOffer> {
       payMinor,
       counterPayMinor: inOrderCurrency(offer.counterPayMinor),
       maxAskMinor: canCounter ? inOrderCurrency(order.makerBudgetMinor) : null,
+      // Paket Y: questions to the buyer (moderated texts only, no names on either side)
+      revisions: (offer.revisions ?? []).map((r) => ({
+        id: r.id,
+        status: r.status,
+        request: r.requestBody,
+        response: r.responseBody,
+        askedAt: r.createdAt.toISO()!,
+        answeredAt: r.answeredAt?.toISO() ?? null,
+      })),
+      revisionsLeft: Math.max(0, MAX_REVISIONS - (offer.revisions ?? []).length),
+      canAskRevision: offer.status === 'pending' && (offer.revisions ?? []).length < MAX_REVISIONS,
       order: OrderTransformer.transform(this.resource.order).useVariant('forOffer'),
     }
   }

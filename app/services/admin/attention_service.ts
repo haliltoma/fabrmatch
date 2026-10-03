@@ -86,6 +86,12 @@ export default class AttentionService {
         href: '/admin/queues#makers',
       },
       {
+        key: 'moderation',
+        count: queues.moderation,
+        label: 'Accounts repeatedly sharing contact details',
+        href: '/admin/queues#moderation',
+      },
+      {
         key: 'support',
         count: queues.support,
         label: 'Support requests',

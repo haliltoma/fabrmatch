@@ -56,6 +56,7 @@ export async function orderReferences(
   )
 }
 
+/** The colour is the buyer's choice and the maker's call when they see the offer (Paket Y). */
 function supportsItem(
   printer: Printer,
   item: OrderItem,
@@ -70,8 +71,7 @@ function supportsItem(
           m.materialCostPerKgMinor,
           item.material,
           references?.get(item.material.toUpperCase())
-        )) &&
-      (!item.color || m.colors.some((c) => c.toLowerCase() === item.color!.toLowerCase()))
+        ))
   )
 }
 

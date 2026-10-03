@@ -15,6 +15,17 @@ export const shopQueryValidator = vine.create({
 export const shopOrderValidator = vine.create({
   material: vine.string().trim().toUpperCase().maxLength(32),
   color: vine.string().trim().toLowerCase().maxLength(32).optional(),
+  // Paket Y: up to 4 filament colours, each with the part it is for (multi-colour prints)
+  colours: vine
+    .array(
+      vine.object({
+        name: vine.string().trim().maxLength(32),
+        part: vine.string().trim().maxLength(40).optional(),
+      })
+    )
+    .maxLength(4)
+    .optional(),
+  buyerNote: vine.string().trim().maxLength(500).optional(),
   quantity: vine.number().min(1).max(100).withoutDecimals(),
   currency: vine.enum(['TRY', 'USD', 'EUR', 'GBP'] as const).optional(),
   couponCode: vine.string().trim().maxLength(40).optional(),

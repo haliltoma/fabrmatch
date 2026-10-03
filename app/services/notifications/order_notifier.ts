@@ -101,6 +101,27 @@ export default class OrderNotifier {
     })
   }
 
+  /** Paket Y: the maker asked the buyer for a change; the buyer never learns who asked. */
+  revisionRequested(orderId: string, revisionId: string) {
+    return this.safely('revision_requested', async () => {
+      const p = await this.parties(orderId)
+      await this.send(
+        p.buyerId,
+        'buyer',
+        'revision_requested',
+        { code: p.order.code, orderId },
+        revisionId
+      )
+    })
+  }
+
+  revisionAnswered(offer: MatchOffer, revisionId: string) {
+    return this.safely('revision_answered', async () => {
+      const profile = await ManufacturerProfile.findOrFail(offer.manufacturerProfileId)
+      await this.send(profile.userId, 'maker', 'revision_answered', {}, revisionId)
+    })
+  }
+
   unmatched(orderId: string) {
     return this.safely('order_unmatched', async () => {
       const p = await this.parties(orderId)

@@ -50,6 +50,8 @@ test.group('order lifecycle (browser)', (group) => {
     await signIn(page, buyer.email)
     const origin = new URL(page.url()).origin
     await page.goto(`${origin}/shop/${shop.product.id}/cable-clip`)
+    // the buyer picks the colour (Paket Y); nothing is chosen for them
+    await page.getByRole('checkbox', { name: 'Black' }).check({ force: true })
     await page.getByLabel('Full name').fill('Deniz Yılmaz')
     await page.getByLabel('Address').fill('Bahariye Cd. 12')
     await page.getByLabel('City').fill('Istanbul')

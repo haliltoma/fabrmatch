@@ -528,6 +528,12 @@ const routes = {
     tokens: [{"old":"/orders/:id/cancel","type":0,"val":"orders","end":""},{"old":"/orders/:id/cancel","type":1,"val":"id","end":""},{"old":"/orders/:id/cancel","type":0,"val":"cancel","end":""}],
     types: placeholder as Registry['order.cancel']['types'],
   },
+  'order.answer_revision': {
+    methods: ["POST"],
+    pattern: '/orders/:id/revision',
+    tokens: [{"old":"/orders/:id/revision","type":0,"val":"orders","end":""},{"old":"/orders/:id/revision","type":1,"val":"id","end":""},{"old":"/orders/:id/revision","type":0,"val":"revision","end":""}],
+    types: placeholder as Registry['order.answer_revision']['types'],
+  },
   'order.pay': {
     methods: ["POST"],
     pattern: '/orders/:id/pay',
@@ -1097,6 +1103,12 @@ const routes = {
     pattern: '/maker/offers/:id/counter',
     tokens: [{"old":"/maker/offers/:id/counter","type":0,"val":"maker","end":""},{"old":"/maker/offers/:id/counter","type":0,"val":"offers","end":""},{"old":"/maker/offers/:id/counter","type":1,"val":"id","end":""},{"old":"/maker/offers/:id/counter","type":0,"val":"counter","end":""}],
     types: placeholder as Registry['maker_work.counter']['types'],
+  },
+  'maker_work.revision': {
+    methods: ["POST"],
+    pattern: '/maker/offers/:id/revision',
+    tokens: [{"old":"/maker/offers/:id/revision","type":0,"val":"maker","end":""},{"old":"/maker/offers/:id/revision","type":0,"val":"offers","end":""},{"old":"/maker/offers/:id/revision","type":1,"val":"id","end":""},{"old":"/maker/offers/:id/revision","type":0,"val":"revision","end":""}],
+    types: placeholder as Registry['maker_work.revision']['types'],
   },
   'maker_work.packing_slip': {
     methods: ["GET","HEAD"],

@@ -54,12 +54,27 @@ npm run dev > <scratchpad>/dev.log 2>&1        # run_in_background; create <scra
 for i in $(seq 1 60); do curl -s -o /dev/null -w "%{http_code}" http://localhost:3333/ | grep -q 200 && break; sleep 1; done
 ```
 
+Background jobs (matching after payment, offer expiry, e-mails) need the queue worker too:
+
+```bash
+node ace queue:work > <scratchpad>/worker.log 2>&1   # run_in_background
+```
+
+Without it a paid order stays `paid`. A demo order can also stop at the fraud check (buyer and
+seller on the same IP): clear it in `/admin/queues` → "Looks fine", then match in `/admin/matching`.
+
 ## 5. Drive it
 
 ```bash
 npx playwright install chromium   # first time only
 node .claude/skills/run-fabrmatch/smoke.mjs <outDir> [email] [password] [/path-after-login]
 ```
+
+Keep driver scripts out of the repo root (Vite reloads the page when a file appears there):
+put them in the scratchpad and import Playwright by absolute path,
+`import { chromium } from '<repo>/node_modules/playwright/index.mjs'`.
+Login is limited to 10 tries / 15 min per IP; between many runs clear it with
+`docker compose exec -T redis sh -c "redis-cli --scan --pattern 'rlflx:*' | xargs -r redis-cli del"`.
 
 It screenshots `home.png` and `after-login.png` into `<outDir>` and prints the URL after login
 plus any page errors. **Look at the screenshots.** A blank or template-looking page is a failure.

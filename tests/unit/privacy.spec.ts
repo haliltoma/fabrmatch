@@ -35,14 +35,14 @@ test.group('data export and deletion (R1-T5)', (group) => {
     const { order, buyer, profile, makerUser } = await createFundedOrder(provider, {
       upTo: 'in_production',
     })
-    await new MessageService().send(order.id, buyer.id, 'Call me on 0532 111 22 33')
+    await new MessageService().send(order.id, buyer.id, 'Please print it in matte black')
     await privacy.recordConsent(buyer.id, 'marketing_email', 'v1', true)
 
     const data = await privacy.export(buyer)
     assert.equal(data.account.email, buyer.email)
     assert.equal(data.ordersPlaced[0].code, order.code)
     assert.equal(data.ordersPlaced[0].shippingAddress?.fullName, 'Ali Veli')
-    assert.equal(data.messagesWritten[0].text, 'Call me on 0532 111 22 33', 'own words, unmasked')
+    assert.equal(data.messagesWritten[0].text, 'Please print it in matte black', 'own words')
     assert.equal(data.consents[0].kind, 'marketing_email')
 
     const json = JSON.stringify(data)

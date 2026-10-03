@@ -16,7 +16,11 @@ import {
   pageQueryValidator,
   payValidator,
   reviewValidator,
+  revisionAnswerValidator,
 } from '#validators/order'
+import Color from '#models/color'
+import { MAX_COLOURS } from '#services/orders/order_pricing'
+import OfferRevisionService from '#services/matching/offer_revision_service'
 import { allowsTestPayments, paymentProvider } from '#services/payments/provider_registry'
 
 function payStep(order: Order, service: OrderService) {
@@ -52,7 +56,15 @@ export default class OrderController {
 
     const dispute = await new DisputeService().findForOrder(order.id)
     const job = order.productionJobs.find((j) => j.status !== 'cancelled')
+    // Paket Y: a maker asked something before accepting; the buyer answers here
+    const revision = await new OfferRevisionService().openForOrder(order.id)
+    const colours = revision ? await Color.query().where('isActive', true).orderBy('name') : []
     return inertia.render('orders/show', {
+      revision: revision && {
+        ...revision,
+        colours: colours.map((c) => ({ name: c.name, hex: c.hex })),
+        maxColours: MAX_COLOURS,
+      },
       order: await OrderTransformer.transform(order).resolve(app.container.createResolver(), 0),
       timeline: await service.timeline(order.id),
       review: job?.rating ? { rating: job.rating, comment: job.reviewComment } : null,
@@ -76,6 +88,14 @@ export default class OrderController {
           (outcome) => outcome === request.input('payment')
         ) ?? null,
     })
+  }
+
+  /** Paket Y: answer the maker's question; the offer goes back to them. Price never changes here. */
+  async answerRevision({ auth, params, request, response, session }: HttpContext) {
+    const data = await request.validateUsing(revisionAnswerValidator)
+    await new OfferRevisionService().answer(params.id, auth.getUserOrFail().id, data)
+    session.flash('success', 'Answer sent. The maker can accept your order now.')
+    return response.redirect().back()
   }
 
   async cancel({ auth, params, response, session }: HttpContext) {
